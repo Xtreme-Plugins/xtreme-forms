@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!--
+    PHPUnit configuration for XtremeLeads integration tests.
+
+    Run from the plugin root:
+        vendor/bin/phpunit
+
+    Environment prerequisites:
+        WP_TESTS_DIR  — Path to the WordPress test library
+                        (wp-cli scaffold plugin-tests installs it at /tmp/wordpress-tests-lib)
+        WP_DB_NAME    — Test database name (must be a dedicated throw-away database)
+        WP_DB_USER    — DB username
+        WP_DB_PASS    — DB password
+        WP_DB_HOST    — DB host (default: localhost)
+-->
+<phpunit
+    bootstrap="tests/bootstrap.php"
+    backupGlobals="false"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    stopOnFailure="false"
+>
+    <testsuites>
+        <testsuite name="Integration">
+            <directory suffix=".php">./tests/integration/</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!--
+            Override these values via environment variables or a local phpunit.xml.dist
+            so credentials are never committed to version control.
+        -->
+        <env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
+    </php>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./includes/</directory>
+            <directory suffix=".php">./admin/</directory>
+            <directory suffix=".php">./public/</directory>
+        </include>
+        <exclude>
+            <directory>./tests/</directory>
+            <directory>./admin/js/vendor/</directory>
+        </exclude>
+    </coverage>
+</phpunit>

@@ -1,0 +1,1553 @@
+# Copyright (C) 2026 XtremeLeads
+# This file is distributed under the same license as the XtremeLeads plugin.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: XtremeLeads 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com/xtremeleads\n"
+"POT-Creation-Date: 2026-04-06T12:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: XtremeLeads POT Generator\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+msgid "XtremeLeads"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://example.com/xtremeleads"
+msgstr ""
+
+#. Description of the plugin
+msgid "Customizable lead capture forms with database storage and instant email notifications."
+msgstr ""
+
+#. Author of the plugin
+msgid "XtremeLeads"
+msgstr ""
+
+#: xtremeleads.php
+msgid "Please select a form in the block settings panel."
+msgstr ""
+
+#: includes/class-xl-forms.php
+#, php-format
+msgid "The \"%s\" field type requires at least one option."
+msgstr ""
+
+#: includes/class-xl-leads.php
+msgid "New"
+msgstr ""
+
+#: includes/class-xl-leads.php
+msgid "Contacted"
+msgstr ""
+
+#: includes/class-xl-leads.php
+msgid "Qualified"
+msgstr ""
+
+#: includes/class-xl-leads.php
+msgid "Converted"
+msgstr ""
+
+#: includes/class-xl-leads.php
+msgid "Lost"
+msgstr ""
+
+#: includes/class-xl-leads.php
+msgid "Archived"
+msgstr ""
+
+#: includes/class-xl-email.php
+#, php-format
+msgid "[%s] New Lead Received"
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "(not provided)"
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "No field data submitted."
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "Source Page"
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "View Lead in Admin"
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "New Lead"
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "You have received a new lead via your website."
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "View Lead"
+msgstr ""
+
+#: includes/class-xl-email.php
+msgid "This email was sent by XtremeLeads on"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "XtremeLeads: Please specify a valid form ID."
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "XtremeLeads: The requested form could not be found."
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "Submitting\xe2\x80\xa6"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "Submit"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "This field is required."
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "-- Select --"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "Thank you! Your submission has been received."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Invalid form."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Security check failed. Please refresh the page and try again."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Form not found."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Please correct the errors below."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+#, php-format
+msgid "%s is required."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Please enter a valid phone number."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "We were unable to save your submission. Please try again later."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "You do not have permission to view this data."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Invalid lead ID."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Lead not found. It may have been deleted."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "(deleted form)"
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Permission denied."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "No items selected."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "%d lead deleted."
+msgid_plural "%d leads deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-xl-ajax.php
+msgid "%d lead marked as contacted."
+msgid_plural "%d leads marked as contacted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-xl-ajax.php
+msgid "Unknown action."
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "XtremeLeads"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Leads Inbox"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Leads"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Forms"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Settings"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Are you sure you want to delete the selected leads? This cannot be undone."
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "No items selected."
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Loading\xe2\x80\xa6"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Close"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Untitled Form"
+msgstr ""
+
+#: admin/class-xl-admin.php
+#, php-format
+msgid "Field \"%1$s\" (%2$s) must have at least one option."
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Permission denied."
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "No leads yet"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "When visitors submit your forms, their leads will appear here."
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Create Your First Form"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Bulk Actions"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Delete"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Mark as Contacted"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Apply"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "%d lead total"
+msgid_plural "%d leads total"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Select all leads"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "ID"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Name"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Email"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Phone"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Source Form"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Source URL"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Status"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Date"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "View lead #%d"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Select lead #%d"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "(unknown form)"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "N/A"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Previous"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Next"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Lead Details"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Close lead details"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "Loading\xe2\x80\xa6"
+msgstr ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "%d lead deleted."
+msgid_plural "%d leads deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "%d lead marked as contacted."
+msgid_plural "%d leads marked as contacted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/partials/xl-admin-leads-inbox.php
+msgid "No items selected."
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Form saved successfully."
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Form deleted successfully."
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "No forms yet"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Create your first lead capture form to get started."
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Add New Form"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Form Name"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Shortcode"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Click to copy"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Created"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Actions"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Edit"
+msgstr ""
+
+#: admin/partials/xl-admin-forms-list.php
+msgid "Are you sure you want to delete this form? This cannot be undone."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Edit Form: %s"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Add New Form"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Please fix the following errors:"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Form saved successfully."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Back to Forms"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Shortcode:"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Form Settings"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Form Name"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "e.g. Contact Form"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Submit Button Label"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Redirect URL (after submit)"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Leave blank to show a thank-you message instead."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Thank-You Message"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Thank you! Your submission has been received."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Override Email Recipients"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "email@example.com, another@example.com"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Comma-separated. Leave blank to use global recipients."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Add Fields"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Click a field type to add it to your form."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Add %s field"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Form Fields"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Drag to reorder. Click a field to configure it."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "No fields yet. Add a field type from the left panel."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Drag to reorder"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Toggle field settings"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Delete field"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Save Form"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Cancel"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Add Option"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Option text\xe2\x80\xa6"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Remove option"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Field Label"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Placeholder"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Default Value"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Hidden fields are invisible to visitors."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "This field type requires at least one option."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Delete this field?"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Required"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Options"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "XtremeLeads Settings"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Settings saved successfully."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Email Notifications"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Global Recipients"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Comma-separated list of email addresses to notify on every new lead. Individual forms can override this."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "From Name"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "From Email"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Privacy & GDPR"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "IP Anonymization"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Anonymize IP addresses stored with new lead submissions"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "IPv4: last octet zeroed (e.g. 192.168.1.100 \xe2\x86\x92 192.168.1.0). IPv6: last 80 bits zeroed. Existing records are NOT retroactively changed."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Save Settings"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "XtremeLeads Form"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Embed a lead capture form on this page."
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "lead"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "form"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "contact"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "\xe2\x80\x94 Select a Form \xe2\x80\x94"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Form Settings"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Select Form"
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Choose which lead form to display."
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Form ID: "
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Select a form in the block settings panel (\xe2\x9a\x99 sidebar) to embed it here."
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "ID: "
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Preview renders on the front end."
+msgstr ""
+
+#: blocks/xl-form-block.js
+msgid "Form #"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Lead ID"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Form"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Status"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Date"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "IP Address"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Source URL"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "User Agent"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "Submitted Data"
+msgstr ""
+
+#: admin/class-xl-admin.php
+msgid "N/A"
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Invalid form."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Security check failed. Please refresh and try again."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Form not found."
+msgstr ""
+
+#. Sprint 3: Email Templates
+#: admin/partials/xl-admin-email-templates.php
+msgid "Email Templates"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Template Design"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Logo"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Accepted: JPEG, PNG, GIF, WebP. Maximum size: 2 MB. Leave blank to use no logo."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Remove current logo"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Header Background Color"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Default: Electric Blue (#1A73E8)"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Body / Intro Text"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Introduction paragraph shown above the submitted field values. Merge tags supported."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Footer Text"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Footer shown at the bottom of all notification emails."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Send Test Email"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Available Merge Tags"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+#, php-format
+msgid "Use these tags in the subject, body, and footer fields: %s"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Save Template"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Email template settings saved."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Test email sent successfully."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Test email failed to send. Check your WordPress email configuration."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Auto-Responder"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Enable Auto-Responder Email"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Auto-Responder Subject"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Auto-Responder Message"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Body text of the auto-responder email. Merge tags supported."
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Reply-To Address"
+msgstr ""
+
+#: admin/partials/xl-admin-email-templates.php
+msgid "Optional. When the lead replies to the auto-responder email, their reply will be directed here."
+msgstr ""
+
+#. Sprint 3: Email Log
+#: admin/partials/xl-admin-email-log.php
+msgid "Email Log"
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Recipient"
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Subject"
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Trigger"
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Sent At"
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "No email log entries found."
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Resend"
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Email resent successfully."
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "Failed to resend email. Check your WordPress email configuration."
+msgstr ""
+
+#: admin/partials/xl-admin-email-log.php
+msgid "All Trigger Types"
+msgstr ""
+
+#. Sprint 3: Routing Rules
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Email Routing Rules"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Define rules to route new lead notifications to specific email addresses based on which form was submitted or the value of a particular field."
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Evaluation Mode"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Match First"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Match All"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Evaluate all rules; send notifications to every matched recipient."
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Add Rule"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "No routing rules yet. Click \"Add Rule\" to create one."
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Notify Recipient"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Condition Type"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Field ID"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Field Value"
+msgstr ""
+
+#: admin/partials/xl-admin-routing-rules.php
+msgid "Routing rules saved."
+msgstr ""
+
+#. Sprint 4: Dashboard
+#: admin/partials/xl-admin-dashboard.php
+msgid "XtremeLeads Dashboard"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "This Month"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "Since Monday"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "All Time"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "Leads Over Time"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "Leads by Form"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "Conversion Funnel"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "Top Source Pages"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "Top Performing Forms"
+msgstr ""
+
+#: admin/partials/xl-admin-dashboard.php
+msgid "UTM Source Breakdown"
+msgstr ""
+
+#. Sprint 4: Form Metrics
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Form Performance Metrics"
+msgstr ""
+
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Form Comparison"
+msgstr ""
+
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Compare performance across all forms. Click column headers to sort. Default sort: Submissions (highest first)."
+msgstr ""
+
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Views"
+msgstr ""
+
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Submissions"
+msgstr ""
+
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Conversion Rate"
+msgstr ""
+
+#: admin/partials/xl-admin-form-metrics.php
+msgid "Avg. Time-to-Submit"
+msgstr ""
+
+#. Sprint 5: Webhooks
+#: admin/partials/xl-admin-webhooks.php
+msgid "Webhooks"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Configure outbound webhook endpoints that receive lead data when events occur. Each webhook sends a POST request with a JSON payload."
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Add Webhook"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "No webhooks configured yet. Click \"Add Webhook\" to create one."
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Configured Webhooks"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Endpoint URL"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Trigger Events"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Custom Headers"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Delivery Log"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Test Fire"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Enable this webhook"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Save Webhook"
+msgstr ""
+
+#: admin/partials/xl-admin-webhooks.php
+msgid "Webhook saved."
+msgstr ""
+
+#. Sprint 5: Spam Log
+#: admin/partials/xl-admin-spam-log.php
+msgid "Spam Log"
+msgstr ""
+
+#: admin/partials/xl-admin-spam-log.php
+msgid "No spam submissions recorded."
+msgstr ""
+
+#: admin/partials/xl-admin-spam-log.php
+msgid "Rejection Reason"
+msgstr ""
+
+#: admin/partials/xl-admin-spam-log.php
+msgid "All Reasons"
+msgstr ""
+
+#: admin/partials/xl-admin-spam-log.php
+msgid "Clear Entire Spam Log"
+msgstr ""
+
+#. Sprint 6: Audit Log
+#: admin/partials/xl-admin-audit-log.php
+msgid "Audit Log"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "A read-only, append-only record of all significant XtremeLeads actions. Entries cannot be edited or deleted."
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Timestamp (UTC)"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "User"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Action Type"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Record ID"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Context"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "No audit log entries found."
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "— All Types —"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Filter"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Reset"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Previous"
+msgstr ""
+
+#: admin/partials/xl-admin-audit-log.php
+msgid "Next"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Lead Status Changed"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Lead Note Added"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Lead Assignment Changed"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Lead Data Deleted"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Form Created"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Form Updated"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Form Deleted"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Global Settings Updated"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Email Sent"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Plugin Data Exported"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "Plugin Data Imported"
+msgstr ""
+
+#: includes/class-xl-audit-log.php
+msgid "System"
+msgstr ""
+
+#. Sprint 6: Import / Export
+#: admin/partials/xl-admin-import-export.php
+msgid "Import / Export"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Export All Settings & Forms"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Export your plugin settings and form definitions as a JSON file. Lead data is never included."
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Export"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Downloads xtremeleads-export-full-[date].json"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Export Single Form:"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Export Form"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Export failed. Please try again."
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Import"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Import File (.json)"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Select a JSON file exported by XtremeLeads. Maximum file size: 2 MB."
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Import settings and/or forms from a previously exported JSON file. Existing settings will be merged; existing forms will NOT be overwritten (imported forms always receive new IDs)."
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+#, php-format
+msgid "Import failed: %s"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+msgid "Note: The following forms had ID conflicts and were assigned new IDs:"
+msgstr ""
+
+#: admin/partials/xl-admin-import-export.php
+#, php-format
+msgid "\"%1$s\" (original ID %2$d \u2192 new ID %3$d)"
+msgstr ""
+
+#: includes/class-xl-import-export.php
+msgid "Imported Form"
+msgstr ""
+
+#: includes/class-xl-import-export.php
+#, php-format
+msgid "Invalid JSON: %s"
+msgstr ""
+
+#: includes/class-xl-import-export.php
+msgid "Import file must contain a JSON object."
+msgstr ""
+
+#: includes/class-xl-import-export.php
+msgid "Import file is missing \"xl_export_version\". This file was not created by XtremeLeads or is corrupted."
+msgstr ""
+
+#: includes/class-xl-import-export.php
+#, php-format
+msgid "This export file uses format version %1$s which is no longer supported (minimum: %2$s)."
+msgstr ""
+
+#: includes/class-xl-import-export.php
+msgid "Import file has an unrecognized \"type\" field. Expected \"full\" or \"form\"."
+msgstr ""
+
+#: includes/class-xl-import-export.php
+msgid "Import file is missing the \"forms\" array."
+msgstr ""
+
+#: includes/class-xl-import-export.php
+msgid "Failed to encode export data."
+msgstr ""
+
+#. Sprint 6: Multisite Network
+#: includes/class-xl-multisite.php
+msgid "XtremeLeads Network"
+msgstr ""
+
+#: includes/class-xl-multisite.php
+msgid "Network Dashboard"
+msgstr ""
+
+#: includes/class-xl-multisite.php
+msgid "Global Settings"
+msgstr ""
+
+#: includes/class-xl-multisite.php
+msgid "Permission denied."
+msgstr ""
+
+#: includes/class-xl-multisite.php
+#, php-format
+msgid "Settings pushed. %1$d site(s) updated successfully. %2$d site(s) failed."
+msgstr ""
+
+#: includes/class-xl-multisite.php
+msgid "Failed site IDs:"
+msgstr ""
+
+#: includes/class-xl-multisite.php
+msgid "(Deleted Form)"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "XtremeLeads \u2014 Network Dashboard"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Network Total:"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Active Sites"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Total Leads (All Sites)"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Aggregated lead data across all active subsites in this network."
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Leads by Site"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Site ID"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Site Name"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Lead Count"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "No sites found."
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Top Performing Forms (Network)"
+msgstr ""
+
+#: admin/partials/xl-admin-network-dashboard.php
+msgid "Manage Global Settings"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "XtremeLeads \u2014 Network Global Settings"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Configure settings here and click \"Push Settings to All Sites\" to apply them to every subsite in the network. Each subsite retains its own independent lead data."
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Push Settings to All Sites"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Warning: this will overwrite IP anonymization, data retention, and email template settings on ALL subsites in the network."
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Email Template Body"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Leave blank to keep existing per-site templates. Supported merge tags: {{lead_name}}, {{form_name}}, {{site_url}}"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Email Header Color"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Applied to notification email headers on all subsites."
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Anonymize IP addresses (mask last octet) on all subsites"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Data Retention (days)"
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "Auto-delete leads older than N days. Leave blank to disable."
+msgstr ""
+
+#: admin/partials/xl-admin-network-settings.php
+msgid "IP Anonymization"
+msgstr ""
+
+#. Sprint 6: Scheduling UI (form builder)
+#: admin/partials/xl-admin-form-builder.php
+msgid "Form Scheduling"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Activation Date &amp; Time"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Leave blank to make the form available immediately. Uses site timezone."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Expiration Date &amp; Time"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Leave blank for no expiry. Uses site timezone."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Closed / Unavailable Message"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Shown when the form is outside its active scheduling window."
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Show countdown timer before activation"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Displays a live days/hours/minutes/seconds countdown above the closed message until the form activates. Requires an Activation Date."
+msgstr ""
+
+#. Sprint 6: Conditional Logic UI (form builder)
+#: admin/partials/xl-admin-form-builder.php
+msgid "Conditional Logic"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Enable conditional logic for this field"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "ALL conditions are met (AND)"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "ANY condition is met (OR)"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Add Condition"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Show this field only when:"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Show this field when ALL of the following conditions are met:"
+msgstr ""
+
+#: admin/partials/xl-admin-form-builder.php
+msgid "Show this field when ANY of the following conditions are met:"
+msgstr ""
+
+#. Sprint 6: Countdown timer i18n (passed via wp_add_inline_script)
+#: includes/class-xl-shortcode.php
+msgid "Form opens in:"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "d"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "h"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "m"
+msgstr ""
+
+#: includes/class-xl-shortcode.php
+msgid "s"
+msgstr ""
+
+#. Sprint 6: Per-site opt-out (multisite)
+#: admin/partials/xl-admin-settings.php
+msgid "Network: Per-Site Access Control"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Disable XtremeLeads for This Site"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Re-enable XtremeLeads for This Site"
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Status: XtremeLeads is currently DISABLED for this site."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Status: XtremeLeads is currently ENABLED for this site."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "XtremeLeads has been disabled for this site. The XtremeLeads menu will be hidden until re-enabled."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "XtremeLeads has been re-enabled for this site."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "Disable XtremeLeads for this site? The menu will be hidden until re-enabled."
+msgstr ""
+
+#: admin/partials/xl-admin-settings.php
+msgid "When XtremeLeads is network-activated, each site admin can disable the plugin's menu and data collection for their site. This allows individual sites to opt out without affecting the rest of the network."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Authentication required."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "Security check failed. Please refresh the page and try again."
+msgstr ""
+
+#: includes/class-xl-ajax.php
+msgid "You do not have permission to perform this action."
+msgstr ""
+

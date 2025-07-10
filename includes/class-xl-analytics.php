@@ -1,0 +1,528 @@
+<?php
+/**
+ * Analytics queries for dashboard and metrics.
+ *
+ * @package XtremeLeads
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Class XL_Analytics
+ *
+ * Provides all data-aggregation queries used by the dashboard and
+ * form-performance pages. Every query uses $wpdb->prepare() with
+ * no user-supplied string interpolation.
+ */
+class XL_Analytics {
+
+	// ── KPI Tile Counts ───────────────────────────────────────────────────────
+
+	/**
+	 * Get total lead count (all time).
+	 *
+	 * @return int
+	 */
+	public static function count_leads_all_time(): int {
+		global $wpdb;
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Get lead count for the current calendar month in site timezone.
+	 *
+	 * 'This Month' is calculated from midnight on the 1st of the current
+	 * calendar month in the WordPress site-timezone setting.
+	 *
+	 * @return int
+	 */
+	public static function count_leads_this_month(): int {
+		global $wpdb;
+
+		$tz = wp_timezone();
+		$now = new DateTimeImmutable( 'now', $tz );
+		$month_start = $now->modify( 'first day of this month midnight' );
+		// Convert to UTC for comparison against stored UTC datetimes.
+		$month_start_utc = $month_start->setTimezone( new DateTimeZone( 'UTC' ) );
+
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$table} WHERE created_at >= %s",
+				$month_start_utc->format( 'Y-m-d H:i:s' )
+			)
+		);
+	}
+
+	/**
+	 * Get lead count for the current week (Monday–Sunday) in site timezone.
+	 *
+	 * 'This Week' starts on Monday at 00:00:00 in the site timezone.
+	 *
+	 * @return int
+	 */
+	public static function count_leads_this_week(): int {
+		global $wpdb;
+
+		$tz = wp_timezone();
+		$now = new DateTimeImmutable( 'now', $tz );
+		// Get the most recent Monday at midnight.
+		$day_of_week = (int) $now->format( 'N' ); // 1=Mon … 7=Sun.
+		$days_since_monday = $day_of_week - 1;
+		$week_start = $now->modify( "-{$days_since_monday} days midnight" );
+		$week_start_utc = $week_start->setTimezone( new DateTimeZone( 'UTC' ) );
+
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$table} WHERE created_at >= %s",
+				$week_start_utc->format( 'Y-m-d H:i:s' )
+			)
+		);
+	}
+
+	// ── Leads by Form (Bar Chart) ─────────────────────────────────────────────
+
+	/**
+	 * Get lead counts grouped by form, optionally filtered by date range.
+	 *
+	 * Returns ALL active forms (even those with 0 submissions) merged with
+	 * counts from the leads table. Bar height = 0 for forms with no submissions.
+	 *
+	 * @param string $date_from Optional start date (Y-m-d H:i:s UTC).
+	 * @param string $date_to Optional end date (Y-m-d H:i:s UTC).
+	 * @return array Array of {form_id, form_name, count}.
+	 */
+	public static function leads_by_form( string $date_from = '', string $date_to = '' ): array {
+		global $wpdb;
+
+		$leads_table = $wpdb->prefix . 'xtremeleads_leads';
+		$forms_table = $wpdb->prefix . 'xtremeleads_forms';
+
+		$where = '1=1';
+		$params = array();
+
+		if ( $date_from ) {
+			$where .= ' AND l.created_at >= %s';
+			$params[] = $date_from;
+		}
+		if ( $date_to ) {
+			$where .= ' AND l.created_at <= %s';
+			$params[] = $date_to;
+		}
+
+		$sql = "SELECT f.id AS form_id, f.name AS form_name, COUNT(l.id) AS lead_count
+				FROM {$forms_table} f
+				LEFT JOIN {$leads_table} l ON l.form_id = f.id AND {$where}
+				WHERE f.status = 'active'
+				GROUP BY f.id, f.name
+				ORDER BY lead_count DESC, f.name ASC";
+
+		if ( ! empty( $params ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $sql );
+		}
+
+		return array_map(
+			static function ( $row ) {
+				return array(
+					'form_id' => (int) $row->form_id,
+					'form_name' => $row->form_name,
+					'count' => (int) $row->lead_count,
+				);
+			},
+			$rows ?: array()
+		);
+	}
+
+	// ── Leads Over Time (Line Chart) ──────────────────────────────────────────
+
+	/**
+	 * Get lead counts over time, grouped by day or week.
+	 *
+	 * Granularity is:
+	 * - daily when the range is ≤ 30 days
+	 * - weekly when the range is > 30 days
+	 *
+	 * All dates are in site timezone for display; storage is UTC.
+	 *
+	 * @param string $date_from Start date (Y-m-d, site TZ).
+	 * @param string $date_to End date (Y-m-d, site TZ).
+	 * @return array{labels: string[], data: int[], granularity: string}
+	 */
+	public static function leads_over_time( string $date_from, string $date_to ): array {
+		global $wpdb;
+
+		$tz = wp_timezone();
+		$start = new DateTimeImmutable( $date_from . ' 00:00:00', $tz );
+		$end = new DateTimeImmutable( $date_to . ' 23:59:59', $tz );
+		$diff = (int) $start->diff( $end )->days;
+		$granularity = $diff <= 30 ? 'daily' : 'weekly';
+
+		// Convert start/end to UTC for DB queries.
+		$start_utc = $start->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+		$end_utc = $end->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+		$tz_name = $tz->getName();
+
+		if ( 'daily' === $granularity ) {
+			// MySQL CONVERT_TZ to align dates with site timezone.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT DATE(CONVERT_TZ(created_at, '+00:00', %s)) AS period, COUNT(*) AS cnt
+					 FROM {$table}
+					 WHERE created_at >= %s AND created_at <= %s
+					 GROUP BY period
+					 ORDER BY period ASC",
+					$tz_name,
+					$start_utc,
+					$end_utc
+				)
+			);
+
+			// Build a full date sequence so zero-days appear.
+			$labels = array();
+			$data = array();
+			$counts = array();
+			foreach ( $rows ?: array() as $row ) {
+				$counts[ $row->period ] = (int) $row->cnt;
+			}
+
+			$cursor = clone $start;
+			while ( $cursor <= $end ) {
+				$key = $cursor->format( 'Y-m-d' );
+				$labels[] = $cursor->format( 'M j' );
+				$data[] = $counts[ $key ] ?? 0;
+				$cursor = $cursor->modify( '+1 day' );
+			}
+		} else {
+			// Weekly: group by ISO year-week.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT YEARWEEK(CONVERT_TZ(created_at, '+00:00', %s), 1) AS period, COUNT(*) AS cnt
+					 FROM {$table}
+					 WHERE created_at >= %s AND created_at <= %s
+					 GROUP BY period
+					 ORDER BY period ASC",
+					$tz_name,
+					$start_utc,
+					$end_utc
+				)
+			);
+
+			$labels = array();
+			$data = array();
+			$counts = array();
+			foreach ( $rows ?: array() as $row ) {
+				$counts[ $row->period ] = (int) $row->cnt;
+			}
+
+			// Build week sequence.
+			// Move cursor to the Monday of the start week.
+			$cursor_day = (int) $start->format( 'N' );
+			$cursor = $start->modify( '-' . ( $cursor_day - 1 ) . ' days midnight' );
+			while ( $cursor <= $end ) {
+				$yw = $cursor->format( 'oW' ); // ISO year + zero-padded week.
+				$labels[] = 'Wk ' . $cursor->format( 'M j' );
+				$data[] = $counts[ (int) $yw ] ?? 0;
+				$cursor = $cursor->modify( '+7 days' );
+			}
+		}
+
+		return array(
+			'labels' => $labels,
+			'data' => $data,
+			'granularity' => $granularity,
+		);
+	}
+
+	// ── Status Conversion Funnel ──────────────────────────────────────────────
+
+	/**
+	 * Get lead counts per status for the conversion funnel widget.
+	 *
+	 * All six statuses always appear. Percentages sum to 100%
+	 * (rounding applied to the last item to absorb floating-point drift).
+	 *
+	 * @return array Array of {status, label, count, percentage}.
+	 */
+	public static function leads_by_status(): array {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+		$statuses = XL_Leads::get_statuses();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$rows = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
+		);
+
+		$counts_by_status = array();
+		foreach ( $rows ?: array() as $row ) {
+			$counts_by_status[ $row->status ] = (int) $row->cnt;
+		}
+
+		$total = array_sum( $counts_by_status );
+		$result = array();
+
+		$statuses_list = array_keys( $statuses );
+		$last_idx = count( $statuses_list ) - 1;
+		$allocated_pct = 0.0;
+
+		foreach ( $statuses_list as $idx => $slug ) {
+			$count = $counts_by_status[ $slug ] ?? 0;
+
+			if ( $idx === $last_idx ) {
+				// Last item absorbs rounding drift.
+				$pct = round( 100.0 - $allocated_pct, 2 );
+			} elseif ( $total > 0 ) {
+				$pct = round( ( $count / $total ) * 100, 2 );
+				$allocated_pct += $pct;
+			} else {
+				$pct = 0.00;
+			}
+
+			$result[] = array(
+				'status' => $slug,
+				'label' => $statuses[ $slug ],
+				'count' => $count,
+				'percentage' => $pct,
+			);
+		}
+
+		return $result;
+	}
+
+	// ── Top Source Pages ──────────────────────────────────────────────────────
+
+	/**
+	 * Get the top N source pages by lead count.
+	 *
+	 * @param int $limit Max rows to return (default 10).
+	 * @return array Array of {source_url, count}.
+	 */
+	public static function top_source_pages( int $limit = 10 ): array {
+		global $wpdb;
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT source_url, COUNT(*) AS cnt
+				 FROM {$table}
+				 WHERE source_url != ''
+				 GROUP BY source_url
+				 ORDER BY cnt DESC
+				 LIMIT %d",
+				$limit
+			)
+		);
+
+		return array_map(
+			static function ( $row ) {
+				return array(
+					'source_url' => $row->source_url,
+					'count' => (int) $row->cnt,
+				);
+			},
+			$rows ?: array()
+		);
+	}
+
+	// ── Top-Performing Forms ──────────────────────────────────────────────────
+
+	/**
+	 * Get the top N forms by submission count.
+	 *
+	 * @param int $limit Max rows (default 5).
+	 * @return array Array of {form_id, form_name, count}.
+	 */
+	public static function top_forms( int $limit = 5 ): array {
+		$data = self::leads_by_form();
+		return array_slice( $data, 0, $limit );
+	}
+
+	// ── Form Performance Metrics ──────────────────────────────────────────────
+
+	/**
+	 * Get performance metrics for all forms.
+	 *
+	 * Returns for each form:
+	 * - form_id, form_name, views (total impressions), submissions (lead count),
+	 * conversion_rate (%), avg_submit_seconds (null if no data).
+	 *
+	 * @return array
+	 */
+	public static function form_performance_metrics(): array {
+		global $wpdb;
+
+		$forms_table = $wpdb->prefix . 'xtremeleads_forms';
+		$leads_table = $wpdb->prefix . 'xtremeleads_leads';
+		$impressions_table = $wpdb->prefix . 'xtremeleads_form_impressions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			"SELECT
+			 f.id AS form_id,
+			 f.name AS form_name,
+			 COALESCE(i.view_count, 0) AS views,
+			 COALESCE(s.submission_count, 0) AS submissions,
+			 avg_t.avg_seconds
+			FROM {$forms_table} f
+			LEFT JOIN (
+			 SELECT form_id, COUNT(*) AS view_count
+			 FROM {$impressions_table}
+			 GROUP BY form_id
+			) i ON i.form_id = f.id
+			LEFT JOIN (
+			 SELECT form_id, COUNT(*) AS submission_count
+			 FROM {$leads_table}
+			 GROUP BY form_id
+			) s ON s.form_id = f.id
+			LEFT JOIN (
+			 SELECT form_id, AVG(submit_duration_seconds) AS avg_seconds
+			 FROM {$leads_table}
+			 WHERE submit_duration_seconds IS NOT NULL
+			 GROUP BY form_id
+			) avg_t ON avg_t.form_id = f.id
+			WHERE f.status = 'active'
+			ORDER BY submissions DESC, f.name ASC"
+		);
+
+		return array_map(
+			static function ( $row ) {
+				$views = (int) $row->views;
+				$submissions = (int) $row->submissions;
+
+				// Conversion rate calculation (capped at 100.00, '—' when no views).
+				if ( $views === 0 ) {
+					$conversion_rate = null; // Display as '—'.
+					$conversion_rate_warning = false;
+				} else {
+					$raw_rate = ( $submissions / $views ) * 100;
+					$conversion_rate_warning = $raw_rate > 100;
+					$conversion_rate = round( min( $raw_rate, 100.0 ), 2 );
+				}
+
+				// Avg time-to-submit.
+				$avg_seconds = null !== $row->avg_seconds ? round( (float) $row->avg_seconds, 1 ) : null;
+
+				return array(
+					'form_id' => (int) $row->form_id,
+					'form_name' => $row->form_name,
+					'views' => $views,
+					'submissions' => $submissions,
+					'conversion_rate' => $conversion_rate,
+					'conversion_rate_warning' => $conversion_rate_warning ?? false,
+					'avg_seconds' => $avg_seconds,
+				);
+			},
+			$rows ?: array()
+		);
+	}
+
+	// ── UTM Breakdown ─────────────────────────────────────────────────────────
+
+	/**
+	 * Get UTM breakdown for source, medium, and campaign.
+	 *
+	 * Only includes leads where at least one UTM parameter is non-NULL.
+	 * Each grouping is sorted by count desc, capped at 20 with has_more flag.
+	 *
+	 * @return array{source: array, medium: array, campaign: array}
+	 */
+	public static function utm_breakdown(): array {
+		return array(
+			'source' => self::utm_group( 'utm_source' ),
+			'medium' => self::utm_group( 'utm_medium' ),
+			'campaign' => self::utm_group( 'utm_campaign' ),
+		);
+	}
+
+	/**
+	 * Get grouped lead counts for one UTM dimension.
+	 *
+	 * Leads with NULL for this specific dimension are grouped under the other
+	 * UTM dimensions IF they have at least one non-NULL UTM field. Leads with
+	 * a specific dimension value that is also NULL are excluded from display
+	 * (they show under other dimensions but not this one).
+	 *
+	 * Actually we: only include rows where this specific utm column IS NOT NULL,
+	 * and the overall lead has at least one UTM value (enforced by IS NOT NULL on this column).
+	 *
+	 * @param string $utm_column Column name (utm_source|utm_medium|utm_campaign).
+	 * @return array{rows: array, total_attributed: int, has_more: bool}
+	 */
+	private static function utm_group( string $utm_column ): array {
+		global $wpdb;
+
+		// Validate column name to prevent injection — only allow known columns.
+		$allowed = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' );
+		if ( ! in_array( $utm_column, $allowed, true ) ) {
+			return array( 'rows' => array(), 'total_attributed' => 0, 'has_more' => false );
+		}
+
+		$table = $wpdb->prefix . 'xtremeleads_leads';
+
+		// Total UTM-attributed leads (at least one non-NULL UTM field).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$total_attributed = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$table}
+			 WHERE utm_source IS NOT NULL
+			 OR utm_medium IS NOT NULL
+			 OR utm_campaign IS NOT NULL
+			 OR utm_term IS NOT NULL
+			 OR utm_content IS NOT NULL"
+		);
+
+		// Fetch top 21 rows for the specific column (to detect has_more with 21st row).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			"SELECT {$utm_column} AS utm_value, COUNT(*) AS cnt
+			 FROM {$table}
+			 WHERE {$utm_column} IS NOT NULL
+			 GROUP BY {$utm_column}
+			 ORDER BY cnt DESC
+			 LIMIT 21"
+		);
+
+		$has_more = count( $rows ) > 20;
+		$rows = array_slice( $rows ?: array(), 0, 20 );
+
+		$formatted = array_map(
+			static function ( $row ) use ( $total_attributed ) {
+				$pct = $total_attributed > 0
+					? round( ( (int) $row->cnt / $total_attributed ) * 100, 2 )
+					: 0.00;
+				return array(
+					'value' => $row->utm_value,
+					'count' => (int) $row->cnt,
+					'percentage' => $pct,
+				);
+			},
+			$rows
+		);
+
+		return array(
+			'rows' => $formatted,
+			'total_attributed' => $total_attributed,
+			'has_more' => $has_more,
+		);
+	}
+}

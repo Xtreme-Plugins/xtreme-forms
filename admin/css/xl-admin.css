@@ -1,0 +1,1384 @@
+/**
+ * XtremeLeads Admin Styles
+ *
+ * @package XtremeLeads
+ */
+
+/* ── CSS Variables ──────────────────────────────────────────────────────── */
+:root {
+  --xl-primary:       #1A73E8;
+  --xl-primary-dark:  #0D1B2A;
+  --xl-accent:        #FF6B35;
+  --xl-success:       #28A745;
+  --xl-warning:       #FFC107;
+  --xl-danger:        #DC3545;
+  --xl-light:         #F8F9FA;
+  --xl-mid:           #6C757D;
+  --xl-border:        #DEE2E6;
+  --xl-white:         #ffffff;
+  --xl-radius:        8px;
+  --xl-radius-sm:     4px;
+  --xl-radius-md:     6px;
+  --xl-shadow:        0 2px 8px rgba(0,0,0,.08);
+  --xl-font:          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --xl-mono:          "SFMono-Regular", Consolas, monospace;
+  --xl-transition:    all 0.2s ease;
+}
+
+/* ── General Page Layout ────────────────────────────────────────────────── */
+.xl-wrap {
+  max-width: 1200px;
+  font-family: var(--xl-font);
+}
+
+.xl-page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px !important;
+  font-weight: 700;
+  color: var(--xl-primary-dark);
+}
+
+.xl-shortcode-hint {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--xl-mid);
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+.xl-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.xl-badge-count {
+  background: var(--xl-primary);
+  color: var(--xl-white);
+}
+
+/* Status badges */
+.xl-status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.xl-status-new       { background: #dbeafe; color: #1e40af; }
+.xl-status-contacted { background: #fde68a; color: #92400e; }
+.xl-status-qualified { background: #e0e7ff; color: #3730a3; }
+.xl-status-converted { background: #d1fae5; color: #065f46; }
+.xl-status-lost      { background: #fee2e2; color: #991b1b; }
+.xl-status-archived  { background: #f3f4f6; color: #374151; }
+.xl-status-active    { background: #d1fae5; color: #065f46; }
+.xl-status-inactive  { background: #f3f4f6; color: #374151; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.xl-btn-primary {
+  background: var(--xl-primary) !important;
+  border-color: var(--xl-primary) !important;
+  color: var(--xl-white) !important;
+  border-radius: var(--xl-radius-md) !important;
+  font-weight: 600 !important;
+  transition: var(--xl-transition) !important;
+}
+
+.xl-btn-primary:hover {
+  background: #1557bb !important;
+  border-color: #1557bb !important;
+}
+
+.xl-btn-secondary {
+  border-radius: var(--xl-radius-md) !important;
+}
+
+.xl-btn-danger,
+.xl-btn-danger:visited {
+  color: var(--xl-danger) !important;
+  border-color: var(--xl-danger) !important;
+}
+
+.xl-btn-danger:hover {
+  background: var(--xl-danger) !important;
+  color: var(--xl-white) !important;
+}
+
+.xl-btn-save {
+  padding: 8px 24px !important;
+  font-size: 14px !important;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.xl-table {
+  border-radius: var(--xl-radius) !important;
+  border: 1px solid var(--xl-border) !important;
+  overflow: hidden;
+  box-shadow: var(--xl-shadow);
+}
+
+.xl-table thead th {
+  background: var(--xl-primary-dark);
+  color: var(--xl-white);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 12px 16px !important;
+  white-space: nowrap;
+}
+
+.xl-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.xl-table tbody tr:nth-child(odd) {
+  background: #fafbfc;
+}
+
+.xl-table tbody tr:hover {
+  background: #eef4fd;
+}
+
+.xl-table tbody td {
+  padding: 10px 16px !important;
+  font-size: 13px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--xl-border);
+}
+
+/* Column widths */
+.xl-col-cb    { width: 36px; }
+.xl-col-id    { width: 60px; }
+.xl-col-name  { min-width: 120px; }
+.xl-col-email { min-width: 150px; }
+.xl-col-phone { min-width: 110px; }
+.xl-col-form  { min-width: 130px; }
+.xl-col-url   { min-width: 120px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xl-col-status{ width: 110px; }
+.xl-col-date  { width: 140px; white-space: nowrap; }
+
+.xl-url-link {
+  color: var(--xl-primary);
+  text-decoration: none;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xl-url-link:hover { text-decoration: underline; }
+
+.xl-na {
+  color: var(--xl-mid);
+  font-style: italic;
+}
+
+/* ── Table Toolbar ──────────────────────────────────────────────────────── */
+.xl-table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.xl-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xl-select-sm {
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--xl-radius-sm);
+  border: 1px solid var(--xl-border);
+  font-size: 13px;
+}
+
+.xl-table-count {
+  font-size: 13px;
+  color: var(--xl-mid);
+}
+
+/* ── Shortcode code ─────────────────────────────────────────────────────── */
+.xl-shortcode {
+  font-family: var(--xl-mono);
+  font-size: 12px;
+  background: #f0f4ff;
+  color: var(--xl-primary-dark);
+  padding: 2px 8px;
+  border-radius: var(--xl-radius-sm);
+  cursor: pointer;
+  border: 1px solid #c7d8f8;
+  display: inline-block;
+}
+
+.xl-shortcode:hover {
+  background: #dbeafe;
+}
+
+/* ── Empty State ─────────────────────────────────────────────────────────── */
+.xl-empty-state {
+  text-align: center;
+  padding: 64px 32px;
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  box-shadow: var(--xl-shadow);
+}
+
+.xl-empty-icon {
+  font-size: 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+  color: var(--xl-primary);
+  margin-bottom: 16px;
+}
+
+.xl-empty-state h2 {
+  font-size: 20px;
+  color: var(--xl-primary-dark);
+  margin: 0 0 8px;
+}
+
+.xl-empty-state p {
+  color: var(--xl-mid);
+  margin-bottom: 24px;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.xl-pagination {
+  margin-top: 16px;
+  display: flex;
+  gap: 4px;
+}
+
+.xl-pagination .page-numbers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--xl-radius-sm);
+  border: 1px solid var(--xl-border);
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--xl-primary);
+  background: var(--xl-white);
+  transition: var(--xl-transition);
+}
+
+.xl-pagination .page-numbers.current {
+  background: var(--xl-primary);
+  color: var(--xl-white);
+  border-color: var(--xl-primary);
+}
+
+.xl-pagination .page-numbers:hover:not(.current) {
+  background: #eef4fd;
+}
+
+/* ── Flyout / Drawer ─────────────────────────────────────────────────────── */
+.xl-flyout {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+}
+
+.xl-flyout[hidden] {
+  display: none;
+}
+
+.xl-flyout-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 27, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.xl-flyout-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 560px;
+  max-width: 100vw;
+  background: var(--xl-white);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: xl-slide-in 0.25s ease;
+}
+
+@keyframes xl-slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.xl-flyout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--xl-border);
+  background: var(--xl-primary-dark);
+  color: var(--xl-white);
+  flex-shrink: 0;
+}
+
+.xl-flyout-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--xl-white);
+}
+
+.xl-flyout-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.xl-flyout-close:hover { color: var(--xl-white); }
+
+.xl-flyout-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.xl-flyout-loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--xl-mid);
+}
+
+.xl-flyout-error {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: var(--xl-radius-sm);
+}
+
+/* Flyout content */
+.xl-flyout-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.xl-flyout-meta-item {
+  background: var(--xl-light);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  padding: 12px;
+}
+
+.xl-flyout-meta-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--xl-mid);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.xl-flyout-meta-value {
+  font-size: 13px;
+  color: var(--xl-primary-dark);
+  word-break: break-all;
+}
+
+.xl-flyout-fields-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--xl-mid);
+  margin: 0 0 12px;
+}
+
+.xl-flyout-fields-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.xl-flyout-fields-table th,
+.xl-flyout-fields-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--xl-border);
+  vertical-align: top;
+}
+
+.xl-flyout-fields-table th {
+  width: 35%;
+  font-weight: 600;
+  color: var(--xl-primary-dark);
+  background: var(--xl-light);
+}
+
+.xl-flyout-fields-table td {
+  color: #333;
+}
+
+.xl-flyout-fields-table tr:last-child th,
+.xl-flyout-fields-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Form Builder ────────────────────────────────────────────────────────── */
+.xl-form-builder-wrap .xl-page-title {
+  flex-wrap: wrap;
+}
+
+.xl-builder-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .xl-builder-layout { grid-template-columns: 1fr; }
+}
+
+.xl-palette-card,
+.xl-canvas-card {
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  box-shadow: var(--xl-shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.xl-palette-card h3,
+.xl-canvas-card .xl-canvas-header h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--xl-primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.xl-field-type-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.xl-add-field-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--xl-light);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xl-primary-dark);
+  cursor: pointer;
+  transition: var(--xl-transition);
+  text-align: left;
+}
+
+.xl-add-field-btn:hover {
+  background: #eef4fd;
+  border-color: var(--xl-primary);
+  color: var(--xl-primary);
+}
+
+/* Canvas */
+.xl-canvas-header {
+  margin-bottom: 16px;
+}
+
+.xl-fields-canvas {
+  min-height: 200px;
+}
+
+.xl-canvas-empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--xl-mid);
+  border: 2px dashed var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+}
+
+.xl-canvas-empty .dashicons {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+}
+
+/* Field items */
+.xl-field-item {
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  margin-bottom: 8px;
+  transition: box-shadow 0.15s ease;
+}
+
+.xl-field-item:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.xl-field-item.xl-dragging {
+  opacity: 0.5;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.xl-field-item.xl-drag-over {
+  border-color: var(--xl-primary);
+  box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+}
+
+.xl-field-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 8px;
+  background: var(--xl-light);
+  border-radius: var(--xl-radius-sm) var(--xl-radius-sm) 0 0;
+  cursor: default;
+}
+
+.xl-drag-handle {
+  cursor: grab;
+  color: var(--xl-mid);
+  flex-shrink: 0;
+}
+
+.xl-drag-handle:active { cursor: grabbing; }
+
+.xl-field-type-label {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--xl-primary);
+}
+
+.xl-field-header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.xl-field-toggle,
+.xl-field-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--xl-mid);
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.xl-field-toggle:hover { color: var(--xl-primary); }
+.xl-field-delete:hover { color: var(--xl-danger); }
+
+.xl-field-body {
+  padding: 12px;
+}
+
+.xl-field-body.xl-collapsed { display: none; }
+
+.xl-field-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  align-items: flex-end;
+}
+
+.xl-field-col {
+  flex: 1;
+}
+
+.xl-col-required {
+  flex: 0 0 auto;
+  padding-bottom: 6px;
+}
+
+/* Options editor */
+.xl-options-editor {
+  margin-bottom: 10px;
+}
+
+.xl-options-editor-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xl-primary-dark);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.xl-option-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+  align-items: center;
+}
+
+.xl-option-input {
+  flex: 1;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  font-size: 13px;
+}
+
+.xl-btn-remove-option {
+  background: none;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  color: var(--xl-danger);
+  cursor: pointer;
+  padding: 0 8px;
+  height: 32px;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xl-btn-remove-option:hover {
+  background: #fee2e2;
+  border-color: var(--xl-danger);
+}
+
+.xl-btn-add-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--xl-primary);
+  background: none;
+  border: 1px dashed var(--xl-primary);
+  border-radius: var(--xl-radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: var(--xl-transition);
+}
+
+.xl-btn-add-option:hover {
+  background: #eef4fd;
+}
+
+.xl-options-error {
+  color: var(--xl-danger);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.xl-hidden-note {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--xl-radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #92400e;
+  margin-bottom: 10px;
+}
+
+/* Builder actions */
+.xl-builder-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* ── Settings Page ────────────────────────────────────────────────────────── */
+.xl-settings-card {
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  box-shadow: var(--xl-shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.xl-settings-card h2 {
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--xl-primary-dark);
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--xl-border);
+}
+
+/* ── Form elements ─────────────────────────────────────────────────────── */
+.xl-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--xl-primary-dark);
+  margin-bottom: 4px;
+}
+
+.xl-required {
+  color: var(--xl-danger);
+}
+
+.xl-input {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  font-size: 13px;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.xl-input:focus {
+  border-color: var(--xl-primary);
+  outline: 2px solid rgba(26, 115, 232, 0.2);
+}
+
+.xl-input-full {
+  width: 100%;
+}
+
+.xl-textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  font-size: 13px;
+  resize: vertical;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  font-family: var(--xl-font);
+}
+
+.xl-textarea:focus {
+  border-color: var(--xl-primary);
+  outline: 2px solid rgba(26, 115, 232, 0.2);
+}
+
+.xl-field-group {
+  margin-bottom: 16px;
+}
+
+.xl-help-text {
+  font-size: 12px;
+  color: var(--xl-mid);
+  margin: 4px 0 0;
+}
+
+.xl-checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* ── Status Tabs ─────────────────────────────────────────────────────────── */
+.xl-status-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--xl-border);
+  padding-bottom: 0;
+}
+
+.xl-tab {
+  display: inline-block;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--xl-mid);
+  text-decoration: none;
+  border-radius: var(--xl-radius-sm) var(--xl-radius-sm) 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -2px;
+  transition: var(--xl-transition);
+}
+
+.xl-tab:hover {
+  color: var(--xl-primary);
+  background: var(--xl-light);
+  border-color: var(--xl-border);
+}
+
+.xl-tab-active {
+  color: var(--xl-primary);
+  background: var(--xl-white);
+  border-color: var(--xl-border);
+  font-weight: 700;
+}
+
+.xl-tab-my-leads {
+  color: var(--xl-accent);
+}
+
+.xl-tab-my-leads.xl-tab-active {
+  color: var(--xl-accent);
+}
+
+/* ── Filter Bar ──────────────────────────────────────────────────────────── */
+.xl-filter-form {
+  margin-bottom: 16px;
+}
+
+.xl-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  padding: 12px 16px;
+}
+
+.xl-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.xl-filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xl-primary-dark);
+  white-space: nowrap;
+}
+
+.xl-filter-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.xl-tag-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.xl-tag-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  background: var(--xl-light);
+  border: 1px solid var(--xl-border);
+  border-radius: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: var(--xl-transition);
+}
+
+.xl-tag-checkbox-label:hover,
+.xl-tag-checkbox-label input:checked + span {
+  background: #dbeafe;
+  border-color: var(--xl-primary);
+}
+
+.xl-tag-checkbox-label input {
+  cursor: pointer;
+}
+
+/* ── Inline Status Change ────────────────────────────────────────────────── */
+.xl-inline-status-wrap {
+  display: inline-block;
+}
+
+.xl-inline-status-badge {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.xl-inline-status-badge:hover {
+  opacity: 0.8;
+}
+
+.xl-inline-status-select {
+  max-width: 130px;
+  font-size: 12px;
+  height: 28px;
+  border-radius: var(--xl-radius-sm);
+  border: 1px solid var(--xl-border);
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+/* ── Tags (Inbox) ────────────────────────────────────────────────────────── */
+.xl-tag-pills-sm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.xl-tag-pill-sm {
+  display: inline-block;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+/* Column widths updated for Sprint 2 */
+.xl-col-assigned { min-width: 110px; }
+.xl-col-tags     { min-width: 120px; }
+
+/* ── Tags (Detail View) ──────────────────────────────────────────────────── */
+.xl-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  min-height: 30px;
+}
+
+.xl-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px 3px 12px;
+}
+
+.xl-tag-remove {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+  transition: color 0.15s;
+}
+
+.xl-tag-remove:hover {
+  color: var(--xl-danger);
+}
+
+.xl-tag-add-wrap {
+  margin-top: 8px;
+}
+
+.xl-tag-autocomplete-wrap {
+  position: relative;
+}
+
+.xl-tag-suggestions {
+  position: absolute;
+  z-index: 1000;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-top: none;
+  border-radius: 0 0 var(--xl-radius-sm) var(--xl-radius-sm);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.xl-suggestion-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.xl-suggestion-item:hover {
+  background: #eef4fd;
+  color: var(--xl-primary);
+}
+
+.xl-suggestion-empty {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--xl-mid);
+  font-style: italic;
+}
+
+/* ── Lead Detail Page ────────────────────────────────────────────────────── */
+.xl-lead-detail-wrap {
+  max-width: 1100px;
+}
+
+.xl-detail-nav {
+  margin-bottom: 16px;
+}
+
+.xl-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--xl-primary);
+  text-decoration: none;
+}
+
+.xl-back-link:hover {
+  text-decoration: underline;
+}
+
+.xl-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .xl-detail-layout { grid-template-columns: 1fr; }
+}
+
+.xl-detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.xl-detail-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 32px;
+}
+
+.xl-detail-card {
+  background: var(--xl-white);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  box-shadow: var(--xl-shadow);
+  padding: 24px;
+}
+
+.xl-detail-card h2 {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--xl-primary-dark);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--xl-border);
+}
+
+.xl-detail-fields-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.xl-detail-fields-table th,
+.xl-detail-fields-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--xl-border);
+  vertical-align: top;
+}
+
+.xl-detail-fields-table th {
+  width: 35%;
+  font-weight: 600;
+  color: var(--xl-primary-dark);
+  background: var(--xl-light);
+}
+
+.xl-detail-fields-table td {
+  color: #333;
+  word-break: break-word;
+}
+
+.xl-detail-fields-table tr:last-child th,
+.xl-detail-fields-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Notes Section ────────────────────────────────────────────────────────── */
+.xl-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.xl-note-item {
+  background: #f8f9fa;
+  border: 1px solid var(--xl-border);
+  border-left: 3px solid var(--xl-primary);
+  border-radius: var(--xl-radius-sm);
+  padding: 12px 14px;
+}
+
+.xl-note-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.xl-note-meta strong {
+  font-size: 13px;
+  color: var(--xl-primary-dark);
+}
+
+.xl-note-time {
+  font-size: 11px;
+  color: var(--xl-mid);
+}
+
+.xl-note-content {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.xl-add-note-form {
+  border-top: 1px solid var(--xl-border);
+  padding-top: 16px;
+}
+
+/* ── Activity Timeline ────────────────────────────────────────────────────── */
+.xl-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.xl-activity-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--xl-border);
+  position: relative;
+}
+
+.xl-activity-item:last-child {
+  border-bottom: none;
+}
+
+.xl-activity-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--xl-primary);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.xl-activity-status_change .xl-activity-dot { background: var(--xl-primary); }
+.xl-activity-assignment .xl-activity-dot    { background: var(--xl-accent); }
+.xl-activity-note_added .xl-activity-dot    { background: var(--xl-success); }
+.xl-activity-tag_added .xl-activity-dot     { background: #8b5cf6; }
+.xl-activity-tag_removed .xl-activity-dot   { background: var(--xl-mid); }
+.xl-activity-lead_created .xl-activity-dot  { background: var(--xl-success); }
+
+.xl-activity-body {
+  flex: 1;
+}
+
+.xl-activity-label {
+  font-size: 13px;
+  color: var(--xl-primary-dark);
+  line-height: 1.5;
+}
+
+.xl-activity-time {
+  font-size: 11px;
+  color: var(--xl-mid);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Sidebar Controls ────────────────────────────────────────────────────── */
+.xl-select-full {
+  width: 100%;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  font-size: 13px;
+  background: var(--xl-white);
+  cursor: pointer;
+}
+
+.xl-select-full:focus {
+  border-color: var(--xl-primary);
+  outline: 2px solid rgba(26, 115, 232, 0.2);
+}
+
+.xl-btn-full {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+.xl-mt-8 { margin-top: 8px !important; }
+
+/* ── Feedback messages ────────────────────────────────────────────────────── */
+.xl-feedback-msg {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: var(--xl-radius-sm);
+  margin-top: 6px;
+}
+
+.xl-feedback-success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.xl-feedback-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.xl-error-msg {
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: var(--xl-radius-sm);
+  margin-top: 6px;
+}
+
+/* ── Tags management page ─────────────────────────────────────────────────── */
+.xl-tags-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .xl-tags-layout { grid-template-columns: 1fr; }
+}
+
+.xl-empty-state-inline {
+  padding: 24px !important;
+  text-align: center;
+}
+
+/* ── Export button ────────────────────────────────────────────────────────── */
+.xl-export-btn {
+  font-size: 13px !important;
+}
+
+/* ── Assignee label in inbox ─────────────────────────────────────────────── */
+.xl-assignee-label {
+  font-size: 12px;
+  color: var(--xl-primary-dark);
+}
+
+/* ── Client-side pagination (JS-driven metrics table) ─────────────────────── */
+.xl-pagination-js {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.xl-pagination-label {
+  color: var(--xl-mid);
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.xl-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.xl-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 13px;
+  line-height: 30px;
+  cursor: pointer;
+}
+
+.xl-page-btn.xl-page-current {
+  background: var(--xl-primary);
+  border-color: var(--xl-primary);
+  color: #fff;
+  cursor: default;
+}
+
+.xl-page-btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.xl-pagination-ellipsis {
+  padding: 0 4px;
+  color: var(--xl-mid);
+  user-select: none;
+}
+
+/* ── Duplicate behavior settings section ─────────────────────────────────── */
+.xl-settings-card {
+  background: #fff;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+#xl-duplicate-settings-form .xl-settings-card h2 {
+  margin-top: 0;
+}
+
+#xl-dup-block-message-row td textarea {
+  width: 100%;
+  max-width: 500px;
+}

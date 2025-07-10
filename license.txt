@@ -1,0 +1,77 @@
+XtremeLeads – Freemium Plugin License
+
+Effective Date: July 10, 2025
+Plugin Name: XtremeLeads
+Author: Xtreme Plugins Inc
+
+1. License Grant (GPL-Based)
+
+XtremeLeads is licensed under the GNU General Public License v2.0 or later (GPL v2+).
+
+You are free to:
+
+Use the free version for personal and commercial projects
+Modify the free version's code
+Distribute the free version
+
+2. Free vs Pro
+
+XtremeLeads is available in two tiers:
+
+Free — core lead capture, form builder, email notifications, basic analytics, GDPR tools, and spam protection. No license key required.
+Pro (optional upgrade) — advanced features including priority routing rules, webhook retries, advanced analytics dashboards, white-label mode, and priority support. Requires a valid license key from https://xtremeplugins.com.
+
+Pro features remain GPL-licensed code. A valid Pro license grants access to the Pro add-on package and entitles the holder to updates and support for the license term.
+
+3. No Warranty
+
+This plugin is provided "as is", without warranty of any kind.
+
+We do not guarantee that:
+
+The plugin will be error-free
+The plugin will work with all themes or plugins
+The plugin will meet your specific needs
+
+4. Limitation of Liability
+
+Under no circumstances shall the author be held liable for:
+
+Website damage or downtime
+Data loss
+Conflicts with other plugins/themes
+Any direct or indirect damages
+
+5. Support
+
+Free tier support may be provided via:
+WordPress.org support forum
+Email: contact@xtremeplugins.com
+
+Pro license holders receive priority email support.
+
+6. Updates
+
+Free tier updates may be released at any time but are not guaranteed.
+Pro license holders receive updates for the duration of their license term.
+
+7. Third-Party Libraries
+
+XtremeLeads may include third-party libraries or assets, which remain under their respective licenses.
+
+8. Usage Restrictions
+
+You may NOT:
+
+Claim the plugin as your own original work
+Misrepresent the source of the plugin
+Remove attribution if required by included components
+Distribute Pro license keys or Pro add-on packages without authorization
+
+9. Termination
+
+This license automatically terminates if you violate its terms.
+
+10. Acceptance of Terms
+
+By installing or using XtremeLeads, you agree to the terms of this license.
