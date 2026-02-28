@@ -31,7 +31,7 @@ require_once XTREMELEADS_PLUGIN_DIR . 'includes/class-xl-activator.php';
 register_activation_hook( __FILE__, array( 'XL_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'XL_Activator', 'deactivate' ) );
 
-// provision tables for newly created blogs.
+// Multisite: provision tables for newly created blogs.
 add_action( 'wp_initialize_site', array( 'XL_Activator', 'on_new_blog' ), 10, 1 );
 
 // Run DB upgrade checks on every request (uses dbDelta idempotency).
