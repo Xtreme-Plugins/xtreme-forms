@@ -124,7 +124,7 @@ if ( ! empty( $_GET['recaptcha_warning'] ) ) {
 	</form>
 
 	<!-- reCAPTCHA, Spam Blocklists, Retention, Right to Erasure -->
-	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xl-sprint5-settings-form">
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xl-security-settings-form">
 		<input type="hidden" name="action" value="xl_save_settings_s5">
 		<?php wp_nonce_field( 'xl_save_settings' ); ?>
 
@@ -278,7 +278,7 @@ if ( ! empty( $_GET['recaptcha_warning'] ) ) {
 	</div>
 
 	<?php
-	// Duplicate behavior settings — saved via separate action to keep sprint 4 fields isolated.
+	// Duplicate behavior settings — saved via separate action to keep these fields isolated.
 	$dup_behavior = $settings['duplicate_behavior'] ?? 'silent_flag';
 	$dup_block_message = $settings['duplicate_block_message'] ?? '';
 	$behavior_options = array(

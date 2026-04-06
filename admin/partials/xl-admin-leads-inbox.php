@@ -130,9 +130,11 @@ endif;
 $notice_html = '';
 if ( ! empty( $_GET['bulk_deleted'] ) ) {
 	$count = absint( $_GET['bulk_deleted'] );
+	/* translators: %d: number of deleted leads */
 	$notice_html = '<div class="notice notice-success is-dismissible"><p>' . sprintf( _n( '%d lead deleted.', '%d leads deleted.', $count, 'xtremeleads' ), $count ) . '</p></div>';
 } elseif ( ! empty( $_GET['bulk_contacted'] ) ) {
 	$count = absint( $_GET['bulk_contacted'] );
+	/* translators: %d: number of leads marked as contacted */
 	$notice_html = '<div class="notice notice-success is-dismissible"><p>' . sprintf( _n( '%d lead marked as contacted.', '%d leads marked as contacted.', $count, 'xtremeleads' ), $count ) . '</p></div>';
 } elseif ( isset( $_GET['bulk_error'] ) && 'no_selection' === $_GET['bulk_error'] ) {
 	$notice_html = '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'No items selected.', 'xtremeleads' ) . '</p></div>';

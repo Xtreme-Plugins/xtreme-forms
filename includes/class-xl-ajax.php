@@ -10,6 +10,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class XL_Ajax
  */
+// All admin-only AJAX handlers in this class call $this->require_admin_auth() as their
+// first operation, which performs authentication, wp_verify_nonce() verification, and
+// capability checks before any $_POST/$_GET data is read. PHPCS cannot trace nonce
+// verification through custom method calls, so the NonceVerification sniff is suppressed
+// class-wide. The public form submission handler uses its own inline nonce check.
+// phpcs:disable WordPress.Security.NonceVerification
 class XL_Ajax {
 
 	public function __construct() {
@@ -156,7 +162,7 @@ class XL_Ajax {
 	 * @param string $nonce_action Nonce action name specific to the endpoint being called.
 	 * @return void Sends JSON error with HTTP 401/403 and exits on any security failure.
 	 */
-	private function check_sprint5_ajax( string $nonce_action ): void {
+	private function check_ajax_auth( string $nonce_action ): void {
 		$this->require_admin_auth( $nonce_action );
 	}
 
@@ -216,7 +222,7 @@ class XL_Ajax {
 		$ip_early = $this->get_visitor_ip();
 		$ip_early = XL_Leads::maybe_anonymize_ip( $ip_early );
 		$ua_early = isset( $_SERVER['HTTP_USER_AGENT'] )
-			? substr( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 500 )
+			? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 500 )
 			: '';
 		$email_early = isset( $_POST['xl_field']['email'] )
 			? sanitize_email( wp_unslash( $_POST['xl_field']['email'] ) )
@@ -441,7 +447,7 @@ class XL_Ajax {
 		$ip = XL_Leads::maybe_anonymize_ip( $ip );
 
 		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )
-			? substr( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 500 )
+			? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 500 )
 			: '';
 
 		// ── UTM parameter capture ──────────────────────────────────
@@ -596,6 +602,7 @@ class XL_Ajax {
 			if ( $lock_acquired && $submitted_email ) {
 				XL_Duplicates::release_lock( $submitted_email );
 			}
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'XtremeLeads: Failed to insert lead for form #' . $form_id );
 			wp_send_json_error(
 				array( 'message' => __( 'We were unable to save your submission. Please try again later.', 'xtremeleads' ) ),
@@ -946,7 +953,7 @@ class XL_Ajax {
 		}
 
 		$content = isset( $_POST['note_content'] )
-			? wp_unslash( $_POST['note_content'] )
+			? sanitize_textarea_field( wp_unslash( $_POST['note_content'] ) )
 			: '';
 
 		// Validate: no empty or whitespace-only notes.
@@ -1468,7 +1475,7 @@ class XL_Ajax {
 		$table = $wpdb->prefix . 'xtremeleads_form_impressions';
 
 		// Session hash: non-personally-identifying, used for deduplication diagnostics only.
-		$session_hash = md5( $this->get_visitor_ip() . ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) . wp_date( 'Ymd' ) );
+		$session_hash = md5( $this->get_visitor_ip() . sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) . wp_date( 'Ymd' ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->insert(
@@ -1684,7 +1691,8 @@ class XL_Ajax {
 		$leads_table = $wpdb->prefix . 'xtremeleads_leads';
 
 		// Case-insensitive lookup via LOWER() comparison — same strategy used in XL_Leads duplicate detection.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// Table name is built exclusively from $wpdb->prefix + a hardcoded string, making interpolation safe.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$original = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT id FROM {$leads_table}
@@ -1720,7 +1728,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_save(): void {
-		$this->check_sprint5_ajax( 'xl_webhook_nonce' );
+		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$raw = isset( $_POST['webhook'] ) ? wp_unslash( $_POST['webhook'] ) : array();
@@ -1742,7 +1750,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_delete(): void {
-		$this->check_sprint5_ajax( 'xl_webhook_nonce' );
+		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		if ( ! $webhook_id ) {
@@ -1762,7 +1770,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_test(): void {
-		$this->check_sprint5_ajax( 'xl_webhook_nonce' );
+		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		if ( ! $webhook_id ) {
@@ -1778,7 +1786,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_log(): void {
-		$this->check_sprint5_ajax( 'xl_webhook_nonce' );
+		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		$page = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
@@ -1797,7 +1805,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_get(): void {
-		$this->check_sprint5_ajax( 'xl_webhook_nonce' );
+		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		$webhook = $webhook_id ? XL_Webhooks::get( $webhook_id ) : null;
@@ -1818,7 +1826,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_gdpr_erase(): void {
-		$this->check_sprint5_ajax( 'xl_gdpr_nonce' );
+		$this->check_ajax_auth( 'xl_gdpr_nonce' );
 
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		if ( ! is_email( $email ) ) {
@@ -1845,11 +1853,11 @@ class XL_Ajax {
 			);
 		}
 
-		/* translators: %d: number of deleted lead records */
 		wp_send_json_success(
 			array(
 				'deleted_leads' => (int) $result['deleted_leads'],
 				'message' => sprintf(
+					/* translators: %d: number of deleted lead records */
 					_n(
 						'%d lead record permanently deleted.',
 						'%d lead records permanently deleted.',
@@ -1869,7 +1877,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_spam_log_get(): void {
-		$this->check_sprint5_ajax( 'xl_spam_log_nonce' );
+		$this->check_ajax_auth( 'xl_spam_log_nonce' );
 
 		$args = array(
 			'page' => isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1,
@@ -1886,7 +1894,7 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_spam_log_delete(): void {
-		$this->check_sprint5_ajax( 'xl_spam_log_nonce' );
+		$this->check_ajax_auth( 'xl_spam_log_nonce' );
 
 		$entry_id = isset( $_POST['entry_id'] ) ? absint( $_POST['entry_id'] ) : 0;
 		if ( ! $entry_id ) {
@@ -1906,9 +1914,10 @@ class XL_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_spam_log_clear(): void {
-		$this->check_sprint5_ajax( 'xl_spam_log_nonce' );
+		$this->check_ajax_auth( 'xl_spam_log_nonce' );
 
 		XL_Spam::clear_log();
 		wp_send_json_success( array( 'cleared' => true, 'message' => __( 'Spam log cleared.', 'xtremeleads' ) ) );
 	}
 }
+// phpcs:enable WordPress.Security.NonceVerification
