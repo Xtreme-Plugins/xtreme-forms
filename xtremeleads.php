@@ -3,7 +3,7 @@
  * Plugin Name: XtremeLeads
  * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-leads/
  * Description: Powerful lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR compliance, and multisite support. Free forever with optional Pro upgrade.
- * Version:     1.6.0
+ * Version:     1.6.3
  * Author:      XtremePlugins
  * Author URI:  https://xtremeplugins.com
  * License:     GPL-2.0-or-later
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMELEADS_VERSION', '1.6.0' );
+define( 'XTREMELEADS_VERSION', '1.6.3' );
 define( 'XTREMELEADS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMELEADS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMELEADS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -41,13 +41,6 @@ add_action( 'plugins_loaded', array( 'XL_Activator', 'maybe_upgrade' ), 5 );
  * Bootstrap all plugin components after WordPress has loaded.
  */
 function xtremeleads_init(): void {
-	// Load translations.
-	load_plugin_textdomain(
-		'xtremeleads',
-		false,
-		dirname( plugin_basename( __FILE__ ) ) . '/languages'
-	);
-
 	// Core classes.
 	require_once XTREMELEADS_PLUGIN_DIR . 'includes/class-xl-forms.php';
 	require_once XTREMELEADS_PLUGIN_DIR . 'includes/class-xl-leads.php';

@@ -58,9 +58,11 @@ class XL_Email_Log {
 			'sent_at' => current_time( 'mysql' ),
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert( $table, $insert );
 
 		if ( false === $result ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'XtremeLeads Email Log: failed to insert log entry. DB Error: ' . $wpdb->last_error );
 			return false;
 		}
@@ -104,13 +106,16 @@ class XL_Email_Log {
 		// Count.
 		$count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}";
 		$total = empty( $params )
-			? (int) $wpdb->get_var( $count_sql ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			: (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
+			? (int) $wpdb->get_var( $count_sql )
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
+			: (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
 
 		// Rows.
 		$rows_sql = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY sent_at DESC LIMIT %d OFFSET %d";
 		$row_params = array_merge( $params, array( $per_page, $offset ) );
-		$logs = $wpdb->get_results( $wpdb->prepare( $rows_sql, ...$row_params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
+		$logs = $wpdb->get_results( $wpdb->prepare( $rows_sql, ...$row_params ) );
 
 		return array(
 			'logs' => $logs ?: array(),

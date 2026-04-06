@@ -319,10 +319,11 @@ class XL_Ajax {
 		}
 
 		// Retrieve raw submitted values.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$raw_fields = isset( $_POST['xl_field'] ) && is_array( $_POST['xl_field'] )
 			? wp_unslash( $_POST['xl_field'] )
 			: array();
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		// Source URL.
 		$source_url = isset( $_SERVER['HTTP_REFERER'] )
@@ -1692,7 +1693,7 @@ class XL_Ajax {
 
 		// Case-insensitive lookup via LOWER() comparison — same strategy used in XL_Leads duplicate detection.
 		// Table name is built exclusively from $wpdb->prefix + a hardcoded string, making interpolation safe.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$original = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT id FROM {$leads_table}

@@ -26,8 +26,8 @@ class XL_Analytics {
 	public static function count_leads_all_time(): int {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeleads_leads';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 	}
 
 	/**
@@ -48,10 +48,9 @@ class XL_Analytics {
 		$month_start_utc = $month_start->setTimezone( new DateTimeZone( 'UTC' ) );
 
 		$table = $wpdb->prefix . 'xtremeleads_leads';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$table} WHERE created_at >= %s",
 				$month_start_utc->format( 'Y-m-d H:i:s' )
 			)
@@ -77,10 +76,9 @@ class XL_Analytics {
 		$week_start_utc = $week_start->setTimezone( new DateTimeZone( 'UTC' ) );
 
 		$table = $wpdb->prefix . 'xtremeleads_leads';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$table} WHERE created_at >= %s",
 				$week_start_utc->format( 'Y-m-d H:i:s' )
 			)
@@ -125,10 +123,10 @@ class XL_Analytics {
 				ORDER BY lead_count DESC, f.name ASC";
 
 		if ( ! empty( $params ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
 			$rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
 		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
 			$rows = $wpdb->get_results( $sql );
 		}
 
@@ -177,10 +175,9 @@ class XL_Analytics {
 
 		if ( 'daily' === $granularity ) {
 			// MySQL CONVERT_TZ to align dates with site timezone.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					"SELECT DATE(CONVERT_TZ(created_at, '+00:00', %s)) AS period, COUNT(*) AS cnt
 					 FROM {$table}
 					 WHERE created_at >= %s AND created_at <= %s
@@ -209,10 +206,9 @@ class XL_Analytics {
 			}
 		} else {
 			// Weekly: group by ISO year-week.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					"SELECT YEARWEEK(CONVERT_TZ(created_at, '+00:00', %s), 1) AS period, COUNT(*) AS cnt
 					 FROM {$table}
 					 WHERE created_at >= %s AND created_at <= %s
@@ -266,9 +262,8 @@ class XL_Analytics {
 		$table = $wpdb->prefix . 'xtremeleads_leads';
 		$statuses = XL_Leads::get_statuses();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			"SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
 		);
 
@@ -320,10 +315,9 @@ class XL_Analytics {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeleads_leads';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT source_url, COUNT(*) AS cnt
 				 FROM {$table}
 				 WHERE source_url != ''
@@ -376,7 +370,7 @@ class XL_Analytics {
 		$leads_table = $wpdb->prefix . 'xtremeleads_leads';
 		$impressions_table = $wpdb->prefix . 'xtremeleads_form_impressions';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results(
 			"SELECT
 			 f.id AS form_id,
@@ -481,7 +475,7 @@ class XL_Analytics {
 		$table = $wpdb->prefix . 'xtremeleads_leads';
 
 		// Total UTM-attributed leads (at least one non-NULL UTM field).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$total_attributed = (int) $wpdb->get_var(
 			"SELECT COUNT(*) FROM {$table}
 			 WHERE utm_source IS NOT NULL
@@ -492,7 +486,7 @@ class XL_Analytics {
 		);
 
 		// Fetch top 21 rows for the specific column (to detect has_more with 21st row).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results(
 			"SELECT {$utm_column} AS utm_value, COUNT(*) AS cnt
 			 FROM {$table}

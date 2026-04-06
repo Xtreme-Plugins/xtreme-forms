@@ -302,9 +302,8 @@ class XL_Multisite {
 			$leads_table = $wpdb->prefix . 'xtremeleads_leads';
 			$forms_table = $wpdb->prefix . 'xtremeleads_forms';
 
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$site_count = (int) $wpdb->get_var(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$leads_table}"
 			);
 
@@ -319,9 +318,8 @@ class XL_Multisite {
 			$total_leads += $site_count;
 
 			// Top forms for this site (top 5).
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$site_forms = $wpdb->get_results(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT f.name AS form_name, COUNT(l.id) AS lead_count
 				FROM {$leads_table} l
 				LEFT JOIN {$forms_table} f ON f.id = l.form_id

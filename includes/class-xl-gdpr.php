@@ -49,10 +49,9 @@ class XL_GDPR {
 
 		// Find all lead IDs for this email.
 		$leads_table = $wpdb->prefix . 'xtremeleads_leads';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$lead_ids = $wpdb->get_col(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT id FROM {$leads_table} WHERE email_address = %s",
 				strtolower( $email )
 			)
@@ -94,13 +93,13 @@ class XL_GDPR {
 		);
 
 		foreach ( $tables as $table => $col ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE {$col} IN ({$placeholders})", ...$lead_ids ) );
 		}
 
 		// Delete leads.
 		$leads_table = $wpdb->prefix . 'xtremeleads_leads';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$leads_table} WHERE id IN ({$placeholders})", ...$lead_ids ) );
 	}
 
@@ -172,7 +171,7 @@ class XL_GDPR {
 		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		// Find all lead IDs older than the cutoff.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$lead_ids = $wpdb->get_col(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

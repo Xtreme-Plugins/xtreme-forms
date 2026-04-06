@@ -66,9 +66,8 @@ class XL_Webhooks {
 	public static function get_all(): array {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeleads_webhooks';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			"SELECT * FROM {$table} ORDER BY created_at DESC"
 		) ?: array();
 	}
@@ -82,10 +81,9 @@ class XL_Webhooks {
 	public static function get( int $id ): ?object {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeleads_webhooks';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_row(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM {$table} WHERE id = %d",
 				$id
 			)
@@ -572,19 +570,17 @@ class XL_Webhooks {
 		$table = $wpdb->prefix . 'xtremeleads_webhook_log';
 		$offset = ( max( 1, $page ) - 1 ) * self::LOG_PER_PAGE;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$table} WHERE webhook_id = %d",
 				$webhook_id
 			)
 		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM {$table} WHERE webhook_id = %d ORDER BY delivered_at DESC LIMIT %d OFFSET %d",
 				$webhook_id,
 				self::LOG_PER_PAGE,
@@ -611,16 +607,14 @@ class XL_Webhooks {
 		$hooks_table = $wpdb->prefix . 'xtremeleads_webhooks';
 		$offset = ( max( 1, $page ) - 1 ) * self::LOG_PER_PAGE;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$total = (int) $wpdb->get_var(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			"SELECT COUNT(*) FROM {$table}"
 		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT l.*, w.name AS webhook_name FROM {$table} l
 				LEFT JOIN {$hooks_table} w ON w.id = l.webhook_id
 				ORDER BY l.delivered_at DESC
@@ -646,10 +640,9 @@ class XL_Webhooks {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeleads_webhook_log';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$count = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$table} WHERE webhook_id = %d",
 				$webhook_id
 			)
@@ -657,10 +650,9 @@ class XL_Webhooks {
 
 		if ( $count > self::LOG_MAX_ENTRIES ) {
 			$delete_count = $count - self::LOG_MAX_ENTRIES;
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->query(
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					"DELETE FROM {$table} WHERE webhook_id = %d ORDER BY delivered_at ASC LIMIT %d",
 					$webhook_id,
 					$delete_count

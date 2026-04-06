@@ -327,13 +327,13 @@ class XL_Activator {
 				)
 			);
 			if ( empty( $col_exists ) ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 				$wpdb->query( "ALTER TABLE {$forms_table_check} ADD COLUMN {$col_name} datetime DEFAULT NULL" );
 			}
 		}
 
 		// Add context (for per-blog scheduling) column to forms table if needed.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$closed_col_exists = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'closed_message'",
@@ -342,12 +342,12 @@ class XL_Activator {
 			)
 		);
 		if ( empty( $closed_col_exists ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 			$wpdb->query( "ALTER TABLE {$forms_table_check} ADD COLUMN closed_message text DEFAULT NULL" );
 		}
 
 		// Add consent_given column to leads table if it doesn't exist.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$col_exists = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'consent_given'",
@@ -356,8 +356,8 @@ class XL_Activator {
 			)
 		);
 		if ( empty( $col_exists ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->query( "ALTER TABLE {$wpdb->prefix}xtremeleads_leads ADD COLUMN consent_given tinyint(1) NOT NULL DEFAULT 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+			$wpdb->query( "ALTER TABLE {$wpdb->prefix}xtremeleads_leads ADD COLUMN consent_given tinyint(1) NOT NULL DEFAULT 0" );
 		}
 
 		update_option( 'xtremeleads_db_version', XTREMELEADS_VERSION );
