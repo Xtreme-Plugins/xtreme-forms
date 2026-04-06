@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+
 // ── Read active filters from URL ─────────────────────────────────────────────
 
 $current_status = isset( $_GET['xl_status'] ) ? sanitize_text_field( wp_unslash( $_GET['xl_status'] ) ) : '';
@@ -378,7 +380,7 @@ $export_url = wp_nonce_url(
 						?>
 						<tr class="xl-lead-row<?php echo $is_duplicate ? ' xl-lead-duplicate' : ''; ?>" data-lead-id="<?php echo esc_attr( $lead_id ); ?>">
 							<td class="xl-col-cb" onclick="event.stopPropagation()">
-								<input type="checkbox" name="lead_ids[]" value="<?php echo esc_attr( $lead_id ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Select lead #%d', 'xtremeleads' ), $lead_id ) ); ?>">
+								<input type="checkbox" name="lead_ids[]" value="<?php echo esc_attr( $lead_id ); ?>" aria-label="<?php /* translators: %d: lead ID */ echo esc_attr( sprintf( __( 'Select lead #%d', 'xtremeleads' ), $lead_id ) ); ?>">
 							</td>
 							<td class="xl-col-id">
 								<a href="<?php echo esc_url( $detail_url ); ?>" onclick="event.stopPropagation()">
@@ -393,7 +395,7 @@ $export_url = wp_nonce_url(
 											<?php if ( $original_lead_id ) : ?>
 												&mdash;
 												<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-leads', 'xl_action' => 'view', 'lead_id' => $original_lead_id ), admin_url( 'admin.php' ) ) ); ?>" onclick="event.stopPropagation()">
-													<?php echo esc_html( sprintf( __( 'Original #%d', 'xtremeleads' ), $original_lead_id ) ); ?>
+													<?php /* translators: %d: original lead ID */ echo esc_html( sprintf( __( 'Original #%d', 'xtremeleads' ), $original_lead_id ) ); ?>
 												</a>
 											<?php endif; ?>
 										<?php endif; ?>
@@ -402,14 +404,14 @@ $export_url = wp_nonce_url(
 							</td>
 							<td class="xl-col-name">
 								<a href="<?php echo esc_url( $detail_url ); ?>" onclick="event.stopPropagation()">
-									<?php echo $lead_name ?: '<em class="xl-na">' . esc_html__( 'N/A', 'xtremeleads' ) . '</em>'; ?>
+									<?php echo wp_kses_post( $lead_name ?: '<em class="xl-na">' . esc_html__( 'N/A', 'xtremeleads' ) . '</em>' ); ?>
 								</a>
 							</td>
-							<td class="xl-col-email"><?php echo $lead_email ?: '<em class="xl-na">' . esc_html__( 'N/A', 'xtremeleads' ) . '</em>'; ?></td>
-							<td class="xl-col-form"><?php echo $form_name; ?></td>
+							<td class="xl-col-email"><?php echo wp_kses_post( $lead_email ?: '<em class="xl-na">' . esc_html__( 'N/A', 'xtremeleads' ) . '</em>' ); ?></td>
+							<td class="xl-col-form"><?php echo wp_kses_post( $form_name ); ?></td>
 							<td class="xl-col-assigned">
 								<?php if ( $assignee_display ) : ?>
-									<span class="xl-assignee-label"><?php echo $assignee_display; ?></span>
+									<span class="xl-assignee-label"><?php echo wp_kses_post( $assignee_display ); ?></span>
 								<?php else : ?>
 									<em class="xl-na"><?php esc_html_e( '—', 'xtremeleads' ); ?></em>
 								<?php endif; ?>

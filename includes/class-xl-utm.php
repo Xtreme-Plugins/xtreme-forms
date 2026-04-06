@@ -129,7 +129,7 @@ class XL_UTM {
 	 * @return string|null Sanitized value, or null if empty after sanitization.
 	 */
 	public static function sanitize_value( string $value ): ?string {
-		$clean = strip_tags( trim( $value ) );
+		$clean = wp_strip_all_tags( trim( $value ) );
 		if ( '' === $clean ) {
 			return null;
 		}

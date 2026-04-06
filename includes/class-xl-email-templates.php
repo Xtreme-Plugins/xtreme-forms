@@ -272,55 +272,53 @@ class XL_Email_Templates {
 			</tr>';
 		}
 
-		$body = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XtremeLeads Email</title>
-</head>
-<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:32px 16px;">
- <tr>
- <td align="center">
- <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;border:1px solid #DEE2E6;overflow:hidden;max-width:600px;width:100%;">
- <!-- Header -->
- <tr>
- <td style="background:{$header_color};padding:24px 32px;">
- {$logo_html}
- <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">{$site_name}</h1>
- </td>
- </tr>
- <!-- Intro -->
- <tr>
- <td style="padding:24px 32px 16px;">
- <p style="margin:0;font-size:15px;color:{$dark_color};">{$body_intro}</p>
- </td>
- </tr>
- <!-- Field values -->
- <tr>
- <td style="padding:0 32px 24px;">
- <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DEE2E6;border-radius:6px;overflow:hidden;font-size:14px;">
- {$field_rows_html}
- {$meta_rows}
- </table>
- </td>
- </tr>
- {$btn_html}
- <!-- Footer -->
- <tr>
- <td style="background:#F8F9FA;padding:16px 32px;border-top:1px solid #DEE2E6;">
- <p style="margin:0;font-size:12px;color:#6C757D;text-align:center;">{$footer_text}</p>
- </td>
- </tr>
- </table>
- </td>
- </tr>
-</table>
-</body>
-</html>
-HTML;
+		$body = '<!DOCTYPE html>' . "\n"
+			. '<html lang="en">' . "\n"
+			. '<head>' . "\n"
+			. '<meta charset="UTF-8">' . "\n"
+			. '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n"
+			. '<title>XtremeLeads Email</title>' . "\n"
+			. '</head>' . "\n"
+			. '<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;">' . "\n"
+			. '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:32px 16px;">' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td align="center">' . "\n"
+			. ' <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;border:1px solid #DEE2E6;overflow:hidden;max-width:600px;width:100%;">' . "\n"
+			. ' <!-- Header -->' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="background:' . $header_color . ';padding:24px 32px;">' . "\n"
+			. ' ' . $logo_html . "\n"
+			. ' <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">' . $site_name . '</h1>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' <!-- Intro -->' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="padding:24px 32px 16px;">' . "\n"
+			. ' <p style="margin:0;font-size:15px;color:' . $dark_color . ';">' . $body_intro . '</p>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' <!-- Field values -->' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="padding:0 32px 24px;">' . "\n"
+			. ' <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DEE2E6;border-radius:6px;overflow:hidden;font-size:14px;">' . "\n"
+			. ' ' . $field_rows_html . "\n"
+			. ' ' . $meta_rows . "\n"
+			. ' </table>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' ' . $btn_html . "\n"
+			. ' <!-- Footer -->' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="background:#F8F9FA;padding:16px 32px;border-top:1px solid #DEE2E6;">' . "\n"
+			. ' <p style="margin:0;font-size:12px;color:#6C757D;text-align:center;">' . $footer_text . '</p>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' </table>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. '</table>' . "\n"
+			. '</body>' . "\n"
+			. '</html>';
 
 		return array(
 			'subject' => $subject,

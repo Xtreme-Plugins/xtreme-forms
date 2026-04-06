@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+
 $form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
 $is_edit = $form_id > 0;
 $form = $is_edit ? XL_Forms::get_form( $form_id ) : null;
@@ -234,7 +236,7 @@ $shortcode_hint = $is_edit
 							<button type="button"
 									class="xl-add-field-btn"
 									data-type="<?php echo esc_attr( $type ); ?>"
-									aria-label="<?php echo esc_attr( sprintf( __( 'Add %s field', 'xtremeleads' ), $label ) ); ?>">
+									aria-label="<?php /* translators: %s: field type label */ echo esc_attr( sprintf( __( 'Add %s field', 'xtremeleads' ), $label ) ); ?>">
 								<span class="xl-field-type-icon xl-icon-<?php echo esc_attr( $type ); ?>"></span>
 								<?php echo esc_html( $label ); ?>
 							</button>

@@ -113,6 +113,7 @@ class XL_Email {
 				if ( $sent ) {
 					$any_sent = true;
 				} else {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log( 'XtremeLeads: wp_mail() failed for routing rule — lead #' . $lead_id . ', recipient: ' . $recipient );
 				}
 			}
@@ -123,6 +124,7 @@ class XL_Email {
 			$recipients = self::get_recipients( $form_settings, $settings );
 
 			if ( empty( $recipients ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'XtremeLeads: No email recipients configured for lead #' . $lead_id );
 			} else {
 				foreach ( $recipients as $recipient ) {
@@ -156,6 +158,7 @@ class XL_Email {
 					if ( $sent ) {
 						$any_sent = true;
 					} else {
+						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						error_log( 'XtremeLeads: wp_mail() failed for lead #' . $lead_id . ', recipient: ' . $recipient );
 					}
 				}
@@ -202,6 +205,7 @@ class XL_Email {
 
 		// Graceful failure: no email or invalid email.
 		if ( '' === $lead_email || ! is_email( $lead_email ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'XtremeLeads: Auto-responder skipped for lead #' . $lead_id . ' — missing or invalid email: "' . $lead_email . '"' );
 
 			XL_Email_Log::insert( array(
@@ -253,42 +257,40 @@ class XL_Email {
 
 		$body_content = nl2br( esc_html( $ar_body ) );
 
-		$html_body = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XtremeLeads</title>
-</head>
-<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:32px 16px;">
- <tr>
- <td align="center">
- <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;border:1px solid #DEE2E6;overflow:hidden;max-width:600px;width:100%;">
- <tr>
- <td style="background:{$header_color};padding:24px 32px;">
- {$logo_html}
- <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">{$site_name}</h1>
- </td>
- </tr>
- <tr>
- <td style="padding:32px;">
- <p style="margin:0;font-size:15px;color:{$dark_color};line-height:1.6;">{$body_content}</p>
- </td>
- </tr>
- <tr>
- <td style="background:#F8F9FA;padding:16px 32px;border-top:1px solid #DEE2E6;">
- <p style="margin:0;font-size:12px;color:#6C757D;text-align:center;">{$footer_text}</p>
- </td>
- </tr>
- </table>
- </td>
- </tr>
-</table>
-</body>
-</html>
-HTML;
+		$html_body = '<!DOCTYPE html>' . "\n"
+			. '<html lang="en">' . "\n"
+			. '<head>' . "\n"
+			. '<meta charset="UTF-8">' . "\n"
+			. '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n"
+			. '<title>XtremeLeads</title>' . "\n"
+			. '</head>' . "\n"
+			. '<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;">' . "\n"
+			. '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:32px 16px;">' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td align="center">' . "\n"
+			. ' <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;border:1px solid #DEE2E6;overflow:hidden;max-width:600px;width:100%;">' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="background:' . $header_color . ';padding:24px 32px;">' . "\n"
+			. ' ' . $logo_html . "\n"
+			. ' <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">' . $site_name . '</h1>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="padding:32px;">' . "\n"
+			. ' <p style="margin:0;font-size:15px;color:' . $dark_color . ';line-height:1.6;">' . $body_content . '</p>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' <tr>' . "\n"
+			. ' <td style="background:#F8F9FA;padding:16px 32px;border-top:1px solid #DEE2E6;">' . "\n"
+			. ' <p style="margin:0;font-size:12px;color:#6C757D;text-align:center;">' . $footer_text . '</p>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. ' </table>' . "\n"
+			. ' </td>' . "\n"
+			. ' </tr>' . "\n"
+			. '</table>' . "\n"
+			. '</body>' . "\n"
+			. '</html>';
 
 		// Build headers.
 		$settings = get_option( 'xtremeleads_settings', array() );
@@ -327,6 +329,7 @@ HTML;
 		}
 
 		if ( ! $sent ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'XtremeLeads: Auto-responder wp_mail() failed for lead #' . $lead_id . ', recipient: ' . $lead_email );
 		}
 

@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+
 $per_page = 50;
 $paged = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
 $filter_type = isset( $_GET['action_type'] ) ? sanitize_key( $_GET['action_type'] ) : '';
@@ -110,7 +112,7 @@ $base_url = add_query_arg(
 						<td><code><?php echo esc_html( (string) $entry->id ); ?></code></td>
 						<td>
 							<time datetime="<?php echo esc_attr( $ts_iso ); ?>" title="<?php echo esc_attr( $ts_iso ); ?>">
-								<?php echo $ts_disp; // already escaped above. ?>
+								<?php echo esc_html( $ts_disp ); ?>
 							</time>
 						</td>
 						<td><?php echo esc_html( $entry->user_display ); ?></td>

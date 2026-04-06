@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+
 $template = XL_Email_Templates::get_template();
 $notice = '';
 
@@ -134,7 +136,7 @@ $merge_tags_desc = implode( ', ', array(
 				<!-- Merge Tags Reference -->
 				<div class="xl-settings-card">
 					<h2><?php esc_html_e( 'Available Merge Tags', 'xtremeleads' ); ?></h2>
-					<p class="description"><?php printf( esc_html__( 'Use these tags in the subject, body, and footer fields: %s', 'xtremeleads' ), wp_kses_post( $merge_tags_desc ) ); ?></p>
+					<p class="description"><?php /* translators: %s: comma-separated list of merge tag codes */ printf( esc_html__( 'Use these tags in the subject, body, and footer fields: %s', 'xtremeleads' ), wp_kses_post( $merge_tags_desc ) ); ?></p>
 					<table class="widefat striped" style="margin-top:12px;">
 						<thead>
 							<tr>

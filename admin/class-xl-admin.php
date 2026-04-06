@@ -329,8 +329,10 @@ class XL_Admin {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'xtremeleads' ) );
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification -- Read-only URL params for admin page routing, no state change.
 		$xl_action = isset( $_GET['xl_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xl_action'] ) ) : '';
 		$lead_id = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( 'view' === $xl_action && $lead_id ) {
 			require_once XTREMELEADS_PLUGIN_DIR . 'admin/partials/xl-admin-lead-detail.php';
@@ -344,8 +346,10 @@ class XL_Admin {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'xtremeleads' ) );
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification -- Read-only URL params for admin page routing, no state change.
 		$action = isset( $_GET['xl_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xl_action'] ) ) : '';
 		$form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( in_array( $action, array( 'new', 'edit' ), true ) ) {
 			require_once XTREMELEADS_PLUGIN_DIR . 'admin/partials/xl-admin-form-builder.php';
@@ -486,6 +490,7 @@ class XL_Admin {
 			$name = __( 'Untitled Form', 'xtremeleads' );
 		}
 
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; each field is sanitized individually after json_decode().
 		$raw_fields = isset( $_POST['xl_fields'] )
 			? wp_unslash( $_POST['xl_fields'] )
 			: '[]';
@@ -854,6 +859,7 @@ class XL_Admin {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- nonce verified by check_admin_referer() in calling handler; file upload data processed by wp_handle_upload().
 		$file = $_FILES['xl_logo_file'] ?? null;
 
 		if ( ! $file || UPLOAD_ERR_OK !== (int) $file['error'] ) {
@@ -939,6 +945,7 @@ class XL_Admin {
 		}
 
 		$mode = sanitize_text_field( wp_unslash( $_POST['routing_mode'] ?? 'match_first' ) );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- rules array; each element is sanitized individually in the foreach loop below.
 		$raw_rules = isset( $_POST['rules'] ) && is_array( $_POST['rules'] )
 			? wp_unslash( $_POST['rules'] )
 			: array();
@@ -1230,6 +1237,7 @@ class XL_Admin {
 			fputcsv( $out, $row );
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- php://output stream, WP_Filesystem not applicable for CSV export.
 		fclose( $out );
 		exit;
 	}
@@ -1253,7 +1261,7 @@ class XL_Admin {
 		$recaptcha_site_key = sanitize_text_field( wp_unslash( $_POST['recaptcha_site_key'] ?? '' ) );
 		$recaptcha_secret_key = sanitize_text_field( wp_unslash( $_POST['recaptcha_secret_key'] ?? '' ) );
 		$recaptcha_threshold = isset( $_POST['recaptcha_threshold'] )
-			? max( 0.1, min( 0.9, (float) wp_unslash( $_POST['recaptcha_threshold'] ) ) )
+			? max( 0.1, min( 0.9, floatval( wp_unslash( $_POST['recaptcha_threshold'] ) ) ) )
 			: 0.5;
 
 		// Spam blocklists.
@@ -1262,7 +1270,7 @@ class XL_Admin {
 
 		// Data retention.
 		// Distinguish between blank (disabled) and an explicit numeric entry.
-		$retention_days_post = isset( $_POST['retention_days'] ) ? trim( wp_unslash( (string) $_POST['retention_days'] ) ) : '';
+		$retention_days_post = isset( $_POST['retention_days'] ) ? trim( (string) absint( wp_unslash( $_POST['retention_days'] ) ) ) : '';
 		if ( '' !== $retention_days_post ) {
 			// User supplied a value — must be >= 1. 0 and negatives are invalid.
 			$retention_days_raw = (int) $retention_days_post;
@@ -1415,6 +1423,7 @@ class XL_Admin {
 		$redirect = add_query_arg( array( 'page' => 'xtremeleads-import-export' ), admin_url( 'admin.php' ) );
 
 		// Validate file upload.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- file upload; tmp_name used only with is_uploaded_file() and file_get_contents() on a temporary server path.
 		if ( empty( $_FILES['xl_import_file']['tmp_name'] ) || ! is_uploaded_file( $_FILES['xl_import_file']['tmp_name'] ) ) {
 			set_transient( $transient_key, new WP_Error( 'no_file', __( 'No file uploaded.', 'xtremeleads' ) ), 60 );
 			wp_safe_redirect( $redirect );

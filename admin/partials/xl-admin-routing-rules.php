@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+
 $rules = XL_Routing_Rules::get_all_rules();
 $all_forms = XL_Forms::get_all_forms();
 $mode = XL_Routing_Rules::get_mode();
@@ -108,13 +110,13 @@ if ( ! empty( $_GET['updated'] ) ) {
 									</select>
 								</td>
 								<td class="xl-field-id-col" style="<?php echo 'field_value' !== $cond_type ? 'opacity:0.3;pointer-events:none;' : ''; ?>">
-									<input type="text" name="rules[<?php echo esc_attr( $idx ); ?>][field_id]" value="<?php echo $field_id_val; ?>" placeholder="<?php esc_attr_e( 'e.g. service_interest', 'xtremeleads' ); ?>" style="width:100%;">
+									<input type="text" name="rules[<?php echo esc_attr( $idx ); ?>][field_id]" value="<?php echo esc_attr( $field_id_val ); ?>" placeholder="<?php esc_attr_e( 'e.g. service_interest', 'xtremeleads' ); ?>" style="width:100%;">
 								</td>
 								<td class="xl-field-val-col" style="<?php echo 'field_value' !== $cond_type ? 'opacity:0.3;pointer-events:none;' : ''; ?>">
-									<input type="text" name="rules[<?php echo esc_attr( $idx ); ?>][field_value]" value="<?php echo $field_val_val; ?>" placeholder="<?php esc_attr_e( 'Exact value (case-sensitive)', 'xtremeleads' ); ?>" style="width:100%;">
+									<input type="text" name="rules[<?php echo esc_attr( $idx ); ?>][field_value]" value="<?php echo esc_attr( $field_val_val ); ?>" placeholder="<?php esc_attr_e( 'Exact value (case-sensitive)', 'xtremeleads' ); ?>" style="width:100%;">
 								</td>
 								<td>
-									<input type="email" name="rules[<?php echo esc_attr( $idx ); ?>][recipient_email]" value="<?php echo $recipient_val; ?>" placeholder="notify@example.com" style="width:100%;" required>
+									<input type="email" name="rules[<?php echo esc_attr( $idx ); ?>][recipient_email]" value="<?php echo esc_attr( $recipient_val ); ?>" placeholder="notify@example.com" style="width:100%;" required>
 								</td>
 								<td style="text-align:center;">
 									<input type="checkbox" name="rules[<?php echo esc_attr( $idx ); ?>][is_active]" value="1" <?php checked( $is_active_val, 1 ); ?>>

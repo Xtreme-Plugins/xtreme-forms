@@ -9,6 +9,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+
 $lead_id = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
 
 if ( ! $lead_id ) {
@@ -132,7 +134,7 @@ if ( $email_warn ) {
 		printf(
 			/* translators: %d: lead ID */
 			esc_html__( 'Lead #%d', 'xtremeleads' ),
-			$lead_id
+			absint( $lead_id )
 		);
 		?>
 		<span class="xl-status-badge xl-status-<?php echo esc_attr( $status_key ); ?>" id="xl-detail-status-badge">
@@ -183,7 +185,7 @@ if ( $email_warn ) {
 						</tr>
 						<tr>
 							<th><?php esc_html_e( 'Form', 'xtremeleads' ); ?></th>
-							<td><?php echo $form_name; ?></td>
+							<td><?php echo wp_kses_post( $form_name ); ?></td>
 						</tr>
 						<tr>
 							<th><?php esc_html_e( 'Submission Date', 'xtremeleads' ); ?></th>
@@ -359,7 +361,7 @@ if ( $email_warn ) {
 					<?php foreach ( $tags as $tag ) : ?>
 						<span class="xl-tag-pill" data-tag-id="<?php echo esc_attr( $tag->id ); ?>">
 							<?php echo esc_html( $tag->name ); ?>
-							<button type="button" class="xl-tag-remove" data-tag-id="<?php echo esc_attr( $tag->id ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Remove tag %s', 'xtremeleads' ), $tag->name ) ); ?>">&times;</button>
+							<button type="button" class="xl-tag-remove" data-tag-id="<?php echo esc_attr( $tag->id ); ?>" aria-label="<?php /* translators: %s: tag name */ echo esc_attr( sprintf( __( 'Remove tag %s', 'xtremeleads' ), $tag->name ) ); ?>">&times;</button>
 						</span>
 					<?php endforeach; ?>
 				</div>
