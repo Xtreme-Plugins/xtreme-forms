@@ -31,7 +31,7 @@ $action_types = XF_Audit_Log::get_all_action_types();
 
 $base_url = add_query_arg(
 	array(
-		'page'        => 'xtremeleads-audit-log',
+		'page'        => 'xtreme-forms-audit-log',
 		'action_type' => $filter_type,
 		'user_id'     => $filter_user,
 	),
@@ -44,7 +44,7 @@ $base_url = add_query_arg(
 
 	<!-- Filter bar -->
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="xf-filter-form" style="margin:16px 0;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-		<input type="hidden" name="page" value="xtremeleads-audit-log">
+		<input type="hidden" name="page" value="xtreme-forms-audit-log">
 
 		<div>
 			<label for="xf-filter-action-type" style="display:block;margin-bottom:4px;font-weight:600;"><?php esc_html_e( 'Action Type', 'xtreme-forms' ); ?></label>
@@ -61,7 +61,7 @@ $base_url = add_query_arg(
 		<div>
 			<button type="submit" class="button"><?php esc_html_e( 'Filter', 'xtreme-forms' ); ?></button>
 			<?php if ( $filter_type || $filter_user ) : ?>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtremeleads-audit-log' ) ); ?>" class="button"><?php esc_html_e( 'Reset', 'xtreme-forms' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtreme-forms-audit-log' ) ); ?>" class="button"><?php esc_html_e( 'Reset', 'xtreme-forms' ); ?></a>
 			<?php endif; ?>
 		</div>
 	</form>

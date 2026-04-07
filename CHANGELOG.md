@@ -1,4 +1,14 @@
 # Changelog
+## [2.0.2] - 2026-04-07
+
+### Fixed
+- readme.txt: stable tag updated to 2.0.2, tags reduced to 5, short description trimmed to ≤150 chars
+- Removed hidden `.gitkeep` file from assets/img/ (Plugin Check ERROR)
+- Added `.distignore` to exclude dev files from WP.org SVN release
+- Added `phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound` to all admin partials (template files included inside methods — variables are local scope)
+- Auto-fixed 1461 PHPCS formatting issues (array alignment, assignment spacing) via phpcbf
+- Added `bin/plugin-check.sh` script for automated PHPCS checking inside Docker
+
 
 All notable changes to Xtreme Forms are documented here.
 

@@ -63,7 +63,7 @@ class XF_Admin {
 			__( 'Leads Inbox', 'xtreme-forms' ),
 			__( 'Leads', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-leads',
+			'xtreme-forms-leads',
 			array( $this, 'page_leads_inbox' )
 		);
 
@@ -72,7 +72,7 @@ class XF_Admin {
 			__( 'Form Metrics', 'xtreme-forms' ),
 			__( 'Form Metrics', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-form-metrics',
+			'xtreme-forms-form-metrics',
 			array( $this, 'page_form_metrics' )
 		);
 
@@ -81,7 +81,7 @@ class XF_Admin {
 			__( 'Forms', 'xtreme-forms' ),
 			__( 'Forms', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-forms',
+			'xtreme-forms-forms',
 			array( $this, 'page_forms' )
 		);
 
@@ -90,7 +90,7 @@ class XF_Admin {
 			__( 'Tags', 'xtreme-forms' ),
 			__( 'Tags', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-tags',
+			'xtreme-forms-tags',
 			array( $this, 'page_tags' )
 		);
 
@@ -99,7 +99,7 @@ class XF_Admin {
 			__( 'Email Templates', 'xtreme-forms' ),
 			__( 'Email Templates', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-email-templates',
+			'xtreme-forms-email-templates',
 			array( $this, 'page_email_templates' )
 		);
 
@@ -108,7 +108,7 @@ class XF_Admin {
 			__( 'Routing Rules', 'xtreme-forms' ),
 			__( 'Routing Rules', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-routing-rules',
+			'xtreme-forms-routing-rules',
 			array( $this, 'page_routing_rules' )
 		);
 
@@ -117,7 +117,7 @@ class XF_Admin {
 			__( 'Email Log', 'xtreme-forms' ),
 			__( 'Email Log', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-email-log',
+			'xtreme-forms-email-log',
 			array( $this, 'page_email_log' )
 		);
 
@@ -126,7 +126,7 @@ class XF_Admin {
 			__( 'Webhooks', 'xtreme-forms' ),
 			__( 'Webhooks', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-webhooks',
+			'xtreme-forms-webhooks',
 			array( $this, 'page_webhooks' )
 		);
 
@@ -135,7 +135,7 @@ class XF_Admin {
 			__( 'Spam Log', 'xtreme-forms' ),
 			__( 'Spam Log', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-spam-log',
+			'xtreme-forms-spam-log',
 			array( $this, 'page_spam_log' )
 		);
 
@@ -144,7 +144,7 @@ class XF_Admin {
 			__( 'Settings', 'xtreme-forms' ),
 			__( 'Settings', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-settings',
+			'xtreme-forms-settings',
 			array( $this, 'page_settings' )
 		);
 
@@ -153,7 +153,7 @@ class XF_Admin {
 			__( 'Import / Export', 'xtreme-forms' ),
 			__( 'Import / Export', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-import-export',
+			'xtreme-forms-import-export',
 			array( $this, 'page_import_export' )
 		);
 
@@ -162,7 +162,7 @@ class XF_Admin {
 			__( 'Audit Log', 'xtreme-forms' ),
 			__( 'Audit Log', 'xtreme-forms' ),
 			'manage_options',
-			'xtremeleads-audit-log',
+			'xtreme-forms-audit-log',
 			array( $this, 'page_audit_log' )
 		);
 
@@ -200,7 +200,7 @@ class XF_Admin {
 		);
 
 		// Enqueue Chart.js and dashboard script on dashboard/metrics pages.
-		if ( false !== strpos( $hook, 'xtremeforms_page_xtremeleads-form-metrics' )
+		if ( false !== strpos( $hook, 'xtremeforms_page_xtreme-forms-form-metrics' )
 			|| false !== strpos( $hook, 'toplevel_page_xtremeleads' )
 		) {
 			wp_enqueue_script(
@@ -512,7 +512,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'    => 'xtremeleads-settings',
+					'page'    => 'xtreme-forms-settings',
 					'updated' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -641,7 +641,7 @@ class XF_Admin {
 			set_transient( $transient_key, $validation_errors, 60 );
 
 			$redirect_args = array(
-				'page'      => 'xtremeleads-forms',
+				'page'      => 'xtreme-forms-forms',
 				'xf_action' => $form_id ? 'edit' : 'new',
 				'error'     => '1',
 			);
@@ -662,7 +662,7 @@ class XF_Admin {
 			wp_safe_redirect(
 				add_query_arg(
 					array(
-						'page'      => 'xtremeleads-forms',
+						'page'      => 'xtreme-forms-forms',
 						'xf_action' => $form_id ? 'edit' : 'new',
 						'form_id'   => $form_id ?: null,
 						'error'     => '1',
@@ -740,7 +740,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'      => 'xtremeleads-forms',
+					'page'      => 'xtreme-forms-forms',
 					'xf_action' => 'edit',
 					'form_id'   => $form_id,
 					'updated'   => '1',
@@ -779,7 +779,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'    => 'xtremeleads-forms',
+					'page'    => 'xtreme-forms-forms',
 					'deleted' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -805,7 +805,7 @@ class XF_Admin {
 		$ids     = array_filter( $ids_raw );
 
 		// Preserve filter state in redirect.
-		$redirect_args = array( 'page' => 'xtremeleads-leads' );
+		$redirect_args = array( 'page' => 'xtreme-forms-leads' );
 		foreach ( array( 'xf_status', 'xf_form', 'xf_tags', 'xf_date_from', 'xf_date_to', 'xf_filter' ) as $k ) {
 			if ( ! empty( $_POST[ $k ] ) ) {
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -857,7 +857,7 @@ class XF_Admin {
 		}
 
 		$redirect = add_query_arg(
-			array( 'page' => 'xtremeleads-email-templates' ),
+			array( 'page' => 'xtreme-forms-email-templates' ),
 			admin_url( 'admin.php' )
 		);
 
@@ -1022,7 +1022,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'    => 'xtremeleads-routing-rules',
+					'page'    => 'xtreme-forms-routing-rules',
 					'updated' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -1045,7 +1045,7 @@ class XF_Admin {
 
 		$name     = sanitize_text_field( wp_unslash( $_POST['tag_name'] ?? '' ) );
 		$result   = XF_Tags::create_tag( $name );
-		$redirect = add_query_arg( array( 'page' => 'xtremeleads-tags' ), admin_url( 'admin.php' ) );
+		$redirect = add_query_arg( array( 'page' => 'xtreme-forms-tags' ), admin_url( 'admin.php' ) );
 
 		if ( is_wp_error( $result ) ) {
 			set_transient(
@@ -1079,7 +1079,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'        => 'xtremeleads-tags',
+					'page'        => 'xtreme-forms-tags',
 					'tag_deleted' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -1118,7 +1118,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'    => 'xtremeleads-settings',
+					'page'    => 'xtreme-forms-settings',
 					'updated' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -1224,7 +1224,7 @@ class XF_Admin {
 		$field_keys    = array_keys( $all_field_defs );
 
 		// Stream the CSV.
-		$filename = 'xtremeleads-export-' . gmdate( 'Y-m-d' ) . '.csv';
+		$filename = 'xtreme-forms-export-' . gmdate( 'Y-m-d' ) . '.csv';
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=UTF-8' );
@@ -1328,7 +1328,7 @@ class XF_Admin {
 				wp_safe_redirect(
 					add_query_arg(
 						array(
-							'page'  => 'xtremeleads-settings',
+							'page'  => 'xtreme-forms-settings',
 							'error' => 'retention_min',
 						),
 						admin_url( 'admin.php' )
@@ -1381,7 +1381,7 @@ class XF_Admin {
 		}
 
 		$redirect_args = array(
-			'page'    => 'xtremeleads-settings',
+			'page'    => 'xtreme-forms-settings',
 			'updated' => '1',
 		);
 
@@ -1438,7 +1438,7 @@ class XF_Admin {
 				wp_safe_redirect(
 					add_query_arg(
 						array(
-							'page'            => 'xtremeleads-import-export',
+							'page'            => 'xtreme-forms-import-export',
 							'xf_export_error' => '1',
 						),
 						admin_url( 'admin.php' )
@@ -1451,7 +1451,7 @@ class XF_Admin {
 				wp_safe_redirect(
 					add_query_arg(
 						array(
-							'page'            => 'xtremeleads-import-export',
+							'page'            => 'xtreme-forms-import-export',
 							'xf_export_error' => '1',
 						),
 						admin_url( 'admin.php' )
@@ -1459,10 +1459,10 @@ class XF_Admin {
 				);
 				exit;
 			}
-			$filename = 'xtremeleads-form-' . $form_id . '-' . gmdate( 'Y-m-d' ) . '.json';
+			$filename = 'xtreme-forms-form-' . $form_id . '-' . gmdate( 'Y-m-d' ) . '.json';
 		} else {
 			$data     = XF_Import_Export::build_full_export();
-			$filename = 'xtremeleads-export-full-' . gmdate( 'Y-m-d' ) . '.json';
+			$filename = 'xtreme-forms-export-full-' . gmdate( 'Y-m-d' ) . '.json';
 		}
 
 		// Audit log.
@@ -1486,7 +1486,7 @@ class XF_Admin {
 		}
 
 		$transient_key = 'xf_import_result_' . get_current_user_id();
-		$redirect      = add_query_arg( array( 'page' => 'xtremeleads-import-export' ), admin_url( 'admin.php' ) );
+		$redirect      = add_query_arg( array( 'page' => 'xtreme-forms-import-export' ), admin_url( 'admin.php' ) );
 
 		// Validate file upload.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- file upload; tmp_name used only with is_uploaded_file() and file_get_contents() on a temporary server path.

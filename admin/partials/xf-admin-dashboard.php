@@ -25,12 +25,12 @@ $has_forms   = ! empty( XF_Forms::get_all_forms() );
 
 $add_form_url = add_query_arg(
 	array(
-		'page'      => 'xtremeleads-forms',
+		'page'      => 'xtreme-forms-forms',
 		'xf_action' => 'new',
 	),
 	admin_url( 'admin.php' )
 );
-$leads_url    = add_query_arg( array( 'page' => 'xtremeleads-leads' ), admin_url( 'admin.php' ) );
+$leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_url( 'admin.php' ) );
 ?>
 <div class="wrap xf-wrap xf-dashboard-wrap">
 	<h1 class="xf-page-title">
@@ -267,7 +267,7 @@ $leads_url    = add_query_arg( array( 'page' => 'xtremeleads-leads' ), admin_url
 		<div class="xf-card xf-top-forms-card">
 			<div class="xf-card-header">
 				<h2><?php esc_html_e( 'Top Performing Forms', 'xtreme-forms' ); ?></h2>
-				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-form-metrics' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-card-link"><?php esc_html_e( 'View All →', 'xtreme-forms' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-form-metrics' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-card-link"><?php esc_html_e( 'View All →', 'xtreme-forms' ); ?></a>
 			</div>
 			<div class="xf-card-body">
 				<?php if ( ! empty( $top_forms ) ) : ?>
@@ -335,7 +335,7 @@ $leads_url    = add_query_arg( array( 'page' => 'xtremeleads-leads' ), admin_url
 						</table>
 						<?php if ( $section['has_more'] ) : ?>
 							<p class="xf-utm-view-all">
-								<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-form-metrics' ), admin_url( 'admin.php' ) ) ); ?>">
+								<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-form-metrics' ), admin_url( 'admin.php' ) ) ); ?>">
 									<?php esc_html_e( 'View all →', 'xtreme-forms' ); ?>
 								</a>
 							</p>

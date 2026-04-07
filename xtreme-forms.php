@@ -3,7 +3,7 @@
  * Plugin Name: Xtreme Forms
  * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-forms/
  * Description: Powerful lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR compliance, and multisite support. Free forever with optional Pro upgrade.
- * Version:     2.0.1
+ * Version:     2.0.3
  * Author:      XtremePlugins
  * Author URI:  https://xtremeplugins.com
  * License:     GPL-2.0-or-later
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.0.1' );
+define( 'XTREMEFORMS_VERSION', '2.0.3' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

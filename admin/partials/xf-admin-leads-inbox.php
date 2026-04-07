@@ -87,8 +87,8 @@ $all_forms = XF_Forms::get_all_forms();
  * @param array $forms_cache Forms keyed by ID.
  * @return string
  */
-if ( ! function_exists( 'xf_inbox_get_field' ) ) :
-	function xf_inbox_get_field( object $lead, string $field_type, array $forms_cache ): string {
+if ( ! function_exists( 'xtremeforms_inbox_get_field' ) ) :
+	function xtremeforms_inbox_get_field( object $lead, string $field_type, array $forms_cache ): string {
 		$form = $forms_cache[ (int) $lead->form_id ] ?? null;
 		if ( ! $form ) {
 			return '';
@@ -126,12 +126,12 @@ if ( ! function_exists( 'xf_inbox_get_field' ) ) :
 		}
 		return '';
 	}
-endif; // xf_inbox_get_field
+endif; // xtremeforms_inbox_get_field
 
 // ── Build base URL for filters (preserves all active filters in links) ────────
-if ( ! function_exists( 'xf_filter_url' ) ) :
-	function xf_filter_url( array $args = array() ): string {
-		$base = array( 'page' => 'xtremeleads-leads' );
+if ( ! function_exists( 'xtremeforms_filter_url' ) ) :
+	function xtremeforms_filter_url( array $args = array() ): string {
+		$base = array( 'page' => 'xtreme-forms-leads' );
 		return add_query_arg( array_merge( $base, $args ), admin_url( 'admin.php' ) );
 	}
 endif;
@@ -193,7 +193,7 @@ $export_url = wp_nonce_url(
 	<!-- Status Filter Tabs -->
 	<div class="xf-status-tabs" role="tablist">
 		<a
-			href="<?php echo esc_url( xf_filter_url() ); ?>"
+			href="<?php echo esc_url( xtremeforms_filter_url() ); ?>"
 			class="xf-tab <?php echo ( '' === $current_status && 'my_leads' !== $current_filter ) ? 'xf-tab-active' : ''; ?>"
 			role="tab"
 		>
@@ -201,7 +201,7 @@ $export_url = wp_nonce_url(
 		</a>
 		<?php foreach ( $statuses as $slug => $label ) : ?>
 			<a
-				href="<?php echo esc_url( xf_filter_url( array( 'xf_status' => $slug ) ) ); ?>"
+				href="<?php echo esc_url( xtremeforms_filter_url( array( 'xf_status' => $slug ) ) ); ?>"
 				class="xf-tab <?php echo ( $current_status === $slug ) ? 'xf-tab-active' : ''; ?>"
 				role="tab"
 			>
@@ -209,7 +209,7 @@ $export_url = wp_nonce_url(
 			</a>
 		<?php endforeach; ?>
 		<a
-			href="<?php echo esc_url( xf_filter_url( array( 'xf_filter' => 'my_leads' ) ) ); ?>"
+			href="<?php echo esc_url( xtremeforms_filter_url( array( 'xf_filter' => 'my_leads' ) ) ); ?>"
 			class="xf-tab xf-tab-my-leads <?php echo ( 'my_leads' === $current_filter ) ? 'xf-tab-active' : ''; ?>"
 			role="tab"
 		>
@@ -275,7 +275,7 @@ $export_url = wp_nonce_url(
 
 			<div class="xf-filter-actions">
 				<button type="submit" class="button xf-btn-secondary"><?php esc_html_e( 'Filter', 'xtreme-forms' ); ?></button>
-				<a href="<?php echo esc_url( xf_filter_url() ); ?>" class="button"><?php esc_html_e( 'Reset', 'xtreme-forms' ); ?></a>
+				<a href="<?php echo esc_url( xtremeforms_filter_url() ); ?>" class="button"><?php esc_html_e( 'Reset', 'xtreme-forms' ); ?></a>
 			</div>
 		</div>
 	</form>
@@ -289,7 +289,7 @@ $export_url = wp_nonce_url(
 			<?php elseif ( ! empty( $filters ) ) : ?>
 				<h2><?php esc_html_e( 'No leads match your filters', 'xtreme-forms' ); ?></h2>
 				<p><?php esc_html_e( 'Try adjusting your filter criteria.', 'xtreme-forms' ); ?></p>
-				<a href="<?php echo esc_url( xf_filter_url() ); ?>" class="button button-primary xf-btn-primary">
+				<a href="<?php echo esc_url( xtremeforms_filter_url() ); ?>" class="button button-primary xf-btn-primary">
 					<?php esc_html_e( 'Clear Filters', 'xtreme-forms' ); ?>
 				</a>
 			<?php else : ?>
@@ -300,7 +300,7 @@ $export_url = wp_nonce_url(
 				echo esc_url(
 					add_query_arg(
 						array(
-							'page'      => 'xtremeleads-forms',
+							'page'      => 'xtreme-forms-forms',
 							'xf_action' => 'new',
 						),
 						admin_url( 'admin.php' )
@@ -388,8 +388,8 @@ $export_url = wp_nonce_url(
 						$form_name  = isset( $forms_cache[ (int) $lead->form_id ] )
 							? esc_html( $forms_cache[ (int) $lead->form_id ]->name )
 							: esc_html__( '(unknown form)', 'xtreme-forms' );
-						$lead_name  = esc_html( xf_inbox_get_field( $lead, 'text', $forms_cache ) );
-						$lead_email = esc_html( xf_inbox_get_field( $lead, 'email', $forms_cache ) );
+						$lead_name  = esc_html( xtremeforms_inbox_get_field( $lead, 'text', $forms_cache ) );
+						$lead_email = esc_html( xtremeforms_inbox_get_field( $lead, 'email', $forms_cache ) );
 						$status_key = $lead->status ?? 'new';
 						$status_lbl = $statuses[ $status_key ] ?? ucfirst( $status_key );
 
@@ -413,7 +413,7 @@ $export_url = wp_nonce_url(
 						// Detail page URL.
 						$detail_url = add_query_arg(
 							array(
-								'page'      => 'xtremeleads-leads',
+								'page'      => 'xtreme-forms-leads',
 								'xf_action' => 'view',
 								'lead_id'   => $lead_id,
 							),
@@ -441,7 +441,7 @@ $export_url = wp_nonce_url(
 												echo esc_url(
 													add_query_arg(
 														array(
-															'page' => 'xtremeleads-leads',
+															'page' => 'xtreme-forms-leads',
 															'xf_action' => 'view',
 															'lead_id' => $original_lead_id,
 														),

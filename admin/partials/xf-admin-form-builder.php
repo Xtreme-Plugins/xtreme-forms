@@ -82,7 +82,7 @@ $shortcode_hint = $is_edit
 <div class="wrap xf-wrap xf-form-builder-wrap">
 	<h1 class="xf-page-title">
 		<?php echo esc_html( $page_title ); ?>
-		<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="page-title-action">
+		<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="page-title-action">
 			&laquo; <?php esc_html_e( 'Back to Forms', 'xtreme-forms' ); ?>
 		</a>
 		<?php if ( $shortcode_hint ) : ?>
@@ -268,7 +268,7 @@ $shortcode_hint = $is_edit
 					<button type="submit" class="button button-primary xf-btn-save">
 						<?php esc_html_e( 'Save Form', 'xtreme-forms' ); ?>
 					</button>
-					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="button xf-btn-secondary">
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="button xf-btn-secondary">
 						<?php esc_html_e( 'Cancel', 'xtreme-forms' ); ?>
 					</a>
 				</div>

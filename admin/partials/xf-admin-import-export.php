@@ -66,7 +66,7 @@ $all_forms = XF_Forms::get_all_forms();
 				<?php esc_html_e( 'Export All Settings & Forms', 'xtreme-forms' ); ?>
 			</button>
 			<span style="margin-left:8px;color:#6C757D;font-size:13px;">
-				<?php esc_html_e( 'Downloads xtremeleads-export-full-[date].json', 'xtreme-forms' ); ?>
+				<?php esc_html_e( 'Downloads xtreme-forms-export-full-[date].json', 'xtreme-forms' ); ?>
 			</span>
 		</form>
 

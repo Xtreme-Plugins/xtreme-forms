@@ -25,7 +25,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		echo esc_url(
 			add_query_arg(
 				array(
-					'page'      => 'xtremeleads-forms',
+					'page'      => 'xtreme-forms-forms',
 					'xf_action' => 'new',
 				),
 				admin_url( 'admin.php' )
@@ -49,7 +49,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 			echo esc_url(
 				add_query_arg(
 					array(
-						'page'      => 'xtremeleads-forms',
+						'page'      => 'xtreme-forms-forms',
 						'xf_action' => 'new',
 					),
 					admin_url( 'admin.php' )
@@ -92,7 +92,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 							echo esc_url(
 								add_query_arg(
 									array(
-										'page'      => 'xtremeleads-forms',
+										'page'      => 'xtreme-forms-forms',
 										'xf_action' => 'edit',
 										'form_id'   => $form->id,
 									),

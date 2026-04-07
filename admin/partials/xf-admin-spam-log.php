@@ -38,7 +38,7 @@ $pages = $log_data['pages'];
 
 	<!-- Filters -->
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="margin-bottom:16px;">
-		<input type="hidden" name="page" value="xtremeleads-spam-log">
+		<input type="hidden" name="page" value="xtreme-forms-spam-log">
 		<select name="rejection_reason" style="margin-right:8px;">
 			<option value=""><?php esc_html_e( 'All Reasons', 'xtreme-forms' ); ?></option>
 			<?php foreach ( $reasons as $key => $label ) : ?>
@@ -152,7 +152,7 @@ $pages = $log_data['pages'];
 					for ( $p = 1; $p <= $pages; $p++ ) {
 						$url = add_query_arg(
 							array(
-								'page'             => 'xtremeleads-spam-log',
+								'page'             => 'xtreme-forms-spam-log',
 								'paged'            => $p,
 								'rejection_reason' => $filter_reason,
 								'filter_form'      => $filter_form,

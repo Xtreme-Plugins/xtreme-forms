@@ -41,7 +41,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 
 	<!-- Filters -->
 	<form method="get" class="xf-filter-bar" style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-		<input type="hidden" name="page" value="xtremeleads-email-log">
+		<input type="hidden" name="page" value="xtreme-forms-email-log">
 
 		<select name="xf_trigger" style="height:32px;">
 			<option value=""><?php esc_html_e( 'All Trigger Types', 'xtreme-forms' ); ?></option>
@@ -61,7 +61,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 
 		<?php submit_button( __( 'Filter', 'xtreme-forms' ), 'secondary', 'filter', false, array( 'style' => 'height:32px;padding:0 12px;' ) ); ?>
 		<?php if ( ! empty( $filters ) ) : ?>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtremeleads-email-log' ) ); ?>" class="button"><?php esc_html_e( 'Reset', 'xtreme-forms' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtreme-forms-email-log' ) ); ?>" class="button"><?php esc_html_e( 'Reset', 'xtreme-forms' ); ?></a>
 		<?php endif; ?>
 
 		<span style="margin-left:auto;color:#6C757D;font-size:13px;">
@@ -156,7 +156,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 			<?php
 			$base_url = add_query_arg(
 				array_merge(
-					array( 'page' => 'xtremeleads-email-log' ),
+					array( 'page' => 'xtreme-forms-email-log' ),
 					array_filter(
 						array(
 							'xf_trigger'    => $filters['trigger_type'] ?? '',

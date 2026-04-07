@@ -26,7 +26,7 @@ $forms   = XF_Forms::get_all_forms();
 				echo esc_url(
 					add_query_arg(
 						array(
-							'page'      => 'xtremeleads-forms',
+							'page'      => 'xtreme-forms-forms',
 							'xf_action' => 'new',
 						),
 						admin_url( 'admin.php' )
@@ -146,7 +146,7 @@ $forms   = XF_Forms::get_all_forms();
 				<!-- Server-side pagination fallback (hidden when JS is active). -->
 				<div class="xf-metrics-pagination xf-pagination" id="xf-metrics-pagination-server">
 					<?php
-					$base_url   = add_query_arg( array( 'page' => 'xtremeleads-form-metrics' ), admin_url( 'admin.php' ) );
+					$base_url   = add_query_arg( array( 'page' => 'xtreme-forms-form-metrics' ), admin_url( 'admin.php' ) );
 					$page_links = paginate_links(
 						array(
 							'base'      => add_query_arg( 'metrics_page', '%#%', $base_url ),

@@ -77,7 +77,7 @@ class XF_Multisite {
 					'xf_site_toggled'  => '1',
 					'xf_site_disabled' => $new_val,
 				),
-				admin_url( 'admin.php?page=xtremeleads-settings' )
+				admin_url( 'admin.php?page=xtreme-forms-settings' )
 			)
 		);
 		exit;
@@ -91,27 +91,27 @@ class XF_Multisite {
 			__( 'Xtreme Forms Network', 'xtreme-forms' ),
 			__( 'Xtreme Forms', 'xtreme-forms' ),
 			'manage_network',
-			'xtremeleads-network',
+			'xtreme-forms-network',
 			array( static::class, 'page_network_dashboard' ),
 			'dashicons-email-alt',
 			25
 		);
 
 		add_submenu_page(
-			'xtremeleads-network',
+			'xtreme-forms-network',
 			__( 'Network Dashboard', 'xtreme-forms' ),
 			__( 'Dashboard', 'xtreme-forms' ),
 			'manage_network',
-			'xtremeleads-network',
+			'xtreme-forms-network',
 			array( static::class, 'page_network_dashboard' )
 		);
 
 		add_submenu_page(
-			'xtremeleads-network',
+			'xtreme-forms-network',
 			__( 'Global Settings', 'xtreme-forms' ),
 			__( 'Global Settings', 'xtreme-forms' ),
 			'manage_network',
-			'xtremeleads-network-settings',
+			'xtreme-forms-network-settings',
 			array( static::class, 'page_network_settings' )
 		);
 	}
@@ -141,7 +141,7 @@ class XF_Multisite {
 	 */
 	public static function display_network_notices(): void {
 		$screen = get_current_screen();
-		if ( ! $screen || false === strpos( $screen->id, 'xtremeleads-network' ) ) {
+		if ( ! $screen || false === strpos( $screen->id, 'xtreme-forms-network' ) ) {
 			return;
 		}
 
@@ -253,7 +253,7 @@ class XF_Multisite {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'               => 'xtremeleads-network-settings',
+					'page'               => 'xtreme-forms-network-settings',
 					'xf_push_done'       => '1',
 					'xf_push_success'    => $success,
 					'xf_push_failed'     => $failed,

@@ -88,7 +88,7 @@ $top_forms   = $data['top_forms'];
 	<?php endif; ?>
 
 	<p style="margin-top:24px;">
-		<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=xtremeleads-network-settings' ) ); ?>" class="button button-primary">
+		<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=xtreme-forms-network-settings' ) ); ?>" class="button button-primary">
 			<?php esc_html_e( 'Manage Global Settings', 'xtreme-forms' ); ?>
 		</a>
 	</p>
