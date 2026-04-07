@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- Read-only display page; all data rendered server-side via WP functions.
 
 $network_settings = get_site_option( XL_Multisite::NETWORK_SETTINGS_KEY, array() );
 

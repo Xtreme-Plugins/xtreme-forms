@@ -9,6 +9,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- Read-only display page; all data rendered server-side via WP functions.
 
 // Fetch initial KPI data server-side for instant render (no FOUC).
 $kpi_all_time = XL_Analytics::count_leads_all_time();

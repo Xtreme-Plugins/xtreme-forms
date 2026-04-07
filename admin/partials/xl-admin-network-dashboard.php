@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- Read-only display page; all data rendered server-side via WP functions.
 
 $data = XL_Multisite::get_aggregated_data();
 $total_leads = $data['total_leads'];

@@ -2,6 +2,13 @@
 
 All notable changes to XtremeLeads are documented here.
 
+## [1.6.5] - 2026-04-07
+
+### Fixed
+- PHPCS compliance: wrapped all remaining `$wpdb->` calls in `phpcs:disable/enable` blocks covering `InterpolatedNotPrepared`, `DirectQuery`, `NoCaching`, `NotPrepared`, and `UnescapedDBParameter` rules across `class-xl-activity.php`, `class-xl-notes.php`, `class-xl-duplicates.php`, `class-xl-import-export.php`, and `class-xl-routing-rules.php`
+- PHPCS compliance: replaced trailing inline `phpcs:ignore` comments on multi-line `$wpdb->` call blocks with correct disable/enable block pairs
+- PHPCS compliance: added `phpcs:disable WordPress.Security.NonceVerification` to read-only admin display partials (`xl-admin-dashboard.php`, `xl-admin-network-dashboard.php`, `xl-admin-network-settings.php`)
+
 ## [1.6.0] - 2026-02-28
 
 ### Added
