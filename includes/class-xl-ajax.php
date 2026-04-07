@@ -1693,7 +1693,7 @@ class XL_Ajax {
 
 		// Case-insensitive lookup via LOWER() comparison — same strategy used in XL_Leads duplicate detection.
 		// Table name is built exclusively from $wpdb->prefix + a hardcoded string, making interpolation safe.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$original = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT id FROM {$leads_table}
@@ -1704,6 +1704,7 @@ class XL_Ajax {
 				$email
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( $original ) {
 			wp_send_json_success(
@@ -1731,8 +1732,7 @@ class XL_Ajax {
 	public function handle_webhook_save(): void {
 		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$raw = isset( $_POST['webhook'] ) ? wp_unslash( $_POST['webhook'] ) : array();
+		$raw = isset( $_POST['webhook'] ) ? wp_unslash( $_POST['webhook'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( is_string( $raw ) ) {
 			$raw = json_decode( $raw, true ) ?: array();
 		}

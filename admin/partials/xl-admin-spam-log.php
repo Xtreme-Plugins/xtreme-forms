@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
 
 $nonce = wp_create_nonce( 'xl_spam_log_nonce' );
 $all_forms = XL_Forms::get_all_forms();

@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
 
 $metrics = XL_Analytics::form_performance_metrics();
 $forms = XL_Forms::get_all_forms();

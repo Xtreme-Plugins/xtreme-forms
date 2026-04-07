@@ -302,10 +302,11 @@ class XL_Multisite {
 			$leads_table = $wpdb->prefix . 'xtremeleads_leads';
 			$forms_table = $wpdb->prefix . 'xtremeleads_forms';
 
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$site_count = (int) $wpdb->get_var(
 				"SELECT COUNT(*) FROM {$leads_table}"
 			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 			$blog_name = get_bloginfo( 'name' );
 			$blog_url = get_bloginfo( 'url' );
@@ -318,7 +319,7 @@ class XL_Multisite {
 			$total_leads += $site_count;
 
 			// Top forms for this site (top 5).
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$site_forms = $wpdb->get_results(
 				"SELECT f.name AS form_name, COUNT(l.id) AS lead_count
 				FROM {$leads_table} l
@@ -327,6 +328,7 @@ class XL_Multisite {
 				ORDER BY lead_count DESC
 				LIMIT 5"
 			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 			foreach ( (array) $site_forms as $row ) {
 				$top_forms[] = array(

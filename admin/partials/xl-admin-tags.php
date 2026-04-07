@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
 
 $all_tags = XL_Tags::get_all_tags();
 

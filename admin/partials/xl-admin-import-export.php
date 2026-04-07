@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
 
 $notice_html = '';
 $transient_key = 'xl_import_result_' . get_current_user_id();
