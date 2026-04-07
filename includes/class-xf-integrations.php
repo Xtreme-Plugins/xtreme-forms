@@ -59,7 +59,7 @@ class XF_Integrations {
 		}
 
 		$settings = self::get_settings();
-		$data     = isset( $_POST['data'] ) && is_array( $_POST['data'] ) ? $_POST['data'] : array();
+		$data     = isset( $_POST['data'] ) && is_array( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : array();
 
 		// Sanitize all values as text; the 'enabled' key gets boolean treatment.
 		$clean = array();

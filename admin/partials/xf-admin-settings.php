@@ -378,7 +378,10 @@ if ( $rc_enabled ) {
 							</p>
 							<?php if ( $next_purge_time ) : ?>
 								<p class="description">
-									<?php printf( esc_html__( 'Next purge: %s', 'xtreme-forms' ), '<strong>' . esc_html( $next_purge_time ) . '</strong>' ); ?>
+									<?php
+									// translators: %s: date and time of the next scheduled purge run.
+									printf( esc_html__( 'Next purge: %s', 'xtreme-forms' ), '<strong>' . esc_html( $next_purge_time ) . '</strong>' );
+									?>
 								</p>
 							<?php elseif ( $retention_days ) : ?>
 								<p class="description" style="color:#FFC107;"><?php esc_html_e( 'Purge cron not scheduled. Save settings to reschedule.', 'xtreme-forms' ); ?></p>

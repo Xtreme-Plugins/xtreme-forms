@@ -594,7 +594,7 @@ class XF_Admin {
 		$anonymize_ip = isset( $_POST['anonymize_ip'] ) ? '1' : '0';
 
 		// Data retention: blank = disabled, numeric >= 1 = enabled.
-		$retention_days_post = isset( $_POST['retention_days'] ) ? trim( wp_unslash( $_POST['retention_days'] ) ) : '';
+		$retention_days_post = isset( $_POST['retention_days'] ) ? sanitize_text_field( wp_unslash( $_POST['retention_days'] ) ) : '';
 		$retention_days      = null;
 		if ( '' !== $retention_days_post ) {
 			$retention_days_raw = (int) $retention_days_post;

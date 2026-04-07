@@ -344,6 +344,7 @@ class XF_Shortcode {
 		if ( class_exists( 'XF_Spam' ) ) {
 			$turnstile = XF_Spam::get_turnstile_settings();
 			if ( $turnstile['enabled'] && ! wp_script_is( 'xf-turnstile', 'enqueued' ) ) {
+				// phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- Cloudflare Turnstile must be loaded from Cloudflare's CDN; self-hosting is not supported.
 				wp_enqueue_script(
 					'xf-turnstile',
 					'https://challenges.cloudflare.com/turnstile/v0/api.js',
@@ -427,7 +428,7 @@ class XF_Shortcode {
 		// Strip query string from current URL so POST data from a previous submission
 		// does not appear in the recorded source URL (form has method="post" but
 		// the source URL should always be the clean page path).
-		$clean_uri    = strtok( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ), '?' );
+		$clean_uri    = strtok( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ), '?' );
 		$source_url   = esc_url( home_url( $clean_uri ) );
 
 		$html  = '<div class="xf-form-wrap" data-form-id="' . esc_attr( $form_id ) . '">';

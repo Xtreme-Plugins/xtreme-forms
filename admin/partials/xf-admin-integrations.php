@@ -6,6 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are local to this included partial, not global scope.
 
 // Retrieve saved settings and pass to JS.
 $xf_int_saved = XF_Integrations::get_settings();
