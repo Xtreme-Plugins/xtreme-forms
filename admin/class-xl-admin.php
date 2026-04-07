@@ -490,10 +490,11 @@ class XL_Admin {
 			$name = __( 'Untitled Form', 'xtremeleads' );
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; each field is sanitized individually after json_decode().
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; each field is sanitized individually after json_decode().
 		$raw_fields = isset( $_POST['xl_fields'] )
 			? wp_unslash( $_POST['xl_fields'] )
 			: '[]';
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$fields = json_decode( $raw_fields, true );
 		if ( ! is_array( $fields ) ) {
@@ -945,10 +946,11 @@ class XL_Admin {
 		}
 
 		$mode = sanitize_text_field( wp_unslash( $_POST['routing_mode'] ?? 'match_first' ) );
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- rules array; each element is sanitized individually in the foreach loop below.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- rules array; each element is sanitized individually in the foreach loop below.
 		$raw_rules = isset( $_POST['rules'] ) && is_array( $_POST['rules'] )
 			? wp_unslash( $_POST['rules'] )
 			: array();
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$clean_rules = array();
 		foreach ( $raw_rules as $rule ) {
@@ -1430,14 +1432,14 @@ class XL_Admin {
 			exit;
 		}
 
-		$file_size = (int) ( $_FILES['xl_import_file']['size'] ?? 0 );
+		$file_size = absint( $_FILES['xl_import_file']['size'] ?? 0 );
 		if ( $file_size > 2 * MB_IN_BYTES ) {
 			set_transient( $transient_key, new WP_Error( 'file_too_large', __( 'Import file exceeds 2 MB limit.', 'xtremeleads' ) ), 60 );
 			wp_safe_redirect( $redirect );
 			exit;
 		}
 
-		$json = file_get_contents( $_FILES['xl_import_file']['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		$json = file_get_contents( $_FILES['xl_import_file']['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( false === $json ) {
 			set_transient( $transient_key, new WP_Error( 'read_error', __( 'Could not read the uploaded file.', 'xtremeleads' ) ), 60 );
 			wp_safe_redirect( $redirect );

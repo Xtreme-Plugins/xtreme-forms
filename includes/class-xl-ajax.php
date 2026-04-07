@@ -1732,7 +1732,9 @@ class XL_Ajax {
 	public function handle_webhook_save(): void {
 		$this->check_ajax_auth( 'xl_webhook_nonce' );
 
-		$raw = isset( $_POST['webhook'] ) ? wp_unslash( $_POST['webhook'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- webhook array; each key sanitized individually after decoding.
+		$raw = isset( $_POST['webhook'] ) ? wp_unslash( $_POST['webhook'] ) : array();
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( is_string( $raw ) ) {
 			$raw = json_decode( $raw, true ) ?: array();
 		}

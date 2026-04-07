@@ -2,6 +2,13 @@
 
 All notable changes to XtremeLeads are documented here.
 
+## [1.6.7] - 2026-04-07
+
+### Fixed
+- PHPCS compliance: converted single-line `phpcs:ignore` comments placed above multi-line `$_POST`/`$_FILES` expressions to `phpcs:disable/enable` blocks so the suppression covers the actual violation line — affected `$_POST['xl_fields']`, `$_POST['rules']`, and `$_POST['webhook']`
+- PHPCS compliance: replaced `(int)` cast on `$_FILES['xl_import_file']['size']` with `absint()` which is recognized as a sanitization function by PHPCS
+- PHPCS compliance: added `WordPress.Security.ValidatedSanitizedInput.InputNotSanitized` to the existing `phpcs:ignore` on `$_FILES['xl_import_file']['tmp_name']` in `file_get_contents()` (tmp path cannot be passed through sanitize functions)
+
 ## [1.6.6] - 2026-04-07
 
 ### Fixed
