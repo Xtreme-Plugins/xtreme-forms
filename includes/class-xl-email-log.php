@@ -134,9 +134,11 @@ class XL_Email_Log {
 
 		$table = $wpdb->prefix . 'xtremeleads_email_log';
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		return $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $log_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $log_id )
 		) ?: null;
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
 
 	/**

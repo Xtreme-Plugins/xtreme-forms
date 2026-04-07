@@ -2,6 +2,14 @@
 
 All notable changes to XtremeLeads are documented here.
 
+## [1.6.6] - 2026-04-07
+
+### Fixed
+- PHPCS compliance: added `WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare` and `WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber` to the phpcs:disable blocks in `class-xl-spam.php` covering the conditional `$wpdb->prepare()` calls with variadic spread parameters
+- PHPCS compliance: converted inline `phpcs:ignore` on `$wpdb->get_row()` in `class-xl-email-log.php` to a disable/enable block including `PluginCheck.Security.DirectDB.UnescapedDBParameter`
+- PHPCS compliance: added `PluginCheck.Security.DirectDB.UnescapedDBParameter` to all phpcs:disable/enable blocks in `class-xl-duplicates.php`, `class-xl-activity.php`, `class-xl-import-export.php`, `class-xl-notes.php`, and `class-xl-routing-rules.php` — this sniff fires from the PluginCheck sniff set separately from the `WordPress.DB.PreparedSQL.UnescapedDBParameter` rule
+- Issues 2 and 3 (`class-xl-ajax.php` line 1735, `class-xl-admin.php` lines 495, 950, 1433, 1440) were already correctly suppressed in the prior release
+
 ## [1.6.5] - 2026-04-07
 
 ### Fixed
