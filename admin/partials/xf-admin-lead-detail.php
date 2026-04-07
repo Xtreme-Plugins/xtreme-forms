@@ -129,18 +129,22 @@ if ( $email_warn ) {
 		</a>
 	</div>
 
-	<h1 class="xf-page-title">
-		<?php
-		printf(
-			/* translators: %d: lead ID */
-			esc_html__( 'Lead #%d', 'xtreme-forms' ),
-			absint( $lead_id )
-		);
-		?>
-		<span class="xf-status-badge xf-status-<?php echo esc_attr( $status_key ); ?>" id="xf-detail-status-badge">
-			<?php echo esc_html( $status_label ); ?>
-		</span>
-	</h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title">
+			<?php
+			printf(
+				/* translators: %d: lead ID */
+				esc_html__( 'Lead #%d', 'xtreme-forms' ),
+				absint( $lead_id )
+			);
+			?>
+		</h1>
+		<div class="xf-header-actions">
+			<span class="xf-status-badge xf-status-<?php echo esc_attr( $status_key ); ?>" id="xf-detail-status-badge">
+				<?php echo esc_html( $status_label ); ?>
+			</span>
+		</div>
+	</div>
 
 	<?php echo wp_kses_post( $notice_html ); ?>
 

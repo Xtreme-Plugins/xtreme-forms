@@ -33,12 +33,19 @@ $add_form_url = add_query_arg(
 $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_url( 'admin.php' ) );
 ?>
 <div class="wrap xf-wrap xf-dashboard-wrap">
-	<h1 class="xf-page-title">
-		<?php esc_html_e( 'Xtreme Forms Dashboard', 'xtreme-forms' ); ?>
-		<a href="<?php echo esc_url( $leads_url ); ?>" class="button xf-btn-secondary">
-			<?php esc_html_e( 'View All Leads', 'xtreme-forms' ); ?>
-		</a>
-	</h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title">
+			<?php esc_html_e( 'Dashboard', 'xtreme-forms' ); ?>
+		</h1>
+		<div class="xf-header-actions">
+			<a href="<?php echo esc_url( $leads_url ); ?>" class="xf-btn xf-btn-secondary">
+				<?php esc_html_e( 'View All Leads', 'xtreme-forms' ); ?>
+			</a>
+			<a href="<?php echo esc_url( $add_form_url ); ?>" class="xf-btn xf-btn-primary">
+				<?php esc_html_e( '+ New Form', 'xtreme-forms' ); ?>
+			</a>
+		</div>
+	</div>
 
 	<!-- ── KPI Tiles ──────────────────────────────────────────────────────── -->
 	<div class="xf-kpi-row">

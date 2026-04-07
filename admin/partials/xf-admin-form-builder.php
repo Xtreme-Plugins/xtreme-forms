@@ -80,15 +80,17 @@ $shortcode_hint = $is_edit
 	: '';
 ?>
 <div class="wrap xf-wrap xf-form-builder-wrap">
-	<h1 class="xf-page-title">
-		<?php echo esc_html( $page_title ); ?>
-		<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="page-title-action">
-			&laquo; <?php esc_html_e( 'Back to Forms', 'xtreme-forms' ); ?>
-		</a>
-		<?php if ( $shortcode_hint ) : ?>
-			<span class="xf-shortcode-hint"><?php esc_html_e( 'Shortcode:', 'xtreme-forms' ); ?> <?php echo wp_kses_post( $shortcode_hint ); ?></span>
-		<?php endif; ?>
-	</h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php echo esc_html( $page_title ); ?></h1>
+		<div class="xf-header-actions">
+			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-secondary">
+				&laquo; <?php esc_html_e( 'Back to Forms', 'xtreme-forms' ); ?>
+			</a>
+			<?php if ( $shortcode_hint ) : ?>
+				<span class="xf-shortcode-hint"><?php esc_html_e( 'Shortcode:', 'xtreme-forms' ); ?> <?php echo wp_kses_post( $shortcode_hint ); ?></span>
+			<?php endif; ?>
+		</div>
+	</div>
 
 	<?php echo wp_kses_post( $notice_html ); ?>
 

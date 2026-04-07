@@ -18,24 +18,14 @@ if ( ! empty( $_GET['updated'] ) ) {
 }
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title">
-		<?php esc_html_e( 'Forms', 'xtreme-forms' ); ?>
-		<a href="
-		<?php
-		echo esc_url(
-			add_query_arg(
-				array(
-					'page'      => 'xtreme-forms-forms',
-					'xf_action' => 'new',
-				),
-				admin_url( 'admin.php' )
-			)
-		);
-		?>
-		" class="page-title-action xf-btn-primary">
-			<?php esc_html_e( 'Add New Form', 'xtreme-forms' ); ?>
-		</a>
-	</h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Forms', 'xtreme-forms' ); ?></h1>
+		<div class="xf-header-actions">
+			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-primary">
+				<?php esc_html_e( 'Add New Form', 'xtreme-forms' ); ?>
+			</a>
+		</div>
+	</div>
 
 	<?php echo wp_kses_post( $notice_html ); ?>
 

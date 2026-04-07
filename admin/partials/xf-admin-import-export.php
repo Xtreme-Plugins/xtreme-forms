@@ -46,7 +46,9 @@ if ( ! empty( $_GET['xf_export_error'] ) ) {
 $all_forms = XF_Forms::get_all_forms();
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Import / Export', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Import / Export', 'xtreme-forms' ); ?></h1>
+	</div>
 
 	<?php echo wp_kses_post( $notice_html ); ?>
 

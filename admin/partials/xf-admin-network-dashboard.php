@@ -14,7 +14,9 @@ $by_site     = $data['by_site'];
 $top_forms   = $data['top_forms'];
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Xtreme Forms — Network Dashboard', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Xtreme Forms — Network Dashboard', 'xtreme-forms' ); ?></h1>
+	</div>
 	<p class="description"><?php esc_html_e( 'Aggregated lead data across all active subsites in this network.', 'xtreme-forms' ); ?></p>
 
 	<!-- Summary card -->

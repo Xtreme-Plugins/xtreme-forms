@@ -39,7 +39,9 @@ $base_url = add_query_arg(
 );
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Audit Log', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Audit Log', 'xtreme-forms' ); ?></h1>
+	</div>
 	<p class="description"><?php esc_html_e( 'A read-only, append-only record of all significant Xtreme Forms actions. Entries cannot be edited or deleted.', 'xtreme-forms' ); ?></p>
 
 	<!-- Filter bar -->

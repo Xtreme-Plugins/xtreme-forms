@@ -40,7 +40,9 @@ $merge_tags_desc = implode(
 );
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Email Templates', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Email Templates', 'xtreme-forms' ); ?></h1>
+	</div>
 
 	<?php echo wp_kses_post( $notice ); ?>
 

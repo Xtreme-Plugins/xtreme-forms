@@ -30,7 +30,9 @@ $total = $log_data['total'];
 $pages = $log_data['pages'];
 ?>
 <div class="wrap xf-wrap" id="xf-spam-log-page">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Spam Log', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Spam Log', 'xtreme-forms' ); ?></h1>
+	</div>
 
 	<div class="xf-card" style="margin-bottom:16px;">
 		<p><?php esc_html_e( 'Submissions blocked by spam protection are recorded here. Spam log entries do not contain full submission payloads — only metadata and the rejection reason.', 'xtreme-forms' ); ?></p>

@@ -18,15 +18,15 @@ if ( ! empty( $_GET['updated'] ) ) {
 }
 ?>
 <div class="wrap xf-wrap" id="xf-webhooks-page">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Webhooks', 'xtreme-forms' ); ?></h1>
-	<?php echo wp_kses_post( $notice_html ); ?>
-
-	<div class="xf-card" style="margin-bottom:24px;">
-		<p><?php esc_html_e( 'Configure outbound webhook endpoints that receive lead data when events occur. Each webhook sends a POST request with a JSON payload.', 'xtreme-forms' ); ?></p>
-		<button type="button" class="button button-primary xf-btn-primary" id="xf-add-webhook-btn">
-			+ <?php esc_html_e( 'Add Webhook', 'xtreme-forms' ); ?>
-		</button>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Webhooks', 'xtreme-forms' ); ?></h1>
+		<div class="xf-header-actions">
+			<button type="button" class="xf-btn xf-btn-primary" id="xf-add-webhook-btn">
+				+ <?php esc_html_e( 'Add Webhook', 'xtreme-forms' ); ?>
+			</button>
+		</div>
 	</div>
+	<?php echo wp_kses_post( $notice_html ); ?>
 
 	<!-- Webhook editor (hidden by default) -->
 	<div id="xf-webhook-editor" class="xf-card" style="display:none;margin-bottom:24px;">

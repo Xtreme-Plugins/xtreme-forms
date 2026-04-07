@@ -35,7 +35,9 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 }
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Email Log', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Email Log', 'xtreme-forms' ); ?></h1>
+	</div>
 
 	<?php echo wp_kses_post( $notice ); ?>
 

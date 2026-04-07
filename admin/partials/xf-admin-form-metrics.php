@@ -12,9 +12,11 @@ $metrics = XF_Analytics::form_performance_metrics();
 $forms   = XF_Forms::get_all_forms();
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title">
-		<?php esc_html_e( 'Form Performance Metrics', 'xtreme-forms' ); ?>
-	</h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title">
+			<?php esc_html_e( 'Form Performance Metrics', 'xtreme-forms' ); ?>
+		</h1>
+	</div>
 
 	<?php if ( empty( $forms ) ) : ?>
 		<div class="xf-card">

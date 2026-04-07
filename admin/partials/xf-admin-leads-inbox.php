@@ -179,14 +179,18 @@ $export_url = wp_nonce_url(
 );
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title">
-		<?php esc_html_e( 'Leads Inbox', 'xtreme-forms' ); ?>
-		<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $total_leads ) ); ?></span>
-		<a href="<?php echo esc_url( $export_url ); ?>" class="button xf-btn-secondary xf-export-btn">
-			<span class="dashicons dashicons-download" style="vertical-align:middle;margin-right:4px;"></span>
-			<?php esc_html_e( 'Export CSV', 'xtreme-forms' ); ?>
-		</a>
-	</h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title">
+			<?php esc_html_e( 'Leads Inbox', 'xtreme-forms' ); ?>
+			<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $total_leads ) ); ?></span>
+		</h1>
+		<div class="xf-header-actions">
+			<a href="<?php echo esc_url( $export_url ); ?>" class="xf-btn xf-btn-secondary">
+				<span class="dashicons dashicons-download"></span>
+				<?php esc_html_e( 'Export CSV', 'xtreme-forms' ); ?>
+			</a>
+		</div>
+	</div>
 
 	<?php echo wp_kses_post( $notice_html ); ?>
 
@@ -219,7 +223,7 @@ $export_url = wp_nonce_url(
 
 	<!-- Tag / Form / Date Filters -->
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="xf-filter-form" id="xf-filter-form">
-		<input type="hidden" name="page" value="xtreme-forms">
+		<input type="hidden" name="page" value="xtreme-forms-leads">
 		<?php if ( $current_status ) : ?>
 			<input type="hidden" name="xf_status" value="<?php echo esc_attr( $current_status ); ?>">
 		<?php endif; ?>

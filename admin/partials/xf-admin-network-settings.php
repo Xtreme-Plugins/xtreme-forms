@@ -17,7 +17,9 @@ $retention_days      = isset( $network_settings['retention_days'] ) && '' !== $n
 $anonymize_ip        = ! empty( $network_settings['anonymize_ip'] ) && '1' === (string) $network_settings['anonymize_ip'];
 ?>
 <div class="wrap xf-wrap">
-	<h1 class="xf-page-title"><?php esc_html_e( 'Xtreme Forms — Network Global Settings', 'xtreme-forms' ); ?></h1>
+	<div class="xf-page-header">
+		<h1 class="xf-page-title"><?php esc_html_e( 'Xtreme Forms — Network Global Settings', 'xtreme-forms' ); ?></h1>
+	</div>
 	<p class="description">
 		<?php esc_html_e( 'Configure settings here and click "Push Settings to All Sites" to apply them to every subsite in the network. Each subsite retains its own independent lead data.', 'xtreme-forms' ); ?>
 	</p>
