@@ -2,6 +2,18 @@
 
 All notable changes to Xtreme Forms are documented here.
 
+## [2.0.1] - 2026-04-07
+
+### Added
+- First-activation welcome screen (`admin.php?page=xf-welcome`) — appears once automatically after plugin activation via a 30-second transient redirect; not shown during network-wide or AJAX activations
+- Welcome screen sections: header with inline SVG logo, getting started video placeholder with CTA buttons, 8-feature grid, Pro upgrade section with pricing card, testimonials, and footer CTA strip
+- Hidden admin page registered via `add_submenu_page( null, ... )` so it is accessible by direct URL but does not appear in the navigation
+- `XF_Activator::activate()` now sets `xf_activation_redirect` transient on single-site activation
+- `XF_Admin::maybe_redirect_to_welcome()` consumes the transient on `admin_init` and performs a safe redirect
+
+### Changed
+- Version bumped from 1.6.7 to 2.0.1 to mark the plugin rename milestone (XtremeLeads → Xtreme Forms)
+
 ## [1.6.7] - 2026-04-07
 
 ### Fixed

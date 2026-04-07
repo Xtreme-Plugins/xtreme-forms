@@ -15,6 +15,7 @@ class XF_Admin {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_init', array( $this, 'maybe_redirect_to_welcome' ) );
 		add_action( 'admin_post_xl_save_settings', array( $this, 'handle_save_settings' ) );
 		add_action( 'admin_post_xl_save_form', array( $this, 'handle_save_form' ) );
 		add_action( 'admin_post_xl_delete_form', array( $this, 'handle_delete_form' ) );
@@ -164,6 +165,16 @@ class XF_Admin {
 			'xtremeleads-audit-log',
 			array( $this, 'page_audit_log' )
 		);
+
+		// Hidden welcome page — accessible by URL but not shown in the nav.
+		add_submenu_page(
+			null,
+			__( 'Welcome to Xtreme Forms', 'xtreme-forms' ),
+			__( 'Welcome', 'xtreme-forms' ),
+			'manage_options',
+			'xf-welcome',
+			array( $this, 'page_welcome' )
+		);
 	}
 
 	// ── Asset enqueueing ─────────────────────────────────────────────────────
@@ -308,7 +319,41 @@ class XF_Admin {
 		);
 	}
 
+	// ── Activation redirect ───────────────────────────────────────────────────
+
+	/**
+	 * Redirect to the welcome screen once after plugin activation.
+	 *
+	 * Runs on admin_init. Skips during AJAX requests, network activation,
+	 * and when the current user cannot manage options.
+	 */
+	public function maybe_redirect_to_welcome(): void {
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! get_transient( 'xf_activation_redirect' ) ) {
+			return;
+		}
+
+		delete_transient( 'xf_activation_redirect' );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=xf-welcome' ) );
+		exit;
+	}
+
 	// ── Page callbacks ────────────────────────────────────────────────────────
+
+	public function page_welcome(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+		}
+		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-welcome.php';
+	}
 
 	public function page_dashboard(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
