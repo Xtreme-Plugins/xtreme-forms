@@ -29,6 +29,10 @@ class XF_Admin {
 		add_action( 'admin_post_xl_save_settings_s5', array( $this, 'handle_save_settings_s5' ) );
 		add_action( 'admin_post_xl_export_data', array( $this, 'handle_export_data' ) );
 		add_action( 'admin_post_xl_import_data', array( $this, 'handle_import_data' ) );
+		// xf_ prefix aliases for admin-post actions (form action names use xf_ prefix).
+		add_action( 'admin_post_xf_save_settings', array( $this, 'handle_save_settings' ) );
+		add_action( 'admin_post_xf_save_settings_s4', array( $this, 'handle_save_settings_s4' ) );
+		add_action( 'admin_post_xf_save_settings_s5', array( $this, 'handle_save_settings_s5' ) );
 	}
 
 	// ── Menus ────────────────────────────────────────────────────────────────
@@ -69,15 +73,6 @@ class XF_Admin {
 
 		add_submenu_page(
 			'xtreme-forms',
-			__( 'Form Metrics', 'xtreme-forms' ),
-			__( 'Form Metrics', 'xtreme-forms' ),
-			'manage_options',
-			'xtreme-forms-form-metrics',
-			array( $this, 'page_form_metrics' )
-		);
-
-		add_submenu_page(
-			'xtreme-forms',
 			__( 'Forms', 'xtreme-forms' ),
 			__( 'Forms', 'xtreme-forms' ),
 			'manage_options',
@@ -87,56 +82,11 @@ class XF_Admin {
 
 		add_submenu_page(
 			'xtreme-forms',
-			__( 'Tags', 'xtreme-forms' ),
-			__( 'Tags', 'xtreme-forms' ),
+			__( 'Automations', 'xtreme-forms' ),
+			__( 'Automations', 'xtreme-forms' ),
 			'manage_options',
-			'xtreme-forms-tags',
-			array( $this, 'page_tags' )
-		);
-
-		add_submenu_page(
-			'xtreme-forms',
-			__( 'Email Templates', 'xtreme-forms' ),
-			__( 'Email Templates', 'xtreme-forms' ),
-			'manage_options',
-			'xtreme-forms-email-templates',
-			array( $this, 'page_email_templates' )
-		);
-
-		add_submenu_page(
-			'xtreme-forms',
-			__( 'Routing Rules', 'xtreme-forms' ),
-			__( 'Routing Rules', 'xtreme-forms' ),
-			'manage_options',
-			'xtreme-forms-routing-rules',
-			array( $this, 'page_routing_rules' )
-		);
-
-		add_submenu_page(
-			'xtreme-forms',
-			__( 'Email Log', 'xtreme-forms' ),
-			__( 'Email Log', 'xtreme-forms' ),
-			'manage_options',
-			'xtreme-forms-email-log',
-			array( $this, 'page_email_log' )
-		);
-
-		add_submenu_page(
-			'xtreme-forms',
-			__( 'Webhooks', 'xtreme-forms' ),
-			__( 'Webhooks', 'xtreme-forms' ),
-			'manage_options',
-			'xtreme-forms-webhooks',
-			array( $this, 'page_webhooks' )
-		);
-
-		add_submenu_page(
-			'xtreme-forms',
-			__( 'Spam Log', 'xtreme-forms' ),
-			__( 'Spam Log', 'xtreme-forms' ),
-			'manage_options',
-			'xtreme-forms-spam-log',
-			array( $this, 'page_spam_log' )
+			'xtreme-forms-automations',
+			array( $this, 'page_automations' )
 		);
 
 		add_submenu_page(
@@ -148,8 +98,90 @@ class XF_Admin {
 			array( $this, 'page_settings' )
 		);
 
+		// Hidden pages — accessible by URL but not shown in the nav.
 		add_submenu_page(
-			'xtreme-forms',
+			null,
+			__( 'Welcome to Xtreme Forms', 'xtreme-forms' ),
+			__( 'Welcome', 'xtreme-forms' ),
+			'manage_options',
+			'xf-welcome',
+			array( $this, 'page_welcome' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Form Metrics', 'xtreme-forms' ),
+			__( 'Form Metrics', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-form-metrics',
+			array( $this, 'page_form_metrics' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Tags', 'xtreme-forms' ),
+			__( 'Tags', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-tags',
+			array( $this, 'page_tags' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Email Templates', 'xtreme-forms' ),
+			__( 'Email Templates', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-email-templates',
+			array( $this, 'page_email_templates' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Routing Rules', 'xtreme-forms' ),
+			__( 'Routing Rules', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-routing-rules',
+			array( $this, 'page_routing_rules' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Email Log', 'xtreme-forms' ),
+			__( 'Email Log', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-email-log',
+			array( $this, 'page_email_log' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Webhooks', 'xtreme-forms' ),
+			__( 'Webhooks', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-webhooks',
+			array( $this, 'page_webhooks' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Integrations', 'xtreme-forms' ),
+			__( 'Integrations', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-integrations',
+			array( $this, 'page_integrations' )
+		);
+
+		add_submenu_page(
+			null,
+			__( 'Spam Log', 'xtreme-forms' ),
+			__( 'Spam Log', 'xtreme-forms' ),
+			'manage_options',
+			'xtreme-forms-spam-log',
+			array( $this, 'page_spam_log' )
+		);
+
+		add_submenu_page(
+			null,
 			__( 'Import / Export', 'xtreme-forms' ),
 			__( 'Import / Export', 'xtreme-forms' ),
 			'manage_options',
@@ -158,22 +190,12 @@ class XF_Admin {
 		);
 
 		add_submenu_page(
-			'xtreme-forms',
+			null,
 			__( 'Audit Log', 'xtreme-forms' ),
 			__( 'Audit Log', 'xtreme-forms' ),
 			'manage_options',
 			'xtreme-forms-audit-log',
 			array( $this, 'page_audit_log' )
-		);
-
-		// Hidden welcome page — accessible by URL but not shown in the nav.
-		add_submenu_page(
-			null,
-			__( 'Welcome to Xtreme Forms', 'xtreme-forms' ),
-			__( 'Welcome', 'xtreme-forms' ),
-			'manage_options',
-			'xf-welcome',
-			array( $this, 'page_welcome' )
 		);
 	}
 
@@ -199,9 +221,30 @@ class XF_Admin {
 			true
 		);
 
+		// Builder-specific assets (only on the form builder page: new or edit actions).
+		if ( false !== strpos( $hook, 'xtreme-forms-forms' ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification -- Read-only URL param for page routing, no state change.
+			$xf_action = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
+			if ( in_array( $xf_action, array( 'new', 'edit' ), true ) ) {
+				wp_enqueue_style(
+					'xf-builder',
+					XTREMEFORMS_PLUGIN_URL . 'admin/css/xf-builder.css',
+					array( 'xf-admin' ),
+					XTREMEFORMS_VERSION
+				);
+				wp_enqueue_script(
+					'xf-builder',
+					XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-builder.js',
+					array( 'xf-admin' ),
+					XTREMEFORMS_VERSION,
+					true
+				);
+			}
+		}
+
 		// Enqueue Chart.js and dashboard script on dashboard/metrics pages.
-		if ( false !== strpos( $hook, 'xtremeforms_page_xtreme-forms-form-metrics' )
-			|| false !== strpos( $hook, 'toplevel_page_xtremeleads' )
+		if ( false !== strpos( $hook, 'xtreme-forms-form-metrics' )
+			|| false !== strpos( $hook, 'toplevel_page_xtreme-forms' )
 		) {
 			wp_enqueue_script(
 				'xf-chartjs',
@@ -256,11 +299,12 @@ class XF_Admin {
 			'xf-admin',
 			'xfAdminData',
 			array(
-				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-				'nonce'        => wp_create_nonce( 'xf_admin_nonce' ),
-				'webhookNonce' => wp_create_nonce( 'xf_webhook_nonce' ),
-				'gdprNonce'    => wp_create_nonce( 'xf_gdpr_nonce' ),
-				'spamLogNonce' => wp_create_nonce( 'xf_spam_log_nonce' ),
+				'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
+				'nonce'              => wp_create_nonce( 'xf_admin_nonce' ),
+				'webhookNonce'       => wp_create_nonce( 'xf_webhook_nonce' ),
+				'gdprNonce'          => wp_create_nonce( 'xf_gdpr_nonce' ),
+				'spamLogNonce'       => wp_create_nonce( 'xf_spam_log_nonce' ),
+				'integrationsNonce'  => wp_create_nonce( 'xf_integrations_nonce' ),
 				'pluginUrl'    => XTREMEFORMS_PLUGIN_URL,
 				'statuses'     => $statuses,
 				'allTags'      => array_map(
@@ -395,15 +439,26 @@ class XF_Admin {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification -- Read-only URL params for admin page routing, no state change.
-		$action  = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
-		$form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
+		$action      = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
+		$form_id     = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
+		$xf_template = isset( $_GET['xf_template'] ) ? sanitize_key( $_GET['xf_template'] ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification
 
-		if ( in_array( $action, array( 'new', 'edit' ), true ) ) {
+		if ( 'new' === $action && ! $xf_template ) {
+			// Show template picker before the builder.
+			require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-form-template-picker.php';
+		} elseif ( in_array( $action, array( 'new', 'edit' ), true ) ) {
 			require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-form-builder.php';
 		} else {
 			require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-forms-list.php';
 		}
+	}
+
+	public function page_integrations(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+		}
+		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-integrations.php';
 	}
 
 	public function page_tags(): void {
@@ -418,6 +473,13 @@ class XF_Admin {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
 		}
 		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-settings.php';
+	}
+
+	public function page_automations(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+		}
+		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-automations.php';
 	}
 
 	public function page_email_templates(): void {
@@ -481,43 +543,124 @@ class XF_Admin {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
 		}
 
-		// Preserve duplicate-behavior settings that are managed by a separate form.
 		$existing = get_option( 'xtremeforms_settings', array() );
 
-		$settings = array(
-			'recipients'              => sanitize_text_field( wp_unslash( $_POST['recipients'] ?? '' ) ),
-			'anonymize_ip'            => isset( $_POST['anonymize_ip'] ) ? '1' : '0',
-			'email_from_name'         => sanitize_text_field( wp_unslash( $_POST['email_from_name'] ?? '' ) ),
-			'email_from'              => sanitize_email( wp_unslash( $_POST['email_from'] ?? '' ) ),
-			// Preserve duplicate settings so they are not wiped on main-settings save.
-			'duplicate_behavior'      => $existing['duplicate_behavior'] ?? 'silent_flag',
-			'duplicate_block_message' => $existing['duplicate_block_message'] ?? '',
-			// Preserve spam and GDPR settings.
-			'recaptcha_enabled'       => $existing['recaptcha_enabled'] ?? '0',
-			'recaptcha_site_key'      => $existing['recaptcha_site_key'] ?? '',
-			'recaptcha_secret_key'    => $existing['recaptcha_secret_key'] ?? '',
-			'recaptcha_threshold'     => $existing['recaptcha_threshold'] ?? '0.5',
-			'spam_domain_blocklist'   => $existing['spam_domain_blocklist'] ?? '',
-			'spam_keyword_blocklist'  => $existing['spam_keyword_blocklist'] ?? '',
-			'retention_days'          => $existing['retention_days'] ?? '',
+		// ── Email Notifications ───────────────────────────────────────────────
+		$recipients    = sanitize_text_field( wp_unslash( $_POST['recipients'] ?? '' ) );
+		$email_from_name = sanitize_text_field( wp_unslash( $_POST['email_from_name'] ?? '' ) );
+		$email_from    = sanitize_email( wp_unslash( $_POST['email_from'] ?? '' ) );
+
+		// ── Bot Protection: reCAPTCHA ─────────────────────────────────────────
+		$recaptcha_enabled    = isset( $_POST['recaptcha_enabled'] ) ? '1' : '0';
+		$recaptcha_site_key   = sanitize_text_field( wp_unslash( $_POST['recaptcha_site_key'] ?? '' ) );
+		$recaptcha_secret_key = sanitize_text_field( wp_unslash( $_POST['recaptcha_secret_key'] ?? '' ) );
+		$recaptcha_threshold  = isset( $_POST['recaptcha_threshold'] )
+			? max( 0.1, min( 0.9, floatval( wp_unslash( $_POST['recaptcha_threshold'] ) ) ) )
+			: 0.5;
+
+		// reCAPTCHA key validation.
+		$recaptcha_key_warning = '';
+		if ( '1' === $recaptcha_enabled ) {
+			if ( '' === $recaptcha_site_key || '' === $recaptcha_secret_key ) {
+				$recaptcha_key_warning = 'missing';
+			} elseif (
+				! preg_match( '/^[A-Za-z0-9_\-]{20,}$/', $recaptcha_site_key ) ||
+				! preg_match( '/^[A-Za-z0-9_\-]{20,}$/', $recaptcha_secret_key )
+			) {
+				$recaptcha_key_warning = 'invalid';
+			}
+		}
+
+		// ── Bot Protection: Turnstile ─────────────────────────────────────────
+		$turnstile_enabled    = isset( $_POST['turnstile_enabled'] ) ? '1' : '0';
+		$turnstile_site_key   = sanitize_text_field( wp_unslash( $_POST['turnstile_site_key'] ?? '' ) );
+		$turnstile_secret_key = sanitize_text_field( wp_unslash( $_POST['turnstile_secret_key'] ?? '' ) );
+		$turnstile_theme      = sanitize_key( wp_unslash( $_POST['turnstile_theme'] ?? 'auto' ) );
+		$turnstile_size       = sanitize_key( wp_unslash( $_POST['turnstile_size'] ?? 'normal' ) );
+
+		// ── Spam Blocklists ───────────────────────────────────────────────────
+		$spam_domain_blocklist  = sanitize_textarea_field( wp_unslash( $_POST['spam_domain_blocklist'] ?? '' ) );
+		$spam_keyword_blocklist = sanitize_textarea_field( wp_unslash( $_POST['spam_keyword_blocklist'] ?? '' ) );
+
+		// ── Duplicate Detection ───────────────────────────────────────────────
+		$duplicate_behavior      = sanitize_text_field( wp_unslash( $_POST['duplicate_behavior'] ?? 'silent_flag' ) );
+		$duplicate_block_message = sanitize_text_field( wp_unslash( $_POST['duplicate_block_message'] ?? '' ) );
+		$allowed_behaviors       = array( 'silent_flag', 'block', 'merge' );
+		if ( ! in_array( $duplicate_behavior, $allowed_behaviors, true ) ) {
+			$duplicate_behavior = 'silent_flag';
+		}
+
+		// ── Privacy & GDPR ────────────────────────────────────────────────────
+		$anonymize_ip = isset( $_POST['anonymize_ip'] ) ? '1' : '0';
+
+		// Data retention: blank = disabled, numeric >= 1 = enabled.
+		$retention_days_post = isset( $_POST['retention_days'] ) ? trim( wp_unslash( $_POST['retention_days'] ) ) : '';
+		$retention_days      = null;
+		if ( '' !== $retention_days_post ) {
+			$retention_days_raw = (int) $retention_days_post;
+			if ( $retention_days_raw < 1 ) {
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'page'  => 'xtreme-forms-settings',
+							'error' => 'retention_min',
+						),
+						admin_url( 'admin.php' )
+					)
+				);
+				exit;
+			}
+			$retention_days = $retention_days_raw;
+		}
+
+		// ── Build & persist settings array ────────────────────────────────────
+		$settings = array_merge(
+			$existing,
+			array(
+				'recipients'             => $recipients,
+				'email_from_name'        => $email_from_name,
+				'email_from'             => $email_from,
+				'anonymize_ip'           => $anonymize_ip,
+				'recaptcha_enabled'      => $recaptcha_enabled,
+				'recaptcha_site_key'     => $recaptcha_site_key,
+				'recaptcha_secret_key'   => $recaptcha_secret_key,
+				'recaptcha_threshold'    => (string) $recaptcha_threshold,
+				'turnstile_enabled'      => $turnstile_enabled,
+				'turnstile_site_key'     => $turnstile_site_key,
+				'turnstile_secret_key'   => $turnstile_secret_key,
+				'turnstile_theme'        => $turnstile_theme,
+				'turnstile_size'         => $turnstile_size,
+				'spam_domain_blocklist'  => $spam_domain_blocklist,
+				'spam_keyword_blocklist' => $spam_keyword_blocklist,
+				'duplicate_behavior'     => $duplicate_behavior,
+				'duplicate_block_message' => $duplicate_block_message,
+			)
 		);
 
-		update_option( 'xtremeforms_settings', $settings );
+		if ( null !== $retention_days ) {
+			$settings['retention_days'] = $retention_days;
+			update_option( 'xtremeforms_settings', $settings );
+			XF_GDPR::schedule_retention_cron();
+		} else {
+			unset( $settings['retention_days'] );
+			update_option( 'xtremeforms_settings', $settings );
+			XF_GDPR::unschedule_retention_cron();
+		}
 
 		// Audit log.
 		if ( class_exists( 'XF_Audit_Log' ) ) {
-			XF_Audit_Log::record( XF_Audit_Log::ACTION_GLOBAL_SETTINGS_UPDATED, 0, array( 'section' => 'main' ) );
+			XF_Audit_Log::record( XF_Audit_Log::ACTION_GLOBAL_SETTINGS_UPDATED, 0, array( 'section' => 'all' ) );
 		}
 
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'page'    => 'xtreme-forms-settings',
-					'updated' => '1',
-				),
-				admin_url( 'admin.php' )
-			)
+		$redirect_args = array(
+			'page'    => 'xtreme-forms-settings',
+			'updated' => '1',
 		);
+		if ( '' !== $recaptcha_key_warning ) {
+			$redirect_args['recaptcha_warning'] = $recaptcha_key_warning;
+		}
+
+		wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
 		exit;
 	}
 
@@ -547,6 +690,20 @@ class XF_Admin {
 		$fields = json_decode( $raw_fields, true );
 		if ( ! is_array( $fields ) ) {
 			$fields = array();
+		}
+
+		// v2 multi-page format: { v: 2, pages: [ { id, name, fields: [...] } ] }
+		// Flatten all pages' fields into a single sequential array for storage.
+		if ( isset( $fields['v'] ) && 2 === (int) $fields['v'] && isset( $fields['pages'] ) && is_array( $fields['pages'] ) ) {
+			$flat = array();
+			foreach ( $fields['pages'] as $pg ) {
+				if ( is_array( $pg['fields'] ?? null ) ) {
+					foreach ( $pg['fields'] as $pf ) {
+						$flat[] = $pf;
+					}
+				}
+			}
+			$fields = $flat;
 		}
 
 		$validation_errors = array();
@@ -1314,6 +1471,13 @@ class XF_Admin {
 			? max( 0.1, min( 0.9, floatval( wp_unslash( $_POST['recaptcha_threshold'] ) ) ) )
 			: 0.5;
 
+		// Turnstile settings.
+		$turnstile_enabled    = isset( $_POST['turnstile_enabled'] ) ? '1' : '0';
+		$turnstile_site_key   = sanitize_text_field( wp_unslash( $_POST['turnstile_site_key'] ?? '' ) );
+		$turnstile_secret_key = sanitize_text_field( wp_unslash( $_POST['turnstile_secret_key'] ?? '' ) );
+		$turnstile_theme      = sanitize_key( wp_unslash( $_POST['turnstile_theme'] ?? 'auto' ) );
+		$turnstile_size       = sanitize_key( wp_unslash( $_POST['turnstile_size'] ?? 'normal' ) );
+
 		// Spam blocklists.
 		$spam_domain_blocklist  = sanitize_textarea_field( wp_unslash( $_POST['spam_domain_blocklist'] ?? '' ) );
 		$spam_keyword_blocklist = sanitize_textarea_field( wp_unslash( $_POST['spam_keyword_blocklist'] ?? '' ) );
@@ -1365,6 +1529,11 @@ class XF_Admin {
 				'recaptcha_site_key'     => $recaptcha_site_key,
 				'recaptcha_secret_key'   => $recaptcha_secret_key,
 				'recaptcha_threshold'    => (string) $recaptcha_threshold,
+				'turnstile_enabled'      => $turnstile_enabled,
+				'turnstile_site_key'     => $turnstile_site_key,
+				'turnstile_secret_key'   => $turnstile_secret_key,
+				'turnstile_theme'        => $turnstile_theme,
+				'turnstile_size'         => $turnstile_size,
 				'spam_domain_blocklist'  => $spam_domain_blocklist,
 				'spam_keyword_blocklist' => $spam_keyword_blocklist,
 			)

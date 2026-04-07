@@ -339,6 +339,20 @@ class XF_Shortcode {
 				);
 			}
 		}
+
+		// Enqueue Cloudflare Turnstile script if enabled globally.
+		if ( class_exists( 'XF_Spam' ) ) {
+			$turnstile = XF_Spam::get_turnstile_settings();
+			if ( $turnstile['enabled'] && ! wp_script_is( 'xf-turnstile', 'enqueued' ) ) {
+				wp_enqueue_script(
+					'xf-turnstile',
+					'https://challenges.cloudflare.com/turnstile/v0/api.js',
+					array(),
+					null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+					true
+				);
+			}
+		}
 	}
 
 	/**
@@ -410,13 +424,19 @@ class XF_Shortcode {
 			$consent_html .= '</div>';
 		}
 
+		// Strip query string from current URL so POST data from a previous submission
+		// does not appear in the recorded source URL (form has method="post" but
+		// the source URL should always be the clean page path).
+		$clean_uri    = strtok( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ), '?' );
+		$source_url   = esc_url( home_url( $clean_uri ) );
+
 		$html  = '<div class="xf-form-wrap" data-form-id="' . esc_attr( $form_id ) . '">';
 		$html .= $global_error_html;
-		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form">';
-		$html .= '<input type="hidden" name="action" value="xf_submit_form">';
+		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
+		$html .= '<input type="hidden" name="action" value="xl_submit_form">';
 		$html .= '<input type="hidden" name="xf_form_id" value="' . esc_attr( $form_id ) . '">';
 		$html .= '<input type="hidden" name="xf_nonce" value="' . esc_attr( $nonce ) . '">';
-		$html .= '<input type="hidden" name="xf_source_url" value="' . esc_url( home_url( add_query_arg( array() ) ) ) . '">';
+		$html .= '<input type="hidden" name="xf_source_url" value="' . $source_url . '">';
 		$html .= '<input type="hidden" name="xf_form_time" value="' . esc_attr( $form_time ) . '">';
 		// reCAPTCHA token field — populated by JS before submit.
 		$html .= '<input type="hidden" name="xf_recaptcha_token" id="xf-recaptcha-token-' . esc_attr( $form_id ) . '" value="">';
@@ -429,6 +449,20 @@ class XF_Shortcode {
 		$html .= '</div>';
 		$html .= $fields_html;
 		$html .= $consent_html;
+		// Cloudflare Turnstile widget — rendered automatically when Turnstile JS loads.
+		if ( class_exists( 'XF_Spam' ) ) {
+			$xf_turnstile = XF_Spam::get_turnstile_settings();
+			if ( $xf_turnstile['enabled'] ) {
+				$html .= '<div class="xf-turnstile-wrap">';
+				$html .= '<div class="cf-turnstile"';
+				$html .= ' data-sitekey="' . esc_attr( $xf_turnstile['site_key'] ) . '"';
+				$html .= ' data-response-field-name="xf_turnstile_token"';
+				$html .= ' data-theme="' . esc_attr( $xf_turnstile['theme'] ) . '"';
+				$html .= ' data-size="' . esc_attr( $xf_turnstile['size'] ) . '"';
+				$html .= '></div>';
+				$html .= '</div>';
+			}
+		}
 		$html .= '<div class="xf-form-submit">';
 		$html .= '<button type="submit" class="xf-btn-submit">' . $submit_label . '</button>';
 		$html .= '</div>';

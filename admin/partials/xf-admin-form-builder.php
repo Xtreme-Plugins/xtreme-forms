@@ -1,13 +1,13 @@
 <?php
 /**
- * Form Builder admin page.
+ * Form Builder admin page — drag-and-drop visual builder.
  *
  * @package Xtreme Forms
  */
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params.
 
 $form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
 $is_edit = $form_id > 0;
@@ -19,6 +19,18 @@ if ( $is_edit && ! $form ) {
 
 $fields   = $form ? XF_Forms::decode_fields( $form ) : array();
 $settings = $form ? XF_Forms::decode_settings( $form ) : array();
+
+// ── Template loading (only for new forms with a template slug in the URL) ──
+$xf_template_slug = ( ! $is_edit && isset( $_GET['xf_template'] ) ) ? sanitize_key( $_GET['xf_template'] ) : '';
+
+if ( $xf_template_slug && ! $is_edit ) {
+	$tpl_data = xtremeforms_get_form_template( $xf_template_slug );
+	if ( $tpl_data ) {
+		$fields   = $tpl_data['fields'];
+		$settings = array_merge( $settings, $tpl_data['settings'] );
+	}
+}
+$xf_template_name = ( $xf_template_slug && ! $is_edit && isset( $tpl_data ) && $tpl_data ) ? $tpl_data['name'] : '';
 
 // Retrieve any validation errors from previous save attempt.
 $transient_key = 'xf_form_errors_' . get_current_user_id();
@@ -33,25 +45,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 	$notice_html = '<div class="xf-notice xf-notice-error"><p><strong>' . esc_html__( 'Please fix the following errors:', 'xtreme-forms' ) . '</strong></p><ul><li>' . $error_items . '</li></ul></div>';
 }
 
-$field_types = array(
-	'text'     => array( 'label' => __( 'Text', 'xtreme-forms' ),         'icon' => 'dashicons-edit' ),
-	'email'    => array( 'label' => __( 'Email', 'xtreme-forms' ),        'icon' => 'dashicons-email-alt' ),
-	'phone'    => array( 'label' => __( 'Phone', 'xtreme-forms' ),        'icon' => 'dashicons-phone' ),
-	'textarea' => array( 'label' => __( 'Textarea', 'xtreme-forms' ),     'icon' => 'dashicons-editor-paragraph' ),
-	'dropdown' => array( 'label' => __( 'Dropdown', 'xtreme-forms' ),     'icon' => 'dashicons-menu' ),
-	'checkbox' => array( 'label' => __( 'Checkbox', 'xtreme-forms' ),     'icon' => 'dashicons-yes-alt' ),
-	'radio'    => array( 'label' => __( 'Radio', 'xtreme-forms' ),        'icon' => 'dashicons-marker' ),
-	'hidden'   => array( 'label' => __( 'Hidden Field', 'xtreme-forms' ), 'icon' => 'dashicons-hidden' ),
-	'date'     => array( 'label' => __( 'Date', 'xtreme-forms' ),         'icon' => 'dashicons-calendar-alt' ),
-);
-
-// Flatten labels for JS.
-$field_type_labels = array();
-foreach ( $field_types as $type => $def ) {
-	$field_type_labels[ $type ] = $def['label'];
-}
-
-$fields_json      = wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT );
+// Form settings values.
 $submit_label     = $settings['submit_label'] ?? '';
 $redirect_url     = $settings['redirect_url'] ?? '';
 $thank_you_msg    = $settings['thank_you_message'] ?? '';
@@ -80,6 +74,12 @@ $shortcode_val = $is_edit ? '[xtreme_forms id="' . esc_attr( $form_id ) . '"]' :
 
 $global_settings_fb = get_option( 'xtremeforms_settings', array() );
 $recaptcha_missing  = empty( $global_settings_fb['recaptcha_site_key'] ) || empty( $global_settings_fb['recaptcha_secret_key'] );
+
+// Encode fields for the JS builder.
+$fields_json = wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT );
+
+// Form name: prefer actual form name, then template name.
+$form_name_val = $form ? $form->name : $xf_template_name;
 ?>
 <div class="wrap xf-wrap xf-form-builder-wrap">
 
@@ -109,374 +109,304 @@ $recaptcha_missing  = empty( $global_settings_fb['recaptcha_site_key'] ) || empt
 	<?php echo wp_kses_post( $notice_html ); ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-form-builder" novalidate>
-		<input type="hidden" name="action" value="xf_save_form">
+		<input type="hidden" name="action" value="xl_save_form">
 		<input type="hidden" name="form_id" value="<?php echo esc_attr( $form_id ); ?>">
 		<?php wp_nonce_field( 'xf_save_form' ); ?>
+
+		<!-- Hidden field that JS builder syncs to on every change and before submit -->
 		<input type="hidden" name="xf_fields" id="xf-fields-json" value="<?php echo esc_attr( $fields_json ); ?>">
 
-		<div class="xf-builder-layout">
+		<!-- ── Title bar ──────────────────────────────────────────────────────── -->
+		<div class="xfb-title-bar">
+			<input
+				type="text"
+				name="form_name"
+				id="xfb-form-name"
+				class="xfb-title-input"
+				value="<?php echo esc_attr( $form_name_val ); ?>"
+				placeholder="<?php esc_attr_e( 'Form Name…', 'xtreme-forms' ); ?>"
+				required
+			>
+			<button type="submit" class="button button-primary xfb-save-btn">
+				<span class="dashicons dashicons-saved" style="vertical-align:middle;margin-top:-2px;margin-right:4px;"></span>
+				<?php esc_html_e( 'Save Form', 'xtreme-forms' ); ?>
+			</button>
+		</div>
 
-			<!-- ── Left: Tabbed Settings Panel ─────────────────────────────── -->
-			<aside class="xf-builder-sidebar">
+		<!-- ── 3-column builder ───────────────────────────────────────────────── -->
+		<div class="xf-builder-wrap">
 
-				<!-- Tab nav -->
-				<div class="xf-builder-tabs" role="tablist">
-					<button type="button" class="xf-btab xf-btab-active" data-tab="general"    role="tab" aria-selected="true"><?php esc_html_e( 'General', 'xtreme-forms' ); ?></button>
-					<button type="button" class="xf-btab" data-tab="notify"     role="tab"><?php esc_html_e( 'Email', 'xtreme-forms' ); ?></button>
-					<button type="button" class="xf-btab" data-tab="gdpr"       role="tab"><?php esc_html_e( 'GDPR', 'xtreme-forms' ); ?></button>
-					<button type="button" class="xf-btab" data-tab="schedule"   role="tab"><?php esc_html_e( 'Schedule', 'xtreme-forms' ); ?></button>
-					<button type="button" class="xf-btab" data-tab="spam"       role="tab"><?php esc_html_e( 'Spam', 'xtreme-forms' ); ?></button>
+			<!-- Left: Field palette -->
+			<div class="xfb-palette">
+				<div class="xfb-palette-title"><?php esc_html_e( 'Add Fields', 'xtreme-forms' ); ?></div>
+				<div class="xfb-palette-grid" id="xfb-palette">
+					<!-- Populated by xf-builder.js -->
 				</div>
+			</div>
 
-				<!-- TAB: General -->
-				<div class="xf-btab-panel" id="xf-tab-general">
-
-					<div class="xf-form-row">
-						<label for="form_name" class="xf-label">
-							<?php esc_html_e( 'Form Name', 'xtreme-forms' ); ?>
-							<span class="xf-required">*</span>
-						</label>
-						<input type="text" id="form_name" name="form_name"
-							value="<?php echo esc_attr( $form ? $form->name : '' ); ?>"
-							class="xf-input" required
-							placeholder="<?php esc_attr_e( 'e.g. Contact Form', 'xtreme-forms' ); ?>">
+			<!-- Center: Canvas -->
+			<div class="xfb-main">
+				<div class="xfb-page-tabs" id="xfb-page-tabs">
+					<!-- Populated by xf-builder.js -->
+				</div>
+				<div class="xfb-canvas" id="xfb-canvas">
+					<div class="xfb-canvas-inner" id="xfb-canvas-inner">
+						<!-- Fields rendered by xf-builder.js -->
 					</div>
-
-					<div class="xf-form-row">
-						<label for="submit_label" class="xf-label"><?php esc_html_e( 'Submit Button Label', 'xtreme-forms' ); ?></label>
-						<input type="text" id="submit_label" name="submit_label"
-							value="<?php echo esc_attr( $submit_label ); ?>"
-							class="xf-input"
-							placeholder="<?php esc_attr_e( 'Submit', 'xtreme-forms' ); ?>">
+					<div class="xfb-empty-hint" id="xfb-empty-hint">
+						<div class="xfb-empty-icon">+</div>
+						<p><?php esc_html_e( 'Drag fields from the left panel, or click a field type to add it.', 'xtreme-forms' ); ?></p>
 					</div>
+				</div>
+			</div>
 
-					<hr class="xf-divider">
-
-					<!-- After Submit -->
-					<p class="xf-section-heading"><?php esc_html_e( 'After Submission', 'xtreme-forms' ); ?></p>
-
-					<div class="xf-form-row">
-						<label for="redirect_url" class="xf-label"><?php esc_html_e( 'Redirect URL', 'xtreme-forms' ); ?></label>
-						<input type="url" id="redirect_url" name="redirect_url"
-							value="<?php echo esc_attr( $redirect_url ); ?>"
-							class="xf-input"
-							placeholder="https://">
-						<p class="xf-input-hint"><?php esc_html_e( 'Leave blank to show the thank-you message below.', 'xtreme-forms' ); ?></p>
+			<!-- Right: Field settings panel (shown when a field is selected) -->
+			<div class="xfb-settings-panel hidden" id="xfb-settings-panel">
+				<div id="xfb-settings-body">
+					<div class="xfb-sp-empty">
+						<span class="xfb-sp-empty-icon">&#x2B55;</span>
+						Click a field to edit its settings.
 					</div>
+				</div>
+			</div>
 
-					<div class="xf-form-row">
-						<label for="thank_you_message" class="xf-label"><?php esc_html_e( 'Thank-You Message', 'xtreme-forms' ); ?></label>
-						<textarea id="thank_you_message" name="thank_you_message"
-							class="xf-textarea" rows="3"
-							placeholder="<?php esc_attr_e( 'Thank you! Your submission has been received.', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $thank_you_msg ); ?></textarea>
-					</div>
+		</div><!-- .xf-builder-wrap -->
 
-					<hr class="xf-divider">
+		<!-- ── Advanced form settings (collapsible) ───────────────────────────── -->
+		<div class="xfb-advanced-settings" id="xfb-advanced-settings">
+			<button type="button" class="xfb-advanced-toggle" id="xfb-advanced-toggle">
+				<span class="dashicons dashicons-admin-settings" style="font-size:14px;width:14px;height:14px;vertical-align:middle;margin-right:5px;"></span>
+				<?php esc_html_e( 'Form Settings', 'xtreme-forms' ); ?>
+				<span class="xfb-advanced-arrow" id="xfb-advanced-arrow">&#x25BC;</span>
+			</button>
+			<div class="xfb-advanced-body" id="xfb-advanced-body" style="display:none;">
+				<div class="xf-builder-layout">
 
-					<div class="xf-form-row">
-						<label for="email_recipients" class="xf-label"><?php esc_html_e( 'Override Notification Recipients', 'xtreme-forms' ); ?></label>
-						<input type="text" id="email_recipients" name="email_recipients"
-							value="<?php echo esc_attr( $email_recipients ); ?>"
-							class="xf-input"
-							placeholder="<?php esc_attr_e( 'email@example.com, another@example.com', 'xtreme-forms' ); ?>">
-						<p class="xf-input-hint"><?php esc_html_e( 'Comma-separated. Leave blank to use the global recipients from Settings.', 'xtreme-forms' ); ?></p>
-					</div>
+					<!-- Tabbed settings sidebar -->
+					<aside class="xf-builder-sidebar">
 
-				</div><!-- #xf-tab-general -->
-
-				<!-- TAB: Email / Notifications -->
-				<div class="xf-btab-panel" id="xf-tab-notify" style="display:none;">
-
-					<div class="xf-form-row">
-						<label class="xf-toggle-wrap">
-							<span class="xf-toggle">
-								<input type="checkbox" id="auto_responder_enabled" name="auto_responder_enabled" value="1" <?php checked( $ar_enabled ); ?>>
-								<span class="xf-toggle-track"></span>
-								<span class="xf-toggle-thumb"></span>
-							</span>
-							<span class="xf-toggle-label xf-fw-600"><?php esc_html_e( 'Enable Auto-Responder Email', 'xtreme-forms' ); ?></span>
-						</label>
-						<p class="xf-input-hint"><?php esc_html_e( 'Automatically send a confirmation email to the submitter.', 'xtreme-forms' ); ?></p>
-					</div>
-
-					<div id="xf-auto-responder-fields" <?php echo $ar_enabled ? '' : 'style="display:none;"'; ?>>
-						<div class="xf-form-row">
-							<label for="auto_responder_subject" class="xf-label"><?php esc_html_e( 'Subject Line', 'xtreme-forms' ); ?></label>
-							<input type="text" id="auto_responder_subject" name="auto_responder_subject"
-								value="<?php echo esc_attr( $ar_subject ); ?>"
-								class="xf-input"
-								placeholder="<?php esc_attr_e( 'Thank you for contacting us', 'xtreme-forms' ); ?>">
-							<p class="xf-input-hint"><?php esc_html_e( 'Merge tags: {{lead_name}}, {{form_name}}, {{site_name}}', 'xtreme-forms' ); ?></p>
+						<!-- Tab nav -->
+						<div class="xf-builder-tabs" role="tablist">
+							<button type="button" class="xf-btab xf-btab-active" data-tab="general"  role="tab" aria-selected="true"><?php esc_html_e( 'General', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="notify"   role="tab"><?php esc_html_e( 'Email', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="gdpr"     role="tab"><?php esc_html_e( 'GDPR', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="schedule" role="tab"><?php esc_html_e( 'Schedule', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="spam"     role="tab"><?php esc_html_e( 'Spam', 'xtreme-forms' ); ?></button>
 						</div>
 
-						<div class="xf-form-row">
-							<label for="auto_responder_body" class="xf-label"><?php esc_html_e( 'Message Body', 'xtreme-forms' ); ?></label>
-							<textarea id="auto_responder_body" name="auto_responder_body"
-								class="xf-textarea" rows="5"
-								placeholder="<?php esc_attr_e( 'Thank you for your submission. We will be in touch soon.', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $ar_body ); ?></textarea>
-							<p class="xf-input-hint"><?php esc_html_e( 'Merge tags are supported. Plain text only.', 'xtreme-forms' ); ?></p>
-						</div>
+						<!-- TAB: General -->
+						<div class="xf-btab-panel" id="xf-tab-general">
 
-						<div class="xf-form-row">
-							<label for="auto_responder_reply_to" class="xf-label"><?php esc_html_e( 'Reply-To Address', 'xtreme-forms' ); ?></label>
-							<input type="email" id="auto_responder_reply_to" name="auto_responder_reply_to"
-								value="<?php echo esc_attr( $ar_reply_to ); ?>"
-								class="xf-input"
-								placeholder="reply@yourcompany.com">
-							<p class="xf-input-hint"><?php esc_html_e( 'Where replies to the confirmation email are directed.', 'xtreme-forms' ); ?></p>
-							<p id="xf-reply-to-error" style="display:none;color:var(--xf-danger);font-size:12px;margin-top:4px;"></p>
-						</div>
-					</div>
-
-				</div><!-- #xf-tab-notify -->
-
-				<!-- TAB: GDPR -->
-				<div class="xf-btab-panel" id="xf-tab-gdpr" style="display:none;">
-
-					<div class="xf-form-row">
-						<label class="xf-toggle-wrap">
-							<span class="xf-toggle">
-								<input type="checkbox" id="consent_enabled" name="consent_enabled" value="1" <?php checked( $consent_enabled ); ?>>
-								<span class="xf-toggle-track"></span>
-								<span class="xf-toggle-thumb"></span>
-							</span>
-							<span class="xf-toggle-label xf-fw-600"><?php esc_html_e( 'Show Consent Checkbox', 'xtreme-forms' ); ?></span>
-						</label>
-						<p class="xf-input-hint"><?php esc_html_e( 'Adds a required GDPR consent checkbox to this form.', 'xtreme-forms' ); ?></p>
-					</div>
-
-					<div id="xf-consent-fields" <?php echo $consent_enabled ? '' : 'style="display:none;"'; ?>>
-						<div class="xf-form-row">
-							<label for="consent_label" class="xf-label"><?php esc_html_e( 'Consent Label Text', 'xtreme-forms' ); ?></label>
-							<textarea id="consent_label" name="consent_label"
-								class="xf-textarea" rows="2"
-								placeholder="<?php esc_attr_e( 'I agree to the Privacy Policy', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $consent_label ); ?></textarea>
-						</div>
-						<div class="xf-form-row">
-							<label for="consent_url" class="xf-label"><?php esc_html_e( 'Privacy Policy URL', 'xtreme-forms' ); ?></label>
-							<input type="url" id="consent_url" name="consent_url"
-								value="<?php echo esc_attr( $consent_url ); ?>"
-								class="xf-input"
-								placeholder="https://example.com/privacy-policy">
-							<p class="xf-input-hint"><?php esc_html_e( 'Optional. Makes the label text link to your privacy policy.', 'xtreme-forms' ); ?></p>
-						</div>
-					</div>
-
-				</div><!-- #xf-tab-gdpr -->
-
-				<!-- TAB: Schedule -->
-				<div class="xf-btab-panel" id="xf-tab-schedule" style="display:none;">
-
-					<div class="xf-form-row">
-						<label for="activate_at" class="xf-label">
-							<span class="dashicons dashicons-calendar-alt" style="font-size:13px;width:13px;height:13px;vertical-align:middle;margin-right:3px;color:var(--xf-teal);"></span>
-							<?php esc_html_e( 'Activation Date & Time', 'xtreme-forms' ); ?>
-						</label>
-						<input type="datetime-local" id="activate_at" name="activate_at"
-							value="<?php echo esc_attr( $activate_at_val ); ?>"
-							class="xf-input xf-input-datetime">
-						<p class="xf-input-hint"><?php esc_html_e( 'Leave blank to publish immediately. Uses site timezone.', 'xtreme-forms' ); ?></p>
-					</div>
-
-					<div class="xf-form-row">
-						<label for="expire_at" class="xf-label">
-							<span class="dashicons dashicons-calendar-alt" style="font-size:13px;width:13px;height:13px;vertical-align:middle;margin-right:3px;color:var(--xf-danger);"></span>
-							<?php esc_html_e( 'Expiration Date & Time', 'xtreme-forms' ); ?>
-						</label>
-						<input type="datetime-local" id="expire_at" name="expire_at"
-							value="<?php echo esc_attr( $expire_at_val ); ?>"
-							class="xf-input xf-input-datetime">
-						<p class="xf-input-hint"><?php esc_html_e( 'Leave blank for no expiry. Uses site timezone.', 'xtreme-forms' ); ?></p>
-					</div>
-
-					<hr class="xf-divider">
-
-					<div class="xf-form-row">
-						<label for="closed_message" class="xf-label"><?php esc_html_e( 'Unavailable Message', 'xtreme-forms' ); ?></label>
-						<textarea id="closed_message" name="closed_message"
-							class="xf-textarea" rows="2"
-							placeholder="<?php esc_attr_e( 'This form is currently unavailable.', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $closed_message_val ); ?></textarea>
-						<p class="xf-input-hint"><?php esc_html_e( 'Shown when the form is outside its active window.', 'xtreme-forms' ); ?></p>
-					</div>
-
-					<div class="xf-form-row">
-						<label class="xf-toggle-wrap">
-							<span class="xf-toggle">
-								<input type="checkbox" id="countdown_timer_enabled" name="countdown_timer_enabled" value="1" <?php checked( $countdown_enabled ); ?>>
-								<span class="xf-toggle-track"></span>
-								<span class="xf-toggle-thumb"></span>
-							</span>
-							<span class="xf-toggle-label"><?php esc_html_e( 'Show Countdown Timer', 'xtreme-forms' ); ?></span>
-						</label>
-						<p class="xf-input-hint"><?php esc_html_e( 'Displays a live countdown above the unavailable message until the activation date.', 'xtreme-forms' ); ?></p>
-					</div>
-
-				</div><!-- #xf-tab-schedule -->
-
-				<!-- TAB: Spam -->
-				<div class="xf-btab-panel" id="xf-tab-spam" style="display:none;">
-
-					<div class="xf-form-row">
-						<label class="xf-toggle-wrap">
-							<span class="xf-toggle">
-								<input type="checkbox" id="form_recaptcha_enabled" name="form_recaptcha_enabled" value="1" <?php checked( $form_recaptcha ); ?>>
-								<span class="xf-toggle-track"></span>
-								<span class="xf-toggle-thumb"></span>
-							</span>
-							<span class="xf-toggle-label xf-fw-600"><?php esc_html_e( 'Enable reCAPTCHA v3', 'xtreme-forms' ); ?></span>
-						</label>
-						<?php if ( $recaptcha_missing ) : ?>
-							<div class="xf-notice xf-notice-warning" style="margin-top:10px;">
-								<p><?php esc_html_e( 'reCAPTCHA keys are not configured. Go to Settings → Spam Protection to add them.', 'xtreme-forms' ); ?></p>
+							<div class="xf-form-row">
+								<label for="submit_label" class="xf-label"><?php esc_html_e( 'Submit Button Label', 'xtreme-forms' ); ?></label>
+								<input type="text" id="submit_label" name="submit_label"
+									value="<?php echo esc_attr( $submit_label ); ?>"
+									class="xf-input"
+									placeholder="<?php esc_attr_e( 'Submit', 'xtreme-forms' ); ?>">
 							</div>
-						<?php else : ?>
-							<p class="xf-input-hint"><?php esc_html_e( 'Adds invisible bot protection to this form without affecting the user experience.', 'xtreme-forms' ); ?></p>
-						<?php endif; ?>
-					</div>
 
-					<hr class="xf-divider">
+							<hr class="xf-divider">
+							<p class="xf-section-heading"><?php esc_html_e( 'After Submission', 'xtreme-forms' ); ?></p>
 
-					<div class="xf-notice xf-notice-info">
-						<p><?php esc_html_e( 'Honeypot and time-gate spam protection are always active on all forms. Configure keyword blocklists in Settings → Spam Protection.', 'xtreme-forms' ); ?></p>
-					</div>
+							<div class="xf-form-row">
+								<label for="redirect_url" class="xf-label"><?php esc_html_e( 'Redirect URL', 'xtreme-forms' ); ?></label>
+								<input type="url" id="redirect_url" name="redirect_url"
+									value="<?php echo esc_attr( $redirect_url ); ?>"
+									class="xf-input"
+									placeholder="https://">
+								<p class="xf-input-hint"><?php esc_html_e( 'Leave blank to show the thank-you message below.', 'xtreme-forms' ); ?></p>
+							</div>
 
-				</div><!-- #xf-tab-spam -->
+							<div class="xf-form-row">
+								<label for="thank_you_message" class="xf-label"><?php esc_html_e( 'Thank-You Message', 'xtreme-forms' ); ?></label>
+								<textarea id="thank_you_message" name="thank_you_message"
+									class="xf-textarea" rows="3"
+									placeholder="<?php esc_attr_e( 'Thank you! Your submission has been received.', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $thank_you_msg ); ?></textarea>
+							</div>
 
-			</aside><!-- .xf-builder-sidebar -->
+							<hr class="xf-divider">
 
-			<!-- ── Right: Form Canvas ───────────────────────────────────────── -->
-			<div class="xf-builder-canvas">
+							<div class="xf-form-row">
+								<label for="email_recipients" class="xf-label"><?php esc_html_e( 'Override Notification Recipients', 'xtreme-forms' ); ?></label>
+								<input type="text" id="email_recipients" name="email_recipients"
+									value="<?php echo esc_attr( $email_recipients ); ?>"
+									class="xf-input"
+									placeholder="<?php esc_attr_e( 'email@example.com, another@example.com', 'xtreme-forms' ); ?>">
+								<p class="xf-input-hint"><?php esc_html_e( 'Comma-separated. Leave blank to use the global recipients from Settings.', 'xtreme-forms' ); ?></p>
+							</div>
 
-				<!-- Field Type Palette -->
-				<div class="xf-palette-strip">
-					<span class="xf-palette-label"><?php esc_html_e( 'Add Field', 'xtreme-forms' ); ?></span>
-					<div class="xf-field-type-list">
-						<?php foreach ( $field_types as $type => $def ) : ?>
-							<button type="button"
-								class="xf-add-field-btn"
-								data-type="<?php echo esc_attr( $type ); ?>"
-								title="<?php /* translators: %s: field type label */ echo esc_attr( sprintf( __( 'Add %s field', 'xtreme-forms' ), $def['label'] ) ); ?>">
-								<span class="dashicons <?php echo esc_attr( $def['icon'] ); ?>"></span>
-								<span><?php echo esc_html( $def['label'] ); ?></span>
-							</button>
-						<?php endforeach; ?>
-					</div>
-				</div>
+						</div><!-- #xf-tab-general -->
 
-				<!-- Canvas -->
-				<div class="xf-canvas-card">
-					<div class="xf-canvas-header">
-						<h3><?php esc_html_e( 'Form Fields', 'xtreme-forms' ); ?></h3>
-						<span class="xf-text-xs xf-text-muted"><?php esc_html_e( 'Drag to reorder · Click to configure', 'xtreme-forms' ); ?></span>
-					</div>
-					<div id="xf-fields-canvas" class="xf-fields-canvas"
-						data-empty-label="<?php esc_attr_e( 'No fields yet. Use the Add Field bar above to get started.', 'xtreme-forms' ); ?>">
-						<?php if ( empty( $fields ) ) : ?>
-							<div class="xf-canvas-empty">
-								<div class="xf-canvas-empty-icon">
-									<span class="dashicons dashicons-plus-alt"></span>
+						<!-- TAB: Email / Notifications -->
+						<div class="xf-btab-panel" id="xf-tab-notify" style="display:none;">
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-wrap">
+									<span class="xf-toggle">
+										<input type="checkbox" id="auto_responder_enabled" name="auto_responder_enabled" value="1" <?php checked( $ar_enabled ); ?>>
+										<span class="xf-toggle-track"></span>
+										<span class="xf-toggle-thumb"></span>
+									</span>
+									<span class="xf-toggle-label xf-fw-600"><?php esc_html_e( 'Enable Auto-Responder Email', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint"><?php esc_html_e( 'Automatically send a confirmation email to the submitter.', 'xtreme-forms' ); ?></p>
+							</div>
+
+							<div id="xf-auto-responder-fields" <?php echo $ar_enabled ? '' : 'style="display:none;"'; ?>>
+								<div class="xf-form-row">
+									<label for="auto_responder_subject" class="xf-label"><?php esc_html_e( 'Subject Line', 'xtreme-forms' ); ?></label>
+									<input type="text" id="auto_responder_subject" name="auto_responder_subject"
+										value="<?php echo esc_attr( $ar_subject ); ?>"
+										class="xf-input"
+										placeholder="<?php esc_attr_e( 'Thank you for contacting us', 'xtreme-forms' ); ?>">
+									<p class="xf-input-hint"><?php esc_html_e( 'Merge tags: {{lead_name}}, {{form_name}}, {{site_name}}', 'xtreme-forms' ); ?></p>
 								</div>
-								<p><?php esc_html_e( 'No fields yet.', 'xtreme-forms' ); ?></p>
-								<p class="xf-text-xs xf-text-muted"><?php esc_html_e( 'Use the "Add Field" bar above to get started.', 'xtreme-forms' ); ?></p>
+
+								<div class="xf-form-row">
+									<label for="auto_responder_body" class="xf-label"><?php esc_html_e( 'Message Body', 'xtreme-forms' ); ?></label>
+									<textarea id="auto_responder_body" name="auto_responder_body"
+										class="xf-textarea" rows="5"
+										placeholder="<?php esc_attr_e( 'Thank you for your submission. We will be in touch soon.', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $ar_body ); ?></textarea>
+									<p class="xf-input-hint"><?php esc_html_e( 'Merge tags are supported. Plain text only.', 'xtreme-forms' ); ?></p>
+								</div>
+
+								<div class="xf-form-row">
+									<label for="auto_responder_reply_to" class="xf-label"><?php esc_html_e( 'Reply-To Address', 'xtreme-forms' ); ?></label>
+									<input type="email" id="auto_responder_reply_to" name="auto_responder_reply_to"
+										value="<?php echo esc_attr( $ar_reply_to ); ?>"
+										class="xf-input"
+										placeholder="reply@yourcompany.com">
+									<p class="xf-input-hint"><?php esc_html_e( 'Where replies to the confirmation email are directed.', 'xtreme-forms' ); ?></p>
+									<p id="xf-reply-to-error" style="display:none;color:var(--xf-danger);font-size:12px;margin-top:4px;"></p>
+								</div>
 							</div>
-						<?php endif; ?>
-					</div>
-				</div>
 
-				<!-- Save Bar -->
-				<div class="xf-builder-save-bar">
-					<div class="xf-builder-save-bar-inner">
-						<button type="submit" class="xf-btn xf-btn-primary">
-							<span class="dashicons dashicons-saved"></span>
-							<?php esc_html_e( 'Save Form', 'xtreme-forms' ); ?>
-						</button>
-						<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-ghost">
-							<?php esc_html_e( 'Cancel', 'xtreme-forms' ); ?>
-						</a>
-					</div>
-				</div>
+						</div><!-- #xf-tab-notify -->
 
-			</div><!-- .xf-builder-canvas -->
+						<!-- TAB: GDPR -->
+						<div class="xf-btab-panel" id="xf-tab-gdpr" style="display:none;">
 
-		</div><!-- .xf-builder-layout -->
+							<div class="xf-form-row">
+								<label class="xf-toggle-wrap">
+									<span class="xf-toggle">
+										<input type="checkbox" id="consent_enabled" name="consent_enabled" value="1" <?php checked( $consent_enabled ); ?>>
+										<span class="xf-toggle-track"></span>
+										<span class="xf-toggle-thumb"></span>
+									</span>
+									<span class="xf-toggle-label xf-fw-600"><?php esc_html_e( 'Show Consent Checkbox', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint"><?php esc_html_e( 'Adds a required GDPR consent checkbox to this form.', 'xtreme-forms' ); ?></p>
+							</div>
+
+							<div id="xf-consent-fields" <?php echo $consent_enabled ? '' : 'style="display:none;"'; ?>>
+								<div class="xf-form-row">
+									<label for="consent_label" class="xf-label"><?php esc_html_e( 'Consent Label Text', 'xtreme-forms' ); ?></label>
+									<textarea id="consent_label" name="consent_label"
+										class="xf-textarea" rows="2"
+										placeholder="<?php esc_attr_e( 'I agree to the Privacy Policy', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $consent_label ); ?></textarea>
+								</div>
+								<div class="xf-form-row">
+									<label for="consent_url" class="xf-label"><?php esc_html_e( 'Privacy Policy URL', 'xtreme-forms' ); ?></label>
+									<input type="url" id="consent_url" name="consent_url"
+										value="<?php echo esc_attr( $consent_url ); ?>"
+										class="xf-input"
+										placeholder="https://example.com/privacy-policy">
+									<p class="xf-input-hint"><?php esc_html_e( 'Optional. Makes the label text link to your privacy policy.', 'xtreme-forms' ); ?></p>
+								</div>
+							</div>
+
+						</div><!-- #xf-tab-gdpr -->
+
+						<!-- TAB: Schedule -->
+						<div class="xf-btab-panel" id="xf-tab-schedule" style="display:none;">
+
+							<div class="xf-form-row">
+								<label for="activate_at" class="xf-label">
+									<span class="dashicons dashicons-calendar-alt" style="font-size:13px;width:13px;height:13px;vertical-align:middle;margin-right:3px;color:var(--xf-teal);"></span>
+									<?php esc_html_e( 'Activation Date &amp; Time', 'xtreme-forms' ); ?>
+								</label>
+								<input type="datetime-local" id="activate_at" name="activate_at"
+									value="<?php echo esc_attr( $activate_at_val ); ?>"
+									class="xf-input xf-input-datetime">
+								<p class="xf-input-hint"><?php esc_html_e( 'Leave blank to publish immediately. Uses site timezone.', 'xtreme-forms' ); ?></p>
+							</div>
+
+							<div class="xf-form-row">
+								<label for="expire_at" class="xf-label">
+									<span class="dashicons dashicons-calendar-alt" style="font-size:13px;width:13px;height:13px;vertical-align:middle;margin-right:3px;color:var(--xf-danger);"></span>
+									<?php esc_html_e( 'Expiration Date &amp; Time', 'xtreme-forms' ); ?>
+								</label>
+								<input type="datetime-local" id="expire_at" name="expire_at"
+									value="<?php echo esc_attr( $expire_at_val ); ?>"
+									class="xf-input xf-input-datetime">
+								<p class="xf-input-hint"><?php esc_html_e( 'Leave blank for no expiry. Uses site timezone.', 'xtreme-forms' ); ?></p>
+							</div>
+
+							<hr class="xf-divider">
+
+							<div class="xf-form-row">
+								<label for="closed_message" class="xf-label"><?php esc_html_e( 'Unavailable Message', 'xtreme-forms' ); ?></label>
+								<textarea id="closed_message" name="closed_message"
+									class="xf-textarea" rows="2"
+									placeholder="<?php esc_attr_e( 'This form is currently unavailable.', 'xtreme-forms' ); ?>"><?php echo esc_textarea( $closed_message_val ); ?></textarea>
+								<p class="xf-input-hint"><?php esc_html_e( 'Shown when the form is outside its active window.', 'xtreme-forms' ); ?></p>
+							</div>
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-wrap">
+									<span class="xf-toggle">
+										<input type="checkbox" id="countdown_timer_enabled" name="countdown_timer_enabled" value="1" <?php checked( $countdown_enabled ); ?>>
+										<span class="xf-toggle-track"></span>
+										<span class="xf-toggle-thumb"></span>
+									</span>
+									<span class="xf-toggle-label"><?php esc_html_e( 'Show Countdown Timer', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint"><?php esc_html_e( 'Displays a live countdown above the unavailable message until the activation date.', 'xtreme-forms' ); ?></p>
+							</div>
+
+						</div><!-- #xf-tab-schedule -->
+
+						<!-- TAB: Spam -->
+						<div class="xf-btab-panel" id="xf-tab-spam" style="display:none;">
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-wrap">
+									<span class="xf-toggle">
+										<input type="checkbox" id="form_recaptcha_enabled" name="form_recaptcha_enabled" value="1" <?php checked( $form_recaptcha ); ?>>
+										<span class="xf-toggle-track"></span>
+										<span class="xf-toggle-thumb"></span>
+									</span>
+									<span class="xf-toggle-label xf-fw-600"><?php esc_html_e( 'Enable reCAPTCHA v3', 'xtreme-forms' ); ?></span>
+								</label>
+								<?php if ( $recaptcha_missing ) : ?>
+									<div class="xf-notice xf-notice-warning" style="margin-top:10px;">
+										<p><?php esc_html_e( 'reCAPTCHA keys are not configured. Go to Settings → Spam Protection to add them.', 'xtreme-forms' ); ?></p>
+									</div>
+								<?php else : ?>
+									<p class="xf-input-hint"><?php esc_html_e( 'Adds invisible bot protection to this form without affecting the user experience.', 'xtreme-forms' ); ?></p>
+								<?php endif; ?>
+							</div>
+
+							<hr class="xf-divider">
+
+							<div class="xf-notice xf-notice-info">
+								<p><?php esc_html_e( 'Honeypot and time-gate spam protection are always active on all forms. Configure keyword blocklists in Settings → Spam Protection.', 'xtreme-forms' ); ?></p>
+							</div>
+
+						</div><!-- #xf-tab-spam -->
+
+					</aside><!-- .xf-builder-sidebar -->
+
+				</div><!-- .xf-builder-layout (inner) -->
+			</div><!-- .xfb-advanced-body -->
+		</div><!-- .xfb-advanced-settings -->
+
 	</form>
 </div><!-- .xf-form-builder-wrap -->
-
-<!-- Field editor JS template (used by xf-admin.js) -->
-<script type="text/template" id="xf-field-template">
-<div class="xf-field-item" data-field-id="{{fieldId}}" data-field-type="{{type}}" draggable="true">
-	<div class="xf-field-header">
-		<span class="xf-drag-handle dashicons dashicons-move" title="<?php esc_attr_e( 'Drag to reorder', 'xtreme-forms' ); ?>"></span>
-		<span class="xf-field-type-label">{{typeLabel}}</span>
-		<div class="xf-field-header-actions">
-			<button type="button" class="xf-field-toggle" aria-expanded="true" aria-label="<?php esc_attr_e( 'Toggle field settings', 'xtreme-forms' ); ?>">
-				<span class="dashicons dashicons-arrow-up-alt2"></span>
-			</button>
-			<button type="button" class="xf-field-delete" aria-label="<?php esc_attr_e( 'Delete field', 'xtreme-forms' ); ?>">
-				<span class="dashicons dashicons-trash"></span>
-			</button>
-		</div>
-	</div>
-	<div class="xf-field-body">
-		<div class="xf-field-row">
-			<div class="xf-field-col">
-				<label class="xf-label"><?php esc_html_e( 'Label', 'xtreme-forms' ); ?></label>
-				<input type="text" class="xf-input xf-input-full xf-field-label-input" placeholder="<?php esc_attr_e( 'Field Label', 'xtreme-forms' ); ?>" value="{{label}}">
-			</div>
-			<div class="xf-field-col xf-col-required">
-				<label class="xf-label"><?php esc_html_e( 'Required', 'xtreme-forms' ); ?></label>
-				<label class="xf-toggle-wrap">
-					<span class="xf-toggle">
-						<input type="checkbox" class="xf-field-required-input" {{requiredChecked}}>
-						<span class="xf-toggle-track"></span>
-						<span class="xf-toggle-thumb"></span>
-					</span>
-				</label>
-			</div>
-		</div>
-		{{placeholderRow}}
-		{{optionsSection}}
-		{{hiddenDefaultRow}}
-	</div>
-</div>
-</script>
 
 <script>
 var xfBuilderData = {
 	fields: <?php echo wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT ); ?>,
-	fieldTypes: <?php echo wp_json_encode( $field_type_labels, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT ); ?>,
-	i18n: {
-		addOption:          <?php echo wp_json_encode( __( 'Add Option', 'xtreme-forms' ) ); ?>,
-		optionPlaceholder:  <?php echo wp_json_encode( __( 'Option text…', 'xtreme-forms' ) ); ?>,
-		removeOption:       <?php echo wp_json_encode( __( 'Remove option', 'xtreme-forms' ) ); ?>,
-		labelPlaceholder:   <?php echo wp_json_encode( __( 'Field Label', 'xtreme-forms' ) ); ?>,
-		placeholder:        <?php echo wp_json_encode( __( 'Placeholder', 'xtreme-forms' ) ); ?>,
-		defaultValue:       <?php echo wp_json_encode( __( 'Default Value', 'xtreme-forms' ) ); ?>,
-		hiddenNote:         <?php echo wp_json_encode( __( 'Hidden fields are invisible to visitors.', 'xtreme-forms' ) ); ?>,
-		optionsRequired:    <?php echo wp_json_encode( __( 'This field type requires at least one option.', 'xtreme-forms' ) ); ?>,
-		confirmDelete:      <?php echo wp_json_encode( __( 'Delete this field?', 'xtreme-forms' ) ); ?>,
-		required:           <?php echo wp_json_encode( __( 'Required', 'xtreme-forms' ) ); ?>,
-		optionsLabel:       <?php echo wp_json_encode( __( 'Options', 'xtreme-forms' ) ); ?>,
-		conditionalLogic:   <?php echo wp_json_encode( __( 'Conditional Logic', 'xtreme-forms' ) ); ?>,
-		enableCondLogic:    <?php echo wp_json_encode( __( 'Enable conditional logic for this field', 'xtreme-forms' ) ); ?>,
-		condLogicDesc:      <?php echo wp_json_encode( __( 'Show this field only when:', 'xtreme-forms' ) ); ?>,
-		condLogicAnd:       <?php echo wp_json_encode( __( 'ALL conditions are met (AND)', 'xtreme-forms' ) ); ?>,
-		condLogicOr:        <?php echo wp_json_encode( __( 'ANY condition is met (OR)', 'xtreme-forms' ) ); ?>,
-		condLogicPreviewAnd:<?php echo wp_json_encode( __( 'Show this field when ALL of the following conditions are met:', 'xtreme-forms' ) ); ?>,
-		condLogicPreviewOr: <?php echo wp_json_encode( __( 'Show this field when ANY of the following conditions are met:', 'xtreme-forms' ) ); ?>,
-		addCondition:       <?php echo wp_json_encode( __( 'Add Condition', 'xtreme-forms' ) ); ?>,
-		removeCondition:    <?php echo wp_json_encode( __( 'Remove condition', 'xtreme-forms' ) ); ?>,
-		selectTriggerField: <?php echo wp_json_encode( __( '— Select trigger field —', 'xtreme-forms' ) ); ?>,
-		condValue:          <?php echo wp_json_encode( __( 'Value', 'xtreme-forms' ) ); ?>,
-		noOtherFields:      <?php echo wp_json_encode( __( 'No other fields available to use as triggers.', 'xtreme-forms' ) ); ?>,
-	},
-	condOperators: <?php echo wp_json_encode( array(
-		'equals'     => __( 'equals', 'xtreme-forms' ),
-		'not_equals' => __( 'does not equal', 'xtreme-forms' ),
-		'contains'   => __( 'contains', 'xtreme-forms' ),
-		'not_empty'  => __( 'is not empty', 'xtreme-forms' ),
-		'is_empty'   => __( 'is empty', 'xtreme-forms' ),
-	) ); ?>,
 };
 </script>
 
@@ -484,7 +414,19 @@ var xfBuilderData = {
 (function () {
 	'use strict';
 
-	// ── Builder Tab Switcher ───────────────────────────────────────────────
+	// ── Advanced settings toggle ───────────────────────────────────────────────
+	var advToggle = document.getElementById('xfb-advanced-toggle');
+	var advBody   = document.getElementById('xfb-advanced-body');
+	var advArrow  = document.getElementById('xfb-advanced-arrow');
+	if (advToggle && advBody) {
+		advToggle.addEventListener('click', function () {
+			var open = advBody.style.display !== 'none';
+			advBody.style.display = open ? 'none' : '';
+			if (advArrow) advArrow.innerHTML = open ? '&#x25BC;' : '&#x25B2;';
+		});
+	}
+
+	// ── Builder Tab Switcher ───────────────────────────────────────────────────
 	document.querySelectorAll('.xf-btab').forEach(function (btn) {
 		btn.addEventListener('click', function () {
 			var tab = btn.dataset.tab;
@@ -502,7 +444,7 @@ var xfBuilderData = {
 		});
 	});
 
-	// ── Auto-Responder toggle ──────────────────────────────────────────────
+	// ── Auto-Responder toggle ──────────────────────────────────────────────────
 	var arCheckbox = document.getElementById('auto_responder_enabled');
 	var arFields   = document.getElementById('xf-auto-responder-fields');
 	if (arCheckbox && arFields) {
@@ -511,7 +453,7 @@ var xfBuilderData = {
 		});
 	}
 
-	// ── GDPR Consent toggle ────────────────────────────────────────────────
+	// ── GDPR Consent toggle ────────────────────────────────────────────────────
 	var consentCb     = document.getElementById('consent_enabled');
 	var consentFields = document.getElementById('xf-consent-fields');
 	if (consentCb && consentFields) {
@@ -520,7 +462,7 @@ var xfBuilderData = {
 		});
 	}
 
-	// ── Reply-To validation ────────────────────────────────────────────────
+	// ── Reply-To validation ────────────────────────────────────────────────────
 	var replyToInput = document.getElementById('auto_responder_reply_to');
 	var replyToErr   = document.getElementById('xf-reply-to-error');
 	var formEl       = document.getElementById('xf-form-builder');
@@ -542,7 +484,7 @@ var xfBuilderData = {
 	if (replyToInput) {
 		replyToInput.addEventListener('blur', validateReplyTo);
 		replyToInput.addEventListener('input', function () {
-			if (replyToErr.style.display !== 'none') validateReplyTo();
+			if (replyToErr && replyToErr.style.display !== 'none') validateReplyTo();
 		});
 	}
 
@@ -552,7 +494,7 @@ var xfBuilderData = {
 		});
 	}
 
-	// ── Shortcode Copy ─────────────────────────────────────────────────────
+	// ── Shortcode Copy ─────────────────────────────────────────────────────────
 	var copyBtn = document.getElementById('xf-copy-shortcode');
 	if (copyBtn) {
 		copyBtn.addEventListener('click', function () {
@@ -566,5 +508,60 @@ var xfBuilderData = {
 			});
 		});
 	}
+
 }());
 </script>
+
+<style>
+/* ── Advanced settings section ──────────────────────────────────────────── */
+.xfb-advanced-settings {
+	margin-top: 16px;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.xfb-advanced-toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 0;
+	padding: 12px 16px;
+	background: #f9fafb;
+	border: none;
+	border-bottom: 1px solid #e5e7eb;
+	font-size: 13px;
+	font-weight: 600;
+	color: #374151;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+}
+
+.xfb-advanced-toggle:hover {
+	background: #f3f4f6;
+}
+
+.xfb-advanced-arrow {
+	margin-left: auto;
+	font-size: 10px;
+	color: #9ca3af;
+}
+
+.xfb-advanced-body {
+	padding: 0;
+}
+
+.xfb-advanced-body .xf-builder-layout {
+	display: flex;
+	min-height: 0;
+}
+
+.xfb-advanced-body .xf-builder-sidebar {
+	width: 360px;
+	min-width: 280px;
+	padding: 16px;
+	border-right: 1px solid #e5e7eb;
+}
+</style>

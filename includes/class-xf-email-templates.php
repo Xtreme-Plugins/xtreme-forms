@@ -227,8 +227,8 @@ class XF_Email_Templates {
 
 				$field_rows_html .= '
 				<tr>
-					<td style="padding:10px 16px;border-bottom:1px solid #DEE2E6;font-weight:600;width:35%;color:' . esc_attr( $dark_color ) . ';">' . $label . '</td>
-					<td style="padding:10px 16px;border-bottom:1px solid #DEE2E6;">' . $value . '</td>
+					<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;width:30%;white-space:nowrap;">' . $label . '</td>
+					<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#111827;">' . $value . '</td>
 				</tr>';
 			}
 		}
@@ -239,86 +239,122 @@ class XF_Email_Templates {
 			$field_rows_html = '<tr><td colspan="2" style="padding:16px;color:#6C757D;">' . esc_html__( 'No field data submitted.', 'xtreme-forms' ) . '</td></tr>';
 		}
 
-		// Source URL and admin link rows.
-		$source_url    = esc_url( $context['source_url'] ?? '' );
-		$admin_link    = esc_url( $admin_link ?: ( $context['admin_link'] ?? '' ) );
-		$label_source  = esc_html__( 'Source Page', 'xtreme-forms' );
-		$label_view    = esc_html__( 'View Lead in Admin', 'xtreme-forms' );
-		$label_btn     = esc_html__( 'View Lead', 'xtreme-forms' );
-		$primary_color = $header_color;
+		// Source URL — strip query string so only the clean page path is shown.
+		$raw_source    = $context['source_url'] ?? '';
+		$source_url    = esc_url( $raw_source );
+		$source_label  = '';
+		if ( $raw_source ) {
+			$parsed       = wp_parse_url( $raw_source );
+			$source_label = ( $parsed['path'] ?? '/' );
+			// Add host for context but keep it short.
+			if ( ! empty( $parsed['host'] ) ) {
+				$source_label = $parsed['host'] . $source_label;
+			}
+			$source_label = rtrim( $source_label, '/' ) ?: '/';
+		}
 
+		$admin_link = esc_url( $admin_link ?: ( $context['admin_link'] ?? '' ) );
+
+		// Build source-page row.
 		$meta_rows = '';
-		if ( $source_url ) {
-			$meta_rows .= '
-			<tr>
-				<td style="padding:10px 16px;border-bottom:1px solid #DEE2E6;font-weight:600;color:' . esc_attr( $dark_color ) . ';">' . $label_source . '</td>
-				<td style="padding:10px 16px;border-bottom:1px solid #DEE2E6;"><a href="' . $source_url . '" style="color:' . esc_attr( $primary_color ) . ';">' . $source_url . '</a></td>
-			</tr>';
-		}
-		if ( $admin_link ) {
-			$meta_rows .= '
-			<tr>
-				<td style="padding:10px 16px;font-weight:600;color:' . esc_attr( $dark_color ) . ';">' . $label_view . '</td>
-				<td style="padding:10px 16px;"><a href="' . $admin_link . '" style="color:' . esc_attr( $primary_color ) . ';">' . $admin_link . '</a></td>
-			</tr>';
-		}
-
-		$btn_html = '';
-		if ( $admin_link ) {
-			$btn_html = '<tr>
-				<td align="center" style="padding:0 32px 32px;">
-					<a href="' . $admin_link . '" style="display:inline-block;background:' . esc_attr( $accent_color ) . ';color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:700;font-size:15px;letter-spacing:0.5px;">' . $label_btn . '</a>
+		if ( $source_url && $source_label ) {
+			$meta_rows .= '<tr style="background:#fafafa;">
+				<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;width:30%;white-space:nowrap;">Source</td>
+				<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:13px;">
+					<a href="' . $source_url . '" style="color:#374151;text-decoration:none;">' . esc_html( $source_label ) . '</a>
 				</td>
 			</tr>';
 		}
 
-		$body = '<!DOCTYPE html>' . "\n"
-			. '<html lang="en">' . "\n"
-			. '<head>' . "\n"
-			. '<meta charset="UTF-8">' . "\n"
-			. '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n"
-			. '<title>Xtreme Forms Email</title>' . "\n"
-			. '</head>' . "\n"
-			. '<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;">' . "\n"
-			. '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:32px 16px;">' . "\n"
-			. ' <tr>' . "\n"
-			. ' <td align="center">' . "\n"
-			. ' <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;border:1px solid #DEE2E6;overflow:hidden;max-width:600px;width:100%;">' . "\n"
-			. ' <!-- Header -->' . "\n"
-			. ' <tr>' . "\n"
-			. ' <td style="background:' . $header_color . ';padding:24px 32px;">' . "\n"
-			. ' ' . $logo_html . "\n"
-			. ' <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">' . $site_name . '</h1>' . "\n"
-			. ' </td>' . "\n"
-			. ' </tr>' . "\n"
-			. ' <!-- Intro -->' . "\n"
-			. ' <tr>' . "\n"
-			. ' <td style="padding:24px 32px 16px;">' . "\n"
-			. ' <p style="margin:0;font-size:15px;color:' . $dark_color . ';">' . $body_intro . '</p>' . "\n"
-			. ' </td>' . "\n"
-			. ' </tr>' . "\n"
-			. ' <!-- Field values -->' . "\n"
-			. ' <tr>' . "\n"
-			. ' <td style="padding:0 32px 24px;">' . "\n"
-			. ' <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DEE2E6;border-radius:6px;overflow:hidden;font-size:14px;">' . "\n"
-			. ' ' . $field_rows_html . "\n"
-			. ' ' . $meta_rows . "\n"
-			. ' </table>' . "\n"
-			. ' </td>' . "\n"
-			. ' </tr>' . "\n"
-			. ' ' . $btn_html . "\n"
-			. ' <!-- Footer -->' . "\n"
-			. ' <tr>' . "\n"
-			. ' <td style="background:#F8F9FA;padding:16px 32px;border-top:1px solid #DEE2E6;">' . "\n"
-			. ' <p style="margin:0;font-size:12px;color:#6C757D;text-align:center;">' . $footer_text . '</p>' . "\n"
-			. ' </td>' . "\n"
-			. ' </tr>' . "\n"
-			. ' </table>' . "\n"
-			. ' </td>' . "\n"
-			. ' </tr>' . "\n"
-			. '</table>' . "\n"
-			. '</body>' . "\n"
-			. '</html>';
+		// CTA button.
+		$btn_html = '';
+		if ( $admin_link ) {
+			$btn_html = '<tr>
+				<td align="center" style="padding:28px 32px 36px;">
+					<a href="' . $admin_link . '" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:13px 36px;border-radius:8px;font-weight:600;font-size:14px;letter-spacing:0.2px;">View Lead &rarr;</a>
+				</td>
+			</tr>';
+		}
+
+		// Powered-by footer line.
+		$powered_by = 'Sent by <a href="https://xtremeplugins.com/plugins/xtreme-forms" style="color:#6b7280;text-decoration:underline;">Xtreme Forms</a>';
+
+		$body = '<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>New Lead</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:40px 16px;">
+<tr><td align="center">
+
+  <table role="presentation" width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;">
+
+    <!-- Brand bar -->
+    <tr>
+      <td style="padding-bottom:20px;">
+        ' . ( $logo_html ? '<td>' . $logo_html . '</td>' : '' ) . '
+        <span style="font-size:13px;font-weight:700;color:#374151;letter-spacing:.3px;">' . $site_name . '</span>
+      </td>
+    </tr>
+
+    <!-- Card -->
+    <tr>
+      <td style="background:#ffffff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;">
+
+        <!-- Top accent -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="height:4px;background:#111827;border-radius:12px 12px 0 0;"></td></tr>
+
+          <!-- Heading -->
+          <tr>
+            <td style="padding:28px 32px 8px;">
+              <p style="margin:0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">New Submission</p>
+              <h1 style="margin:6px 0 0;font-size:22px;font-weight:700;color:#111827;letter-spacing:-.3px;">' . esc_html( $context['form_name'] ?? 'Form Submission' ) . '</h1>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr><td style="padding:0 32px;"><div style="height:1px;background:#f0f0f0;"></div></td></tr>
+
+          <!-- Intro -->
+          <tr>
+            <td style="padding:20px 32px 0;">
+              <p style="margin:0;font-size:14px;color:#6b7280;line-height:1.6;">' . $body_intro . '</p>
+            </td>
+          </tr>
+
+          <!-- Fields table -->
+          <tr>
+            <td style="padding:20px 32px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:8px;overflow:hidden;border:1px solid #f0f0f0;font-size:14px;">
+                ' . $field_rows_html . '
+                ' . $meta_rows . '
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          ' . $btn_html . '
+
+        </table>
+      </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="padding:20px 0 0;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#9ca3af;">' . $powered_by . ' &middot; ' . $footer_text . '</p>
+      </td>
+    </tr>
+
+  </table>
+</td></tr>
+</table>
+</body>
+</html>';
 
 		return array(
 			'subject' => $subject,

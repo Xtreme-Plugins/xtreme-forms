@@ -58,7 +58,7 @@ class XF_Email {
 			$form_name
 		);
 
-		$admin_link = admin_url( 'admin.php?page=xtremeleads&xf_action=view&lead_id=' . $lead_id );
+		$admin_link = admin_url( 'admin.php?page=xtreme-forms-leads&xf_action=view&lead_id=' . $lead_id );
 
 		// Build the email body from the template.
 		$email_data = XF_Email_Templates::build_email(

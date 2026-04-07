@@ -56,6 +56,8 @@ function xtremeforms_init(): void {
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-analytics.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-utm.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-duplicates.php';
+	// Form templates.
+	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-form-templates.php';
 	// Webhooks, GDPR, Spam.
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-webhooks.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-gdpr.php';
@@ -66,6 +68,9 @@ function xtremeforms_init(): void {
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-multisite.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-import-export.php';
 	XF_Multisite::init();
+	// CRM Integrations.
+	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-integrations.php';
+	new XF_Integrations();
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-ajax.php';
 
 	// Admin.

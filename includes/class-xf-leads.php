@@ -92,8 +92,11 @@ class XF_Leads {
 		$row['is_duplicate'] = ! empty( $data['is_duplicate'] ) ? 1 : 0;
 		$formats[]           = '%d';
 
-		// duplicate_status: null (not a dup), 'duplicate', or 'duplicate_orphaned'.
-		$dup_status              = isset( $data['duplicate_status'] ) ? sanitize_key( $data['duplicate_status'] ) : null;
+		// duplicate_status: empty string (not a dup), 'duplicate', or 'duplicate_orphaned'.
+		// Column is NOT NULL DEFAULT '' — never store NULL.
+		$dup_status              = isset( $data['duplicate_status'] ) && null !== $data['duplicate_status']
+			? sanitize_key( $data['duplicate_status'] )
+			: '';
 		$row['duplicate_status'] = $dup_status;
 		// (format is handled by the NULL-aware loop below)
 

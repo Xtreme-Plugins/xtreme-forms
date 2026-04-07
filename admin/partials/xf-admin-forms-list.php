@@ -21,6 +21,9 @@ if ( ! empty( $_GET['updated'] ) ) {
 	<div class="xf-page-header">
 		<h1 class="xf-page-title"><?php esc_html_e( 'Forms', 'xtreme-forms' ); ?></h1>
 		<div class="xf-header-actions">
+			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-form-metrics' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-secondary">
+				<?php esc_html_e( 'View Metrics', 'xtreme-forms' ); ?>
+			</a>
 			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-primary">
 				<?php esc_html_e( 'Add New Form', 'xtreme-forms' ); ?>
 			</a>

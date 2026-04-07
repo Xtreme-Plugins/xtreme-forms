@@ -174,7 +174,15 @@ class XF_Analytics {
 		$end_utc   = $end->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 
 		$table   = $wpdb->prefix . 'xtremeforms_leads';
-		$tz_name = $tz->getName();
+
+		// Use numeric UTC offset (e.g. '+05:30') instead of a named timezone string
+		// (e.g. 'America/Chicago'). MySQL CONVERT_TZ with named timezones requires the
+		// mysql.time_zone* tables to be populated, which most hosts do not do. Numeric
+		// offset strings are always supported without those tables.
+		$offset_secs = $tz->getOffset( new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) ) );
+		$offset_h    = intdiv( abs( $offset_secs ), 3600 );
+		$offset_m    = (int) ( ( abs( $offset_secs ) % 3600 ) / 60 );
+		$tz_offset   = sprintf( '%s%02d:%02d', $offset_secs >= 0 ? '+' : '-', $offset_h, $offset_m );
 
 		if ( 'daily' === $granularity ) {
 			// MySQL CONVERT_TZ to align dates with site timezone.
@@ -186,7 +194,7 @@ class XF_Analytics {
 					 WHERE created_at >= %s AND created_at <= %s
 					 GROUP BY period
 					 ORDER BY period ASC",
-					$tz_name,
+					$tz_offset,
 					$start_utc,
 					$end_utc
 				)
@@ -218,7 +226,7 @@ class XF_Analytics {
 					 WHERE created_at >= %s AND created_at <= %s
 					 GROUP BY period
 					 ORDER BY period ASC",
-					$tz_name,
+					$tz_offset,
 					$start_utc,
 					$end_utc
 				)

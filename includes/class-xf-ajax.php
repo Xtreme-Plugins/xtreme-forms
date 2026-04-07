@@ -81,6 +81,27 @@ class XF_Ajax {
 		add_action( 'wp_ajax_xl_spam_log_get', array( $this, 'handle_spam_log_get' ) );
 		add_action( 'wp_ajax_xl_spam_log_delete', array( $this, 'handle_spam_log_delete' ) );
 		add_action( 'wp_ajax_xl_spam_log_clear', array( $this, 'handle_spam_log_clear' ) );
+
+		// ── xf_ prefix aliases ────────────────────────────────────────────────
+		// The JS files use xf_ prefix; register aliases so both work.
+		add_action( 'wp_ajax_xf_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
+		add_action( 'wp_ajax_nopriv_xf_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
+		add_action( 'wp_ajax_xf_track_impression', array( $this, 'handle_track_impression' ) );
+		add_action( 'wp_ajax_nopriv_xf_track_impression', array( $this, 'handle_track_impression' ) );
+		add_action( 'wp_ajax_xf_update_status', array( $this, 'handle_update_status' ) );
+		add_action( 'wp_ajax_xf_chart_leads_by_form', array( $this, 'handle_chart_leads_by_form' ) );
+		add_action( 'wp_ajax_xf_chart_leads_over_time', array( $this, 'handle_chart_leads_over_time' ) );
+		add_action( 'wp_ajax_xf_dashboard_stats', array( $this, 'handle_dashboard_stats' ) );
+		add_action( 'wp_ajax_xf_utm_report', array( $this, 'handle_utm_report' ) );
+		add_action( 'wp_ajax_xf_form_metrics', array( $this, 'handle_form_metrics' ) );
+		// Lead detail page actions (all use xf_ prefix in JS).
+		add_action( 'wp_ajax_xf_assign_lead', array( $this, 'handle_assign_lead' ) );
+		add_action( 'wp_ajax_xf_get_eligible_users', array( $this, 'handle_get_eligible_users' ) );
+		add_action( 'wp_ajax_xf_add_note', array( $this, 'handle_add_note' ) );
+		add_action( 'wp_ajax_xf_search_tags', array( $this, 'handle_search_tags' ) );
+		add_action( 'wp_ajax_xf_apply_tag', array( $this, 'handle_apply_tag' ) );
+		add_action( 'wp_ajax_xf_remove_tag', array( $this, 'handle_remove_tag' ) );
+		add_action( 'wp_ajax_xf_gdpr_erase', array( $this, 'handle_gdpr_erase' ) );
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
@@ -313,6 +334,36 @@ class XF_Ajax {
 						$source_url_early,
 						$ua_early,
 						$ip_early
+					);
+				}
+			}
+		}
+
+		// ── Cloudflare Turnstile check ────────────────────────────────────────
+		if ( class_exists( 'XF_Spam' ) ) {
+			$turnstile_cfg = XF_Spam::get_turnstile_settings();
+			if ( $turnstile_cfg['enabled'] ) {
+				$turnstile_token = isset( $_POST['xf_turnstile_token'] )
+					? sanitize_text_field( wp_unslash( $_POST['xf_turnstile_token'] ) )
+					: '';
+				$ts_result = XF_Spam::verify_turnstile( $turnstile_token, $turnstile_cfg['secret_key'] );
+
+				if ( ! $ts_result['success'] && ! $ts_result['api_failed'] ) {
+					XF_Spam::log_blocked( $form_id, XF_Spam::REASON_TURNSTILE, $email_early, $source_url_early, $ua_early, $ip_early );
+					wp_send_json_success(
+						array(
+							'message'  => __( 'Thank you for your submission!', 'xtreme-forms' ),
+							'redirect' => '',
+							'spam'     => true,
+						)
+					);
+				}
+
+				if ( $ts_result['api_failed'] ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log(
+						'Xtreme Forms: Turnstile API verification failed for form #' . $form_id .
+						' — allowing submission through. Error: ' . ( $ts_result['error'] ?? 'unknown' )
 					);
 				}
 			}

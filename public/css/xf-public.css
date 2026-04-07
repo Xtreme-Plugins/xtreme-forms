@@ -201,18 +201,41 @@
 
 /* ── Thank-you message ───────────────────────────────────────────────────── */
 .xf-thank-you {
-  background: #d1fae5;
-  border: 1px solid #6ee7b7;
-  border-radius: 8px;
-  padding: 24px;
+  background: #f8fffe;
+  border: 1px solid #d1fae5;
+  border-top: 3px solid #10b981;
+  border-radius: 12px;
+  padding: 48px 32px 56px;
   text-align: center;
-  color: #065f46;
-  font-size: 17px;
-  font-weight: 600;
+  margin-bottom: 48px;
+}
+
+.xf-thank-you::before {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 52px;
+  background: #10b981;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .xf-thank-you p {
   margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.xf-thank-you p + p {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #6b7280;
 }
 
 /* ── Fallback error ──────────────────────────────────────────────────────── */
@@ -287,4 +310,9 @@
 .xf-block-align-full {
   width: 100%;
   max-width: 100% !important;
+}
+
+/* ── Turnstile widget ────────────────────────────────────────────────────── */
+.xf-turnstile-wrap {
+  margin-bottom: 20px;
 }

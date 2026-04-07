@@ -17,6 +17,7 @@ class XF_Spam {
 	const REASON_TIMEGATE           = 'time_gate';
 	const REASON_RECAPTCHA          = 'recaptcha';
 	const REASON_RECAPTCHA_API_WARN = 'recaptcha_api_warn'; // API failed; submission allowed through with warning logged.
+	const REASON_TURNSTILE          = 'turnstile';
 	const REASON_BLOCKLIST          = 'blocklist';
 
 	/** Log entries per page. */
@@ -357,6 +358,76 @@ class XF_Spam {
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
+	// Cloudflare Turnstile
+	// ─────────────────────────────────────────────────────────────────────────
+
+	/**
+	 * Get Cloudflare Turnstile settings.
+	 *
+	 * @return array{enabled: bool, site_key: string, secret_key: string, theme: string, size: string}
+	 */
+	public static function get_turnstile_settings(): array {
+		$settings = get_option( 'xtremeforms_settings', array() );
+		$enabled  = ! empty( $settings['turnstile_enabled'] ) && '1' === (string) $settings['turnstile_enabled'];
+		$site_key = sanitize_text_field( $settings['turnstile_site_key'] ?? '' );
+		$secret   = sanitize_text_field( $settings['turnstile_secret_key'] ?? '' );
+
+		return array(
+			'enabled'    => $enabled && '' !== $site_key && '' !== $secret,
+			'site_key'   => $site_key,
+			'secret_key' => $secret,
+			'theme'      => sanitize_key( $settings['turnstile_theme'] ?? 'auto' ),
+			'size'       => sanitize_key( $settings['turnstile_size'] ?? 'normal' ),
+		);
+	}
+
+	/**
+	 * Verify a Cloudflare Turnstile token via the siteverify API.
+	 *
+	 * On API failure falls back to allowing the submission through.
+	 *
+	 * @param string $token  Token from the browser (cf-turnstile-response / xf_turnstile_token).
+	 * @param string $secret Secret key.
+	 * @return array{success: bool, error: string, api_failed: bool}
+	 */
+	public static function verify_turnstile( string $token, string $secret ): array {
+		if ( '' === $token ) {
+			return array(
+				'success'    => false,
+				'error'      => __( 'Turnstile token missing.', 'xtreme-forms' ),
+				'api_failed' => false,
+			);
+		}
+
+		$response = wp_remote_post(
+			'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			array(
+				'body'    => array(
+					'secret'   => $secret,
+					'response' => $token,
+				),
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success'    => true,
+				'error'      => $response->get_error_message(),
+				'api_failed' => true,
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return array(
+			'success'    => ! empty( $data['success'] ),
+			'error'      => empty( $data['success'] ) ? __( 'Turnstile verification failed.', 'xtreme-forms' ) : '',
+			'api_failed' => false,
+		);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
 	// Available rejection reasons list (for UI filtering)
 	// ─────────────────────────────────────────────────────────────────────────
 
@@ -371,6 +442,7 @@ class XF_Spam {
 			self::REASON_TIMEGATE           => __( 'Time Gate', 'xtreme-forms' ),
 			self::REASON_RECAPTCHA          => __( 'reCAPTCHA', 'xtreme-forms' ),
 			self::REASON_RECAPTCHA_API_WARN => __( 'reCAPTCHA API Warning (allowed)', 'xtreme-forms' ),
+			self::REASON_TURNSTILE          => __( 'Turnstile', 'xtreme-forms' ),
 			self::REASON_BLOCKLIST          => __( 'Blocklist', 'xtreme-forms' ),
 		);
 	}
