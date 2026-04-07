@@ -13,15 +13,15 @@ defined( 'ABSPATH' ) || exit;
 class XF_Email_Log {
 
 	// Trigger type constants.
-	const TRIGGER_NOTIFICATION = 'notification';
+	const TRIGGER_NOTIFICATION   = 'notification';
 	const TRIGGER_AUTO_RESPONDER = 'auto_responder';
-	const TRIGGER_ROUTING = 'routing';
-	const TRIGGER_TEST = 'test';
-	const TRIGGER_RESEND = 'resend';
+	const TRIGGER_ROUTING        = 'routing';
+	const TRIGGER_TEST           = 'test';
+	const TRIGGER_RESEND         = 'resend';
 
 	// Status constants.
-	const STATUS_SENT = 'sent';
-	const STATUS_FAILED = 'failed';
+	const STATUS_SENT    = 'sent';
+	const STATUS_FAILED  = 'failed';
 	const STATUS_SKIPPED = 'skipped';
 
 	/**
@@ -45,17 +45,17 @@ class XF_Email_Log {
 		$table = $wpdb->prefix . 'xtremeforms_email_log';
 
 		$insert = array(
-			'lead_id' => isset( $data['lead_id'] ) ? absint( $data['lead_id'] ) : 0,
-			'recipient' => sanitize_email( $data['recipient'] ?? '' ),
-			'subject' => sanitize_text_field( $data['subject'] ?? '' ),
-			'body' => $data['body'] ?? '',
-			'headers' => is_array( $data['headers'] ?? null )
+			'lead_id'        => isset( $data['lead_id'] ) ? absint( $data['lead_id'] ) : 0,
+			'recipient'      => sanitize_email( $data['recipient'] ?? '' ),
+			'subject'        => sanitize_text_field( $data['subject'] ?? '' ),
+			'body'           => $data['body'] ?? '',
+			'headers'        => is_array( $data['headers'] ?? null )
 				? implode( "\n", $data['headers'] )
 				: (string) ( $data['headers'] ?? '' ),
-			'trigger_type' => sanitize_text_field( $data['trigger_type'] ?? self::TRIGGER_NOTIFICATION ),
-			'status' => sanitize_text_field( $data['status'] ?? self::STATUS_SENT ),
+			'trigger_type'   => sanitize_text_field( $data['trigger_type'] ?? self::TRIGGER_NOTIFICATION ),
+			'status'         => sanitize_text_field( $data['status'] ?? self::STATUS_SENT ),
 			'failure_reason' => sanitize_text_field( $data['failure_reason'] ?? '' ),
-			'sent_at' => current_time( 'mysql' ),
+			'sent_at'        => current_time( 'mysql' ),
 		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -74,51 +74,51 @@ class XF_Email_Log {
 	 * Get paginated log entries.
 	 *
 	 * @param array $filters Optional filters: lead_id, trigger_type, status.
-	 * @param int $page 1-based page number.
-	 * @param int $per_page Items per page.
+	 * @param int   $page 1-based page number.
+	 * @param int   $per_page Items per page.
 	 * @return array{ logs: array, total: int }
 	 */
 	public static function get_logs( array $filters = array(), int $page = 1, int $per_page = 25 ): array {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'xtremeforms_email_log';
-		$where = array( '1=1' );
+		$table  = $wpdb->prefix . 'xtremeforms_email_log';
+		$where  = array( '1=1' );
 		$params = array();
 
 		if ( ! empty( $filters['lead_id'] ) ) {
-			$where[] = 'lead_id = %d';
+			$where[]  = 'lead_id = %d';
 			$params[] = absint( $filters['lead_id'] );
 		}
 
 		if ( ! empty( $filters['trigger_type'] ) ) {
-			$where[] = 'trigger_type = %s';
+			$where[]  = 'trigger_type = %s';
 			$params[] = $filters['trigger_type'];
 		}
 
 		if ( ! empty( $filters['status'] ) ) {
-			$where[] = 'status = %s';
+			$where[]  = 'status = %s';
 			$params[] = $filters['status'];
 		}
 
 		$where_sql = implode( ' AND ', $where );
-		$offset = ( max( 1, $page ) - 1 ) * $per_page;
+		$offset    = ( max( 1, $page ) - 1 ) * $per_page;
 
 		// Count.
 		$count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}";
-		$total = empty( $params )
+		$total     = empty( $params )
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
 			? (int) $wpdb->get_var( $count_sql )
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
 			: (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
 
 		// Rows.
-		$rows_sql = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY sent_at DESC LIMIT %d OFFSET %d";
+		$rows_sql   = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY sent_at DESC LIMIT %d OFFSET %d";
 		$row_params = array_merge( $params, array( $per_page, $offset ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared
 		$logs = $wpdb->get_results( $wpdb->prepare( $rows_sql, ...$row_params ) );
 
 		return array(
-			'logs' => $logs ?: array(),
+			'logs'  => $logs ?: array(),
 			'total' => $total,
 		);
 	}
@@ -149,11 +149,11 @@ class XF_Email_Log {
 	 */
 	public static function get_trigger_label( string $type ): string {
 		$labels = array(
-			self::TRIGGER_NOTIFICATION => __( 'Notification', 'xtreme-forms' ),
+			self::TRIGGER_NOTIFICATION   => __( 'Notification', 'xtreme-forms' ),
 			self::TRIGGER_AUTO_RESPONDER => __( 'Auto-Responder', 'xtreme-forms' ),
-			self::TRIGGER_ROUTING => __( 'Routing Rule', 'xtreme-forms' ),
-			self::TRIGGER_TEST => __( 'Test', 'xtreme-forms' ),
-			self::TRIGGER_RESEND => __( 'Resend', 'xtreme-forms' ),
+			self::TRIGGER_ROUTING        => __( 'Routing Rule', 'xtreme-forms' ),
+			self::TRIGGER_TEST           => __( 'Test', 'xtreme-forms' ),
+			self::TRIGGER_RESEND         => __( 'Resend', 'xtreme-forms' ),
 		);
 
 		return $labels[ $type ] ?? ucfirst( $type );
@@ -166,11 +166,11 @@ class XF_Email_Log {
 	 */
 	public static function get_trigger_labels(): array {
 		return array(
-			self::TRIGGER_NOTIFICATION => __( 'Notification', 'xtreme-forms' ),
+			self::TRIGGER_NOTIFICATION   => __( 'Notification', 'xtreme-forms' ),
 			self::TRIGGER_AUTO_RESPONDER => __( 'Auto-Responder', 'xtreme-forms' ),
-			self::TRIGGER_ROUTING => __( 'Routing Rule', 'xtreme-forms' ),
-			self::TRIGGER_TEST => __( 'Test', 'xtreme-forms' ),
-			self::TRIGGER_RESEND => __( 'Resend', 'xtreme-forms' ),
+			self::TRIGGER_ROUTING        => __( 'Routing Rule', 'xtreme-forms' ),
+			self::TRIGGER_TEST           => __( 'Test', 'xtreme-forms' ),
+			self::TRIGGER_RESEND         => __( 'Resend', 'xtreme-forms' ),
 		);
 	}
 }

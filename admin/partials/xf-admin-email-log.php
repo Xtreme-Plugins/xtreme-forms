@@ -6,9 +6,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$per_page = 25;
+$per_page     = 25;
 $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
 
 $filters = array();
@@ -20,9 +20,9 @@ if ( ! empty( $_GET['xf_log_status'] ) ) {
 }
 
 $result = XF_Email_Log::get_logs( $filters, $current_page, $per_page );
-$logs = $result['logs'];
-$total = $result['total'];
-$pages = (int) ceil( $total / $per_page );
+$logs   = $result['logs'];
+$total  = $result['total'];
+$pages  = (int) ceil( $total / $per_page );
 
 $trigger_labels = XF_Email_Log::get_trigger_labels();
 
@@ -98,12 +98,12 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 			<?php else : ?>
 				<?php foreach ( $logs as $log ) : ?>
 					<?php
-					$log_id = (int) $log->id;
-					$status = $log->status ?? 'sent';
+					$log_id       = (int) $log->id;
+					$status       = $log->status ?? 'sent';
 					$status_label = ucfirst( $status );
 					$status_class = 'sent' === $status ? 'xf-status-pill xf-status-new' : ( 'failed' === $status ? 'xf-status-pill xf-status-lost' : 'xf-status-pill xf-status-archived' );
-					$trigger = $log->trigger_type ?? '';
-					$lead_id = (int) $log->lead_id;
+					$trigger      = $log->trigger_type ?? '';
+					$lead_id      = (int) $log->lead_id;
 					?>
 					<tr>
 						<td><?php echo esc_html( $log_id ); ?></td>
@@ -157,22 +157,28 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 			$base_url = add_query_arg(
 				array_merge(
 					array( 'page' => 'xtremeleads-email-log' ),
-					array_filter( array(
-						'xf_trigger' => $filters['trigger_type'] ?? '',
-						'xf_log_status' => $filters['status'] ?? '',
-					) )
+					array_filter(
+						array(
+							'xf_trigger'    => $filters['trigger_type'] ?? '',
+							'xf_log_status' => $filters['status'] ?? '',
+						)
+					)
 				),
 				admin_url( 'admin.php' )
 			);
 
-			echo wp_kses_post( paginate_links( array(
-				'base' => add_query_arg( 'paged', '%#%', $base_url ),
-				'format' => '',
-				'current' => $current_page,
-				'total' => $pages,
-				'prev_text' => '&laquo;',
-				'next_text' => '&raquo;',
-			) ) );
+			echo wp_kses_post(
+				paginate_links(
+					array(
+						'base'      => add_query_arg( 'paged', '%#%', $base_url ),
+						'format'    => '',
+						'current'   => $current_page,
+						'total'     => $pages,
+						'prev_text' => '&laquo;',
+						'next_text' => '&raquo;',
+					)
+				)
+			);
 			?>
 		</div>
 	<?php endif; ?>

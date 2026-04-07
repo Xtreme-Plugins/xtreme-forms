@@ -6,9 +6,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$notice_html = '';
+$notice_html   = '';
 $transient_key = 'xf_import_result_' . get_current_user_id();
 $import_result = get_transient( $transient_key );
 if ( false !== $import_result ) {

@@ -6,26 +6,26 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$settings = get_option( 'xtremeforms_settings', array() );
+$settings   = get_option( 'xtremeforms_settings', array() );
 $recipients = $settings['recipients'] ?? get_option( 'admin_email', '' );
-$anonymize = ! empty( $settings['anonymize_ip'] ) && '1' === (string) $settings['anonymize_ip'];
-$from_name = $settings['email_from_name'] ?? get_bloginfo( 'name' );
+$anonymize  = ! empty( $settings['anonymize_ip'] ) && '1' === (string) $settings['anonymize_ip'];
+$from_name  = $settings['email_from_name'] ?? get_bloginfo( 'name' );
 $from_email = $settings['email_from'] ?? get_option( 'admin_email', '' );
 
 // reCAPTCHA.
-$rc_enabled = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
-$rc_site_key = $settings['recaptcha_site_key'] ?? '';
+$rc_enabled    = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
+$rc_site_key   = $settings['recaptcha_site_key'] ?? '';
 $rc_secret_key = $settings['recaptcha_secret_key'] ?? '';
-$rc_threshold = isset( $settings['recaptcha_threshold'] ) ? (float) $settings['recaptcha_threshold'] : 0.5;
+$rc_threshold  = isset( $settings['recaptcha_threshold'] ) ? (float) $settings['recaptcha_threshold'] : 0.5;
 
 // Blocklists.
-$domain_blocklist = $settings['spam_domain_blocklist'] ?? '';
+$domain_blocklist  = $settings['spam_domain_blocklist'] ?? '';
 $keyword_blocklist = $settings['spam_keyword_blocklist'] ?? '';
 
 // Retention.
-$retention_days = isset( $settings['retention_days'] ) ? (int) $settings['retention_days'] : '';
+$retention_days  = isset( $settings['retention_days'] ) ? (int) $settings['retention_days'] : '';
 $next_purge_time = XF_GDPR::get_next_purge_time();
 
 // GDPR nonce for erasure AJAX.
@@ -280,12 +280,12 @@ if ( ! empty( $_GET['recaptcha_warning'] ) ) {
 
 	<?php
 	// Duplicate behavior settings — saved via separate action to keep these fields isolated.
-	$dup_behavior = $settings['duplicate_behavior'] ?? 'silent_flag';
+	$dup_behavior      = $settings['duplicate_behavior'] ?? 'silent_flag';
 	$dup_block_message = $settings['duplicate_block_message'] ?? '';
-	$behavior_options = array(
+	$behavior_options  = array(
 		'silent_flag' => __( 'Silent Flag — save lead normally but mark as duplicate', 'xtreme-forms' ),
-		'block' => __( 'Block Resubmission — reject the duplicate and show a message to the visitor', 'xtreme-forms' ),
-		'merge' => __( 'Merge — update the original lead with non-empty values from the new submission', 'xtreme-forms' ),
+		'block'       => __( 'Block Resubmission — reject the duplicate and show a message to the visitor', 'xtreme-forms' ),
+		'merge'       => __( 'Merge — update the original lead with non-empty values from the new submission', 'xtreme-forms' ),
 	);
 	?>
 

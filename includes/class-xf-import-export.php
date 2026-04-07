@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class XF_Import_Export {
 
-	const EXPORT_VERSION = '1';
+	const EXPORT_VERSION     = '1';
 	const MIN_EXPORT_VERSION = '1'; // Minimum compatible version for imports.
 
 	// ── Export ────────────────────────────────────────────────────────────────
@@ -35,28 +35,28 @@ class XF_Import_Export {
 	 * @return array Export data array (not yet JSON-encoded).
 	 */
 	public static function build_full_export(): array {
-		$settings = get_option( 'xtremeforms_settings', array() );
-		$email_tmpl = get_option( 'xtremeforms_email_template', array() );
+		$settings      = get_option( 'xtremeforms_settings', array() );
+		$email_tmpl    = get_option( 'xtremeforms_email_template', array() );
 		$routing_rules = self::get_routing_rules_export();
 
 		// Strip sensitive keys.
 		unset( $settings['recaptcha_secret_key'] );
 
 		$forms_raw = XF_Forms::get_all_forms();
-		$forms = array();
+		$forms     = array();
 		foreach ( $forms_raw as $form ) {
 			$forms[] = self::form_to_export_array( $form );
 		}
 
 		return array(
 			'xf_export_version' => self::EXPORT_VERSION,
-			'plugin_version' => XTREMEFORMS_VERSION,
-			'exported_at' => gmdate( 'c' ),
-			'type' => 'full',
-			'settings' => $settings,
-			'email_template' => $email_tmpl,
-			'routing_rules' => $routing_rules,
-			'forms' => $forms,
+			'plugin_version'    => XTREMEFORMS_VERSION,
+			'exported_at'       => gmdate( 'c' ),
+			'type'              => 'full',
+			'settings'          => $settings,
+			'email_template'    => $email_tmpl,
+			'routing_rules'     => $routing_rules,
+			'forms'             => $forms,
 		);
 	}
 
@@ -74,10 +74,10 @@ class XF_Import_Export {
 
 		return array(
 			'xf_export_version' => self::EXPORT_VERSION,
-			'plugin_version' => XTREMEFORMS_VERSION,
-			'exported_at' => gmdate( 'c' ),
-			'type' => 'form',
-			'forms' => array( self::form_to_export_array( $form ) ),
+			'plugin_version'    => XTREMEFORMS_VERSION,
+			'exported_at'       => gmdate( 'c' ),
+			'type'              => 'form',
+			'forms'             => array( self::form_to_export_array( $form ) ),
 		);
 	}
 
@@ -89,15 +89,15 @@ class XF_Import_Export {
 	 */
 	private static function form_to_export_array( object $form ): array {
 		return array(
-			'id' => (int) $form->id,
-			'name' => $form->name,
-			'fields' => XF_Forms::decode_fields( $form ),
-			'settings' => XF_Forms::decode_settings( $form ),
-			'status' => $form->status,
-			'activate_at' => $form->activate_at ?? null,
-			'expire_at' => $form->expire_at ?? null,
+			'id'             => (int) $form->id,
+			'name'           => $form->name,
+			'fields'         => XF_Forms::decode_fields( $form ),
+			'settings'       => XF_Forms::decode_settings( $form ),
+			'status'         => $form->status,
+			'activate_at'    => $form->activate_at ?? null,
+			'expire_at'      => $form->expire_at ?? null,
 			'closed_message' => $form->closed_message ?? null,
-			'created_at' => $form->created_at,
+			'created_at'     => $form->created_at,
 		);
 	}
 
@@ -122,7 +122,7 @@ class XF_Import_Export {
 	/**
 	 * Stream a JSON export file as a download response.
 	 *
-	 * @param array $data Export payload array.
+	 * @param array  $data Export payload array.
 	 * @param string $filename Filename for the download.
 	 */
 	public static function stream_json_download( array $data, string $filename ): void {
@@ -229,7 +229,7 @@ class XF_Import_Export {
 		}
 
 		// Forms.
-		$result = self::import_forms( $data['forms'] ?? array() );
+		$result                           = self::import_forms( $data['forms'] ?? array() );
 		$result['imported_routing_rules'] = $imported_rules;
 
 		// Audit.
@@ -238,8 +238,8 @@ class XF_Import_Export {
 				XF_Audit_Log::ACTION_PLUGIN_DATA_IMPORTED,
 				0,
 				array(
-					'type' => 'full',
-					'imported_forms' => $result['imported_forms'],
+					'type'                   => 'full',
+					'imported_forms'         => $result['imported_forms'],
 					'imported_routing_rules' => $imported_rules,
 				)
 			);
@@ -266,7 +266,7 @@ class XF_Import_Export {
 		$wpdb->query( "TRUNCATE TABLE {$table}" );
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
-		$imported = 0;
+		$imported              = 0;
 		$valid_condition_types = array( 'form', 'field_value' );
 
 		foreach ( $rules_data as $rule ) {
@@ -285,15 +285,15 @@ class XF_Import_Export {
 			}
 
 			$insert = array(
-				'condition_type' => $condition_type,
-				'form_id' => absint( $rule['form_id'] ?? 0 ),
-				'field_id' => sanitize_text_field( $rule['field_id'] ?? '' ),
-				'field_value' => sanitize_text_field( $rule['field_value'] ?? '' ),
+				'condition_type'  => $condition_type,
+				'form_id'         => absint( $rule['form_id'] ?? 0 ),
+				'field_id'        => sanitize_text_field( $rule['field_id'] ?? '' ),
+				'field_value'     => sanitize_text_field( $rule['field_value'] ?? '' ),
 				'recipient_email' => $recipient_email,
-				'rule_order' => absint( $rule['rule_order'] ?? $imported ),
-				'is_active' => isset( $rule['is_active'] ) ? (int) (bool) $rule['is_active'] : 1,
-				'created_at' => current_time( 'mysql' ),
-				'updated_at' => current_time( 'mysql' ),
+				'rule_order'      => absint( $rule['rule_order'] ?? $imported ),
+				'is_active'       => isset( $rule['is_active'] ) ? (int) (bool) $rule['is_active'] : 1,
+				'created_at'      => current_time( 'mysql' ),
+				'updated_at'      => current_time( 'mysql' ),
 			);
 
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -325,7 +325,10 @@ class XF_Import_Export {
 			XF_Audit_Log::record(
 				XF_Audit_Log::ACTION_PLUGIN_DATA_IMPORTED,
 				0,
-				array( 'type' => 'form', 'imported_forms' => $result['imported_forms'] )
+				array(
+					'type'           => 'form',
+					'imported_forms' => $result['imported_forms'],
+				)
 			);
 		}
 
@@ -342,8 +345,8 @@ class XF_Import_Export {
 	 * @return array { imported_forms: int, remapped_shortcuts: array }
 	 */
 	private static function import_forms( array $forms ): array {
-		$imported = 0;
-		$remapped = array();
+		$imported          = 0;
+		$remapped          = array();
 		$existing_form_ids = self::get_all_form_ids();
 
 		foreach ( $forms as $form_data ) {
@@ -351,10 +354,10 @@ class XF_Import_Export {
 				continue;
 			}
 
-			$name = sanitize_text_field( $form_data['name'] ?? __( 'Imported Form', 'xtreme-forms' ) );
-			$fields = is_array( $form_data['fields'] ?? null ) ? $form_data['fields'] : array();
+			$name     = sanitize_text_field( $form_data['name'] ?? __( 'Imported Form', 'xtreme-forms' ) );
+			$fields   = is_array( $form_data['fields'] ?? null ) ? $form_data['fields'] : array();
 			$settings = is_array( $form_data['settings'] ?? null ) ? $form_data['settings'] : array();
-			$status = in_array( $form_data['status'] ?? 'active', array( 'active', 'inactive' ), true )
+			$status   = in_array( $form_data['status'] ?? 'active', array( 'active', 'inactive' ), true )
 				? $form_data['status']
 				: 'active';
 
@@ -367,20 +370,20 @@ class XF_Import_Export {
 			// Update scheduling columns if present.
 			if ( isset( $form_data['activate_at'] ) || isset( $form_data['expire_at'] ) || isset( $form_data['closed_message'] ) ) {
 				global $wpdb;
-				$table = $wpdb->prefix . 'xtremeforms_forms';
-				$update_data = array( 'status' => $status );
+				$table         = $wpdb->prefix . 'xtremeforms_forms';
+				$update_data   = array( 'status' => $status );
 				$update_format = array( '%s' );
 				if ( isset( $form_data['activate_at'] ) && $form_data['activate_at'] ) {
 					$update_data['activate_at'] = sanitize_text_field( $form_data['activate_at'] );
-					$update_format[] = '%s';
+					$update_format[]            = '%s';
 				}
 				if ( isset( $form_data['expire_at'] ) && $form_data['expire_at'] ) {
 					$update_data['expire_at'] = sanitize_text_field( $form_data['expire_at'] );
-					$update_format[] = '%s';
+					$update_format[]          = '%s';
 				}
 				if ( isset( $form_data['closed_message'] ) ) {
 					$update_data['closed_message'] = sanitize_textarea_field( $form_data['closed_message'] );
-					$update_format[] = '%s';
+					$update_format[]               = '%s';
 				}
 				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$wpdb->update( $table, $update_data, array( 'id' => $new_form_id ), $update_format, array( '%d' ) );
@@ -392,8 +395,8 @@ class XF_Import_Export {
 			if ( $old_id && in_array( (int) $old_id, $existing_form_ids, true ) ) {
 				$remapped[] = array(
 					'original_id' => (int) $old_id,
-					'new_id' => $new_form_id,
-					'name' => $name,
+					'new_id'      => $new_form_id,
+					'name'        => $name,
 				);
 			}
 
@@ -401,7 +404,10 @@ class XF_Import_Export {
 				XF_Audit_Log::record(
 					XF_Audit_Log::ACTION_FORM_CREATED,
 					$new_form_id,
-					array( 'source' => 'import', 'original_name' => $name )
+					array(
+						'source'        => 'import',
+						'original_name' => $name,
+					)
 				);
 			}
 
@@ -409,7 +415,7 @@ class XF_Import_Export {
 		}
 
 		return array(
-			'imported_forms' => $imported,
+			'imported_forms'     => $imported,
 			'remapped_shortcuts' => $remapped,
 		);
 	}

@@ -55,8 +55,8 @@ class XF_Tags {
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'name' => sanitize_text_field( $name ),
-				'slug' => $slug,
+				'name'       => sanitize_text_field( $name ),
+				'slug'       => $slug,
 				'created_at' => current_time( 'mysql', true ),
 			),
 			array( '%s', '%s', '%s' )
@@ -116,7 +116,7 @@ class XF_Tags {
 	public static function delete_tag( int $tag_id ): bool {
 		global $wpdb;
 
-		$tags_table = $wpdb->prefix . 'xtremeforms_tags';
+		$tags_table      = $wpdb->prefix . 'xtremeforms_tags';
 		$lead_tags_table = $wpdb->prefix . 'xtremeforms_lead_tags';
 
 		// Remove all lead associations first.
@@ -179,7 +179,7 @@ class XF_Tags {
 			$table,
 			array(
 				'lead_id' => absint( $lead_id ),
-				'tag_id' => absint( $tag_id ),
+				'tag_id'  => absint( $tag_id ),
 			),
 			array( '%d', '%d' )
 		);
@@ -196,7 +196,7 @@ class XF_Tags {
 	public static function get_tags_for_lead( int $lead_id ): array {
 		global $wpdb;
 
-		$tags_table = $wpdb->prefix . 'xtremeforms_tags';
+		$tags_table      = $wpdb->prefix . 'xtremeforms_tags';
 		$lead_tags_table = $wpdb->prefix . 'xtremeforms_lead_tags';
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -218,7 +218,7 @@ class XF_Tags {
 	 * Search tags by name (for autocomplete).
 	 *
 	 * @param string $query Partial tag name.
-	 * @param int $limit Max results.
+	 * @param int    $limit Max results.
 	 * @return array
 	 */
 	public static function search_tags( string $query, int $limit = 10 ): array {
@@ -253,10 +253,10 @@ class XF_Tags {
 
 		global $wpdb;
 
-		$lead_ids = array_values( array_filter( array_map( 'absint', $lead_ids ) ) );
-		$tags_table = $wpdb->prefix . 'xtremeforms_tags';
+		$lead_ids        = array_values( array_filter( array_map( 'absint', $lead_ids ) ) );
+		$tags_table      = $wpdb->prefix . 'xtremeforms_tags';
 		$lead_tags_table = $wpdb->prefix . 'xtremeforms_lead_tags';
-		$placeholders = implode( ',', array_fill( 0, count( $lead_ids ), '%d' ) );
+		$placeholders    = implode( ',', array_fill( 0, count( $lead_ids ), '%d' ) );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
@@ -273,7 +273,7 @@ class XF_Tags {
 		$result = array();
 		foreach ( $rows as $row ) {
 			$result[ (int) $row->lead_id ][] = (object) array(
-				'id' => (int) $row->id,
+				'id'   => (int) $row->id,
 				'name' => $row->name,
 			);
 		}

@@ -31,7 +31,7 @@ class XF_Email_Templates {
 	 * }
 	 */
 	public static function get_template(): array {
-		$saved = get_option( self::OPTION_KEY, array() );
+		$saved    = get_option( self::OPTION_KEY, array() );
 		$defaults = self::get_defaults();
 
 		return wp_parse_args( $saved, $defaults );
@@ -44,11 +44,11 @@ class XF_Email_Templates {
 	 */
 	public static function get_defaults(): array {
 		return array(
-			'logo_url' => '',
+			'logo_url'     => '',
 			'header_color' => '#1A73E8',
-			'subject' => __( '[{{site_name}}] New Lead: {{lead_name}}', 'xtreme-forms' ),
-			'body_text' => __( 'You have received a new lead submission from your website.', 'xtreme-forms' ),
-			'footer_text' => __( 'This email was sent by Xtreme Forms. Visit {{site_url}} to manage your leads.', 'xtreme-forms' ),
+			'subject'      => __( '[{{site_name}}] New Lead: {{lead_name}}', 'xtreme-forms' ),
+			'body_text'    => __( 'You have received a new lead submission from your website.', 'xtreme-forms' ),
+			'footer_text'  => __( 'This email was sent by Xtreme Forms. Visit {{site_url}} to manage your leads.', 'xtreme-forms' ),
 		);
 	}
 
@@ -60,11 +60,11 @@ class XF_Email_Templates {
 	 */
 	public static function save_template( array $data ): bool {
 		$template = array(
-			'logo_url' => esc_url_raw( $data['logo_url'] ?? '' ),
+			'logo_url'     => esc_url_raw( $data['logo_url'] ?? '' ),
 			'header_color' => self::sanitize_hex_color( $data['header_color'] ?? '#1A73E8' ),
-			'subject' => sanitize_text_field( $data['subject'] ?? '' ),
-			'body_text' => sanitize_textarea_field( $data['body_text'] ?? '' ),
-			'footer_text' => sanitize_textarea_field( $data['footer_text'] ?? '' ),
+			'subject'      => sanitize_text_field( $data['subject'] ?? '' ),
+			'body_text'    => sanitize_textarea_field( $data['body_text'] ?? '' ),
+			'footer_text'  => sanitize_textarea_field( $data['footer_text'] ?? '' ),
 		);
 
 		return update_option( self::OPTION_KEY, $template );
@@ -101,8 +101,8 @@ class XF_Email_Templates {
 	 * Process merge tags in a string.
 	 *
 	 * @param string $content Template content with {{tag}} placeholders.
-	 * @param array $context Key/value pairs used for replacement.
-	 * @param bool $is_test If true, use sample placeholder values for empty keys.
+	 * @param array  $context Key/value pairs used for replacement.
+	 * @param bool   $is_test If true, use sample placeholder values for empty keys.
 	 * @return string
 	 */
 	public static function process_merge_tags( string $content, array $context = array(), bool $is_test = false ): string {
@@ -122,12 +122,12 @@ class XF_Email_Templates {
 	 * Build the full replacements map from submission context.
 	 *
 	 * @param array $context Keyed context data from the submission.
-	 * @param bool $is_test If true, fill empty values with "[Sample X]" placeholders.
+	 * @param bool  $is_test If true, fill empty values with "[Sample X]" placeholders.
 	 * @return array<string, string>
 	 */
 	private static function build_replacements( array $context, bool $is_test = false ): array {
 		$site_name = get_bloginfo( 'name' );
-		$site_url = get_bloginfo( 'url' );
+		$site_url  = get_bloginfo( 'url' );
 
 		/**
 		 * Helper to resolve a context value, with optional test placeholder.
@@ -149,27 +149,27 @@ class XF_Email_Templates {
 		};
 
 		return array(
-			'site_name' => esc_html( $site_name ),
-			'site_url' => esc_url( $site_url ),
-			'lead_name' => esc_html( $resolve( 'lead_name', 'Sample Name' ) ),
-			'lead_email' => esc_html( $resolve( 'lead_email', 'sample@example.com' ) ),
-			'lead_phone' => esc_html( $resolve( 'lead_phone', '555-0100' ) ),
-			'form_name' => esc_html( $resolve( 'form_name', 'Sample Form' ) ),
+			'site_name'       => esc_html( $site_name ),
+			'site_url'        => esc_url( $site_url ),
+			'lead_name'       => esc_html( $resolve( 'lead_name', 'Sample Name' ) ),
+			'lead_email'      => esc_html( $resolve( 'lead_email', 'sample@example.com' ) ),
+			'lead_phone'      => esc_html( $resolve( 'lead_phone', '555-0100' ) ),
+			'form_name'       => esc_html( $resolve( 'form_name', 'Sample Form' ) ),
 			'submission_date' => esc_html( $resolve( 'submission_date', current_time( 'mysql' ) ) ),
-			'source_url' => esc_url( $resolve( 'source_url', $site_url ) ),
-			'lead_id' => esc_html( $resolve( 'lead_id', '1' ) ),
-			'admin_link' => esc_url( $resolve( 'admin_link', admin_url( 'admin.php?page=xtremeleads' ) ) ),
+			'source_url'      => esc_url( $resolve( 'source_url', $site_url ) ),
+			'lead_id'         => esc_html( $resolve( 'lead_id', '1' ) ),
+			'admin_link'      => esc_url( $resolve( 'admin_link', admin_url( 'admin.php?page=xtremeleads' ) ) ),
 		);
 	}
 
 	/**
 	 * Build the full HTML email using the stored template and given data.
 	 *
-	 * @param array $context Submission context (lead_name, form_name, etc.).
-	 * @param array $field_defs Form field definitions.
-	 * @param array $field_values Submitted field values.
+	 * @param array  $context Submission context (lead_name, form_name, etc.).
+	 * @param array  $field_defs Form field definitions.
+	 * @param array  $field_values Submitted field values.
 	 * @param string $admin_link Direct admin link to the lead.
-	 * @param bool $is_test Whether this is a test email.
+	 * @param bool   $is_test Whether this is a test email.
 	 * @return array{ subject: string, body: string }
 	 */
 	public static function build_email(
@@ -179,18 +179,18 @@ class XF_Email_Templates {
 		string $admin_link = '',
 		bool $is_test = false
 	): array {
-		$template = self::get_template();
+		$template     = self::get_template();
 		$header_color = esc_attr( $template['header_color'] );
-		$logo_url = esc_url( $template['logo_url'] );
-		$site_name = esc_html( get_bloginfo( 'name' ) );
-		$site_url = esc_url( get_bloginfo( 'url' ) );
+		$logo_url     = esc_url( $template['logo_url'] );
+		$site_name    = esc_html( get_bloginfo( 'name' ) );
+		$site_url     = esc_url( get_bloginfo( 'url' ) );
 		$accent_color = '#FF6B35';
-		$dark_color = '#0D1B2A';
+		$dark_color   = '#0D1B2A';
 
 		// Process merge tags in configurable text.
-		$body_intro = nl2br( esc_html( self::process_merge_tags( $template['body_text'], $context, $is_test ) ) );
+		$body_intro  = nl2br( esc_html( self::process_merge_tags( $template['body_text'], $context, $is_test ) ) );
 		$footer_text = nl2br( esc_html( self::process_merge_tags( $template['footer_text'], $context, $is_test ) ) );
-		$subject = self::process_merge_tags( $template['subject'], $context, $is_test );
+		$subject     = self::process_merge_tags( $template['subject'], $context, $is_test );
 
 		// Build logo HTML (if logo_url is set).
 		$logo_html = '';
@@ -202,7 +202,7 @@ class XF_Email_Templates {
 		$field_rows_html = '';
 		if ( ! empty( $field_defs ) ) {
 			foreach ( $field_defs as $field ) {
-				$fid = $field['id'] ?? '';
+				$fid   = $field['id'] ?? '';
 				$ftype = $field['type'] ?? 'text';
 				$label = esc_html( $field['label'] ?? $fid );
 
@@ -240,11 +240,11 @@ class XF_Email_Templates {
 		}
 
 		// Source URL and admin link rows.
-		$source_url = esc_url( $context['source_url'] ?? '' );
-		$admin_link = esc_url( $admin_link ?: ( $context['admin_link'] ?? '' ) );
-		$label_source = esc_html__( 'Source Page', 'xtreme-forms' );
-		$label_view = esc_html__( 'View Lead in Admin', 'xtreme-forms' );
-		$label_btn = esc_html__( 'View Lead', 'xtreme-forms' );
+		$source_url    = esc_url( $context['source_url'] ?? '' );
+		$admin_link    = esc_url( $admin_link ?: ( $context['admin_link'] ?? '' ) );
+		$label_source  = esc_html__( 'Source Page', 'xtreme-forms' );
+		$label_view    = esc_html__( 'View Lead in Admin', 'xtreme-forms' );
+		$label_btn     = esc_html__( 'View Lead', 'xtreme-forms' );
 		$primary_color = $header_color;
 
 		$meta_rows = '';
@@ -322,7 +322,7 @@ class XF_Email_Templates {
 
 		return array(
 			'subject' => $subject,
-			'body' => $body,
+			'body'    => $body,
 		);
 	}
 
@@ -330,8 +330,8 @@ class XF_Email_Templates {
 	 * Extract context data from a lead record and its field values.
 	 *
 	 * @param object $lead Lead row from DB.
-	 * @param array $field_defs Field definitions from the form.
-	 * @param array $field_values Submitted values keyed by field ID.
+	 * @param array  $field_defs Field definitions from the form.
+	 * @param array  $field_values Submitted values keyed by field ID.
 	 * @param string $form_name Name of the form.
 	 * @return array
 	 */
@@ -342,14 +342,14 @@ class XF_Email_Templates {
 		string $form_name = ''
 	): array {
 		// Try to find name, email, phone from well-known field types/IDs.
-		$lead_name = '';
+		$lead_name  = '';
 		$lead_email = '';
 		$lead_phone = '';
 
 		foreach ( $field_defs as $field ) {
-			$fid = $field['id'] ?? '';
+			$fid   = $field['id'] ?? '';
 			$ftype = $field['type'] ?? 'text';
-			$val = $field_values[ $fid ] ?? '';
+			$val   = $field_values[ $fid ] ?? '';
 
 			if ( is_array( $val ) ) {
 				$val = implode( ', ', $val );
@@ -369,7 +369,7 @@ class XF_Email_Templates {
 
 			// Auto-detect name field (id or label contains "name").
 			if ( '' === $lead_name && $val ) {
-				$id_lower = strtolower( $fid );
+				$id_lower    = strtolower( $fid );
 				$label_lower = strtolower( $field['label'] ?? '' );
 				if (
 					str_contains( $id_lower, 'name' ) ||
@@ -388,14 +388,14 @@ class XF_Email_Templates {
 		$admin_link = admin_url( 'admin.php?page=xtremeleads&xf_action=view&lead_id=' . absint( $lead->id ) );
 
 		return array(
-			'lead_name' => $lead_name,
-			'lead_email' => $lead_email,
-			'lead_phone' => $lead_phone,
-			'form_name' => $form_name,
+			'lead_name'       => $lead_name,
+			'lead_email'      => $lead_email,
+			'lead_phone'      => $lead_phone,
+			'form_name'       => $form_name,
 			'submission_date' => $lead->created_at ?? current_time( 'mysql' ),
-			'source_url' => $lead->source_url ?? '',
-			'lead_id' => (string) ( $lead->id ?? '0' ),
-			'admin_link' => $admin_link,
+			'source_url'      => $lead->source_url ?? '',
+			'lead_id'         => (string) ( $lead->id ?? '0' ),
+			'admin_link'      => $admin_link,
 		);
 	}
 }

@@ -7,10 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
 
 $template = XF_Email_Templates::get_template();
-$notice = '';
+$notice   = '';
 
 if ( ! empty( $_GET['updated'] ) ) {
 	$notice = '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Email template settings saved.', 'xtreme-forms' ) . '</p></div>';
@@ -24,17 +24,20 @@ if ( ! empty( $_GET['test_failed'] ) ) {
 	$notice = '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Test email failed to send. Check your WordPress email configuration.', 'xtreme-forms' ) . '</p></div>';
 }
 
-$merge_tags_desc = implode( ', ', array(
-	'<code>{{lead_name}}</code>',
-	'<code>{{lead_email}}</code>',
-	'<code>{{lead_phone}}</code>',
-	'<code>{{form_name}}</code>',
-	'<code>{{site_url}}</code>',
-	'<code>{{site_name}}</code>',
-	'<code>{{submission_date}}</code>',
-	'<code>{{source_url}}</code>',
-	'<code>{{lead_id}}</code>',
-) );
+$merge_tags_desc = implode(
+	', ',
+	array(
+		'<code>{{lead_name}}</code>',
+		'<code>{{lead_email}}</code>',
+		'<code>{{lead_phone}}</code>',
+		'<code>{{form_name}}</code>',
+		'<code>{{site_url}}</code>',
+		'<code>{{site_name}}</code>',
+		'<code>{{submission_date}}</code>',
+		'<code>{{source_url}}</code>',
+		'<code>{{lead_id}}</code>',
+	)
+);
 ?>
 <div class="wrap xf-wrap">
 	<h1 class="xf-page-title"><?php esc_html_e( 'Email Templates', 'xtreme-forms' ); ?></h1>

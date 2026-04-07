@@ -12,12 +12,12 @@ defined( 'ABSPATH' ) || exit;
  */
 class XF_Leads {
 
-	const STATUS_NEW = 'new';
+	const STATUS_NEW       = 'new';
 	const STATUS_CONTACTED = 'contacted';
 	const STATUS_QUALIFIED = 'qualified';
 	const STATUS_CONVERTED = 'converted';
-	const STATUS_LOST = 'lost';
-	const STATUS_ARCHIVED = 'archived';
+	const STATUS_LOST      = 'lost';
+	const STATUS_ARCHIVED  = 'archived';
 
 	const PER_PAGE = 20;
 
@@ -51,19 +51,19 @@ class XF_Leads {
 	public static function insert_lead( array $data ): int|false {
 		global $wpdb;
 
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 		$table = $wpdb->prefix . 'xtremeforms_leads';
 
 		$row = array(
-			'form_id' => absint( $data['form_id'] ?? 0 ),
-			'status' => self::STATUS_NEW,
-			'source_url' => esc_url_raw( $data['source_url'] ?? '' ),
-			'ip_address' => sanitize_text_field( $data['ip_address'] ?? '' ),
-			'user_agent' => sanitize_text_field( $data['user_agent'] ?? '' ),
+			'form_id'      => absint( $data['form_id'] ?? 0 ),
+			'status'       => self::STATUS_NEW,
+			'source_url'   => esc_url_raw( $data['source_url'] ?? '' ),
+			'ip_address'   => sanitize_text_field( $data['ip_address'] ?? '' ),
+			'user_agent'   => sanitize_text_field( $data['user_agent'] ?? '' ),
 			'field_values' => wp_json_encode( $data['field_values'] ?? array() ),
-			'assigned_to' => 0,
-			'created_at' => $now,
-			'updated_at' => $now,
+			'assigned_to'  => 0,
+			'created_at'   => $now,
+			'updated_at'   => $now,
 		);
 
 		$formats = array( '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' );
@@ -73,32 +73,32 @@ class XF_Leads {
 			$row[ $utm_key ] = isset( $data[ $utm_key ] ) && null !== $data[ $utm_key ]
 				? (string) $data[ $utm_key ]
 				: null;
-			$formats[] = null !== $row[ $utm_key ] ? '%s' : '%s';
+			$formats[]       = null !== $row[ $utm_key ] ? '%s' : '%s';
 		}
 
 		$row['submit_duration_seconds'] = isset( $data['submit_duration_seconds'] )
 			? absint( $data['submit_duration_seconds'] )
 			: null;
-		$formats[] = null !== $row['submit_duration_seconds'] ? '%d' : '%d';
+		$formats[]                      = null !== $row['submit_duration_seconds'] ? '%d' : '%d';
 
 		// store the extracted email address in a dedicated indexed column
 		// so duplicate checks can use a fast indexed lookup instead of a LIKE search
 		// on the unindexed field_values JSON blob (critical for performance at scale).
 		// email_address is also stored normalised to lower-case for case-insensitive matching.
-		$email_raw = isset( $data['email_address'] ) ? sanitize_email( (string) $data['email_address'] ) : '';
+		$email_raw            = isset( $data['email_address'] ) ? sanitize_email( (string) $data['email_address'] ) : '';
 		$row['email_address'] = $email_raw !== '' ? strtolower( $email_raw ) : null;
 
 		// saved without its duplicate marker (atomicity guarantee per spec criterion).
 		$row['is_duplicate'] = ! empty( $data['is_duplicate'] ) ? 1 : 0;
-		$formats[] = '%d';
+		$formats[]           = '%d';
 
 		// duplicate_status: null (not a dup), 'duplicate', or 'duplicate_orphaned'.
-		$dup_status = isset( $data['duplicate_status'] ) ? sanitize_key( $data['duplicate_status'] ) : null;
+		$dup_status              = isset( $data['duplicate_status'] ) ? sanitize_key( $data['duplicate_status'] ) : null;
 		$row['duplicate_status'] = $dup_status;
 		// (format is handled by the NULL-aware loop below)
 
 		// original_lead_id: NULL when not a duplicate or when orphaned.
-		$orig_id = isset( $data['original_lead_id'] ) && null !== $data['original_lead_id']
+		$orig_id                 = isset( $data['original_lead_id'] ) && null !== $data['original_lead_id']
 			? absint( $data['original_lead_id'] )
 			: null;
 		$row['original_lead_id'] = $orig_id;
@@ -108,16 +108,16 @@ class XF_Leads {
 		$row['consent_given'] = isset( $data['consent_given'] ) ? absint( $data['consent_given'] ) : 0;
 
 		// Use $wpdb->query with prepare for nullable columns (wpdb->insert can't handle NULL elegantly).
-		$columns_sql = implode( ', ', array_keys( $row ) );
+		$columns_sql  = implode( ', ', array_keys( $row ) );
 		$placeholders = array();
-		$values = array();
+		$values       = array();
 
 		foreach ( $row as $col => $val ) {
 			if ( null === $val ) {
 				$placeholders[] = 'NULL';
 			} else {
 				$placeholders[] = is_int( $val ) ? '%d' : '%s';
-				$values[] = $val;
+				$values[]       = $val;
 			}
 		}
 
@@ -167,47 +167,47 @@ class XF_Leads {
 	 * @type string $date_from Start date (Y-m-d).
 	 * @type string $date_to End date (Y-m-d).
 	 * }
-	 * @param int $page Current page (1-based).
-	 * @param int $per_page Items per page.
+	 * @param int   $page Current page (1-based).
+	 * @param int   $per_page Items per page.
 	 * @return array{leads: array, total: int}
 	 */
 	public static function get_leads_filtered( array $filters = array(), int $page = 1, int $per_page = self::PER_PAGE ): array {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'xtremeforms_leads';
+		$table           = $wpdb->prefix . 'xtremeforms_leads';
 		$lead_tags_table = $wpdb->prefix . 'xtremeforms_lead_tags';
-		$offset = ( max( 1, $page ) - 1 ) * $per_page;
+		$offset          = ( max( 1, $page ) - 1 ) * $per_page;
 
 		$where_clauses = array( '1=1' );
-		$params = array();
-		$joins = '';
+		$params        = array();
+		$joins         = '';
 
 		// Status filter.
 		if ( ! empty( $filters['status'] ) ) {
 			$where_clauses[] = 'l.status = %s';
-			$params[] = sanitize_text_field( $filters['status'] );
+			$params[]        = sanitize_text_field( $filters['status'] );
 		}
 
 		// Assigned-to filter.
 		if ( ! empty( $filters['assigned_to'] ) ) {
 			$where_clauses[] = 'l.assigned_to = %d';
-			$params[] = absint( $filters['assigned_to'] );
+			$params[]        = absint( $filters['assigned_to'] );
 		}
 
 		// Form filter.
 		if ( ! empty( $filters['form_id'] ) ) {
 			$where_clauses[] = 'l.form_id = %d';
-			$params[] = absint( $filters['form_id'] );
+			$params[]        = absint( $filters['form_id'] );
 		}
 
 		// Date range filter.
 		if ( ! empty( $filters['date_from'] ) ) {
 			$where_clauses[] = 'l.created_at >= %s';
-			$params[] = sanitize_text_field( $filters['date_from'] ) . ' 00:00:00';
+			$params[]        = sanitize_text_field( $filters['date_from'] ) . ' 00:00:00';
 		}
 		if ( ! empty( $filters['date_to'] ) ) {
 			$where_clauses[] = 'l.created_at <= %s';
-			$params[] = sanitize_text_field( $filters['date_to'] ) . ' 23:59:59';
+			$params[]        = sanitize_text_field( $filters['date_to'] ) . ' 23:59:59';
 		}
 
 		// Tag filter (AND logic): lead must have ALL specified tags.
@@ -218,8 +218,8 @@ class XF_Leads {
 
 		if ( ! empty( $tag_ids ) ) {
 			$tag_placeholders = implode( ',', array_fill( 0, count( $tag_ids ), '%d' ) );
-			$joins .= " INNER JOIN {$lead_tags_table} lt_filter ON lt_filter.lead_id = l.id";
-			$where_clauses[] = "lt_filter.tag_id IN ({$tag_placeholders})";
+			$joins           .= " INNER JOIN {$lead_tags_table} lt_filter ON lt_filter.lead_id = l.id";
+			$where_clauses[]  = "lt_filter.tag_id IN ({$tag_placeholders})";
 			foreach ( $tag_ids as $tid ) {
 				$params[] = $tid;
 			}
@@ -250,7 +250,7 @@ class XF_Leads {
 		}
 
 		// Paginated results.
-		$select_sql = "SELECT l.* FROM {$table} l {$joins} WHERE {$where} {$group_having} ORDER BY l.created_at DESC LIMIT %d OFFSET %d";
+		$select_sql   = "SELECT l.* FROM {$table} l {$joins} WHERE {$where} {$group_having} ORDER BY l.created_at DESC LIMIT %d OFFSET %d";
 		$query_params = array_merge( $params, array( $per_page, $offset ) );
 
 		$leads = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_params ) );
@@ -286,7 +286,7 @@ class XF_Leads {
 	/**
 	 * Update a lead's status, returning the previous status.
 	 *
-	 * @param int $lead_id Lead ID.
+	 * @param int    $lead_id Lead ID.
 	 * @param string $status New status slug.
 	 * @return string|false Previous status slug, or false on failure.
 	 */
@@ -313,7 +313,7 @@ class XF_Leads {
 		$result = $wpdb->update(
 			$table,
 			array(
-				'status' => sanitize_text_field( $status ),
+				'status'     => sanitize_text_field( $status ),
 				'updated_at' => current_time( 'mysql', true ),
 			),
 			array( 'id' => $lead_id ),
@@ -359,7 +359,7 @@ class XF_Leads {
 			$table,
 			array(
 				'assigned_to' => absint( $assigned_to ),
-				'updated_at' => current_time( 'mysql', true ),
+				'updated_at'  => current_time( 'mysql', true ),
 			),
 			array( 'id' => $lead_id ),
 			array( '%d', '%s' ),
@@ -386,7 +386,7 @@ class XF_Leads {
 
 		global $wpdb;
 
-		$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+		$ids   = array_values( array_filter( array_map( 'absint', $ids ) ) );
 		$table = $wpdb->prefix . 'xtremeforms_leads';
 
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
@@ -406,7 +406,7 @@ class XF_Leads {
 	/**
 	 * Bulk update status.
 	 *
-	 * @param array $ids Array of lead IDs.
+	 * @param array  $ids Array of lead IDs.
 	 * @param string $status New status.
 	 * @return int Number of updated rows.
 	 */
@@ -417,9 +417,9 @@ class XF_Leads {
 
 		global $wpdb;
 
-		$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+		$ids   = array_values( array_filter( array_map( 'absint', $ids ) ) );
 		$table = $wpdb->prefix . 'xtremeforms_leads';
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
@@ -445,18 +445,18 @@ class XF_Leads {
 		$users = get_users(
 			array(
 				'capability__in' => array( 'edit_others_posts', 'manage_options' ),
-				'fields' => array( 'ID', 'display_name', 'user_email' ),
-				'orderby' => 'display_name',
-				'order' => 'ASC',
+				'fields'         => array( 'ID', 'display_name', 'user_email' ),
+				'orderby'        => 'display_name',
+				'order'          => 'ASC',
 			)
 		);
 
 		return array_map(
 			static function ( $u ) {
 				return array(
-					'id' => (int) $u->ID,
+					'id'           => (int) $u->ID,
 					'display_name' => $u->display_name,
-					'email' => $u->user_email,
+					'email'        => $u->user_email,
 				);
 			},
 			$users ?: array()
@@ -487,7 +487,7 @@ class XF_Leads {
 	 * @return string Possibly anonymized IP.
 	 */
 	public static function maybe_anonymize_ip( string $ip ): string {
-		$settings = get_option( 'xtremeforms_settings', array() );
+		$settings  = get_option( 'xtremeforms_settings', array() );
 		$anonymize = ! empty( $settings['anonymize_ip'] ) && '1' === (string) $settings['anonymize_ip'];
 
 		if ( ! $anonymize ) {
@@ -518,13 +518,13 @@ class XF_Leads {
 			if ( 16 === strlen( $packed ) && substr( $packed, 0, 12 ) === $ipv4_mapped_prefix ) {
 				// Treat as IPv4: zero the last octet (byte 15) only.
 				$anonymized = substr( $packed, 0, 15 ) . "\x00";
-				$result = @inet_ntop( $anonymized );
+				$result     = @inet_ntop( $anonymized );
 				return false !== $result ? (string) $result : $ip;
 			}
 
 			// Standard IPv6 — zero the last 80 bits (bytes 6–15).
 			$anonymized = substr( $packed, 0, 6 ) . str_repeat( "\x00", 10 );
-			$result = @inet_ntop( $anonymized );
+			$result     = @inet_ntop( $anonymized );
 			return false !== $result ? (string) $result : $ip;
 		}
 
@@ -545,12 +545,12 @@ class XF_Leads {
 	 */
 	public static function get_statuses(): array {
 		return array(
-			self::STATUS_NEW => __( 'New', 'xtreme-forms' ),
+			self::STATUS_NEW       => __( 'New', 'xtreme-forms' ),
 			self::STATUS_CONTACTED => __( 'Contacted', 'xtreme-forms' ),
 			self::STATUS_QUALIFIED => __( 'Qualified', 'xtreme-forms' ),
 			self::STATUS_CONVERTED => __( 'Converted', 'xtreme-forms' ),
-			self::STATUS_LOST => __( 'Lost', 'xtreme-forms' ),
-			self::STATUS_ARCHIVED => __( 'Archived', 'xtreme-forms' ),
+			self::STATUS_LOST      => __( 'Lost', 'xtreme-forms' ),
+			self::STATUS_ARCHIVED  => __( 'Archived', 'xtreme-forms' ),
 		);
 	}
 
@@ -580,8 +580,8 @@ class XF_Leads {
 		}
 
 		global $wpdb;
-		$table = $wpdb->prefix . 'xtremeforms_leads';
-		$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+		$table        = $wpdb->prefix . 'xtremeforms_leads';
+		$ids          = array_values( array_filter( array_map( 'absint', $ids ) ) );
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

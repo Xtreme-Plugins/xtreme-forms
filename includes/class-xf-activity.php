@@ -13,36 +13,36 @@ defined( 'ABSPATH' ) || exit;
 class XF_Activity {
 
 	const TYPE_STATUS_CHANGE = 'status_change';
-	const TYPE_ASSIGNMENT = 'assignment';
-	const TYPE_NOTE_ADDED = 'note_added';
-	const TYPE_TAG_ADDED = 'tag_added';
-	const TYPE_TAG_REMOVED = 'tag_removed';
-	const TYPE_LEAD_CREATED = 'lead_created';
+	const TYPE_ASSIGNMENT    = 'assignment';
+	const TYPE_NOTE_ADDED    = 'note_added';
+	const TYPE_TAG_ADDED     = 'tag_added';
+	const TYPE_TAG_REMOVED   = 'tag_removed';
+	const TYPE_LEAD_CREATED  = 'lead_created';
 
 	/**
 	 * Log an activity entry for a lead.
 	 *
-	 * @param int $lead_id Lead ID.
-	 * @param int $user_id WordPress user ID performing the action.
+	 * @param int    $lead_id Lead ID.
+	 * @param int    $user_id WordPress user ID performing the action.
 	 * @param string $action_type One of the TYPE_* constants.
-	 * @param array $data Arbitrary key/value data for the entry.
+	 * @param array  $data Arbitrary key/value data for the entry.
 	 * @return int|false New activity ID or false on failure.
 	 */
 	public static function log( int $lead_id, int $user_id, string $action_type, array $data = array() ): int|false {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'xtremeforms_activity';
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'lead_id' => absint( $lead_id ),
-				'user_id' => absint( $user_id ),
+				'lead_id'     => absint( $lead_id ),
+				'user_id'     => absint( $user_id ),
 				'action_type' => sanitize_text_field( $action_type ),
 				'action_data' => wp_json_encode( $data ),
-				'created_at' => $now,
+				'created_at'  => $now,
 			),
 			array( '%d', '%d', '%s', '%s', '%s' )
 		);
@@ -80,10 +80,10 @@ class XF_Activity {
 		}
 
 		foreach ( $rows as $row ) {
-			$user = get_userdata( (int) $row->user_id );
+			$user           = get_userdata( (int) $row->user_id );
 			$row->user_name = $user ? $user->display_name : __( 'System', 'xtreme-forms' );
-			$row->data = json_decode( $row->action_data, true ) ?: array();
-			$row->label = self::format_entry( $row );
+			$row->data      = json_decode( $row->action_data, true ) ?: array();
+			$row->label     = self::format_entry( $row );
 		}
 
 		return $rows;

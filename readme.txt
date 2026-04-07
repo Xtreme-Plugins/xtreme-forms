@@ -1,14 +1,14 @@
 === Xtreme Forms ===
 Contributors: xtremeplugins
-Tags: lead capture, contact form, leads, email notifications, webhooks, analytics, GDPR, spam protection, multisite
+Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 1.6.0
+Stable tag: 2.0.1
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Powerful lead capture forms with email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support. Free with optional Pro upgrade.
+Lead capture forms with email routing, webhooks, analytics, spam protection, and GDPR tools. Free with optional Pro upgrade.
 
 == Description ==
 

@@ -7,22 +7,22 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
 
 $form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
 $is_edit = $form_id > 0;
-$form = $is_edit ? XF_Forms::get_form( $form_id ) : null;
+$form    = $is_edit ? XF_Forms::get_form( $form_id ) : null;
 
 if ( $is_edit && ! $form ) {
 	wp_die( esc_html__( 'Form not found.', 'xtreme-forms' ) );
 }
 
-$fields = $form ? XF_Forms::decode_fields( $form ) : array();
+$fields   = $form ? XF_Forms::decode_fields( $form ) : array();
 $settings = $form ? XF_Forms::decode_settings( $form ) : array();
 
 // Retrieve any validation errors from previous save attempt.
 $transient_key = 'xf_form_errors_' . get_current_user_id();
-$save_errors = get_transient( $transient_key );
+$save_errors   = get_transient( $transient_key );
 delete_transient( $transient_key );
 
 $notice_html = '';
@@ -34,40 +34,40 @@ if ( ! empty( $_GET['updated'] ) ) {
 }
 
 $field_types = array(
-	'text' => __( 'Text', 'xtreme-forms' ),
-	'email' => __( 'Email', 'xtreme-forms' ),
-	'phone' => __( 'Phone', 'xtreme-forms' ),
+	'text'     => __( 'Text', 'xtreme-forms' ),
+	'email'    => __( 'Email', 'xtreme-forms' ),
+	'phone'    => __( 'Phone', 'xtreme-forms' ),
 	'textarea' => __( 'Textarea', 'xtreme-forms' ),
 	'dropdown' => __( 'Dropdown', 'xtreme-forms' ),
 	'checkbox' => __( 'Checkbox', 'xtreme-forms' ),
-	'radio' => __( 'Radio', 'xtreme-forms' ),
-	'hidden' => __( 'Hidden Field', 'xtreme-forms' ),
-	'date' => __( 'Date', 'xtreme-forms' ),
+	'radio'    => __( 'Radio', 'xtreme-forms' ),
+	'hidden'   => __( 'Hidden Field', 'xtreme-forms' ),
+	'date'     => __( 'Date', 'xtreme-forms' ),
 );
 
-$fields_json = wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT );
-$submit_label = $settings['submit_label'] ?? '';
-$redirect_url = $settings['redirect_url'] ?? '';
-$thank_you_msg = $settings['thank_you_message'] ?? '';
+$fields_json      = wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT );
+$submit_label     = $settings['submit_label'] ?? '';
+$redirect_url     = $settings['redirect_url'] ?? '';
+$thank_you_msg    = $settings['thank_you_message'] ?? '';
 $email_recipients = $settings['email_recipients'] ?? '';
-$ar_enabled = ! empty( $settings['auto_responder_enabled'] ) && '1' === (string) $settings['auto_responder_enabled'];
-$ar_subject = $settings['auto_responder_subject'] ?? '';
-$ar_body = $settings['auto_responder_body'] ?? '';
-$ar_reply_to = $settings['auto_responder_reply_to'] ?? '';
+$ar_enabled       = ! empty( $settings['auto_responder_enabled'] ) && '1' === (string) $settings['auto_responder_enabled'];
+$ar_subject       = $settings['auto_responder_subject'] ?? '';
+$ar_body          = $settings['auto_responder_body'] ?? '';
+$ar_reply_to      = $settings['auto_responder_reply_to'] ?? '';
 // Consent checkbox.
 $consent_enabled = ! empty( $settings['consent_enabled'] ) && '1' === (string) $settings['consent_enabled'];
-$consent_label = $settings['consent_label'] ?? '';
-$consent_url = $settings['consent_url'] ?? '';
+$consent_label   = $settings['consent_label'] ?? '';
+$consent_url     = $settings['consent_url'] ?? '';
 // reCAPTCHA per-form.
 $form_recaptcha = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
 // Scheduling.
-$countdown_enabled = ! empty( $settings['countdown_timer_enabled'] ) && '1' === (string) $settings['countdown_timer_enabled'];
+$countdown_enabled  = ! empty( $settings['countdown_timer_enabled'] ) && '1' === (string) $settings['countdown_timer_enabled'];
 $closed_message_val = $form ? ( $form->closed_message ?? '' ) : '';
 // Convert MySQL datetime to datetime-local format (YYYY-MM-DDTHH:MM) for the HTML input.
 $activate_at_val = ( $form && ! empty( $form->activate_at ) && '0000-00-00 00:00:00' !== $form->activate_at )
 	? str_replace( ' ', 'T', substr( $form->activate_at, 0, 16 ) )
 	: '';
-$expire_at_val = ( $form && ! empty( $form->expire_at ) && '0000-00-00 00:00:00' !== $form->expire_at )
+$expire_at_val   = ( $form && ! empty( $form->expire_at ) && '0000-00-00 00:00:00' !== $form->expire_at )
 	? str_replace( ' ', 'T', substr( $form->expire_at, 0, 16 ) )
 	: '';
 
@@ -222,7 +222,8 @@ $shortcode_hint = $is_edit
 						</label>
 						<?php
 						$global_settings_fb = get_option( 'xtremeforms_settings', array() );
-						if ( empty( $global_settings_fb['recaptcha_site_key'] ) || empty( $global_settings_fb['recaptcha_secret_key'] ) ) : ?>
+						if ( empty( $global_settings_fb['recaptcha_site_key'] ) || empty( $global_settings_fb['recaptcha_secret_key'] ) ) :
+							?>
 							<p class="xf-help-text" style="color:#FFC107;"><?php esc_html_e( 'reCAPTCHA keys not configured in Settings.', 'xtreme-forms' ); ?></p>
 						<?php endif; ?>
 					</div>
@@ -343,13 +344,19 @@ var xfBuilderData = {
 		noOtherFields: <?php echo wp_json_encode( __( 'No other fields available to use as triggers.', 'xtreme-forms' ) ); ?>,
 	},
 	// Condition operators for the conditional logic builder.
-	condOperators: <?php echo wp_json_encode( array(
-		'equals' => __( 'equals', 'xtreme-forms' ),
-		'not_equals' => __( 'does not equal', 'xtreme-forms' ),
-		'contains' => __( 'contains', 'xtreme-forms' ),
-		'not_empty' => __( 'is not empty', 'xtreme-forms' ),
-		'is_empty' => __( 'is empty', 'xtreme-forms' ),
-	) ); ?>,
+	condOperators: 
+	<?php
+	echo wp_json_encode(
+		array(
+			'equals'     => __( 'equals', 'xtreme-forms' ),
+			'not_equals' => __( 'does not equal', 'xtreme-forms' ),
+			'contains'   => __( 'contains', 'xtreme-forms' ),
+			'not_empty'  => __( 'is not empty', 'xtreme-forms' ),
+			'is_empty'   => __( 'is empty', 'xtreme-forms' ),
+		)
+	);
+	?>
+	,
 };
 </script>
 <script>

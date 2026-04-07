@@ -73,7 +73,10 @@ class XF_Multisite {
 
 		wp_safe_redirect(
 			add_query_arg(
-				array( 'xf_site_toggled' => '1', 'xf_site_disabled' => $new_val ),
+				array(
+					'xf_site_toggled'  => '1',
+					'xf_site_disabled' => $new_val,
+				),
 				admin_url( 'admin.php?page=xtremeleads-settings' )
 			)
 		);
@@ -144,7 +147,7 @@ class XF_Multisite {
 
 		if ( ! empty( $_GET['xf_push_done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$success = absint( $_GET['xf_push_success'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
-			$failed = absint( $_GET['xf_push_failed'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
+			$failed  = absint( $_GET['xf_push_failed'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
 			echo '<div class="notice notice-success is-dismissible"><p>';
 			printf(
 				/* translators: 1: number of sites updated, 2: number of sites failed */
@@ -175,25 +178,30 @@ class XF_Multisite {
 		}
 
 		// Save network-level settings.
-		$email_template = sanitize_textarea_field( wp_unslash( $_POST['xf_email_template_body'] ?? '' ) );
+		$email_template     = sanitize_textarea_field( wp_unslash( $_POST['xf_email_template_body'] ?? '' ) );
 		$email_header_color = sanitize_hex_color( wp_unslash( $_POST['xf_email_header_color'] ?? '#1A73E8' ) );
-		$retention_days = isset( $_POST['xf_retention_days'] ) && '' !== $_POST['xf_retention_days']
+		$retention_days     = isset( $_POST['xf_retention_days'] ) && '' !== $_POST['xf_retention_days']
 			? absint( $_POST['xf_retention_days'] )
 			: '';
-		$anonymize_ip = isset( $_POST['xf_anonymize_ip'] ) ? '1' : '0';
+		$anonymize_ip       = isset( $_POST['xf_anonymize_ip'] ) ? '1' : '0';
 
 		$network_settings = array(
 			'email_template_body' => $email_template,
-			'email_header_color' => $email_header_color ?: '#1A73E8',
-			'retention_days' => $retention_days,
-			'anonymize_ip' => $anonymize_ip,
+			'email_header_color'  => $email_header_color ?: '#1A73E8',
+			'retention_days'      => $retention_days,
+			'anonymize_ip'        => $anonymize_ip,
 		);
 		update_site_option( self::NETWORK_SETTINGS_KEY, $network_settings );
 
 		// Push to all subsites.
-		$blog_ids = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
-		$success = 0;
-		$failed = 0;
+		$blog_ids   = get_sites(
+			array(
+				'fields' => 'ids',
+				'number' => 0,
+			)
+		);
+		$success    = 0;
+		$failed     = 0;
 		$failed_ids = array();
 
 		foreach ( $blog_ids as $blog_id ) {
@@ -202,11 +210,11 @@ class XF_Multisite {
 			// Merge network settings into per-site settings.
 			$site_settings = get_option( 'xtremeforms_settings', array() );
 
-			$site_settings['anonymize_ip'] = $network_settings['anonymize_ip'];
+			$site_settings['anonymize_ip']   = $network_settings['anonymize_ip'];
 			$site_settings['retention_days'] = $network_settings['retention_days'];
 
 			// Email template settings.
-			$email_tmpl = get_option( 'xtremeforms_email_template', array() );
+			$email_tmpl                 = get_option( 'xtremeforms_email_template', array() );
 			$email_tmpl['header_color'] = $network_settings['email_header_color'];
 			if ( ! empty( $network_settings['email_template_body'] ) ) {
 				$email_tmpl['body'] = $network_settings['email_template_body'];
@@ -235,9 +243,9 @@ class XF_Multisite {
 				XF_Audit_Log::ACTION_GLOBAL_SETTINGS_UPDATED,
 				0,
 				array(
-					'scope' => 'network_push',
+					'scope'   => 'network_push',
 					'success' => $success,
-					'failed' => $failed,
+					'failed'  => $failed,
 				)
 			);
 		}
@@ -245,10 +253,10 @@ class XF_Multisite {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-network-settings',
-					'xf_push_done' => '1',
-					'xf_push_success' => $success,
-					'xf_push_failed' => $failed,
+					'page'               => 'xtremeleads-network-settings',
+					'xf_push_done'       => '1',
+					'xf_push_success'    => $success,
+					'xf_push_failed'     => $failed,
 					'xf_push_failed_ids' => implode( ',', $failed_ids ),
 				),
 				network_admin_url( 'admin.php' )
@@ -268,15 +276,24 @@ class XF_Multisite {
 	 */
 	public static function get_aggregated_data(): array {
 		if ( ! is_multisite() ) {
-			return array( 'total_leads' => 0, 'by_site' => array(), 'top_forms' => array() );
+			return array(
+				'total_leads' => 0,
+				'by_site'     => array(),
+				'top_forms'   => array(),
+			);
 		}
 
 		$plugin_basename = plugin_basename( XTREMEFORMS_PLUGIN_FILE );
-		$blog_ids = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
+		$blog_ids        = get_sites(
+			array(
+				'fields' => 'ids',
+				'number' => 0,
+			)
+		);
 
 		$total_leads = 0;
-		$by_site = array();
-		$top_forms = array();
+		$by_site     = array();
+		$top_forms   = array();
 
 		foreach ( $blog_ids as $blog_id ) {
 			$blog_id = (int) $blog_id;
@@ -309,14 +326,14 @@ class XF_Multisite {
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 			$blog_name = get_bloginfo( 'name' );
-			$blog_url = get_bloginfo( 'url' );
+			$blog_url  = get_bloginfo( 'url' );
 
 			$by_site[ $blog_id ] = array(
 				'blog_name' => $blog_name,
-				'blog_url' => $blog_url,
-				'count' => $site_count,
+				'blog_url'  => $blog_url,
+				'count'     => $site_count,
 			);
-			$total_leads += $site_count;
+			$total_leads        += $site_count;
 
 			// Top forms for this site (top 5).
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -334,7 +351,7 @@ class XF_Multisite {
 				$top_forms[] = array(
 					'form_name' => $row->form_name ?: __( '(Deleted Form)', 'xtreme-forms' ),
 					'blog_name' => $blog_name,
-					'count' => (int) $row->lead_count,
+					'count'     => (int) $row->lead_count,
 				);
 			}
 
@@ -347,8 +364,8 @@ class XF_Multisite {
 
 		return array(
 			'total_leads' => $total_leads,
-			'by_site' => $by_site,
-			'top_forms' => $top_forms,
+			'by_site'     => $by_site,
+			'top_forms'   => $top_forms,
 		);
 	}
 }

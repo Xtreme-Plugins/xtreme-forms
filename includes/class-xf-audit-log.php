@@ -19,25 +19,25 @@ defined( 'ABSPATH' ) || exit;
 class XF_Audit_Log {
 
 	// ── Action type constants ──────────────────────────────────────────────
-	const ACTION_LEAD_STATUS_CHANGED = 'lead_status_changed';
-	const ACTION_LEAD_NOTE_ADDED = 'lead_note_added';
+	const ACTION_LEAD_STATUS_CHANGED     = 'lead_status_changed';
+	const ACTION_LEAD_NOTE_ADDED         = 'lead_note_added';
 	const ACTION_LEAD_ASSIGNMENT_CHANGED = 'lead_assignment_changed';
-	const ACTION_LEAD_DATA_DELETED = 'lead_data_deleted';
-	const ACTION_FORM_CREATED = 'form_created';
-	const ACTION_FORM_UPDATED = 'form_updated';
-	const ACTION_FORM_DELETED = 'form_deleted';
+	const ACTION_LEAD_DATA_DELETED       = 'lead_data_deleted';
+	const ACTION_FORM_CREATED            = 'form_created';
+	const ACTION_FORM_UPDATED            = 'form_updated';
+	const ACTION_FORM_DELETED            = 'form_deleted';
 	const ACTION_GLOBAL_SETTINGS_UPDATED = 'global_settings_updated';
-	const ACTION_EMAIL_SENT = 'email_sent';
-	const ACTION_PLUGIN_DATA_EXPORTED = 'plugin_data_exported';
-	const ACTION_PLUGIN_DATA_IMPORTED = 'plugin_data_imported';
+	const ACTION_EMAIL_SENT              = 'email_sent';
+	const ACTION_PLUGIN_DATA_EXPORTED    = 'plugin_data_exported';
+	const ACTION_PLUGIN_DATA_IMPORTED    = 'plugin_data_imported';
 
 	/**
 	 * Write a new audit log entry.
 	 *
 	 * @param string $action_type One of the ACTION_* constants.
-	 * @param int $record_id ID of the affected record (lead ID, form ID, 0 for global).
-	 * @param array $context Additional contextual data (stored as JSON).
-	 * @param int $user_id WP user ID; defaults to current_user_id().
+	 * @param int    $record_id ID of the affected record (lead ID, form ID, 0 for global).
+	 * @param array  $context Additional contextual data (stored as JSON).
+	 * @param int    $user_id WP user ID; defaults to current_user_id().
 	 * @return int|false New entry ID or false on failure.
 	 */
 	public static function record(
@@ -52,7 +52,7 @@ class XF_Audit_Log {
 			$user_id = (int) get_current_user_id();
 		}
 
-		$user = get_userdata( $user_id );
+		$user         = get_userdata( $user_id );
 		$user_display = $user ? $user->display_name : __( 'System', 'xtreme-forms' );
 
 		$table = $wpdb->prefix . 'xtremeforms_audit_log';
@@ -61,12 +61,12 @@ class XF_Audit_Log {
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'user_id' => $user_id,
+				'user_id'      => $user_id,
 				'user_display' => sanitize_text_field( $user_display ),
-				'action_type' => sanitize_text_field( $action_type ),
-				'record_id' => absint( $record_id ),
-				'context' => wp_json_encode( $context ),
-				'created_at' => current_time( 'mysql', true ),
+				'action_type'  => sanitize_text_field( $action_type ),
+				'record_id'    => absint( $record_id ),
+				'context'      => wp_json_encode( $context ),
+				'created_at'   => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%d', '%s', '%s' )
 		);
@@ -95,36 +95,36 @@ class XF_Audit_Log {
 	public static function get_entries( array $args = array() ): array {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'xtremeforms_audit_log';
+		$table    = $wpdb->prefix . 'xtremeforms_audit_log';
 		$per_page = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : 50;
-		$paged = isset( $args['paged'] ) ? max( 1, (int) $args['paged'] ) : 1;
-		$offset = ( $paged - 1 ) * $per_page;
+		$paged    = isset( $args['paged'] ) ? max( 1, (int) $args['paged'] ) : 1;
+		$offset   = ( $paged - 1 ) * $per_page;
 
-		$where = array( '1=1' );
+		$where  = array( '1=1' );
 		$params = array();
 
 		if ( ! empty( $args['action_type'] ) ) {
-			$where[] = 'action_type = %s';
+			$where[]  = 'action_type = %s';
 			$params[] = sanitize_text_field( $args['action_type'] );
 		}
 
 		if ( ! empty( $args['record_id'] ) ) {
-			$where[] = 'record_id = %d';
+			$where[]  = 'record_id = %d';
 			$params[] = absint( $args['record_id'] );
 		}
 
 		if ( ! empty( $args['user_id'] ) ) {
-			$where[] = 'user_id = %d';
+			$where[]  = 'user_id = %d';
 			$params[] = absint( $args['user_id'] );
 		}
 
 		if ( ! empty( $args['date_from'] ) ) {
-			$where[] = 'created_at >= %s';
+			$where[]  = 'created_at >= %s';
 			$params[] = sanitize_text_field( $args['date_from'] );
 		}
 
 		if ( ! empty( $args['date_to'] ) ) {
-			$where[] = 'created_at <= %s';
+			$where[]  = 'created_at <= %s';
 			$params[] = sanitize_text_field( $args['date_to'] );
 		}
 
@@ -150,7 +150,7 @@ class XF_Audit_Log {
 
 		return array(
 			'entries' => $entries ?: array(),
-			'total' => $total,
+			'total'   => $total,
 		);
 	}
 
@@ -162,17 +162,17 @@ class XF_Audit_Log {
 	 */
 	public static function get_action_label( string $action_type ): string {
 		$labels = array(
-			self::ACTION_LEAD_STATUS_CHANGED => __( 'Lead Status Changed', 'xtreme-forms' ),
-			self::ACTION_LEAD_NOTE_ADDED => __( 'Lead Note Added', 'xtreme-forms' ),
+			self::ACTION_LEAD_STATUS_CHANGED     => __( 'Lead Status Changed', 'xtreme-forms' ),
+			self::ACTION_LEAD_NOTE_ADDED         => __( 'Lead Note Added', 'xtreme-forms' ),
 			self::ACTION_LEAD_ASSIGNMENT_CHANGED => __( 'Lead Assignment Changed', 'xtreme-forms' ),
-			self::ACTION_LEAD_DATA_DELETED => __( 'Lead Data Deleted', 'xtreme-forms' ),
-			self::ACTION_FORM_CREATED => __( 'Form Created', 'xtreme-forms' ),
-			self::ACTION_FORM_UPDATED => __( 'Form Updated', 'xtreme-forms' ),
-			self::ACTION_FORM_DELETED => __( 'Form Deleted', 'xtreme-forms' ),
+			self::ACTION_LEAD_DATA_DELETED       => __( 'Lead Data Deleted', 'xtreme-forms' ),
+			self::ACTION_FORM_CREATED            => __( 'Form Created', 'xtreme-forms' ),
+			self::ACTION_FORM_UPDATED            => __( 'Form Updated', 'xtreme-forms' ),
+			self::ACTION_FORM_DELETED            => __( 'Form Deleted', 'xtreme-forms' ),
 			self::ACTION_GLOBAL_SETTINGS_UPDATED => __( 'Global Settings Updated', 'xtreme-forms' ),
-			self::ACTION_EMAIL_SENT => __( 'Email Sent', 'xtreme-forms' ),
-			self::ACTION_PLUGIN_DATA_EXPORTED => __( 'Plugin Data Exported', 'xtreme-forms' ),
-			self::ACTION_PLUGIN_DATA_IMPORTED => __( 'Plugin Data Imported', 'xtreme-forms' ),
+			self::ACTION_EMAIL_SENT              => __( 'Email Sent', 'xtreme-forms' ),
+			self::ACTION_PLUGIN_DATA_EXPORTED    => __( 'Plugin Data Exported', 'xtreme-forms' ),
+			self::ACTION_PLUGIN_DATA_IMPORTED    => __( 'Plugin Data Imported', 'xtreme-forms' ),
 		);
 
 		return $labels[ $action_type ] ?? esc_html( $action_type );

@@ -6,7 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
 $all_tags = XF_Tags::get_all_tags();
 
@@ -95,7 +95,22 @@ if ( ! empty( $_GET['tag_created'] ) ) {
 								</td>
 								<td>
 									<a
-										href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'xf_delete_tag', 'tag_id' => $tag->id ), admin_url( 'admin-post.php' ) ), 'xf_delete_tag_' . $tag->id ) ); ?>"
+										href="
+										<?php
+										echo esc_url(
+											wp_nonce_url(
+												add_query_arg(
+													array(
+														'action' => 'xf_delete_tag',
+														'tag_id' => $tag->id,
+													),
+													admin_url( 'admin-post.php' )
+												),
+												'xf_delete_tag_' . $tag->id
+											)
+										);
+										?>
+												"
 										class="xf-btn-danger button"
 										onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this tag? This will remove it from all leads.', 'xtreme-forms' ) ); ?>')"
 									>

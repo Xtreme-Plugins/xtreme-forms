@@ -13,11 +13,11 @@ defined( 'ABSPATH' ) || exit;
 class XF_Spam {
 
 	/** Rejection reason constants. */
-	const REASON_HONEYPOT = 'honeypot';
-	const REASON_TIMEGATE = 'time_gate';
-	const REASON_RECAPTCHA = 'recaptcha';
+	const REASON_HONEYPOT           = 'honeypot';
+	const REASON_TIMEGATE           = 'time_gate';
+	const REASON_RECAPTCHA          = 'recaptcha';
 	const REASON_RECAPTCHA_API_WARN = 'recaptcha_api_warn'; // API failed; submission allowed through with warning logged.
-	const REASON_BLOCKLIST = 'blocklist';
+	const REASON_BLOCKLIST          = 'blocklist';
 
 	/** Log entries per page. */
 	const LOG_PER_PAGE = 25;
@@ -29,7 +29,7 @@ class XF_Spam {
 	/**
 	 * Log a blocked submission to the spam log.
 	 *
-	 * @param int $form_id Form ID.
+	 * @param int    $form_id Form ID.
 	 * @param string $rejection_reason One of the REASON_* constants.
 	 * @param string $submitted_email Submitted email (may be empty).
 	 * @param string $source_url Source URL.
@@ -52,13 +52,13 @@ class XF_Spam {
 		$result = $wpdb->insert(
 			$table,
 			array(
-				'form_id' => absint( $form_id ),
+				'form_id'          => absint( $form_id ),
 				'rejection_reason' => sanitize_key( $rejection_reason ),
-				'submitted_email' => sanitize_email( $submitted_email ),
-				'source_url' => esc_url_raw( $source_url ),
-				'user_agent' => sanitize_text_field( substr( $user_agent, 0, 500 ) ),
-				'ip_address' => sanitize_text_field( $ip_address ),
-				'created_at' => current_time( 'mysql', true ),
+				'submitted_email'  => sanitize_email( $submitted_email ),
+				'source_url'       => esc_url_raw( $source_url ),
+				'user_agent'       => sanitize_text_field( substr( $user_agent, 0, 500 ) ),
+				'ip_address'       => sanitize_text_field( $ip_address ),
+				'created_at'       => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
@@ -78,19 +78,19 @@ class XF_Spam {
 	 */
 	public static function get_log( array $args = array() ): array {
 		global $wpdb;
-		$table = $wpdb->prefix . 'xtremeforms_spam_log';
-		$page = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$table  = $wpdb->prefix . 'xtremeforms_spam_log';
+		$page   = max( 1, (int) ( $args['page'] ?? 1 ) );
 		$offset = ( $page - 1 ) * self::LOG_PER_PAGE;
 
-		$where = '1=1';
+		$where  = '1=1';
 		$params = array();
 
 		if ( ! empty( $args['rejection_reason'] ) ) {
-			$where .= ' AND rejection_reason = %s';
+			$where   .= ' AND rejection_reason = %s';
 			$params[] = sanitize_key( $args['rejection_reason'] );
 		}
 		if ( ! empty( $args['form_id'] ) ) {
-			$where .= ' AND form_id = %d';
+			$where   .= ' AND form_id = %d';
 			$params[] = (int) $args['form_id'];
 		}
 
@@ -154,7 +154,7 @@ class XF_Spam {
 	 */
 	public static function get_domain_blocklist(): array {
 		$settings = get_option( 'xtremeforms_settings', array() );
-		$raw = $settings['spam_domain_blocklist'] ?? '';
+		$raw      = $settings['spam_domain_blocklist'] ?? '';
 		return self::parse_blocklist_text( $raw );
 	}
 
@@ -165,7 +165,7 @@ class XF_Spam {
 	 */
 	public static function get_keyword_blocklist(): array {
 		$settings = get_option( 'xtremeforms_settings', array() );
-		$raw = $settings['spam_keyword_blocklist'] ?? '';
+		$raw      = $settings['spam_keyword_blocklist'] ?? '';
 		return self::parse_blocklist_text( $raw );
 	}
 
@@ -201,8 +201,8 @@ class XF_Spam {
 		if ( ! is_email( $email ) ) {
 			return false;
 		}
-		$parts = explode( '@', strtolower( $email ), 2 );
-		$domain = $parts[1] ?? '';
+		$parts     = explode( '@', strtolower( $email ), 2 );
+		$domain    = $parts[1] ?? '';
 		$blocklist = self::get_domain_blocklist();
 
 		foreach ( $blocklist as $blocked_domain ) {
@@ -231,9 +231,12 @@ class XF_Spam {
 
 		// Flatten all field values to a single lowercase string for scanning.
 		$text = '';
-		array_walk_recursive( $field_values, function ( $val ) use ( &$text ) {
-			$text .= ' ' . strtolower( (string) $val );
-		} );
+		array_walk_recursive(
+			$field_values,
+			function ( $val ) use ( &$text ) {
+				$text .= ' ' . strtolower( (string) $val );
+			}
+		);
 
 		foreach ( $keywords as $kw ) {
 			if ( '' !== $kw && str_contains( $text, $kw ) ) {
@@ -254,19 +257,19 @@ class XF_Spam {
 	 * @return array{enabled: bool, site_key: string, secret_key: string, threshold: float}
 	 */
 	public static function get_recaptcha_settings(): array {
-		$settings = get_option( 'xtremeforms_settings', array() );
-		$enabled = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
-		$site_key = sanitize_text_field( $settings['recaptcha_site_key'] ?? '' );
-		$secret = sanitize_text_field( $settings['recaptcha_secret_key'] ?? '' );
+		$settings  = get_option( 'xtremeforms_settings', array() );
+		$enabled   = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
+		$site_key  = sanitize_text_field( $settings['recaptcha_site_key'] ?? '' );
+		$secret    = sanitize_text_field( $settings['recaptcha_secret_key'] ?? '' );
 		$threshold = isset( $settings['recaptcha_threshold'] )
 			? max( 0.1, min( 0.9, (float) $settings['recaptcha_threshold'] ) )
 			: 0.5;
 
 		return array(
-			'enabled' => $enabled && '' !== $site_key && '' !== $secret,
-			'site_key' => $site_key,
+			'enabled'    => $enabled && '' !== $site_key && '' !== $secret,
+			'site_key'   => $site_key,
 			'secret_key' => $secret,
-			'threshold' => $threshold,
+			'threshold'  => $threshold,
 		);
 	}
 
@@ -281,16 +284,16 @@ class XF_Spam {
 	 * (caller should allow through per spec: "falls back to allowing").
 	 *
 	 * @param string $token reCAPTCHA token from browser.
-	 * @param float $threshold Score threshold (0.1–0.9).
+	 * @param float  $threshold Score threshold (0.1–0.9).
 	 * @param string $secret Secret key.
 	 * @return array
 	 */
 	public static function verify_recaptcha( string $token, float $threshold, string $secret ): array {
 		if ( '' === $token ) {
 			return array(
-				'success' => false,
-				'score' => null,
-				'error' => __( 'reCAPTCHA token missing.', 'xtreme-forms' ),
+				'success'    => false,
+				'score'      => null,
+				'error'      => __( 'reCAPTCHA token missing.', 'xtreme-forms' ),
 				'api_failed' => false,
 			);
 		}
@@ -298,8 +301,8 @@ class XF_Spam {
 		$response = wp_remote_post(
 			'https://www.google.com/recaptcha/api/siteverify',
 			array(
-				'body' => array(
-					'secret' => $secret,
+				'body'    => array(
+					'secret'   => $secret,
 					'response' => $token,
 				),
 				'timeout' => 10,
@@ -309,9 +312,9 @@ class XF_Spam {
 		if ( is_wp_error( $response ) ) {
 			// API failure — fall back to allowing submission per spec.
 			return array(
-				'success' => true, // Allow through on API failure.
-				'score' => null,
-				'error' => $response->get_error_message(),
+				'success'    => true, // Allow through on API failure.
+				'score'      => null,
+				'error'      => $response->get_error_message(),
 				'api_failed' => true,
 			);
 		}
@@ -320,9 +323,9 @@ class XF_Spam {
 
 		if ( empty( $data['success'] ) ) {
 			return array(
-				'success' => false,
-				'score' => null,
-				'error' => __( 'reCAPTCHA verification failed.', 'xtreme-forms' ),
+				'success'    => false,
+				'score'      => null,
+				'error'      => __( 'reCAPTCHA verification failed.', 'xtreme-forms' ),
 				'api_failed' => false,
 			);
 		}
@@ -330,9 +333,9 @@ class XF_Spam {
 		$score = (float) ( $data['score'] ?? 0 );
 
 		return array(
-			'success' => $score >= $threshold,
-			'score' => $score,
-			'error' => $score < $threshold ? __( 'reCAPTCHA score too low.', 'xtreme-forms' ) : '',
+			'success'    => $score >= $threshold,
+			'score'      => $score,
+			'error'      => $score < $threshold ? __( 'reCAPTCHA score too low.', 'xtreme-forms' ) : '',
 			'api_failed' => false,
 		);
 	}
@@ -364,11 +367,11 @@ class XF_Spam {
 	 */
 	public static function get_reason_labels(): array {
 		return array(
-			self::REASON_HONEYPOT => __( 'Honeypot', 'xtreme-forms' ),
-			self::REASON_TIMEGATE => __( 'Time Gate', 'xtreme-forms' ),
-			self::REASON_RECAPTCHA => __( 'reCAPTCHA', 'xtreme-forms' ),
+			self::REASON_HONEYPOT           => __( 'Honeypot', 'xtreme-forms' ),
+			self::REASON_TIMEGATE           => __( 'Time Gate', 'xtreme-forms' ),
+			self::REASON_RECAPTCHA          => __( 'reCAPTCHA', 'xtreme-forms' ),
 			self::REASON_RECAPTCHA_API_WARN => __( 'reCAPTCHA API Warning (allowed)', 'xtreme-forms' ),
-			self::REASON_BLOCKLIST => __( 'Blocklist', 'xtreme-forms' ),
+			self::REASON_BLOCKLIST          => __( 'Blocklist', 'xtreme-forms' ),
 		);
 	}
 }

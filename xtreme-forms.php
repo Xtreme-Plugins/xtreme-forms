@@ -113,33 +113,38 @@ function xtremeforms_register_block(): void {
 	// Provide form list (with field definitions) to the block editor.
 	// Data is localized into the editor-script only (requires editor login).
 	if ( class_exists( 'XF_Forms' ) ) {
-		$forms = XF_Forms::get_all_forms();
+		$forms      = XF_Forms::get_all_forms();
 		$forms_data = array_map(
 			static function ( $form ) {
 				// Include field definitions for live preview rendering.
 				$fields = XF_Forms::decode_fields( $form );
 				// Strip down to just what the editor preview needs.
-				$fields_preview = array_values( array_filter(
-					array_map( static function ( $field ) {
-						if ( ! is_array( $field ) ) {
-							return null;
-						}
-						$type = $field['type'] ?? 'text';
-						if ( 'hidden' === $type ) {
-							return null;
-						}
-						return array(
-							'id' => $field['id'] ?? '',
-							'type' => $type,
-							'label' => $field['label'] ?? '',
-							'required' => ! empty( $field['required'] ),
-							'options' => $field['options'] ?? array(),
-						);
-					}, $fields )
-				) );
+				$fields_preview = array_values(
+					array_filter(
+						array_map(
+							static function ( $field ) {
+								if ( ! is_array( $field ) ) {
+									return null;
+								}
+								$type = $field['type'] ?? 'text';
+								if ( 'hidden' === $type ) {
+									return null;
+								}
+								return array(
+									'id'       => $field['id'] ?? '',
+									'type'     => $type,
+									'label'    => $field['label'] ?? '',
+									'required' => ! empty( $field['required'] ),
+									'options'  => $field['options'] ?? array(),
+								);
+							},
+							$fields
+						)
+					)
+				);
 				return array(
-					'id' => (int) $form->id,
-					'name' => isset( $form->name ) ? (string) $form->name : '',
+					'id'     => (int) $form->id,
+					'name'   => isset( $form->name ) ? (string) $form->name : '',
 					'fields' => $fields_preview,
 				);
 			},
@@ -153,7 +158,7 @@ function xtremeforms_register_block(): void {
 		'xf-form-block',
 		'xfBlockData',
 		array(
-			'forms' => $forms_data,
+			'forms'     => $forms_data,
 			'pluginUrl' => esc_url( XTREMEFORMS_PLUGIN_URL ),
 		)
 	);
@@ -180,9 +185,9 @@ function xtremeforms_register_block_category( array $categories ): array {
 	return array_merge(
 		array(
 			array(
-				'slug' => 'xtreme-forms',
+				'slug'  => 'xtreme-forms',
 				'title' => __( 'Xtreme Forms', 'xtreme-forms' ),
-				'icon' => 'email-alt',
+				'icon'  => 'email-alt',
 			),
 		),
 		$categories
@@ -199,8 +204,8 @@ add_filter( 'block_categories_all', 'xtremeforms_register_block_category', 10, 1
  * notices or warnings will be emitted when attributes are missing or null, which can
  * occur in FSE template contexts where attributes may not always be fully hydrated.
  *
- * @param array $attributes Block attributes (may be partial in FSE template context).
- * @param string $content Inner block content (unused — forms are shortcode-rendered).
+ * @param array         $attributes Block attributes (may be partial in FSE template context).
+ * @param string        $content Inner block content (unused — forms are shortcode-rendered).
  * @param WP_Block|null $block Block instance for context (FSE provides this).
  * @return string HTML output.
  */
@@ -215,8 +220,8 @@ function xtremeforms_block_render( array $attributes, string $content = '', $blo
 		// In the editor this shows a placeholder message; on the front end with no
 		// form selected it renders nothing to avoid cluttering FSE templates.
 		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			return '<p class="xf-block-no-form" style="padding:16px;border:1px dashed #DEE2E6;border-radius:6px;">'.
-				esc_html__( 'Please select a form in the block settings panel.', 'xtreme-forms' ).
+			return '<p class="xf-block-no-form" style="padding:16px;border:1px dashed #DEE2E6;border-radius:6px;">' .
+				esc_html__( 'Please select a form in the block settings panel.', 'xtreme-forms' ) .
 				'</p>';
 		}
 		return '';
@@ -251,7 +256,7 @@ function xtremeforms_block_render( array $attributes, string $content = '', $blo
 		$style_parts[] = 'width:100%';
 	}
 
-	$style_attr = ! empty( $style_parts ) ? ' style="' . esc_attr( implode( ';', $style_parts ) ) . '"' : '';
+	$style_attr  = ! empty( $style_parts ) ? ' style="' . esc_attr( implode( ';', $style_parts ) ) . '"' : '';
 	$align_class = 'xf-block-align-' . $alignment; // Already validated to safe value.
 
 	// Render the form via the shortcode engine, which works in all WordPress contexts

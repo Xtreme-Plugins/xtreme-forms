@@ -9,22 +9,28 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- Read-only display page; all data rendered server-side via WP functions.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only display page; all data rendered server-side via WP functions.
 
 // Fetch initial KPI data server-side for instant render (no FOUC).
-$kpi_all_time = XF_Analytics::count_leads_all_time();
+$kpi_all_time   = XF_Analytics::count_leads_all_time();
 $kpi_this_month = XF_Analytics::count_leads_this_month();
-$kpi_this_week = XF_Analytics::count_leads_this_week();
-$funnel_data = XF_Analytics::leads_by_status();
-$top_pages = XF_Analytics::top_source_pages( 10 );
-$top_forms = XF_Analytics::top_forms( 5 );
-$utm_data = XF_Analytics::utm_breakdown();
+$kpi_this_week  = XF_Analytics::count_leads_this_week();
+$funnel_data    = XF_Analytics::leads_by_status();
+$top_pages      = XF_Analytics::top_source_pages( 10 );
+$top_forms      = XF_Analytics::top_forms( 5 );
+$utm_data       = XF_Analytics::utm_breakdown();
 
 $total_leads = $kpi_all_time;
-$has_forms = ! empty( XF_Forms::get_all_forms() );
+$has_forms   = ! empty( XF_Forms::get_all_forms() );
 
-$add_form_url = add_query_arg( array( 'page' => 'xtremeleads-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) );
-$leads_url = add_query_arg( array( 'page' => 'xtremeleads-leads' ), admin_url( 'admin.php' ) );
+$add_form_url = add_query_arg(
+	array(
+		'page'      => 'xtremeleads-forms',
+		'xf_action' => 'new',
+	),
+	admin_url( 'admin.php' )
+);
+$leads_url    = add_query_arg( array( 'page' => 'xtremeleads-leads' ), admin_url( 'admin.php' ) );
 ?>
 <div class="wrap xf-wrap xf-dashboard-wrap">
 	<h1 class="xf-page-title">
@@ -293,14 +299,18 @@ $leads_url = add_query_arg( array( 'page' => 'xtremeleads-leads' ), admin_url( '
 
 			<?php
 			$utm_sections = array(
-				'source' => __( 'Source (utm_source)', 'xtreme-forms' ),
-				'medium' => __( 'Medium (utm_medium)', 'xtreme-forms' ),
+				'source'   => __( 'Source (utm_source)', 'xtreme-forms' ),
+				'medium'   => __( 'Medium (utm_medium)', 'xtreme-forms' ),
 				'campaign' => __( 'Campaign (utm_campaign)', 'xtreme-forms' ),
 			);
 			foreach ( $utm_sections as $key => $label ) :
-				$section = $utm_data[ $key ] ?? array( 'rows' => array(), 'total_attributed' => 0, 'has_more' => false );
-				$rows = $section['rows'] ?? array();
-				$total = (int) ( $section['total_attributed'] ?? 0 );
+				$section = $utm_data[ $key ] ?? array(
+					'rows'             => array(),
+					'total_attributed' => 0,
+					'has_more'         => false,
+				);
+				$rows    = $section['rows'] ?? array();
+				$total   = (int) ( $section['total_attributed'] ?? 0 );
 				?>
 				<div class="xf-utm-section">
 					<h3 class="xf-utm-section-title"><?php echo esc_html( $label ); ?></h3>

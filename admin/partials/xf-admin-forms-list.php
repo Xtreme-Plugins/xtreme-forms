@@ -6,7 +6,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
 $forms = XF_Forms::get_all_forms();
 
@@ -20,7 +20,19 @@ if ( ! empty( $_GET['updated'] ) ) {
 <div class="wrap xf-wrap">
 	<h1 class="xf-page-title">
 		<?php esc_html_e( 'Forms', 'xtreme-forms' ); ?>
-		<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="page-title-action xf-btn-primary">
+		<a href="
+		<?php
+		echo esc_url(
+			add_query_arg(
+				array(
+					'page'      => 'xtremeleads-forms',
+					'xf_action' => 'new',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		?>
+		" class="page-title-action xf-btn-primary">
 			<?php esc_html_e( 'Add New Form', 'xtreme-forms' ); ?>
 		</a>
 	</h1>
@@ -32,7 +44,19 @@ if ( ! empty( $_GET['updated'] ) ) {
 			<span class="dashicons dashicons-feedback xf-empty-icon"></span>
 			<h2><?php esc_html_e( 'No forms yet', 'xtreme-forms' ); ?></h2>
 			<p><?php esc_html_e( 'Create your first lead capture form to get started.', 'xtreme-forms' ); ?></p>
-			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary xf-btn-primary">
+			<a href="
+			<?php
+			echo esc_url(
+				add_query_arg(
+					array(
+						'page'      => 'xtremeleads-forms',
+						'xf_action' => 'new',
+					),
+					admin_url( 'admin.php' )
+				)
+			);
+			?>
+						" class="button button-primary xf-btn-primary">
 				<?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?>
 			</a>
 		</div>
@@ -63,12 +87,40 @@ if ( ! empty( $_GET['updated'] ) ) {
 							<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $form->created_at . ' UTC' ) ) ); ?>
 						</td>
 						<td>
-							<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-forms', 'xf_action' => 'edit', 'form_id' => $form->id ), admin_url( 'admin.php' ) ) ); ?>" class="button button-small">
+							<a href="
+							<?php
+							echo esc_url(
+								add_query_arg(
+									array(
+										'page'      => 'xtremeleads-forms',
+										'xf_action' => 'edit',
+										'form_id'   => $form->id,
+									),
+									admin_url( 'admin.php' )
+								)
+							);
+							?>
+										" class="button button-small">
 								<?php esc_html_e( 'Edit', 'xtreme-forms' ); ?>
 							</a>
-							<a href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'xf_delete_form', 'form_id' => $form->id ), admin_url( 'admin-post.php' ) ), 'xf_delete_form_' . $form->id ) ); ?>"
-							 class="button button-small xf-btn-danger"
-							 onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this form? This cannot be undone.', 'xtreme-forms' ) ); ?>')">
+							<a href="
+							<?php
+							echo esc_url(
+								wp_nonce_url(
+									add_query_arg(
+										array(
+											'action'  => 'xf_delete_form',
+											'form_id' => $form->id,
+										),
+										admin_url( 'admin-post.php' )
+									),
+									'xf_delete_form_' . $form->id
+								)
+							);
+							?>
+										"
+							class="button button-small xf-btn-danger"
+							onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this form? This cannot be undone.', 'xtreme-forms' ) ); ?>')">
 								<?php esc_html_e( 'Delete', 'xtreme-forms' ); ?>
 							</a>
 						</td>

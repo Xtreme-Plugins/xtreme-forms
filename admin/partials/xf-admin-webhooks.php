@@ -6,11 +6,11 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$webhooks = XF_Webhooks::get_all();
+$webhooks  = XF_Webhooks::get_all();
 $all_forms = XF_Forms::get_all_forms();
-$nonce = wp_create_nonce( 'xf_webhook_nonce' );
+$nonce     = wp_create_nonce( 'xf_webhook_nonce' );
 
 $notice_html = '';
 if ( ! empty( $_GET['updated'] ) ) {
@@ -126,18 +126,30 @@ if ( ! empty( $_GET['updated'] ) ) {
 					</tr>
 				</thead>
 				<tbody>
-				<?php foreach ( $webhooks as $wh ) :
-					$events = json_decode( $wh->trigger_events, true ) ?: array();
-					$form_ids = json_decode( $wh->form_ids, true ) ?: array();
-					$form_names = empty( $form_ids ) ? __( 'All forms', 'xtreme-forms' ) : implode( ', ', array_map( function( $fid ) use ( $all_forms ) {
-						foreach ( $all_forms as $f ) {
-							if ( (int) $f->id === (int) $fid ) return esc_html( $f->name );
-						}
-						return '#' . $fid;
-					}, $form_ids ) );
-					$event_labels = array_map( function( $e ) {
-						return 'new_lead' === $e ? __( 'New Lead', 'xtreme-forms' ) : __( 'Status Change', 'xtreme-forms' );
-					}, $events );
+				<?php
+				foreach ( $webhooks as $wh ) :
+					$events       = json_decode( $wh->trigger_events, true ) ?: array();
+					$form_ids     = json_decode( $wh->form_ids, true ) ?: array();
+					$form_names   = empty( $form_ids ) ? __( 'All forms', 'xtreme-forms' ) : implode(
+						', ',
+						array_map(
+							function ( $fid ) use ( $all_forms ) {
+								foreach ( $all_forms as $f ) {
+									if ( (int) $f->id === (int) $fid ) {
+										return esc_html( $f->name );
+									}
+								}
+								return '#' . $fid;
+							},
+							$form_ids
+						)
+					);
+					$event_labels = array_map(
+						function ( $e ) {
+							return 'new_lead' === $e ? __( 'New Lead', 'xtreme-forms' ) : __( 'Status Change', 'xtreme-forms' );
+						},
+						$events
+					);
 					?>
 					<tr data-webhook-id="<?php echo esc_attr( $wh->id ); ?>">
 						<td><strong><?php echo esc_html( $wh->name ); ?></strong></td>
@@ -198,7 +210,21 @@ if ( ! empty( $_GET['updated'] ) ) {
 (function() {
 	var nonce = <?php echo wp_json_encode( $nonce ); ?>;
 	var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
-	var allForms = <?php echo wp_json_encode( array_map( function( $f ) { return array( 'id' => (int) $f->id, 'name' => $f->name ); }, $all_forms ) ); ?>;
+	var allForms = 
+	<?php
+	echo wp_json_encode(
+		array_map(
+			function ( $f ) {
+				return array(
+					'id'   => (int) $f->id,
+					'name' => $f->name,
+				);
+			},
+			$all_forms
+		)
+	);
+	?>
+	;
 
 	var editor = document.getElementById('xf-webhook-editor');
 	var addBtn = document.getElementById('xf-add-webhook-btn');

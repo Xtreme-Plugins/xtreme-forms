@@ -6,12 +6,12 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- Read-only display page; all data rendered server-side via WP functions.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only display page; all data rendered server-side via WP functions.
 
-$data = XF_Multisite::get_aggregated_data();
+$data        = XF_Multisite::get_aggregated_data();
 $total_leads = $data['total_leads'];
-$by_site = $data['by_site'];
-$top_forms = $data['top_forms'];
+$by_site     = $data['by_site'];
+$top_forms   = $data['top_forms'];
 ?>
 <div class="wrap xf-wrap">
 	<h1 class="xf-page-title"><?php esc_html_e( 'Xtreme Forms — Network Dashboard', 'xtreme-forms' ); ?></h1>

@@ -33,8 +33,8 @@ defined( 'ABSPATH' ) || exit;
 class XF_Duplicates {
 
 	const BEHAVIOR_SILENT_FLAG = 'silent_flag';
-	const BEHAVIOR_BLOCK = 'block';
-	const BEHAVIOR_MERGE = 'merge';
+	const BEHAVIOR_BLOCK       = 'block';
+	const BEHAVIOR_MERGE       = 'merge';
 
 	/**
 	 * Get the configured duplicate behavior from plugin settings.
@@ -56,7 +56,7 @@ class XF_Duplicates {
 	 */
 	public static function get_block_message(): string {
 		$settings = get_option( 'xtremeforms_settings', array() );
-		$msg = $settings['duplicate_block_message'] ?? '';
+		$msg      = $settings['duplicate_block_message'] ?? '';
 		if ( empty( $msg ) ) {
 			$msg = __( 'You have already submitted this form. Thank you!', 'xtreme-forms' );
 		}
@@ -87,7 +87,7 @@ class XF_Duplicates {
 			return null;
 		}
 
-		$table = $wpdb->prefix . 'xtremeforms_leads';
+		$table       = $wpdb->prefix . 'xtremeforms_leads';
 		$email_lower = strtolower( trim( $email ) );
 
 		// ── Primary lookup: indexed email_address column (O(log n)) ──────────
@@ -222,7 +222,7 @@ class XF_Duplicates {
 	 * }
 	 *
 	 * @param object $original The original lead DB row.
-	 * @param array $new_values Submitted field values from the new submission.
+	 * @param array  $new_values Submitted field values from the new submission.
 	 * @param string $behavior One of the BEHAVIOR_* constants.
 	 * @return array
 	 */
@@ -230,31 +230,31 @@ class XF_Duplicates {
 		switch ( $behavior ) {
 			case self::BEHAVIOR_BLOCK:
 				return array(
-					'action' => 'blocked',
+					'action'           => 'blocked',
 					'original_lead_id' => (int) $original->id,
-					'blocked' => true,
-					'merged' => false,
-					'message' => self::get_block_message(),
+					'blocked'          => true,
+					'merged'           => false,
+					'message'          => self::get_block_message(),
 				);
 
 			case self::BEHAVIOR_MERGE:
 				self::merge_into_original( $original, $new_values );
 				return array(
-					'action' => 'merged',
+					'action'           => 'merged',
 					'original_lead_id' => (int) $original->id,
-					'blocked' => false,
-					'merged' => true,
-					'message' => '',
+					'blocked'          => false,
+					'merged'           => true,
+					'message'          => '',
 				);
 
 			case self::BEHAVIOR_SILENT_FLAG:
 			default:
 				return array(
-					'action' => 'silent_flag',
+					'action'           => 'silent_flag',
 					'original_lead_id' => (int) $original->id,
-					'blocked' => false,
-					'merged' => false,
-					'message' => '',
+					'blocked'          => false,
+					'merged'           => false,
+					'message'          => '',
 				);
 		}
 	}
@@ -266,7 +266,7 @@ class XF_Duplicates {
 	 * Also refreshes the original lead's updated_at timestamp.
 	 *
 	 * @param object $original Original lead row.
-	 * @param array $new_values New field values (key => value pairs).
+	 * @param array  $new_values New field values (key => value pairs).
 	 * @return void
 	 */
 	private static function merge_into_original( object $original, array $new_values ): void {
@@ -297,7 +297,7 @@ class XF_Duplicates {
 			$table,
 			array(
 				'field_values' => wp_json_encode( $merged ),
-				'updated_at' => current_time( 'mysql', true ),
+				'updated_at'   => current_time( 'mysql', true ),
 			),
 			array( 'id' => absint( $original->id ) ),
 			array( '%s', '%s' ),
@@ -315,7 +315,7 @@ class XF_Duplicates {
 	 * - 'duplicate' when the original lead still exists.
 	 * - 'duplicate_orphaned' when the referenced original has been deleted.
 	 *
-	 * @param int $new_lead_id ID of the newly inserted lead.
+	 * @param int      $new_lead_id ID of the newly inserted lead.
 	 * @param int|null $original_lead_id ID of the original lead (null if orphaned).
 	 * @return void
 	 */
@@ -324,17 +324,17 @@ class XF_Duplicates {
 
 		$table = $wpdb->prefix . 'xtremeforms_leads';
 
-		$status = ( null !== $original_lead_id ) ? 'duplicate' : 'duplicate_orphaned';
+		$status           = ( null !== $original_lead_id ) ? 'duplicate' : 'duplicate_orphaned';
 		$original_lead_id = ( null !== $original_lead_id ) ? $original_lead_id : null;
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$table,
 			array(
-				'is_duplicate' => 1,
+				'is_duplicate'     => 1,
 				'duplicate_status' => $status,
 				'original_lead_id' => $original_lead_id,
-				'updated_at' => current_time( 'mysql', true ),
+				'updated_at'       => current_time( 'mysql', true ),
 			),
 			array( 'id' => $new_lead_id ),
 			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnsupportedPlaceholder

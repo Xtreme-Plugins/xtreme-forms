@@ -44,7 +44,11 @@ class XF_GDPR {
 
 		$email = sanitize_email( $email );
 		if ( ! is_email( $email ) ) {
-			return array( 'deleted_leads' => 0, 'found' => false, 'deleted_ids' => array() );
+			return array(
+				'deleted_leads' => 0,
+				'found'         => false,
+				'deleted_ids'   => array(),
+			);
 		}
 
 		// Find all lead IDs for this email.
@@ -59,16 +63,24 @@ class XF_GDPR {
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( empty( $lead_ids ) ) {
-			return array( 'deleted_leads' => 0, 'found' => false, 'deleted_ids' => array() );
+			return array(
+				'deleted_leads' => 0,
+				'found'         => false,
+				'deleted_ids'   => array(),
+			);
 		}
 
 		$int_ids = array_map( 'intval', $lead_ids );
-		$count = count( $int_ids );
+		$count   = count( $int_ids );
 
 		// Delete associated records via cascade helper.
 		self::delete_leads_cascade( $lead_ids );
 
-		return array( 'deleted_leads' => $count, 'found' => true, 'deleted_ids' => $int_ids );
+		return array(
+			'deleted_leads' => $count,
+			'found'         => true,
+			'deleted_ids'   => $int_ids,
+		);
 	}
 
 	/**
@@ -83,14 +95,14 @@ class XF_GDPR {
 			return;
 		}
 
-		$lead_ids = array_map( 'absint', $lead_ids );
+		$lead_ids     = array_map( 'absint', $lead_ids );
 		$placeholders = implode( ',', array_fill( 0, count( $lead_ids ), '%d' ) );
 
 		$tables = array(
-			$wpdb->prefix . 'xtremeforms_notes' => 'lead_id',
+			$wpdb->prefix . 'xtremeforms_notes'     => 'lead_id',
 			$wpdb->prefix . 'xtremeforms_lead_tags' => 'lead_id',
 			$wpdb->prefix . 'xtremeforms_email_log' => 'lead_id',
-			$wpdb->prefix . 'xtremeforms_activity' => 'lead_id',
+			$wpdb->prefix . 'xtremeforms_activity'  => 'lead_id',
 		);
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -115,7 +127,7 @@ class XF_GDPR {
 	 */
 	public static function get_retention_days(): ?int {
 		$settings = get_option( 'xtremeforms_settings', array() );
-		$days = isset( $settings['retention_days'] ) ? (int) $settings['retention_days'] : 0;
+		$days     = isset( $settings['retention_days'] ) ? (int) $settings['retention_days'] : 0;
 		return $days >= 1 ? $days : null;
 	}
 
@@ -169,7 +181,7 @@ class XF_GDPR {
 
 		global $wpdb;
 		$leads_table = $wpdb->prefix . 'xtremeforms_leads';
-		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+		$cutoff      = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		// Find all lead IDs older than the cutoff.
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

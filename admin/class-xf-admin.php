@@ -221,29 +221,29 @@ class XF_Admin {
 				'xf-dashboard',
 				'xlDashboardData',
 				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
 					// Legacy fallback nonce (kept for backward compatibility with non-analytics calls).
-					'nonce' => wp_create_nonce( 'xf_admin_nonce' ),
+					'nonce'         => wp_create_nonce( 'xf_admin_nonce' ),
 					// Per-endpoint nonces — each analytics endpoint verifies its own specific action.
-					'nonces' => array(
-						'xf_dashboard_stats' => wp_create_nonce( 'xf_dashboard_stats_nonce' ),
-						'xf_chart_leads_by_form' => wp_create_nonce( 'xf_chart_leads_by_form_nonce' ),
+					'nonces'        => array(
+						'xf_dashboard_stats'       => wp_create_nonce( 'xf_dashboard_stats_nonce' ),
+						'xf_chart_leads_by_form'   => wp_create_nonce( 'xf_chart_leads_by_form_nonce' ),
 						'xf_chart_leads_over_time' => wp_create_nonce( 'xf_chart_leads_over_time_nonce' ),
-						'xf_utm_report' => wp_create_nonce( 'xf_utm_report_nonce' ),
-						'xf_form_metrics' => wp_create_nonce( 'xf_form_metrics_nonce' ),
+						'xf_utm_report'            => wp_create_nonce( 'xf_utm_report_nonce' ),
+						'xf_form_metrics'          => wp_create_nonce( 'xf_form_metrics_nonce' ),
 					),
 					'isFormMetrics' => false !== strpos( $hook, 'form-metrics' ),
-					'i18n' => array(
-						'loading' => __( 'Loading…', 'xtreme-forms' ),
-						'error' => __( 'Failed to load data. Please try again.', 'xtreme-forms' ),
-						'noData' => __( 'No data for this period', 'xtreme-forms' ),
-						'noForms' => __( 'No active forms yet.', 'xtreme-forms' ),
-						'noSubmissions' => __( 'No submissions yet', 'xtreme-forms' ),
-						'leadsOverTime' => __( 'Leads Over Time', 'xtreme-forms' ),
-						'leadsByForm' => __( 'Leads by Form', 'xtreme-forms' ),
+					'i18n'          => array(
+						'loading'           => __( 'Loading…', 'xtreme-forms' ),
+						'error'             => __( 'Failed to load data. Please try again.', 'xtreme-forms' ),
+						'noData'            => __( 'No data for this period', 'xtreme-forms' ),
+						'noForms'           => __( 'No active forms yet.', 'xtreme-forms' ),
+						'noSubmissions'     => __( 'No submissions yet', 'xtreme-forms' ),
+						'leadsOverTime'     => __( 'Leads Over Time', 'xtreme-forms' ),
+						'leadsByForm'       => __( 'Leads by Form', 'xtreme-forms' ),
 						'conversionWarning' => __( 'Submission count exceeds recorded impressions — impression data may be incomplete', 'xtreme-forms' ),
-						'viewAll' => __( 'View all', 'xtreme-forms' ),
-						'invalidDateRange' => __( 'End date cannot be before start date.', 'xtreme-forms' ),
+						'viewAll'           => __( 'View all', 'xtreme-forms' ),
+						'invalidDateRange'  => __( 'End date cannot be before start date.', 'xtreme-forms' ),
 					),
 				)
 			);
@@ -256,64 +256,67 @@ class XF_Admin {
 			'xf-admin',
 			'xfAdminData',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce' => wp_create_nonce( 'xf_admin_nonce' ),
+				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+				'nonce'        => wp_create_nonce( 'xf_admin_nonce' ),
 				'webhookNonce' => wp_create_nonce( 'xf_webhook_nonce' ),
-				'gdprNonce' => wp_create_nonce( 'xf_gdpr_nonce' ),
+				'gdprNonce'    => wp_create_nonce( 'xf_gdpr_nonce' ),
 				'spamLogNonce' => wp_create_nonce( 'xf_spam_log_nonce' ),
-				'pluginUrl' => XTREMEFORMS_PLUGIN_URL,
-				'statuses' => $statuses,
-				'allTags' => array_map(
+				'pluginUrl'    => XTREMEFORMS_PLUGIN_URL,
+				'statuses'     => $statuses,
+				'allTags'      => array_map(
 					static function ( $t ) {
-						return array( 'id' => (int) $t->id, 'name' => $t->name );
+						return array(
+							'id'   => (int) $t->id,
+							'name' => $t->name,
+						);
 					},
 					$all_tags
 				),
-				'i18n' => array(
-					'confirmDelete' => __( 'Are you sure you want to delete the selected leads? This cannot be undone.', 'xtreme-forms' ),
-					'noItemsSelected' => __( 'No items selected.', 'xtreme-forms' ),
-					'loading' => __( 'Loading…', 'xtreme-forms' ),
-					'error' => __( 'An error occurred. Please try again.', 'xtreme-forms' ),
-					'close' => __( 'Close', 'xtreme-forms' ),
-					'save' => __( 'Save', 'xtreme-forms' ),
-					'saving' => __( 'Saving…', 'xtreme-forms' ),
-					'unassigned' => __( 'Unassigned', 'xtreme-forms' ),
-					'addNote' => __( 'Add Note', 'xtreme-forms' ),
+				'i18n'         => array(
+					'confirmDelete'    => __( 'Are you sure you want to delete the selected leads? This cannot be undone.', 'xtreme-forms' ),
+					'noItemsSelected'  => __( 'No items selected.', 'xtreme-forms' ),
+					'loading'          => __( 'Loading…', 'xtreme-forms' ),
+					'error'            => __( 'An error occurred. Please try again.', 'xtreme-forms' ),
+					'close'            => __( 'Close', 'xtreme-forms' ),
+					'save'             => __( 'Save', 'xtreme-forms' ),
+					'saving'           => __( 'Saving…', 'xtreme-forms' ),
+					'unassigned'       => __( 'Unassigned', 'xtreme-forms' ),
+					'addNote'          => __( 'Add Note', 'xtreme-forms' ),
 					'noteContentEmpty' => __( 'Note content cannot be empty.', 'xtreme-forms' ),
-					'noteAdded' => __( 'Note added.', 'xtreme-forms' ),
-					'statusUpdated' => __( 'Status updated.', 'xtreme-forms' ),
-					'assignmentSaved' => __( 'Assignment saved.', 'xtreme-forms' ),
-					'tagAdded' => __( 'Tag added.', 'xtreme-forms' ),
-					'tagRemoved' => __( 'Tag removed.', 'xtreme-forms' ),
-					'addTag' => __( 'Add Tag', 'xtreme-forms' ),
-					'removeTag' => __( 'Remove tag', 'xtreme-forms' ),
-					'noTagsFound' => __( 'No tags found.', 'xtreme-forms' ),
-					'typeToSearch' => __( 'Type to search tags…', 'xtreme-forms' ),
-					'notesTitle' => __( 'Notes', 'xtreme-forms' ),
-					'noNotes' => __( 'No notes yet. Add the first note below.', 'xtreme-forms' ),
-					'activityTitle' => __( 'Activity', 'xtreme-forms' ),
-					'noActivity' => __( 'No activity recorded yet.', 'xtreme-forms' ),
-					'tabDetails' => __( 'Details', 'xtreme-forms' ),
-					'tabNotes' => __( 'Notes', 'xtreme-forms' ),
-					'tabActivity' => __( 'Activity', 'xtreme-forms' ),
-					'flyoutLeadId' => __( 'Lead ID', 'xtreme-forms' ),
-					'flyoutForm' => __( 'Form', 'xtreme-forms' ),
-					'flyoutStatus' => __( 'Status', 'xtreme-forms' ),
-					'flyoutDate' => __( 'Date', 'xtreme-forms' ),
-					'flyoutIpAddress' => __( 'IP Address', 'xtreme-forms' ),
-					'flyoutSourceUrl' => __( 'Source URL', 'xtreme-forms' ),
-					'flyoutUserAgent' => __( 'User Agent', 'xtreme-forms' ),
-					'flyoutSubmitted' => __( 'Submitted Data', 'xtreme-forms' ),
+					'noteAdded'        => __( 'Note added.', 'xtreme-forms' ),
+					'statusUpdated'    => __( 'Status updated.', 'xtreme-forms' ),
+					'assignmentSaved'  => __( 'Assignment saved.', 'xtreme-forms' ),
+					'tagAdded'         => __( 'Tag added.', 'xtreme-forms' ),
+					'tagRemoved'       => __( 'Tag removed.', 'xtreme-forms' ),
+					'addTag'           => __( 'Add Tag', 'xtreme-forms' ),
+					'removeTag'        => __( 'Remove tag', 'xtreme-forms' ),
+					'noTagsFound'      => __( 'No tags found.', 'xtreme-forms' ),
+					'typeToSearch'     => __( 'Type to search tags…', 'xtreme-forms' ),
+					'notesTitle'       => __( 'Notes', 'xtreme-forms' ),
+					'noNotes'          => __( 'No notes yet. Add the first note below.', 'xtreme-forms' ),
+					'activityTitle'    => __( 'Activity', 'xtreme-forms' ),
+					'noActivity'       => __( 'No activity recorded yet.', 'xtreme-forms' ),
+					'tabDetails'       => __( 'Details', 'xtreme-forms' ),
+					'tabNotes'         => __( 'Notes', 'xtreme-forms' ),
+					'tabActivity'      => __( 'Activity', 'xtreme-forms' ),
+					'flyoutLeadId'     => __( 'Lead ID', 'xtreme-forms' ),
+					'flyoutForm'       => __( 'Form', 'xtreme-forms' ),
+					'flyoutStatus'     => __( 'Status', 'xtreme-forms' ),
+					'flyoutDate'       => __( 'Date', 'xtreme-forms' ),
+					'flyoutIpAddress'  => __( 'IP Address', 'xtreme-forms' ),
+					'flyoutSourceUrl'  => __( 'Source URL', 'xtreme-forms' ),
+					'flyoutUserAgent'  => __( 'User Agent', 'xtreme-forms' ),
+					'flyoutSubmitted'  => __( 'Submitted Data', 'xtreme-forms' ),
 					'flyoutAssignedTo' => __( 'Assigned To', 'xtreme-forms' ),
-					'flyoutTags' => __( 'Tags', 'xtreme-forms' ),
-					'flyoutNa' => __( 'N/A', 'xtreme-forms' ),
-				'sendingTest' => __( 'Sending…', 'xtreme-forms' ),
-				'testEmailSent' => __( 'Test email sent.', 'xtreme-forms' ),
-				'testEmailFailed' => __( 'Test email failed.', 'xtreme-forms' ),
-				'resendEmail' => __( 'Resend', 'xtreme-forms' ),
-				'resending' => __( 'Sending…', 'xtreme-forms' ),
-				'resendSuccess' => __( 'Sent ✓', 'xtreme-forms' ),
-				'resendFailed' => __( 'Resend failed.', 'xtreme-forms' ),
+					'flyoutTags'       => __( 'Tags', 'xtreme-forms' ),
+					'flyoutNa'         => __( 'N/A', 'xtreme-forms' ),
+					'sendingTest'      => __( 'Sending…', 'xtreme-forms' ),
+					'testEmailSent'    => __( 'Test email sent.', 'xtreme-forms' ),
+					'testEmailFailed'  => __( 'Test email failed.', 'xtreme-forms' ),
+					'resendEmail'      => __( 'Resend', 'xtreme-forms' ),
+					'resending'        => __( 'Sending…', 'xtreme-forms' ),
+					'resendSuccess'    => __( 'Sent ✓', 'xtreme-forms' ),
+					'resendFailed'     => __( 'Resend failed.', 'xtreme-forms' ),
 				),
 			)
 		);
@@ -376,7 +379,7 @@ class XF_Admin {
 
 		// phpcs:disable WordPress.Security.NonceVerification -- Read-only URL params for admin page routing, no state change.
 		$xf_action = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
-		$lead_id = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
+		$lead_id   = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( 'view' === $xf_action && $lead_id ) {
@@ -392,7 +395,7 @@ class XF_Admin {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification -- Read-only URL params for admin page routing, no state change.
-		$action = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
+		$action  = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
 		$form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
 		// phpcs:enable WordPress.Security.NonceVerification
 
@@ -482,21 +485,21 @@ class XF_Admin {
 		$existing = get_option( 'xtremeforms_settings', array() );
 
 		$settings = array(
-			'recipients' => sanitize_text_field( wp_unslash( $_POST['recipients'] ?? '' ) ),
-			'anonymize_ip' => isset( $_POST['anonymize_ip'] ) ? '1' : '0',
-			'email_from_name' => sanitize_text_field( wp_unslash( $_POST['email_from_name'] ?? '' ) ),
-			'email_from' => sanitize_email( wp_unslash( $_POST['email_from'] ?? '' ) ),
+			'recipients'              => sanitize_text_field( wp_unslash( $_POST['recipients'] ?? '' ) ),
+			'anonymize_ip'            => isset( $_POST['anonymize_ip'] ) ? '1' : '0',
+			'email_from_name'         => sanitize_text_field( wp_unslash( $_POST['email_from_name'] ?? '' ) ),
+			'email_from'              => sanitize_email( wp_unslash( $_POST['email_from'] ?? '' ) ),
 			// Preserve duplicate settings so they are not wiped on main-settings save.
-			'duplicate_behavior' => $existing['duplicate_behavior'] ?? 'silent_flag',
+			'duplicate_behavior'      => $existing['duplicate_behavior'] ?? 'silent_flag',
 			'duplicate_block_message' => $existing['duplicate_block_message'] ?? '',
 			// Preserve spam and GDPR settings.
-			'recaptcha_enabled' => $existing['recaptcha_enabled'] ?? '0',
-			'recaptcha_site_key' => $existing['recaptcha_site_key'] ?? '',
-			'recaptcha_secret_key' => $existing['recaptcha_secret_key'] ?? '',
-			'recaptcha_threshold' => $existing['recaptcha_threshold'] ?? '0.5',
-			'spam_domain_blocklist' => $existing['spam_domain_blocklist'] ?? '',
-			'spam_keyword_blocklist' => $existing['spam_keyword_blocklist'] ?? '',
-			'retention_days' => $existing['retention_days'] ?? '',
+			'recaptcha_enabled'       => $existing['recaptcha_enabled'] ?? '0',
+			'recaptcha_site_key'      => $existing['recaptcha_site_key'] ?? '',
+			'recaptcha_secret_key'    => $existing['recaptcha_secret_key'] ?? '',
+			'recaptcha_threshold'     => $existing['recaptcha_threshold'] ?? '0.5',
+			'spam_domain_blocklist'   => $existing['spam_domain_blocklist'] ?? '',
+			'spam_keyword_blocklist'  => $existing['spam_keyword_blocklist'] ?? '',
+			'retention_days'          => $existing['retention_days'] ?? '',
 		);
 
 		update_option( 'xtremeforms_settings', $settings );
@@ -509,7 +512,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-settings',
+					'page'    => 'xtremeleads-settings',
 					'updated' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -529,7 +532,7 @@ class XF_Admin {
 		}
 
 		$form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
-		$name = sanitize_text_field( wp_unslash( $_POST['form_name'] ?? '' ) );
+		$name    = sanitize_text_field( wp_unslash( $_POST['form_name'] ?? '' ) );
 
 		if ( '' === $name ) {
 			$name = __( 'Untitled Form', 'xtreme-forms' );
@@ -547,20 +550,20 @@ class XF_Admin {
 		}
 
 		$validation_errors = array();
-		$clean_fields = array();
+		$clean_fields      = array();
 
 		foreach ( $fields as $idx => $field ) {
-			$field_type = sanitize_text_field( $field['type'] ?? 'text' );
-			$field_id = sanitize_key( $field['id'] ?? ( 'field_' . ( $idx + 1 ) ) );
+			$field_type  = sanitize_text_field( $field['type'] ?? 'text' );
+			$field_id    = sanitize_key( $field['id'] ?? ( 'field_' . ( $idx + 1 ) ) );
 			$field_label = sanitize_text_field( $field['label'] ?? '' );
-			$field_ph = sanitize_text_field( $field['placeholder'] ?? '' );
-			$field_req = ! empty( $field['required'] );
-			$field_opts = array();
-			$field_dv = sanitize_text_field( $field['default_value'] ?? '' );
+			$field_ph    = sanitize_text_field( $field['placeholder'] ?? '' );
+			$field_req   = ! empty( $field['required'] );
+			$field_opts  = array();
+			$field_dv    = sanitize_text_field( $field['default_value'] ?? '' );
 
 			$requires_options = array( 'dropdown', 'checkbox', 'radio' );
 			if ( in_array( $field_type, $requires_options, true ) ) {
-				$raw_opts = is_array( $field['options'] ?? null ) ? $field['options'] : array();
+				$raw_opts   = is_array( $field['options'] ?? null ) ? $field['options'] : array();
 				$field_opts = array_values( array_filter( array_map( 'sanitize_text_field', $raw_opts ) ) );
 				if ( empty( $field_opts ) ) {
 					$validation_errors[] = sprintf(
@@ -574,11 +577,11 @@ class XF_Admin {
 			}
 
 			$clean = array(
-				'id' => $field_id,
-				'type' => $field_type,
-				'label' => $field_label,
-				'placeholder' => $field_ph,
-				'required' => $field_req,
+				'id'            => $field_id,
+				'type'          => $field_type,
+				'label'         => $field_label,
+				'placeholder'   => $field_ph,
+				'required'      => $field_req,
 				'default_value' => $field_dv,
 			);
 
@@ -588,9 +591,9 @@ class XF_Admin {
 
 			// Preserve conditional logic rules.
 			if ( isset( $field['conditional_logic'] ) && is_array( $field['conditional_logic'] ) ) {
-				$raw_cl = $field['conditional_logic'];
+				$raw_cl     = $field['conditional_logic'];
 				$cl_enabled = ! empty( $raw_cl['enabled'] );
-				$cl_logic = in_array( $raw_cl['logic'] ?? 'and', array( 'and', 'or' ), true )
+				$cl_logic   = in_array( $raw_cl['logic'] ?? 'and', array( 'and', 'or' ), true )
 					? $raw_cl['logic']
 					: 'and';
 
@@ -602,30 +605,30 @@ class XF_Admin {
 							continue;
 						}
 						$cond_trigger = sanitize_key( $cond['triggerFieldId'] ?? '' );
-						$cond_op = in_array( $cond['operator'] ?? 'equals', $valid_operators, true )
+						$cond_op      = in_array( $cond['operator'] ?? 'equals', $valid_operators, true )
 							? $cond['operator']
 							: 'equals';
-						$cond_value = sanitize_text_field( $cond['value'] ?? '' );
+						$cond_value   = sanitize_text_field( $cond['value'] ?? '' );
 						if ( '' !== $cond_trigger ) {
 							$cl_conditions[] = array(
 								'triggerFieldId' => $cond_trigger,
-								'operator' => $cond_op,
-								'value' => $cond_value,
+								'operator'       => $cond_op,
+								'value'          => $cond_value,
 							);
 						}
 					}
 				}
 
 				$clean['conditional_logic'] = array(
-					'enabled' => $cl_enabled,
-					'logic' => $cl_logic,
+					'enabled'    => $cl_enabled,
+					'logic'      => $cl_logic,
 					'conditions' => $cl_conditions,
 				);
 			} else {
 				// Preserve a default empty conditional_logic so the JS builder can read it.
 				$clean['conditional_logic'] = array(
-					'enabled' => false,
-					'logic' => 'and',
+					'enabled'    => false,
+					'logic'      => 'and',
 					'conditions' => array(),
 				);
 			}
@@ -638,9 +641,9 @@ class XF_Admin {
 			set_transient( $transient_key, $validation_errors, 60 );
 
 			$redirect_args = array(
-				'page' => 'xtremeleads-forms',
+				'page'      => 'xtremeleads-forms',
 				'xf_action' => $form_id ? 'edit' : 'new',
-				'error' => '1',
+				'error'     => '1',
 			);
 			if ( $form_id ) {
 				$redirect_args['form_id'] = $form_id;
@@ -659,10 +662,10 @@ class XF_Admin {
 			wp_safe_redirect(
 				add_query_arg(
 					array(
-						'page' => 'xtremeleads-forms',
+						'page'      => 'xtremeleads-forms',
 						'xf_action' => $form_id ? 'edit' : 'new',
-						'form_id' => $form_id ?: null,
-						'error' => '1',
+						'form_id'   => $form_id ?: null,
+						'error'     => '1',
 					),
 					admin_url( 'admin.php' )
 				)
@@ -671,40 +674,40 @@ class XF_Admin {
 		}
 
 		$form_settings = array(
-			'submit_label' => sanitize_text_field( wp_unslash( $_POST['submit_label'] ?? '' ) ),
-			'redirect_url' => esc_url_raw( wp_unslash( $_POST['redirect_url'] ?? '' ) ),
-			'thank_you_message' => sanitize_textarea_field( wp_unslash( $_POST['thank_you_message'] ?? '' ) ),
-			'email_recipients' => sanitize_text_field( wp_unslash( $_POST['email_recipients'] ?? '' ) ),
+			'submit_label'            => sanitize_text_field( wp_unslash( $_POST['submit_label'] ?? '' ) ),
+			'redirect_url'            => esc_url_raw( wp_unslash( $_POST['redirect_url'] ?? '' ) ),
+			'thank_you_message'       => sanitize_textarea_field( wp_unslash( $_POST['thank_you_message'] ?? '' ) ),
+			'email_recipients'        => sanitize_text_field( wp_unslash( $_POST['email_recipients'] ?? '' ) ),
 			// Auto-responder settings.
-			'auto_responder_enabled' => isset( $_POST['auto_responder_enabled'] ) ? '1' : '0',
-			'auto_responder_subject' => sanitize_text_field( wp_unslash( $_POST['auto_responder_subject'] ?? '' ) ),
+			'auto_responder_enabled'  => isset( $_POST['auto_responder_enabled'] ) ? '1' : '0',
+			'auto_responder_subject'  => sanitize_text_field( wp_unslash( $_POST['auto_responder_subject'] ?? '' ) ),
 			// GDPR consent checkbox.
-			'consent_enabled' => isset( $_POST['consent_enabled'] ) ? '1' : '0',
-			'consent_label' => sanitize_textarea_field( wp_unslash( $_POST['consent_label'] ?? '' ) ),
-			'consent_url' => esc_url_raw( wp_unslash( $_POST['consent_url'] ?? '' ) ),
+			'consent_enabled'         => isset( $_POST['consent_enabled'] ) ? '1' : '0',
+			'consent_label'           => sanitize_textarea_field( wp_unslash( $_POST['consent_label'] ?? '' ) ),
+			'consent_url'             => esc_url_raw( wp_unslash( $_POST['consent_url'] ?? '' ) ),
 			// reCAPTCHA per-form.
-			'recaptcha_enabled' => isset( $_POST['form_recaptcha_enabled'] ) ? '1' : '0',
-			'auto_responder_body' => sanitize_textarea_field( wp_unslash( $_POST['auto_responder_body'] ?? '' ) ),
+			'recaptcha_enabled'       => isset( $_POST['form_recaptcha_enabled'] ) ? '1' : '0',
+			'auto_responder_body'     => sanitize_textarea_field( wp_unslash( $_POST['auto_responder_body'] ?? '' ) ),
 			'auto_responder_reply_to' => $ar_reply_to,
 			// Scheduling.
 			'countdown_timer_enabled' => isset( $_POST['countdown_timer_enabled'] ) ? '1' : '0',
-			'closed_message' => sanitize_textarea_field( wp_unslash( $_POST['closed_message'] ?? '' ) ),
+			'closed_message'          => sanitize_textarea_field( wp_unslash( $_POST['closed_message'] ?? '' ) ),
 		);
 
 		// Scheduling datetime values.
 		$activate_at_raw = sanitize_text_field( wp_unslash( $_POST['activate_at'] ?? '' ) );
-		$expire_at_raw = sanitize_text_field( wp_unslash( $_POST['expire_at'] ?? '' ) );
+		$expire_at_raw   = sanitize_text_field( wp_unslash( $_POST['expire_at'] ?? '' ) );
 
 		// Convert datetime-local format (YYYY-MM-DDTHH:MM) to MySQL format.
 		$activate_at = $this->parse_datetime_local( $activate_at_raw );
-		$expire_at = $this->parse_datetime_local( $expire_at_raw );
+		$expire_at   = $this->parse_datetime_local( $expire_at_raw );
 
 		if ( $form_id ) {
 			XF_Forms::update_form( $form_id, $name, $clean_fields, $form_settings );
 			$is_new = false;
 		} else {
 			$form_id = XF_Forms::create_form( $name, $clean_fields, $form_settings );
-			$is_new = true;
+			$is_new  = true;
 		}
 
 		// Save scheduling columns directly (not in settings JSON).
@@ -715,8 +718,8 @@ class XF_Admin {
 			$wpdb->update(
 				$table,
 				array(
-					'activate_at' => $activate_at ?: null,
-					'expire_at' => $expire_at ?: null,
+					'activate_at'    => $activate_at ?: null,
+					'expire_at'      => $expire_at ?: null,
 					'closed_message' => $form_settings['closed_message'],
 				),
 				array( 'id' => $form_id ),
@@ -737,10 +740,10 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-forms',
+					'page'      => 'xtremeleads-forms',
 					'xf_action' => 'edit',
-					'form_id' => $form_id,
-					'updated' => '1',
+					'form_id'   => $form_id,
+					'updated'   => '1',
 				),
 				admin_url( 'admin.php' )
 			)
@@ -776,7 +779,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-forms',
+					'page'    => 'xtremeleads-forms',
 					'deleted' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -795,11 +798,11 @@ class XF_Admin {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
 		}
 
-		$action = sanitize_text_field( wp_unslash( $_POST['bulk_action'] ?? '' ) );
+		$action  = sanitize_text_field( wp_unslash( $_POST['bulk_action'] ?? '' ) );
 		$ids_raw = isset( $_POST['lead_ids'] ) && is_array( $_POST['lead_ids'] )
 			? array_map( 'absint', wp_unslash( $_POST['lead_ids'] ) )
 			: array();
-		$ids = array_filter( $ids_raw );
+		$ids     = array_filter( $ids_raw );
 
 		// Preserve filter state in redirect.
 		$redirect_args = array( 'page' => 'xtremeleads-leads' );
@@ -880,11 +883,11 @@ class XF_Admin {
 		}
 
 		$data = array(
-			'logo_url' => $logo_url,
+			'logo_url'     => $logo_url,
 			'header_color' => sanitize_text_field( wp_unslash( $_POST['xf_header_color'] ?? '#1A73E8' ) ),
-			'subject' => sanitize_text_field( wp_unslash( $_POST['xf_subject'] ?? '' ) ),
-			'body_text' => sanitize_textarea_field( wp_unslash( $_POST['xf_body_text'] ?? '' ) ),
-			'footer_text' => sanitize_textarea_field( wp_unslash( $_POST['xf_footer_text'] ?? '' ) ),
+			'subject'      => sanitize_text_field( wp_unslash( $_POST['xf_subject'] ?? '' ) ),
+			'body_text'    => sanitize_textarea_field( wp_unslash( $_POST['xf_body_text'] ?? '' ) ),
+			'footer_text'  => sanitize_textarea_field( wp_unslash( $_POST['xf_footer_text'] ?? '' ) ),
 		);
 
 		XF_Email_Templates::save_template( $data );
@@ -921,7 +924,7 @@ class XF_Admin {
 		);
 
 		// Use finfo for reliable MIME type detection (not just extension).
-		$finfo = new \finfo( FILEINFO_MIME_TYPE );
+		$finfo     = new \finfo( FILEINFO_MIME_TYPE );
 		$mime_type = $finfo->file( $file['tmp_name'] );
 
 		if ( ! in_array( $mime_type, $allowed_mime_types, true ) ) {
@@ -942,15 +945,15 @@ class XF_Admin {
 
 		// Validate file extension against MIME type (prevent extension spoofing).
 		$ext_to_mime = array(
-			'jpg' => 'image/jpeg',
+			'jpg'  => 'image/jpeg',
 			'jpeg' => 'image/jpeg',
-			'png' => 'image/png',
-			'gif' => 'image/gif',
+			'png'  => 'image/png',
+			'gif'  => 'image/gif',
 			'webp' => 'image/webp',
 		);
 
 		$original_name = $file['name'] ?? '';
-		$ext = strtolower( pathinfo( $original_name, PATHINFO_EXTENSION ) );
+		$ext           = strtolower( pathinfo( $original_name, PATHINFO_EXTENSION ) );
 
 		if ( ! isset( $ext_to_mime[ $ext ] ) || $ext_to_mime[ $ext ] !== $mime_type ) {
 			return new \WP_Error(
@@ -961,11 +964,11 @@ class XF_Admin {
 
 		$overrides = array(
 			'test_form' => false,
-			'mimes' => array(
+			'mimes'     => array(
 				'jpg|jpeg' => 'image/jpeg',
-				'png' => 'image/png',
-				'gif' => 'image/gif',
-				'webp' => 'image/webp',
+				'png'      => 'image/png',
+				'gif'      => 'image/gif',
+				'webp'     => 'image/webp',
 			),
 		);
 
@@ -1005,12 +1008,12 @@ class XF_Admin {
 			}
 
 			$clean_rules[] = array(
-				'condition_type' => sanitize_text_field( $rule['condition_type'] ?? 'form' ),
-				'form_id' => absint( $rule['form_id'] ?? 0 ),
-				'field_id' => sanitize_text_field( $rule['field_id'] ?? '' ),
-				'field_value' => sanitize_text_field( $rule['field_value'] ?? '' ),
+				'condition_type'  => sanitize_text_field( $rule['condition_type'] ?? 'form' ),
+				'form_id'         => absint( $rule['form_id'] ?? 0 ),
+				'field_id'        => sanitize_text_field( $rule['field_id'] ?? '' ),
+				'field_value'     => sanitize_text_field( $rule['field_value'] ?? '' ),
 				'recipient_email' => $recipient,
-				'is_active' => isset( $rule['is_active'] ) ? 1 : 0,
+				'is_active'       => isset( $rule['is_active'] ) ? 1 : 0,
 			);
 		}
 
@@ -1019,7 +1022,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-routing-rules',
+					'page'    => 'xtremeleads-routing-rules',
 					'updated' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -1040,8 +1043,8 @@ class XF_Admin {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
 		}
 
-		$name = sanitize_text_field( wp_unslash( $_POST['tag_name'] ?? '' ) );
-		$result = XF_Tags::create_tag( $name );
+		$name     = sanitize_text_field( wp_unslash( $_POST['tag_name'] ?? '' ) );
+		$result   = XF_Tags::create_tag( $name );
 		$redirect = add_query_arg( array( 'page' => 'xtremeleads-tags' ), admin_url( 'admin.php' ) );
 
 		if ( is_wp_error( $result ) ) {
@@ -1076,7 +1079,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-tags',
+					'page'        => 'xtremeleads-tags',
 					'tag_deleted' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -1101,7 +1104,7 @@ class XF_Admin {
 		$settings = get_option( 'xtremeforms_settings', array() );
 
 		// Merge duplicate detection settings.
-		$settings['duplicate_behavior'] = sanitize_text_field( wp_unslash( $_POST['duplicate_behavior'] ?? 'silent_flag' ) );
+		$settings['duplicate_behavior']      = sanitize_text_field( wp_unslash( $_POST['duplicate_behavior'] ?? 'silent_flag' ) );
 		$settings['duplicate_block_message'] = sanitize_text_field( wp_unslash( $_POST['duplicate_block_message'] ?? '' ) );
 
 		// Validate behavior value.
@@ -1115,7 +1118,7 @@ class XF_Admin {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page' => 'xtremeleads-settings',
+					'page'    => 'xtremeleads-settings',
 					'updated' => '1',
 				),
 				admin_url( 'admin.php' )
@@ -1160,7 +1163,7 @@ class XF_Admin {
 
 		// Get all matching leads.
 		$result = XF_Leads::get_leads_filtered( $filters, 1, 999999 );
-		$leads = $result['leads'];
+		$leads  = $result['leads'];
 
 		$this->do_csv_export( array(), $leads );
 	}
@@ -1174,7 +1177,7 @@ class XF_Admin {
 	private function do_csv_export( array $ids = array(), array $leads = array() ): void {
 		if ( ! empty( $ids ) ) {
 			// Security: verify each ID belongs to an actual lead.
-			$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+			$ids   = array_values( array_filter( array_map( 'absint', $ids ) ) );
 			$leads = XF_Leads::get_leads_by_ids( $ids );
 		}
 
@@ -1183,11 +1186,11 @@ class XF_Admin {
 		}
 
 		// Pre-load forms to get field labels.
-		$form_ids = array_unique( array_map( static fn( $l ) => (int) $l->form_id, $leads ) );
+		$form_ids    = array_unique( array_map( static fn( $l ) => (int) $l->form_id, $leads ) );
 		$forms_cache = XF_Forms::get_forms_by_ids( $form_ids );
 
 		// Pre-load tags for all leads.
-		$lead_ids = array_map( static fn( $l ) => (int) $l->id, $leads );
+		$lead_ids     = array_map( static fn( $l ) => (int) $l->id, $leads );
 		$tags_by_lead = XF_Tags::get_tags_for_leads( $lead_ids );
 
 		// Collect all unique field definitions across all forms (for column headers).
@@ -1206,7 +1209,7 @@ class XF_Admin {
 		}
 
 		// Build CSV headers.
-		$meta_headers = array(
+		$meta_headers  = array(
 			__( 'Lead ID', 'xtreme-forms' ),
 			__( 'Date', 'xtreme-forms' ),
 			__( 'Source Form', 'xtreme-forms' ),
@@ -1217,8 +1220,8 @@ class XF_Admin {
 			__( 'Tags', 'xtreme-forms' ),
 		);
 		$field_headers = array_values( $all_field_defs );
-		$headers = array_merge( $meta_headers, $field_headers );
-		$field_keys = array_keys( $all_field_defs );
+		$headers       = array_merge( $meta_headers, $field_headers );
+		$field_keys    = array_keys( $all_field_defs );
 
 		// Stream the CSV.
 		$filename = 'xtremeleads-export-' . gmdate( 'Y-m-d' ) . '.csv';
@@ -1241,20 +1244,20 @@ class XF_Admin {
 
 		foreach ( $leads as $lead ) {
 			$field_values = XF_Leads::decode_field_values( $lead );
-			$form = $forms_cache[ (int) $lead->form_id ] ?? null;
-			$form_name = $form ? $form->name : __( '(deleted form)', 'xtreme-forms' );
+			$form         = $forms_cache[ (int) $lead->form_id ] ?? null;
+			$form_name    = $form ? $form->name : __( '(deleted form)', 'xtreme-forms' );
 
 			// Assigned user.
-			$assigned_to = (int) ( $lead->assigned_to ?? 0 );
+			$assigned_to   = (int) ( $lead->assigned_to ?? 0 );
 			$assignee_name = '';
 			if ( $assigned_to ) {
-				$u = get_userdata( $assigned_to );
+				$u             = get_userdata( $assigned_to );
 				$assignee_name = $u ? $u->display_name : '';
 			}
 
 			// Tags (semicolon-delimited within cell).
-			$lead_tags = $tags_by_lead[ (int) $lead->id ] ?? array();
-			$tag_names = array_map( static fn( $t ) => $t->name, $lead_tags );
+			$lead_tags   = $tags_by_lead[ (int) $lead->id ] ?? array();
+			$tag_names   = array_map( static fn( $t ) => $t->name, $lead_tags );
 			$tags_string = implode( ';', $tag_names );
 
 			// Status label.
@@ -1304,15 +1307,15 @@ class XF_Admin {
 		$existing = get_option( 'xtremeforms_settings', array() );
 
 		// reCAPTCHA settings.
-		$recaptcha_enabled = isset( $_POST['recaptcha_enabled'] ) ? '1' : '0';
-		$recaptcha_site_key = sanitize_text_field( wp_unslash( $_POST['recaptcha_site_key'] ?? '' ) );
+		$recaptcha_enabled    = isset( $_POST['recaptcha_enabled'] ) ? '1' : '0';
+		$recaptcha_site_key   = sanitize_text_field( wp_unslash( $_POST['recaptcha_site_key'] ?? '' ) );
 		$recaptcha_secret_key = sanitize_text_field( wp_unslash( $_POST['recaptcha_secret_key'] ?? '' ) );
-		$recaptcha_threshold = isset( $_POST['recaptcha_threshold'] )
+		$recaptcha_threshold  = isset( $_POST['recaptcha_threshold'] )
 			? max( 0.1, min( 0.9, floatval( wp_unslash( $_POST['recaptcha_threshold'] ) ) ) )
 			: 0.5;
 
 		// Spam blocklists.
-		$spam_domain_blocklist = sanitize_textarea_field( wp_unslash( $_POST['spam_domain_blocklist'] ?? '' ) );
+		$spam_domain_blocklist  = sanitize_textarea_field( wp_unslash( $_POST['spam_domain_blocklist'] ?? '' ) );
 		$spam_keyword_blocklist = sanitize_textarea_field( wp_unslash( $_POST['spam_keyword_blocklist'] ?? '' ) );
 
 		// Data retention.
@@ -1325,7 +1328,7 @@ class XF_Admin {
 				wp_safe_redirect(
 					add_query_arg(
 						array(
-							'page' => 'xtremeleads-settings',
+							'page'  => 'xtremeleads-settings',
 							'error' => 'retention_min',
 						),
 						admin_url( 'admin.php' )
@@ -1358,11 +1361,11 @@ class XF_Admin {
 		$settings = array_merge(
 			$existing,
 			array(
-				'recaptcha_enabled' => $recaptcha_enabled,
-				'recaptcha_site_key' => $recaptcha_site_key,
-				'recaptcha_secret_key' => $recaptcha_secret_key,
-				'recaptcha_threshold' => (string) $recaptcha_threshold,
-				'spam_domain_blocklist' => $spam_domain_blocklist,
+				'recaptcha_enabled'      => $recaptcha_enabled,
+				'recaptcha_site_key'     => $recaptcha_site_key,
+				'recaptcha_secret_key'   => $recaptcha_secret_key,
+				'recaptcha_threshold'    => (string) $recaptcha_threshold,
+				'spam_domain_blocklist'  => $spam_domain_blocklist,
 				'spam_keyword_blocklist' => $spam_keyword_blocklist,
 			)
 		);
@@ -1378,7 +1381,7 @@ class XF_Admin {
 		}
 
 		$redirect_args = array(
-			'page' => 'xtremeleads-settings',
+			'page'    => 'xtremeleads-settings',
 			'updated' => '1',
 		);
 
@@ -1428,21 +1431,37 @@ class XF_Admin {
 		}
 
 		$export_type = sanitize_key( wp_unslash( $_POST['export_type'] ?? 'full' ) );
-		$form_id = absint( $_POST['form_id'] ?? 0 );
+		$form_id     = absint( $_POST['form_id'] ?? 0 );
 
 		if ( 'form' === $export_type ) {
 			if ( ! $form_id ) {
-				wp_safe_redirect( add_query_arg( array( 'page' => 'xtremeleads-import-export', 'xf_export_error' => '1' ), admin_url( 'admin.php' ) ) );
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'page'            => 'xtremeleads-import-export',
+							'xf_export_error' => '1',
+						),
+						admin_url( 'admin.php' )
+					)
+				);
 				exit;
 			}
 			$data = XF_Import_Export::build_form_export( $form_id );
 			if ( is_wp_error( $data ) ) {
-				wp_safe_redirect( add_query_arg( array( 'page' => 'xtremeleads-import-export', 'xf_export_error' => '1' ), admin_url( 'admin.php' ) ) );
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'page'            => 'xtremeleads-import-export',
+							'xf_export_error' => '1',
+						),
+						admin_url( 'admin.php' )
+					)
+				);
 				exit;
 			}
 			$filename = 'xtremeleads-form-' . $form_id . '-' . gmdate( 'Y-m-d' ) . '.json';
 		} else {
-			$data = XF_Import_Export::build_full_export();
+			$data     = XF_Import_Export::build_full_export();
 			$filename = 'xtremeleads-export-full-' . gmdate( 'Y-m-d' ) . '.json';
 		}
 
@@ -1467,7 +1486,7 @@ class XF_Admin {
 		}
 
 		$transient_key = 'xf_import_result_' . get_current_user_id();
-		$redirect = add_query_arg( array( 'page' => 'xtremeleads-import-export' ), admin_url( 'admin.php' ) );
+		$redirect      = add_query_arg( array( 'page' => 'xtremeleads-import-export' ), admin_url( 'admin.php' ) );
 
 		// Validate file upload.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- file upload; tmp_name used only with is_uploaded_file() and file_get_contents() on a temporary server path.

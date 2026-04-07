@@ -7,15 +7,15 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
 
 // ── Read active filters from URL ─────────────────────────────────────────────
 
 $current_status = isset( $_GET['xf_status'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_status'] ) ) : '';
-$current_form = isset( $_GET['xf_form'] ) ? absint( $_GET['xf_form'] ) : 0;
+$current_form   = isset( $_GET['xf_form'] ) ? absint( $_GET['xf_form'] ) : 0;
 $current_filter = isset( $_GET['xf_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_filter'] ) ) : '';
-$date_from = isset( $_GET['xf_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_date_from'] ) ) : '';
-$date_to = isset( $_GET['xf_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_date_to'] ) ) : '';
+$date_from      = isset( $_GET['xf_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_date_from'] ) ) : '';
+$date_to        = isset( $_GET['xf_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_date_to'] ) ) : '';
 
 // Tag filter — multi-value.
 $current_tag_ids = array();
@@ -46,29 +46,37 @@ if ( 'my_leads' === $current_filter ) {
 }
 
 // ── Pagination ───────────────────────────────────────────────────────────────
-$per_page = 20;
+$per_page     = 20;
 $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
 
-$result = XF_Leads::get_leads_filtered( $filters, $current_page, $per_page );
-$leads = $result['leads'];
+$result      = XF_Leads::get_leads_filtered( $filters, $current_page, $per_page );
+$leads       = $result['leads'];
 $total_leads = $result['total'];
 $total_pages = $total_leads > 0 ? (int) ceil( $total_leads / $per_page ) : 1;
 
 // If requested page is beyond last page, redirect to last page.
 if ( $current_page > $total_pages && $total_leads > 0 ) {
-	wp_safe_redirect( add_query_arg( array( 'page' => 'xtreme-forms', 'paged' => $total_pages ), admin_url( 'admin.php' ) ) );
+	wp_safe_redirect(
+		add_query_arg(
+			array(
+				'page'  => 'xtreme-forms',
+				'paged' => $total_pages,
+			),
+			admin_url( 'admin.php' )
+		)
+	);
 	exit;
 }
 
 // Pre-fetch forms and tags for the current page.
-$form_ids = array_unique( array_map( static fn( $l ) => (int) $l->form_id, $leads ) );
+$form_ids    = array_unique( array_map( static fn( $l ) => (int) $l->form_id, $leads ) );
 $forms_cache = XF_Forms::get_forms_by_ids( $form_ids );
 
 $lead_ids_current = array_map( static fn( $l ) => (int) $l->id, $leads );
-$tags_by_lead = XF_Tags::get_tags_for_leads( $lead_ids_current );
+$tags_by_lead     = XF_Tags::get_tags_for_leads( $lead_ids_current );
 
-$statuses = XF_Leads::get_statuses();
-$all_tags = XF_Tags::get_all_tags();
+$statuses  = XF_Leads::get_statuses();
+$all_tags  = XF_Tags::get_all_tags();
 $all_forms = XF_Forms::get_all_forms();
 
 // ── Helper: extract field value from lead ────────────────────────────────────
@@ -80,52 +88,52 @@ $all_forms = XF_Forms::get_all_forms();
  * @return string
  */
 if ( ! function_exists( 'xf_inbox_get_field' ) ) :
-function xf_inbox_get_field( object $lead, string $field_type, array $forms_cache ): string {
-	$form = $forms_cache[ (int) $lead->form_id ] ?? null;
-	if ( ! $form ) {
-		return '';
-	}
-	$field_defs = XF_Forms::decode_fields( $form );
-	$field_values = XF_Leads::decode_field_values( $lead );
-
-	if ( 'text' === $field_type ) {
-		$best_match = null;
-		$first_text = null;
-		foreach ( $field_defs as $fd ) {
-			if ( ( $fd['type'] ?? '' ) === 'text' ) {
-				if ( null === $first_text ) {
-					$first_text = $fd;
-				}
-				if ( false !== strpos( strtolower( $fd['label'] ?? '' ), 'name' ) ) {
-					$best_match = $fd;
-					break;
-				}
-			}
-		}
-		$fd = $best_match ?? $first_text;
-		if ( ! $fd ) {
+	function xf_inbox_get_field( object $lead, string $field_type, array $forms_cache ): string {
+		$form = $forms_cache[ (int) $lead->form_id ] ?? null;
+		if ( ! $form ) {
 			return '';
 		}
-		$val = $field_values[ $fd['id'] ?? '' ] ?? '';
-		return is_array( $val ) ? implode( ', ', $val ) : (string) $val;
-	}
+		$field_defs   = XF_Forms::decode_fields( $form );
+		$field_values = XF_Leads::decode_field_values( $lead );
 
-	foreach ( $field_defs as $fd ) {
-		if ( ( $fd['type'] ?? '' ) === $field_type ) {
+		if ( 'text' === $field_type ) {
+			$best_match = null;
+			$first_text = null;
+			foreach ( $field_defs as $fd ) {
+				if ( ( $fd['type'] ?? '' ) === 'text' ) {
+					if ( null === $first_text ) {
+						$first_text = $fd;
+					}
+					if ( false !== strpos( strtolower( $fd['label'] ?? '' ), 'name' ) ) {
+						$best_match = $fd;
+						break;
+					}
+				}
+			}
+			$fd = $best_match ?? $first_text;
+			if ( ! $fd ) {
+				return '';
+			}
 			$val = $field_values[ $fd['id'] ?? '' ] ?? '';
 			return is_array( $val ) ? implode( ', ', $val ) : (string) $val;
 		}
+
+		foreach ( $field_defs as $fd ) {
+			if ( ( $fd['type'] ?? '' ) === $field_type ) {
+				$val = $field_values[ $fd['id'] ?? '' ] ?? '';
+				return is_array( $val ) ? implode( ', ', $val ) : (string) $val;
+			}
+		}
+		return '';
 	}
-	return '';
-}
 endif; // xf_inbox_get_field
 
 // ── Build base URL for filters (preserves all active filters in links) ────────
 if ( ! function_exists( 'xf_filter_url' ) ) :
-function xf_filter_url( array $args = array() ): string {
-	$base = array( 'page' => 'xtremeleads-leads' );
-	return add_query_arg( array_merge( $base, $args ), admin_url( 'admin.php' ) );
-}
+	function xf_filter_url( array $args = array() ): string {
+		$base = array( 'page' => 'xtremeleads-leads' );
+		return add_query_arg( array_merge( $base, $args ), admin_url( 'admin.php' ) );
+	}
 endif;
 
 // ── Admin notices ─────────────────────────────────────────────────────────────
@@ -287,7 +295,19 @@ $export_url = wp_nonce_url(
 			<?php else : ?>
 				<h2><?php esc_html_e( 'No leads yet', 'xtreme-forms' ); ?></h2>
 				<p><?php esc_html_e( 'When visitors submit your forms, their leads will appear here.', 'xtreme-forms' ); ?></p>
-				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary xf-btn-primary">
+				<a href="
+				<?php
+				echo esc_url(
+					add_query_arg(
+						array(
+							'page'      => 'xtremeleads-forms',
+							'xf_action' => 'new',
+						),
+						admin_url( 'admin.php' )
+					)
+				);
+				?>
+							" class="button button-primary xf-btn-primary">
 					<?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?>
 				</a>
 			<?php endif; ?>
@@ -299,12 +319,30 @@ $export_url = wp_nonce_url(
 			<input type="hidden" name="action" value="xf_bulk_leads">
 			<?php wp_nonce_field( 'xf_bulk_leads' ); ?>
 			<!-- Preserve filter state in bulk form -->
-			<?php if ( $current_status ) : ?><input type="hidden" name="xf_status" value="<?php echo esc_attr( $current_status ); ?>"><?php endif; ?>
-			<?php if ( $current_form ) : ?><input type="hidden" name="xf_form" value="<?php echo esc_attr( $current_form ); ?>"><?php endif; ?>
-			<?php if ( $date_from ) : ?><input type="hidden" name="xf_date_from" value="<?php echo esc_attr( $date_from ); ?>"><?php endif; ?>
-			<?php if ( $date_to ) : ?><input type="hidden" name="xf_date_to" value="<?php echo esc_attr( $date_to ); ?>"><?php endif; ?>
-			<?php foreach ( $current_tag_ids as $tid ) : ?><input type="hidden" name="xf_tags[]" value="<?php echo esc_attr( $tid ); ?>"><?php endforeach; ?>
-			<?php if ( 'my_leads' === $current_filter ) : ?><input type="hidden" name="xf_filter" value="my_leads"><?php endif; ?>
+			<?php
+			if ( $current_status ) :
+				?>
+				<input type="hidden" name="xf_status" value="<?php echo esc_attr( $current_status ); ?>"><?php endif; ?>
+			<?php
+			if ( $current_form ) :
+				?>
+				<input type="hidden" name="xf_form" value="<?php echo esc_attr( $current_form ); ?>"><?php endif; ?>
+			<?php
+			if ( $date_from ) :
+				?>
+				<input type="hidden" name="xf_date_from" value="<?php echo esc_attr( $date_from ); ?>"><?php endif; ?>
+			<?php
+			if ( $date_to ) :
+				?>
+				<input type="hidden" name="xf_date_to" value="<?php echo esc_attr( $date_to ); ?>"><?php endif; ?>
+			<?php
+			foreach ( $current_tag_ids as $tid ) :
+				?>
+				<input type="hidden" name="xf_tags[]" value="<?php echo esc_attr( $tid ); ?>"><?php endforeach; ?>
+			<?php
+			if ( 'my_leads' === $current_filter ) :
+				?>
+				<input type="hidden" name="xf_filter" value="my_leads"><?php endif; ?>
 
 			<div class="xf-table-toolbar">
 				<div class="xf-bulk-actions">
@@ -346,20 +384,20 @@ $export_url = wp_nonce_url(
 				<tbody>
 					<?php foreach ( $leads as $lead ) : ?>
 						<?php
-						$lead_id = (int) $lead->id;
-						$form_name = isset( $forms_cache[ (int) $lead->form_id ] )
+						$lead_id    = (int) $lead->id;
+						$form_name  = isset( $forms_cache[ (int) $lead->form_id ] )
 							? esc_html( $forms_cache[ (int) $lead->form_id ]->name )
 							: esc_html__( '(unknown form)', 'xtreme-forms' );
-						$lead_name = esc_html( xf_inbox_get_field( $lead, 'text', $forms_cache ) );
+						$lead_name  = esc_html( xf_inbox_get_field( $lead, 'text', $forms_cache ) );
 						$lead_email = esc_html( xf_inbox_get_field( $lead, 'email', $forms_cache ) );
 						$status_key = $lead->status ?? 'new';
 						$status_lbl = $statuses[ $status_key ] ?? ucfirst( $status_key );
 
 						// Assigned user.
-						$assigned_to = (int) ( $lead->assigned_to ?? 0 );
+						$assigned_to      = (int) ( $lead->assigned_to ?? 0 );
 						$assignee_display = '';
 						if ( $assigned_to ) {
-							$assignee_user = get_userdata( $assigned_to );
+							$assignee_user    = get_userdata( $assigned_to );
 							$assignee_display = $assignee_user ? esc_html( $assignee_user->display_name ) : esc_html__( '(unknown)', 'xtreme-forms' );
 						}
 
@@ -367,14 +405,18 @@ $export_url = wp_nonce_url(
 						$lead_tags = $tags_by_lead[ $lead_id ] ?? array();
 
 						// Duplicate badge data.
-						$is_duplicate = ! empty( $lead->is_duplicate );
+						$is_duplicate     = ! empty( $lead->is_duplicate );
 						$duplicate_status = $lead->duplicate_status ?? '';
 						$original_lead_id = ! empty( $lead->original_lead_id ) ? (int) $lead->original_lead_id : null;
-						$is_orphaned = 'duplicate_orphaned' === $duplicate_status;
+						$is_orphaned      = 'duplicate_orphaned' === $duplicate_status;
 
 						// Detail page URL.
 						$detail_url = add_query_arg(
-							array( 'page' => 'xtremeleads-leads', 'xf_action' => 'view', 'lead_id' => $lead_id ),
+							array(
+								'page'      => 'xtremeleads-leads',
+								'xf_action' => 'view',
+								'lead_id'   => $lead_id,
+							),
 							admin_url( 'admin.php' )
 						);
 						?>
@@ -394,7 +436,20 @@ $export_url = wp_nonce_url(
 											<?php esc_html_e( 'Duplicate', 'xtreme-forms' ); ?>
 											<?php if ( $original_lead_id ) : ?>
 												&mdash;
-												<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtremeleads-leads', 'xf_action' => 'view', 'lead_id' => $original_lead_id ), admin_url( 'admin.php' ) ) ); ?>" onclick="event.stopPropagation()">
+												<a href="
+												<?php
+												echo esc_url(
+													add_query_arg(
+														array(
+															'page' => 'xtremeleads-leads',
+															'xf_action' => 'view',
+															'lead_id' => $original_lead_id,
+														),
+														admin_url( 'admin.php' )
+													)
+												);
+												?>
+															" onclick="event.stopPropagation()">
 													<?php /* translators: %d: original lead ID */ echo esc_html( sprintf( __( 'Original #%d', 'xtreme-forms' ), $original_lead_id ) ); ?>
 												</a>
 											<?php endif; ?>
@@ -460,12 +515,12 @@ $export_url = wp_nonce_url(
 				<?php
 				$page_links = paginate_links(
 					array(
-						'base' => add_query_arg( 'paged', '%#%' ),
-						'format' => '',
+						'base'      => add_query_arg( 'paged', '%#%' ),
+						'format'    => '',
 						'prev_text' => '&laquo; ' . __( 'Previous', 'xtreme-forms' ),
 						'next_text' => __( 'Next', 'xtreme-forms' ) . ' &raquo;',
-						'total' => $total_pages,
-						'current' => $current_page,
+						'total'     => $total_pages,
+						'current'   => $current_page,
 					)
 				);
 				echo wp_kses_post( $page_links );

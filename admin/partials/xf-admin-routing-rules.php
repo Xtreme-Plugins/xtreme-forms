@@ -7,11 +7,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
 
-$rules = XF_Routing_Rules::get_all_rules();
+$rules     = XF_Routing_Rules::get_all_rules();
 $all_forms = XF_Forms::get_all_forms();
-$mode = XF_Routing_Rules::get_mode();
+$mode      = XF_Routing_Rules::get_mode();
 
 $notice = '';
 if ( ! empty( $_GET['updated'] ) ) {
@@ -82,10 +82,10 @@ if ( ! empty( $_GET['updated'] ) ) {
 					<?php else : ?>
 						<?php foreach ( $rules as $idx => $rule ) : ?>
 							<?php
-							$rule_id = (int) $rule->id;
-							$cond_type = $rule->condition_type ?? 'form';
-							$rule_form_id = (int) $rule->form_id;
-							$field_id_val = esc_attr( $rule->field_id ?? '' );
+							$rule_id       = (int) $rule->id;
+							$cond_type     = $rule->condition_type ?? 'form';
+							$rule_form_id  = (int) $rule->form_id;
+							$field_id_val  = esc_attr( $rule->field_id ?? '' );
 							$field_val_val = esc_attr( $rule->field_value ?? '' );
 							$recipient_val = esc_attr( $rule->recipient_email ?? '' );
 							$is_active_val = (int) ( $rule->is_active ?? 1 );

@@ -109,7 +109,7 @@ class XF_Ajax {
 			status_header( 401 );
 			wp_send_json_error(
 				array(
-					'code' => 'not_authenticated',
+					'code'    => 'not_authenticated',
 					'message' => __( 'Authentication required.', 'xtreme-forms' ),
 				),
 				401
@@ -125,7 +125,7 @@ class XF_Ajax {
 			status_header( 403 );
 			wp_send_json_error(
 				array(
-					'code' => 'invalid_nonce',
+					'code'    => 'invalid_nonce',
 					'message' => __( 'Security check failed. Please refresh the page and try again.', 'xtreme-forms' ),
 				),
 				403
@@ -137,7 +137,7 @@ class XF_Ajax {
 			status_header( 403 );
 			wp_send_json_error(
 				array(
-					'code' => 'insufficient_permissions',
+					'code'    => 'insufficient_permissions',
 					'message' => __( 'You do not have permission to perform this action.', 'xtreme-forms' ),
 				),
 				403
@@ -201,7 +201,7 @@ class XF_Ajax {
 		// Limit each IP to 10 submissions per 10 minutes across all forms.
 		$visitor_ip_rl = $this->get_visitor_ip();
 		// Hash the IP so we don't store raw IPs in option names.
-		$ip_key = 'xf_rl_' . md5( $visitor_ip_rl . '_' . $form_id );
+		$ip_key   = 'xf_rl_' . md5( $visitor_ip_rl . '_' . $form_id );
 		$rl_count = (int) get_transient( $ip_key );
 		$rl_limit = apply_filters( 'xtremeforms_rate_limit_per_form', 10 );
 
@@ -219,12 +219,12 @@ class XF_Ajax {
 		$source_url_early = isset( $_SERVER['HTTP_REFERER'] )
 			? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
 			: ( isset( $_POST['xf_source_url'] ) ? esc_url_raw( wp_unslash( $_POST['xf_source_url'] ) ) : '' );
-		$ip_early = $this->get_visitor_ip();
-		$ip_early = XF_Leads::maybe_anonymize_ip( $ip_early );
-		$ua_early = isset( $_SERVER['HTTP_USER_AGENT'] )
+		$ip_early         = $this->get_visitor_ip();
+		$ip_early         = XF_Leads::maybe_anonymize_ip( $ip_early );
+		$ua_early         = isset( $_SERVER['HTTP_USER_AGENT'] )
 			? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 500 )
 			: '';
-		$email_early = isset( $_POST['xf_field']['email'] )
+		$email_early      = isset( $_POST['xf_field']['email'] )
 			? sanitize_email( wp_unslash( $_POST['xf_field']['email'] ) )
 			: '';
 
@@ -243,9 +243,9 @@ class XF_Ajax {
 			// Silent success — bots must not learn they were blocked.
 			wp_send_json_success(
 				array(
-					'message' => __( 'Thank you for your submission!', 'xtreme-forms' ),
+					'message'  => __( 'Thank you for your submission!', 'xtreme-forms' ),
 					'redirect' => '',
-					'spam' => true,
+					'spam'     => true,
 				)
 			);
 		}
@@ -258,9 +258,9 @@ class XF_Ajax {
 			}
 			wp_send_json_success(
 				array(
-					'message' => __( 'Thank you for your submission!', 'xtreme-forms' ),
+					'message'  => __( 'Thank you for your submission!', 'xtreme-forms' ),
 					'redirect' => '',
-					'spam' => true,
+					'spam'     => true,
 				)
 			);
 		}
@@ -273,7 +273,7 @@ class XF_Ajax {
 			wp_send_json_error( array( 'message' => __( 'Form not found.', 'xtreme-forms' ) ), 404 );
 		}
 
-		$fields = XF_Forms::decode_fields( $form );
+		$fields   = XF_Forms::decode_fields( $form );
 		$settings = XF_Forms::decode_settings( $form );
 
 		// ── reCAPTCHA v3 check ────────────────────────────────────────────────
@@ -281,16 +281,16 @@ class XF_Ajax {
 			$recaptcha_token = isset( $_POST['xf_recaptcha_token'] )
 				? sanitize_text_field( wp_unslash( $_POST['xf_recaptcha_token'] ) )
 				: '';
-			$rc_settings = XF_Spam::get_recaptcha_settings();
-			$rc_result = XF_Spam::verify_recaptcha( $recaptcha_token, $rc_settings['threshold'], $rc_settings['secret_key'] );
+			$rc_settings     = XF_Spam::get_recaptcha_settings();
+			$rc_result       = XF_Spam::verify_recaptcha( $recaptcha_token, $rc_settings['threshold'], $rc_settings['secret_key'] );
 
 			if ( ! $rc_result['success'] && ! $rc_result['api_failed'] ) {
 				XF_Spam::log_blocked( $form_id, XF_Spam::REASON_RECAPTCHA, $email_early, $source_url_early, $ua_early, $ip_early );
 				wp_send_json_success(
 					array(
-						'message' => __( 'Thank you for your submission!', 'xtreme-forms' ),
+						'message'  => __( 'Thank you for your submission!', 'xtreme-forms' ),
 						'redirect' => '',
-						'spam' => true,
+						'spam'     => true,
 					)
 				);
 			}
@@ -301,7 +301,7 @@ class XF_Ajax {
 			if ( $rc_result['api_failed'] ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log(
-					'Xtreme Forms: reCAPTCHA v3 API verification failed for form #' . $form_id.
+					'Xtreme Forms: reCAPTCHA v3 API verification failed for form #' . $form_id .
 					' — allowing submission through. Error: ' . ( $rc_result['error'] ?? 'unknown' )
 				);
 				// Also store a spam-log warning entry so admins can see API failures in the UI.
@@ -334,14 +334,14 @@ class XF_Ajax {
 		}
 
 		// Validate fields.
-		$errors = array();
+		$errors       = array();
 		$field_values = array();
 
 		foreach ( $fields as $field ) {
-			$fid = $field['id'] ?? '';
-			$ftype = $field['type'] ?? 'text';
+			$fid      = $field['id'] ?? '';
+			$ftype    = $field['type'] ?? 'text';
 			$required = ! empty( $field['required'] );
-			$raw = $raw_fields[ $fid ] ?? null;
+			$raw      = $raw_fields[ $fid ] ?? null;
 
 			if ( 'hidden' === $ftype ) {
 				$field_values[ $fid ] = sanitize_text_field( $field['default_value'] ?? '' );
@@ -413,9 +413,9 @@ class XF_Ajax {
 				// Silent success — don't reveal blocklist to submitter.
 				wp_send_json_success(
 					array(
-						'message' => __( 'Thank you for your submission!', 'xtreme-forms' ),
+						'message'  => __( 'Thank you for your submission!', 'xtreme-forms' ),
 						'redirect' => '',
-						'spam' => true,
+						'spam'     => true,
 					)
 				);
 			}
@@ -425,9 +425,9 @@ class XF_Ajax {
 				XF_Spam::log_blocked( $form_id, XF_Spam::REASON_BLOCKLIST, $email_for_blocklist, $source_url_early, $ua_early, $ip_early );
 				wp_send_json_success(
 					array(
-						'message' => __( 'Thank you for your submission!', 'xtreme-forms' ),
+						'message'  => __( 'Thank you for your submission!', 'xtreme-forms' ),
 						'redirect' => '',
-						'spam' => true,
+						'spam'     => true,
 					)
 				);
 			}
@@ -437,7 +437,7 @@ class XF_Ajax {
 			wp_send_json_error(
 				array(
 					'message' => __( 'Please correct the errors below.', 'xtreme-forms' ),
-					'errors' => $errors,
+					'errors'  => $errors,
 				),
 				422
 			);
@@ -474,9 +474,9 @@ class XF_Ajax {
 
 		// ── Duplicate lead detection ───────────────────────────────
 		// Extract email from submitted field values for duplicate check.
-		$submitted_email = XF_Duplicates::extract_email( $field_values, $fields );
+		$submitted_email  = XF_Duplicates::extract_email( $field_values, $fields );
 		$duplicate_result = null;
-		$lock_acquired = false;
+		$lock_acquired    = false;
 
 		if ( $submitted_email ) {
 			// Acquire per-email advisory lock to prevent concurrent duplicate
@@ -487,7 +487,7 @@ class XF_Ajax {
 			$original_lead = XF_Duplicates::find_original_by_email( $submitted_email );
 
 			if ( $original_lead ) {
-				$behavior = XF_Duplicates::get_behavior();
+				$behavior         = XF_Duplicates::get_behavior();
 				$duplicate_result = XF_Duplicates::handle( $original_lead, $field_values, $behavior );
 
 				if ( $duplicate_result['blocked'] ) {
@@ -500,7 +500,7 @@ class XF_Ajax {
 					// existing error container — the form is NOT replaced.
 					wp_send_json_error(
 						array(
-							'message' => $duplicate_result['message'],
+							'message'           => $duplicate_result['message'],
 							'duplicate_blocked' => true,
 						)
 					);
@@ -526,11 +526,11 @@ class XF_Ajax {
 
 					wp_send_json_success(
 						array(
-							'lead_id' => (int) $original_lead->id,
-							'redirect_url' => $redirect_url,
+							'lead_id'        => (int) $original_lead->id,
+							'redirect_url'   => $redirect_url,
 							'redirect_nonce' => $redirect_nonce,
-							'form_id' => $form_id,
-							'thank_you' => $thank_you,
+							'form_id'        => $form_id,
+							'thank_you'      => $thank_you,
 						)
 					);
 				}
@@ -544,14 +544,14 @@ class XF_Ajax {
 		// never saved without the flag."
 		// We achieve this by passing the flag fields directly into insert_lead()
 		// so they are part of the INSERT statement — not a subsequent UPDATE.
-		$insert_is_duplicate = false;
+		$insert_is_duplicate     = false;
 		$insert_duplicate_status = null;
 		$insert_original_lead_id = null;
 
 		if ( null !== $duplicate_result && ! $duplicate_result['blocked'] && ! $duplicate_result['merged'] ) {
 			// Silent-flag mode: mark as duplicate in the INSERT itself.
 			$insert_is_duplicate = true;
-			$orig_id_candidate = $duplicate_result['original_lead_id'] ?? null;
+			$orig_id_candidate   = $duplicate_result['original_lead_id'] ?? null;
 
 			// Verify the original lead still exists (orphan check).
 			if ( $orig_id_candidate ) {
@@ -580,22 +580,22 @@ class XF_Ajax {
 		// email_address is stored in its own indexed column for fast duplicate lookups.
 		$lead_id = XF_Leads::insert_lead(
 			array(
-				'form_id' => $form_id,
-				'source_url' => $source_url,
-				'ip_address' => $ip,
-				'user_agent' => $user_agent,
-				'field_values' => $field_values,
-				'email_address' => $submitted_email, // Indexed column for fast duplicate checks.
-				'utm_source' => $utm_data['utm_source'] ?? null,
-				'utm_medium' => $utm_data['utm_medium'] ?? null,
-				'utm_campaign' => $utm_data['utm_campaign'] ?? null,
-				'utm_term' => $utm_data['utm_term'] ?? null,
-				'utm_content' => $utm_data['utm_content'] ?? null,
+				'form_id'                 => $form_id,
+				'source_url'              => $source_url,
+				'ip_address'              => $ip,
+				'user_agent'              => $user_agent,
+				'field_values'            => $field_values,
+				'email_address'           => $submitted_email, // Indexed column for fast duplicate checks.
+				'utm_source'              => $utm_data['utm_source'] ?? null,
+				'utm_medium'              => $utm_data['utm_medium'] ?? null,
+				'utm_campaign'            => $utm_data['utm_campaign'] ?? null,
+				'utm_term'                => $utm_data['utm_term'] ?? null,
+				'utm_content'             => $utm_data['utm_content'] ?? null,
 				'submit_duration_seconds' => $submit_duration,
-				'is_duplicate' => $insert_is_duplicate,
-				'duplicate_status' => $insert_duplicate_status,
-				'original_lead_id' => $insert_original_lead_id,
-				'consent_given' => $consent_given_val,
+				'is_duplicate'            => $insert_is_duplicate,
+				'duplicate_status'        => $insert_duplicate_status,
+				'original_lead_id'        => $insert_original_lead_id,
+				'consent_given'           => $consent_given_val,
 			)
 		);
 
@@ -625,12 +625,12 @@ class XF_Ajax {
 		);
 
 		// Augment settings with form metadata for routing/auto-responder.
-		$settings['_form_id'] = $form_id;
+		$settings['_form_id']   = $form_id;
 		$settings['_form_name'] = $form->name ?? '';
 
 		// Build the lead object stub for context.
 		$lead_obj = (object) array(
-			'id' => $lead_id,
+			'id'         => $lead_id,
 			'source_url' => $source_url,
 			'created_at' => current_time( 'mysql' ),
 		);
@@ -670,11 +670,11 @@ class XF_Ajax {
 
 		wp_send_json_success(
 			array(
-				'lead_id' => $lead_id,
-				'redirect_url' => $redirect_url,
+				'lead_id'        => $lead_id,
+				'redirect_url'   => $redirect_url,
 				'redirect_nonce' => $redirect_nonce,
-				'form_id' => $form_id,
-				'thank_you' => $thank_you,
+				'form_id'        => $form_id,
+				'thank_you'      => $thank_you,
 			)
 		);
 	}
@@ -704,7 +704,7 @@ class XF_Ajax {
 			wp_die( esc_html__( 'Form not found.', 'xtreme-forms' ) );
 		}
 
-		$settings = XF_Forms::decode_settings( $form );
+		$settings     = XF_Forms::decode_settings( $form );
 		$redirect_url = ! empty( $settings['redirect_url'] ) ? $settings['redirect_url'] : '';
 
 		if ( $redirect_url ) {
@@ -760,26 +760,26 @@ class XF_Ajax {
 		}
 
 		// Get form for field labels.
-		$field_values = XF_Leads::decode_field_values( $lead );
-		$form = XF_Forms::get_form( (int) $lead->form_id );
+		$field_values       = XF_Leads::decode_field_values( $lead );
+		$form               = XF_Forms::get_form( (int) $lead->form_id );
 		$fields_with_labels = array();
 
 		if ( $form ) {
 			$field_defs = XF_Forms::decode_fields( $form );
 			foreach ( $field_defs as $fd ) {
-				$fid = $fd['id'] ?? '';
+				$fid   = $fd['id'] ?? '';
 				$ftype = $fd['type'] ?? 'text';
 				if ( 'hidden' === $ftype ) {
 					continue;
 				}
 				$label = $fd['label'] ?? $fid;
-				$val = array_key_exists( $fid, $field_values ) ? $field_values[ $fid ] : null;
+				$val   = array_key_exists( $fid, $field_values ) ? $field_values[ $fid ] : null;
 				if ( is_array( $val ) ) {
 					$val = implode( ', ', $val );
 				}
 				$fields_with_labels[] = array(
-					'label' => (string) $label,
-					'value' => null !== $val ? (string) $val : null,
+					'label'    => (string) $label,
+					'value'    => null !== $val ? (string) $val : null,
 					'is_empty' => ( null === $val || '' === (string) $val ),
 				);
 			}
@@ -789,61 +789,64 @@ class XF_Ajax {
 					$val = implode( ', ', $val );
 				}
 				$fields_with_labels[] = array(
-					'label' => $key,
-					'value' => (string) $val,
+					'label'    => $key,
+					'value'    => (string) $val,
 					'is_empty' => '' === (string) $val,
 				);
 			}
 		}
 
-		$statuses = XF_Leads::get_statuses();
+		$statuses     = XF_Leads::get_statuses();
 		$status_label = $statuses[ $lead->status ] ?? ucfirst( $lead->status );
 
 		// Assignee info.
-		$assigned_to = (int) ( $lead->assigned_to ?? 0 );
-		$assignee_name = __( 'Unassigned', 'xtreme-forms' );
+		$assigned_to       = (int) ( $lead->assigned_to ?? 0 );
+		$assignee_name     = __( 'Unassigned', 'xtreme-forms' );
 		$assignee_no_email = false;
 		if ( $assigned_to ) {
 			$assignee = get_userdata( $assigned_to );
 			if ( $assignee ) {
-				$assignee_name = $assignee->display_name;
+				$assignee_name     = $assignee->display_name;
 				$assignee_no_email = empty( $assignee->user_email );
 			}
 		}
 
 		// Tags.
-		$tags = XF_Tags::get_tags_for_lead( $lead_id );
+		$tags      = XF_Tags::get_tags_for_lead( $lead_id );
 		$tags_data = array_map(
 			static function ( $t ) {
-				return array( 'id' => (int) $t->id, 'name' => (string) $t->name );
+				return array(
+					'id'   => (int) $t->id,
+					'name' => (string) $t->name,
+				);
 			},
 			$tags
 		);
 
 		// Notes (oldest first).
-		$notes_raw = XF_Notes::get_notes_for_lead( $lead_id );
+		$notes_raw  = XF_Notes::get_notes_for_lead( $lead_id );
 		$notes_data = array_map(
 			static function ( $n ) {
 				return array(
-					'id' => (int) $n->id,
-					'content' => (string) $n->note_content,
+					'id'          => (int) $n->id,
+					'content'     => (string) $n->note_content,
 					'author_name' => (string) $n->author_name,
-					'created_at' => (string) $n->created_at,
+					'created_at'  => (string) $n->created_at,
 				);
 			},
 			$notes_raw
 		);
 
 		// Activity (oldest first).
-		$activity_raw = XF_Activity::get_activity_for_lead( $lead_id );
+		$activity_raw  = XF_Activity::get_activity_for_lead( $lead_id );
 		$activity_data = array_map(
 			static function ( $a ) {
 				return array(
-					'id' => (int) $a->id,
+					'id'          => (int) $a->id,
 					'action_type' => (string) $a->action_type,
-					'label' => (string) $a->label,
-					'user_name' => (string) $a->user_name,
-					'created_at' => (string) $a->created_at,
+					'label'       => (string) $a->label,
+					'user_name'   => (string) $a->user_name,
+					'created_at'  => (string) $a->created_at,
 				);
 			},
 			$activity_raw
@@ -854,24 +857,24 @@ class XF_Ajax {
 
 		wp_send_json_success(
 			array(
-				'id' => (int) $lead->id,
-				'form_id' => (int) $lead->form_id,
-				'form_name' => $form ? (string) $form->name : __( '(deleted form)', 'xtreme-forms' ),
-				'status' => (string) $lead->status,
-				'status_label' => (string) $status_label,
-				'statuses' => $statuses,
-				'source_url' => (string) $lead->source_url,
-				'ip_address' => (string) $lead->ip_address,
-				'user_agent' => (string) $lead->user_agent,
-				'created_at' => (string) $lead->created_at,
-				'consent_given' => isset( $lead->consent_given ) ? (bool) $lead->consent_given : null,
-				'fields' => $fields_with_labels,
-				'assigned_to' => $assigned_to,
-				'assignee_name' => $assignee_name,
+				'id'             => (int) $lead->id,
+				'form_id'        => (int) $lead->form_id,
+				'form_name'      => $form ? (string) $form->name : __( '(deleted form)', 'xtreme-forms' ),
+				'status'         => (string) $lead->status,
+				'status_label'   => (string) $status_label,
+				'statuses'       => $statuses,
+				'source_url'     => (string) $lead->source_url,
+				'ip_address'     => (string) $lead->ip_address,
+				'user_agent'     => (string) $lead->user_agent,
+				'created_at'     => (string) $lead->created_at,
+				'consent_given'  => isset( $lead->consent_given ) ? (bool) $lead->consent_given : null,
+				'fields'         => $fields_with_labels,
+				'assigned_to'    => $assigned_to,
+				'assignee_name'  => $assignee_name,
 				'eligible_users' => $eligible_users,
-				'tags' => $tags_data,
-				'notes' => $notes_data,
-				'activity' => $activity_data,
+				'tags'           => $tags_data,
+				'notes'          => $notes_data,
+				'activity'       => $activity_data,
 			)
 		);
 	}
@@ -914,7 +917,7 @@ class XF_Ajax {
 					array(
 						/* translators: %d: number of deleted leads */
 						'message' => sprintf( _n( '%d lead deleted.', '%d leads deleted.', $count, 'xtreme-forms' ), $count ),
-						'count' => $count,
+						'count'   => $count,
 					)
 				);
 				break;
@@ -925,7 +928,7 @@ class XF_Ajax {
 					array(
 						/* translators: %d: number of updated leads */
 						'message' => sprintf( _n( '%d lead marked as contacted.', '%d leads marked as contacted.', $count, 'xtreme-forms' ), $count ),
-						'count' => $count,
+						'count'   => $count,
 					)
 				);
 				break;
@@ -963,7 +966,7 @@ class XF_Ajax {
 		}
 
 		$author_id = get_current_user_id();
-		$result = XF_Notes::insert_note( $lead_id, $author_id, $content );
+		$result    = XF_Notes::insert_note( $lead_id, $author_id, $content );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ), 422 );
@@ -987,10 +990,10 @@ class XF_Ajax {
 		wp_send_json_success(
 			array(
 				'note' => array(
-					'id' => $result,
-					'content' => sanitize_textarea_field( $content ),
+					'id'          => $result,
+					'content'     => sanitize_textarea_field( $content ),
 					'author_name' => $author ? $author->display_name : __( 'Unknown', 'xtreme-forms' ),
-					'created_at' => current_time( 'mysql', true ),
+					'created_at'  => current_time( 'mysql', true ),
 				),
 			)
 		);
@@ -1010,7 +1013,7 @@ class XF_Ajax {
 		}
 
 		$new_status = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : '';
-		$statuses = XF_Leads::get_statuses();
+		$statuses   = XF_Leads::get_statuses();
 
 		if ( ! array_key_exists( $new_status, $statuses ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid status.', 'xtreme-forms' ) ), 400 );
@@ -1030,10 +1033,10 @@ class XF_Ajax {
 			$user_id,
 			XF_Activity::TYPE_STATUS_CHANGE,
 			array(
-				'from' => $old_status,
-				'to' => $new_status,
+				'from'       => $old_status,
+				'to'         => $new_status,
 				'from_label' => $statuses[ $old_status ] ?? ucfirst( $old_status ),
-				'to_label' => $statuses[ $new_status ] ?? ucfirst( $new_status ),
+				'to_label'   => $statuses[ $new_status ] ?? ucfirst( $new_status ),
 			)
 		);
 
@@ -1044,7 +1047,7 @@ class XF_Ajax {
 				$lead_id,
 				array(
 					'from' => $old_status,
-					'to' => $new_status,
+					'to'   => $new_status,
 				)
 			);
 		}
@@ -1053,8 +1056,8 @@ class XF_Ajax {
 		if ( class_exists( 'XF_Webhooks' ) ) {
 			$lead_obj_sc = XF_Leads::get_lead( $lead_id );
 			if ( $lead_obj_sc ) {
-				$fv_sc = XF_Leads::decode_field_values( $lead_obj_sc );
-				$webhook_payload_sc = XF_Webhooks::build_payload(
+				$fv_sc                            = XF_Leads::decode_field_values( $lead_obj_sc );
+				$webhook_payload_sc               = XF_Webhooks::build_payload(
 					$lead_id,
 					$fv_sc,
 					(string) $lead_obj_sc->source_url,
@@ -1074,7 +1077,7 @@ class XF_Ajax {
 
 		wp_send_json_success(
 			array(
-				'status' => $new_status,
+				'status'       => $new_status,
 				'status_label' => $statuses[ $new_status ],
 			)
 		);
@@ -1102,7 +1105,7 @@ class XF_Ajax {
 		wp_send_json_success(
 			array(
 				'tag' => array(
-					'id' => (int) $tag->id,
+					'id'   => (int) $tag->id,
 					'name' => esc_html( $tag->name ),
 				),
 			)
@@ -1119,10 +1122,13 @@ class XF_Ajax {
 			? sanitize_text_field( wp_unslash( $_POST['query'] ) )
 			: '';
 
-		$tags = XF_Tags::search_tags( $query );
+		$tags      = XF_Tags::search_tags( $query );
 		$tags_data = array_map(
 			static function ( $t ) {
-				return array( 'id' => (int) $t->id, 'name' => (string) $t->name );
+				return array(
+					'id'   => (int) $t->id,
+					'name' => (string) $t->name,
+				);
 			},
 			$tags
 		);
@@ -1137,7 +1143,7 @@ class XF_Ajax {
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
-		$tag_id = isset( $_POST['tag_id'] ) ? absint( $_POST['tag_id'] ) : 0;
+		$tag_id  = isset( $_POST['tag_id'] ) ? absint( $_POST['tag_id'] ) : 0;
 
 		if ( ! $lead_id || ! $tag_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'xtreme-forms' ) ), 400 );
@@ -1162,13 +1168,16 @@ class XF_Ajax {
 			$lead_id,
 			get_current_user_id(),
 			XF_Activity::TYPE_TAG_ADDED,
-			array( 'tag_id' => $tag_id, 'tag_name' => $tag->name )
+			array(
+				'tag_id'   => $tag_id,
+				'tag_name' => $tag->name,
+			)
 		);
 
 		wp_send_json_success(
 			array(
 				'tag' => array(
-					'id' => (int) $tag->id,
+					'id'   => (int) $tag->id,
 					'name' => (string) $tag->name,
 				),
 			)
@@ -1182,7 +1191,7 @@ class XF_Ajax {
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
-		$tag_id = isset( $_POST['tag_id'] ) ? absint( $_POST['tag_id'] ) : 0;
+		$tag_id  = isset( $_POST['tag_id'] ) ? absint( $_POST['tag_id'] ) : 0;
 
 		if ( ! $lead_id || ! $tag_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'xtreme-forms' ) ), 400 );
@@ -1198,7 +1207,10 @@ class XF_Ajax {
 				$lead_id,
 				get_current_user_id(),
 				XF_Activity::TYPE_TAG_REMOVED,
-				array( 'tag_id' => $tag_id, 'tag_name' => $tag->name )
+				array(
+					'tag_id'   => $tag_id,
+					'tag_name' => $tag->name,
+				)
 			);
 		}
 
@@ -1213,7 +1225,7 @@ class XF_Ajax {
 	public function handle_assign_lead(): void {
 		$this->check_admin_ajax();
 
-		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
+		$lead_id     = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
 		$assigned_to = isset( $_POST['assigned_to'] ) ? absint( $_POST['assigned_to'] ) : 0;
 
 		if ( ! $lead_id ) {
@@ -1233,10 +1245,10 @@ class XF_Ajax {
 			);
 		}
 
-		$actor_id = get_current_user_id();
+		$actor_id     = get_current_user_id();
 		$old_assignee = (int) ( $lead->assigned_to ?? 0 );
-		$old_user = $old_assignee ? get_userdata( $old_assignee ) : null;
-		$old_name = $old_user ? $old_user->display_name : __( 'Unassigned', 'xtreme-forms' );
+		$old_user     = $old_assignee ? get_userdata( $old_assignee ) : null;
+		$old_name     = $old_user ? $old_user->display_name : __( 'Unassigned', 'xtreme-forms' );
 
 		$result = XF_Leads::update_assigned_to( $lead_id, $assigned_to );
 
@@ -1254,10 +1266,10 @@ class XF_Ajax {
 			$actor_id,
 			XF_Activity::TYPE_ASSIGNMENT,
 			array(
-				'from_id' => $old_assignee,
+				'from_id'   => $old_assignee,
 				'from_name' => $old_name,
-				'to_id' => $assigned_to,
-				'to_name' => $new_name,
+				'to_id'     => $assigned_to,
+				'to_name'   => $new_name,
 			)
 		);
 
@@ -1267,10 +1279,10 @@ class XF_Ajax {
 				XF_Audit_Log::ACTION_LEAD_ASSIGNMENT_CHANGED,
 				$lead_id,
 				array(
-					'from_id' => $old_assignee,
+					'from_id'   => $old_assignee,
 					'from_name' => $old_name,
-					'to_id' => $assigned_to,
-					'to_name' => $new_name,
+					'to_id'     => $assigned_to,
+					'to_name'   => $new_name,
 				)
 			);
 		}
@@ -1286,7 +1298,7 @@ class XF_Ajax {
 
 		wp_send_json_success(
 			array(
-				'assigned_to' => $assigned_to,
+				'assigned_to'   => $assigned_to,
 				'assignee_name' => $new_name,
 				'email_warning' => $email_warning,
 			)
@@ -1296,10 +1308,10 @@ class XF_Ajax {
 	/**
 	 * Send assignment notification email to the new assignee.
 	 *
-	 * @param int $lead_id Lead ID.
+	 * @param int    $lead_id Lead ID.
 	 * @param object $lead Lead row object.
 	 * @param object $new_user WordPress user object of new assignee.
-	 * @param int $actor_id WordPress user ID of the person making the assignment.
+	 * @param int    $actor_id WordPress user ID of the person making the assignment.
 	 * @return bool Whether the email was sent.
 	 */
 	private function send_assignment_email( int $lead_id, object $lead, object $new_user, int $actor_id ): bool {
@@ -1307,12 +1319,12 @@ class XF_Ajax {
 			return false;
 		}
 
-		$actor = get_userdata( $actor_id );
+		$actor      = get_userdata( $actor_id );
 		$actor_name = $actor ? $actor->display_name : __( 'An administrator', 'xtreme-forms' );
 
 		// Determine lead name for email.
 		$field_values = XF_Leads::decode_field_values( $lead );
-		$lead_name = $new_user->display_name; // fallback.
+		$lead_name    = $new_user->display_name; // fallback.
 		foreach ( $field_values as $key => $val ) {
 			if ( is_string( $val ) && stripos( $key, 'email' ) !== false ) {
 				$lead_name = $val;
@@ -1329,9 +1341,9 @@ class XF_Ajax {
 
 		$admin_link = add_query_arg(
 			array(
-				'page' => 'xtreme-forms',
+				'page'      => 'xtreme-forms',
 				'xf_action' => 'view',
-				'lead_id' => $lead_id,
+				'lead_id'   => $lead_id,
 			),
 			admin_url( 'admin.php' )
 		);
@@ -1342,7 +1354,7 @@ class XF_Ajax {
 			$lead_id
 		);
 
-		$body = '<h2>' . esc_html__( 'New Lead Assignment', 'xtreme-forms' ) . '</h2>';
+		$body  = '<h2>' . esc_html__( 'New Lead Assignment', 'xtreme-forms' ) . '</h2>';
 		$body .= '<p>' . sprintf(
 			/* translators: 1: lead ID, 2: actor name */
 			esc_html__( 'Lead #%1$d has been assigned to you by %2$s.', 'xtreme-forms' ),
@@ -1352,8 +1364,8 @@ class XF_Ajax {
 		$body .= '<p><strong>' . esc_html__( 'Lead:', 'xtreme-forms' ) . '</strong> ' . esc_html( $lead_name ) . '</p>';
 		$body .= '<p><a href="' . esc_url( $admin_link ) . '">' . esc_html__( 'View Lead in Admin', 'xtreme-forms' ) . '</a></p>';
 
-		$settings = get_option( 'xtremeforms_settings', array() );
-		$from_name = ! empty( $settings['email_from_name'] ) ? $settings['email_from_name'] : get_bloginfo( 'name' );
+		$settings   = get_option( 'xtremeforms_settings', array() );
+		$from_name  = ! empty( $settings['email_from_name'] ) ? $settings['email_from_name'] : get_bloginfo( 'name' );
 		$from_email = ! empty( $settings['email_from'] ) ? $settings['email_from'] : get_option( 'admin_email' );
 
 		$headers = array(
@@ -1396,7 +1408,12 @@ class XF_Ajax {
 		$result = XF_Email::send_test_email();
 
 		if ( $result['success'] ) {
-			wp_send_json_success( array( 'message' => $result['message'], 'log_id' => $result['log_id'] ) );
+			wp_send_json_success(
+				array(
+					'message' => $result['message'],
+					'log_id'  => $result['log_id'],
+				)
+			);
 		} else {
 			wp_send_json_error( array( 'message' => $result['message'] ) );
 		}
@@ -1428,10 +1445,12 @@ class XF_Ajax {
 		$result = XF_Email::resend_from_log( $log_id );
 
 		if ( $result['success'] ) {
-			wp_send_json_success( array(
-				'message' => $result['message'],
-				'new_log_id' => $result['new_log_id'],
-			) );
+			wp_send_json_success(
+				array(
+					'message'    => $result['message'],
+					'new_log_id' => $result['new_log_id'],
+				)
+			);
 		} else {
 			wp_send_json_error( array( 'message' => $result['message'] ) );
 		}
@@ -1482,10 +1501,10 @@ class XF_Ajax {
 		$wpdb->insert(
 			$table,
 			array(
-				'form_id' => $form_id,
-				'post_id' => $post_id,
+				'form_id'      => $form_id,
+				'post_id'      => $post_id,
 				'session_hash' => $session_hash,
-				'created_at' => current_time( 'mysql', true ),
+				'created_at'   => current_time( 'mysql', true ),
 			),
 			array( '%d', '%d', '%s', '%s' )
 		);
@@ -1505,14 +1524,14 @@ class XF_Ajax {
 
 		wp_send_json_success(
 			array(
-				'kpi' => array(
-					'all_time' => XF_Analytics::count_leads_all_time(),
+				'kpi'              => array(
+					'all_time'   => XF_Analytics::count_leads_all_time(),
 					'this_month' => XF_Analytics::count_leads_this_month(),
-					'this_week' => XF_Analytics::count_leads_this_week(),
+					'this_week'  => XF_Analytics::count_leads_this_week(),
 				),
-				'funnel' => XF_Analytics::leads_by_status(),
+				'funnel'           => XF_Analytics::leads_by_status(),
 				'top_source_pages' => XF_Analytics::top_source_pages( 10 ),
-				'top_forms' => XF_Analytics::top_forms( 5 ),
+				'top_forms'        => XF_Analytics::top_forms( 5 ),
 			)
 		);
 	}
@@ -1529,22 +1548,22 @@ class XF_Ajax {
 		$date_from = isset( $_POST['date_from'] )
 			? sanitize_text_field( wp_unslash( $_POST['date_from'] ) )
 			: '';
-		$date_to = isset( $_POST['date_to'] )
+		$date_to   = isset( $_POST['date_to'] )
 			? sanitize_text_field( wp_unslash( $_POST['date_to'] ) )
 			: '';
 
 		// Convert to UTC datetime for DB queries.
 		$from_utc = '';
-		$to_utc = '';
+		$to_utc   = '';
 		if ( $date_from ) {
-			$tz = wp_timezone();
+			$tz      = wp_timezone();
 			$from_dt = DateTimeImmutable::createFromFormat( 'Y-m-d', $date_from, $tz );
 			if ( $from_dt ) {
 				$from_utc = $from_dt->setTime( 0, 0, 0 )->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 			}
 		}
 		if ( $date_to ) {
-			$tz = wp_timezone();
+			$tz    = wp_timezone();
 			$to_dt = DateTimeImmutable::createFromFormat( 'Y-m-d', $date_to, $tz );
 			if ( $to_dt ) {
 				$to_utc = $to_dt->setTime( 23, 59, 59 )->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
@@ -1557,7 +1576,7 @@ class XF_Ajax {
 			array(
 				'labels' => array_column( $data, 'form_name' ),
 				'values' => array_column( $data, 'count' ),
-				'data' => $data,
+				'data'   => $data,
 			)
 		);
 	}
@@ -1577,21 +1596,21 @@ class XF_Ajax {
 	public function handle_chart_leads_over_time(): void {
 		$this->check_analytics_ajax( 'xf_chart_leads_over_time_nonce' );
 
-		$range = isset( $_POST['range'] ) ? sanitize_text_field( wp_unslash( $_POST['range'] ) ) : '30d';
+		$range     = isset( $_POST['range'] ) ? sanitize_text_field( wp_unslash( $_POST['range'] ) ) : '30d';
 		$date_from = isset( $_POST['date_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
-		$date_to = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
+		$date_to   = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
 
-		$tz = wp_timezone();
+		$tz  = wp_timezone();
 		$now = new DateTimeImmutable( 'now', $tz );
 
 		switch ( $range ) {
 			case '7d':
 				$date_from = $now->modify( '-6 days' )->format( 'Y-m-d' );
-				$date_to = $now->format( 'Y-m-d' );
+				$date_to   = $now->format( 'Y-m-d' );
 				break;
 			case '90d':
 				$date_from = $now->modify( '-89 days' )->format( 'Y-m-d' );
-				$date_to = $now->format( 'Y-m-d' );
+				$date_to   = $now->format( 'Y-m-d' );
 				break;
 			case 'custom':
 				if ( empty( $date_from ) || empty( $date_to ) ) {
@@ -1602,7 +1621,7 @@ class XF_Ajax {
 				}
 				// Validate: end must not be before start.
 				$start_dt = DateTimeImmutable::createFromFormat( 'Y-m-d', $date_from, $tz );
-				$end_dt = DateTimeImmutable::createFromFormat( 'Y-m-d', $date_to, $tz );
+				$end_dt   = DateTimeImmutable::createFromFormat( 'Y-m-d', $date_to, $tz );
 				if ( ! $start_dt || ! $end_dt ) {
 					wp_send_json_error( array( 'message' => __( 'Invalid date format.', 'xtreme-forms' ) ), 400 );
 				}
@@ -1616,7 +1635,7 @@ class XF_Ajax {
 			case '30d':
 			default:
 				$date_from = $now->modify( '-29 days' )->format( 'Y-m-d' );
-				$date_to = $now->format( 'Y-m-d' );
+				$date_to   = $now->format( 'Y-m-d' );
 				break;
 		}
 
@@ -1624,11 +1643,11 @@ class XF_Ajax {
 
 		wp_send_json_success(
 			array(
-				'labels' => $result['labels'],
-				'data' => $result['data'],
+				'labels'      => $result['labels'],
+				'data'        => $result['data'],
 				'granularity' => $result['granularity'],
-				'date_from' => $date_from,
-				'date_to' => $date_to,
+				'date_from'   => $date_from,
+				'date_to'     => $date_to,
 			)
 		);
 	}
@@ -1709,14 +1728,14 @@ class XF_Ajax {
 		if ( $original ) {
 			wp_send_json_success(
 				array(
-					'is_duplicate' => true,
+					'is_duplicate'     => true,
 					'original_lead_id' => (int) $original->id,
 				)
 			);
 		} else {
 			wp_send_json_success(
 				array(
-					'is_duplicate' => false,
+					'is_duplicate'     => false,
 					'original_lead_id' => null,
 				)
 			);
@@ -1745,7 +1764,12 @@ class XF_Ajax {
 		}
 
 		$webhook = XF_Webhooks::get( $id );
-		wp_send_json_success( array( 'id' => $id, 'webhook' => $webhook ) );
+		wp_send_json_success(
+			array(
+				'id'      => $id,
+				'webhook' => $webhook,
+			)
+		);
 	}
 
 	/**
@@ -1792,7 +1816,7 @@ class XF_Ajax {
 		$this->check_ajax_auth( 'xf_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
-		$page = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
+		$page       = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
 
 		if ( $webhook_id ) {
 			$result = XF_Webhooks::get_log( $webhook_id, $page );
@@ -1811,7 +1835,7 @@ class XF_Ajax {
 		$this->check_ajax_auth( 'xf_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
-		$webhook = $webhook_id ? XF_Webhooks::get( $webhook_id ) : null;
+		$webhook    = $webhook_id ? XF_Webhooks::get( $webhook_id ) : null;
 
 		if ( ! $webhook ) {
 			// Return all webhooks if no specific ID.
@@ -1844,7 +1868,10 @@ class XF_Ajax {
 				XF_Audit_Log::record(
 					XF_Audit_Log::ACTION_LEAD_DATA_DELETED,
 					(int) $del_id,
-					array( 'method' => 'gdpr_erase', 'email_hash' => md5( strtolower( $email ) ) )
+					array(
+						'method'     => 'gdpr_erase',
+						'email_hash' => md5( strtolower( $email ) ),
+					)
 				);
 			}
 		}
@@ -1859,7 +1886,7 @@ class XF_Ajax {
 		wp_send_json_success(
 			array(
 				'deleted_leads' => (int) $result['deleted_leads'],
-				'message' => sprintf(
+				'message'       => sprintf(
 					/* translators: %d: number of deleted lead records */
 					_n(
 						'%d lead record permanently deleted.',
@@ -1883,9 +1910,9 @@ class XF_Ajax {
 		$this->check_ajax_auth( 'xf_spam_log_nonce' );
 
 		$args = array(
-			'page' => isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1,
+			'page'             => isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1,
 			'rejection_reason' => isset( $_POST['rejection_reason'] ) ? sanitize_key( wp_unslash( $_POST['rejection_reason'] ) ) : '',
-			'form_id' => isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0,
+			'form_id'          => isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0,
 		);
 
 		$result = XF_Spam::get_log( $args );
@@ -1920,7 +1947,12 @@ class XF_Ajax {
 		$this->check_ajax_auth( 'xf_spam_log_nonce' );
 
 		XF_Spam::clear_log();
-		wp_send_json_success( array( 'cleared' => true, 'message' => __( 'Spam log cleared.', 'xtreme-forms' ) ) );
+		wp_send_json_success(
+			array(
+				'cleared' => true,
+				'message' => __( 'Spam log cleared.', 'xtreme-forms' ),
+			)
+		);
 	}
 }
 // phpcs:enable WordPress.Security.NonceVerification

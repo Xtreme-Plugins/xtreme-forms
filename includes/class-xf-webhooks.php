@@ -16,13 +16,13 @@ defined( 'ABSPATH' ) || exit;
 class XF_Webhooks {
 
 	/** Trigger event constants. */
-	const EVENT_NEW_LEAD = 'new_lead';
+	const EVENT_NEW_LEAD      = 'new_lead';
 	const EVENT_STATUS_CHANGE = 'status_change';
 
 	/** Log status constants. */
-	const LOG_STATUS_SENT = 'sent';
-	const LOG_STATUS_FAILED = 'failed';
-	const LOG_STATUS_RETRY = 'retry';
+	const LOG_STATUS_SENT     = 'sent';
+	const LOG_STATUS_FAILED   = 'failed';
+	const LOG_STATUS_RETRY    = 'retry';
 	const LOG_STATUS_RETRYING = 'retrying';
 
 	/** Maximum response body excerpt stored in the log (characters). */
@@ -49,7 +49,7 @@ class XF_Webhooks {
 	// ─────────────────────────────────────────────────────────────────────────
 
 	/** Pending dispatches queued for immediate shutdown-phase delivery. */
-	private static array $_pending_dispatches = [];
+	private static array $_pending_dispatches = array();
 
 	/** Whether the shutdown callback has already been registered this request. */
 	private static bool $_shutdown_registered = false;
@@ -101,23 +101,26 @@ class XF_Webhooks {
 	public static function save( array $data ): int|false {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeforms_webhooks';
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 
 		// Sanitize headers: array of {name, value} objects.
 		$headers_raw = $data['custom_headers'] ?? array();
-		$headers = array();
+		$headers     = array();
 		if ( is_array( $headers_raw ) ) {
 			foreach ( $headers_raw as $h ) {
-				$hname = isset( $h['name'] ) ? sanitize_text_field( substr( (string) $h['name'], 0, 256 ) ) : '';
+				$hname  = isset( $h['name'] ) ? sanitize_text_field( substr( (string) $h['name'], 0, 256 ) ) : '';
 				$hvalue = isset( $h['value'] ) ? sanitize_text_field( substr( (string) $h['value'], 0, 256 ) ) : '';
 				if ( '' !== $hname ) {
-					$headers[] = array( 'name' => $hname, 'value' => $hvalue );
+					$headers[] = array(
+						'name'  => $hname,
+						'value' => $hvalue,
+					);
 				}
 			}
 		}
 
 		// Sanitize trigger events.
-		$valid_events = array( self::EVENT_NEW_LEAD, self::EVENT_STATUS_CHANGE );
+		$valid_events   = array( self::EVENT_NEW_LEAD, self::EVENT_STATUS_CHANGE );
 		$trigger_events = array();
 		if ( is_array( $data['trigger_events'] ?? null ) ) {
 			foreach ( $data['trigger_events'] as $ev ) {
@@ -139,13 +142,13 @@ class XF_Webhooks {
 		}
 
 		$row = array(
-			'name' => sanitize_text_field( substr( (string) ( $data['name'] ?? '' ), 0, 255 ) ),
-			'url' => esc_url_raw( (string) ( $data['url'] ?? '' ) ),
+			'name'           => sanitize_text_field( substr( (string) ( $data['name'] ?? '' ), 0, 255 ) ),
+			'url'            => esc_url_raw( (string) ( $data['url'] ?? '' ) ),
 			'custom_headers' => wp_json_encode( $headers ),
 			'trigger_events' => wp_json_encode( $trigger_events ),
-			'form_ids' => wp_json_encode( $form_ids ),
-			'is_active' => empty( $data['is_active'] ) ? 0 : 1,
-			'updated_at' => $now,
+			'form_ids'       => wp_json_encode( $form_ids ),
+			'is_active'      => empty( $data['is_active'] ) ? 0 : 1,
+			'updated_at'     => $now,
 		);
 
 		$id = isset( $data['id'] ) ? absint( $data['id'] ) : 0;
@@ -170,7 +173,7 @@ class XF_Webhooks {
 	 */
 	public static function delete( int $id ): bool {
 		global $wpdb;
-		$table = $wpdb->prefix . 'xtremeforms_webhooks';
+		$table     = $wpdb->prefix . 'xtremeforms_webhooks';
 		$log_table = $wpdb->prefix . 'xtremeforms_webhook_log';
 
 		// Remove associated log entries.
@@ -198,9 +201,9 @@ class XF_Webhooks {
 	 * and retried via WP Cron but do NOT block or delay the submitting user.
 	 *
 	 * @param string $event Event type (new_lead or status_change).
-	 * @param int $lead_id Associated lead ID.
-	 * @param array $payload JSON-serialisable payload array.
-	 * @param int $form_id Form ID to match against webhook form_ids filter.
+	 * @param int    $lead_id Associated lead ID.
+	 * @param array  $payload JSON-serialisable payload array.
+	 * @param int    $form_id Form ID to match against webhook form_ids filter.
 	 */
 	public static function fire_event( string $event, int $lead_id, array $payload, int $form_id ): void {
 		$webhooks = self::get_all();
@@ -224,16 +227,16 @@ class XF_Webhooks {
 			}
 
 			// Build full payload with event metadata.
-			$full_payload = $payload;
-			$full_payload['event'] = $event;
+			$full_payload            = $payload;
+			$full_payload['event']   = $event;
 			$full_payload['form_id'] = $form_id;
 
 			// Queue for synchronous dispatch via the shutdown callback.
 			self::$_pending_dispatches[] = array(
-				'webhook' => $webhook,
-				'lead_id' => $lead_id,
+				'webhook'      => $webhook,
+				'lead_id'      => $lead_id,
 				'trigger_type' => $event,
-				'payload' => $full_payload,
+				'payload'      => $full_payload,
 			);
 		}
 
@@ -272,7 +275,7 @@ class XF_Webhooks {
 			@litespeed_finish_request();
 		}
 
-		$pending = self::$_pending_dispatches;
+		$pending                   = self::$_pending_dispatches;
 		self::$_pending_dispatches = array(); // Clear queue to prevent double-fire.
 
 		foreach ( $pending as $item ) {
@@ -290,11 +293,11 @@ class XF_Webhooks {
 	/**
 	 * Dispatch a single webhook POST request.
 	 *
-	 * @param object $webhook Webhook object from DB.
-	 * @param int $lead_id Lead ID (0 for test fires).
-	 * @param string $trigger_type Event type string.
-	 * @param array $payload Payload to send as JSON.
-	 * @param bool $is_retry Whether this is a retry attempt.
+	 * @param object   $webhook Webhook object from DB.
+	 * @param int      $lead_id Lead ID (0 for test fires).
+	 * @param string   $trigger_type Event type string.
+	 * @param array    $payload Payload to send as JSON.
+	 * @param bool     $is_retry Whether this is a retry attempt.
 	 * @param int|null $original_log_id Original delivery log entry ID (for retries).
 	 * @return array {status, http_code, response_body}
 	 */
@@ -312,38 +315,38 @@ class XF_Webhooks {
 		$headers = array( 'Content-Type' => 'application/json' );
 		foreach ( $custom_headers as $h ) {
 			$name = $h['name'] ?? '';
-			$val = $h['value'] ?? '';
+			$val  = $h['value'] ?? '';
 			if ( '' !== $name ) {
 				// If a custom header overrides Content-Type, allow it (per spec).
 				$headers[ $name ] = $val;
 			}
 		}
 
-		$body = wp_json_encode( $payload );
-		$url = $webhook->url;
-		$log_id = null;
-		$status = self::LOG_STATUS_FAILED;
-		$http_code = 0;
+		$body          = wp_json_encode( $payload );
+		$url           = $webhook->url;
+		$log_id        = null;
+		$status        = self::LOG_STATUS_FAILED;
+		$http_code     = 0;
 		$response_body = '';
 
 		$response = wp_remote_post(
 			$url,
 			array(
-				'headers' => $headers,
-				'body' => $body,
-				'timeout' => self::REQUEST_TIMEOUT,
+				'headers'   => $headers,
+				'body'      => $body,
+				'timeout'   => self::REQUEST_TIMEOUT,
 				'sslverify' => true,
 			)
 		);
 
 		if ( is_wp_error( $response ) ) {
 			$response_body = $response->get_error_message();
-			$http_code = 0;
-			$status = self::LOG_STATUS_FAILED;
+			$http_code     = 0;
+			$status        = self::LOG_STATUS_FAILED;
 		} else {
-			$http_code = (int) wp_remote_retrieve_response_code( $response );
+			$http_code     = (int) wp_remote_retrieve_response_code( $response );
 			$response_body = (string) wp_remote_retrieve_body( $response );
-			$status = ( $http_code >= 200 && $http_code < 300 ) ? self::LOG_STATUS_SENT : self::LOG_STATUS_FAILED;
+			$status        = ( $http_code >= 200 && $http_code < 300 ) ? self::LOG_STATUS_SENT : self::LOG_STATUS_FAILED;
 		}
 
 		// Truncate response body to 500 chars.
@@ -352,17 +355,19 @@ class XF_Webhooks {
 		}
 
 		// Write delivery log entry.
-		$log_id = self::add_log_entry( array(
-			'webhook_id' => (int) $webhook->id,
-			'lead_id' => $lead_id,
-			'trigger_type' => $trigger_type,
-			'url' => $url,
-			'status' => $status,
-			'http_code' => $http_code,
-			'response_body' => $response_body,
-			'is_retry' => $is_retry ? 1 : 0,
-			'original_attempt_id' => $original_log_id,
-		) );
+		$log_id = self::add_log_entry(
+			array(
+				'webhook_id'          => (int) $webhook->id,
+				'lead_id'             => $lead_id,
+				'trigger_type'        => $trigger_type,
+				'url'                 => $url,
+				'status'              => $status,
+				'http_code'           => $http_code,
+				'response_body'       => $response_body,
+				'is_retry'            => $is_retry ? 1 : 0,
+				'original_attempt_id' => $original_log_id,
+			)
+		);
 
 		// Schedule retry if failed (and not already a retry).
 		if ( self::LOG_STATUS_FAILED === $status && ! $is_retry ) {
@@ -373,8 +378,8 @@ class XF_Webhooks {
 		self::prune_log( (int) $webhook->id );
 
 		return array(
-			'status' => $status,
-			'http_code' => $http_code,
+			'status'        => $status,
+			'http_code'     => $http_code,
 			'response_body' => $response_body,
 		);
 	}
@@ -389,47 +394,47 @@ class XF_Webhooks {
 		$webhook = self::get( $webhook_id );
 		if ( ! $webhook ) {
 			return array(
-				'status' => 'error',
-				'http_code' => 0,
+				'status'        => 'error',
+				'http_code'     => 0,
 				'response_body' => '',
 				'error_message' => __( 'Webhook not found.', 'xtreme-forms' ),
 			);
 		}
 
 		$payload = array(
-			'event' => 'test',
-			'form_id' => 0,
-			'lead_id' => 'test',
-			'timestamp' => gmdate( 'c' ),
+			'event'      => 'test',
+			'form_id'    => 0,
+			'lead_id'    => 'test',
+			'timestamp'  => gmdate( 'c' ),
 			'source_url' => home_url(),
 			'ip_address' => '0.0.0.0',
-			'fields' => array(
-				'name' => 'Test Lead',
+			'fields'     => array(
+				'name'  => 'Test Lead',
 				'email' => 'test@example.com',
 			),
 		);
 
 		$custom_headers = json_decode( $webhook->custom_headers, true ) ?: array();
-		$headers = array( 'Content-Type' => 'application/json' );
+		$headers        = array( 'Content-Type' => 'application/json' );
 		foreach ( $custom_headers as $h ) {
 			$name = $h['name'] ?? '';
-			$val = $h['value'] ?? '';
+			$val  = $h['value'] ?? '';
 			if ( '' !== $name ) {
 				$headers[ $name ] = $val;
 			}
 		}
 
-		$body = wp_json_encode( $payload );
-		$http_code = 0;
+		$body          = wp_json_encode( $payload );
+		$http_code     = 0;
 		$response_body = '';
 		$error_message = '';
-		$status = self::LOG_STATUS_FAILED;
+		$status        = self::LOG_STATUS_FAILED;
 
 		$response = wp_remote_post(
 			$webhook->url,
 			array(
 				'headers' => $headers,
-				'body' => $body,
+				'body'    => $body,
 				'timeout' => self::REQUEST_TIMEOUT,
 			)
 		);
@@ -437,11 +442,11 @@ class XF_Webhooks {
 		if ( is_wp_error( $response ) ) {
 			$response_body = $response->get_error_message();
 			$error_message = $response->get_error_message();
-			$status = 'error';
+			$status        = 'error';
 		} else {
-			$http_code = (int) wp_remote_retrieve_response_code( $response );
+			$http_code     = (int) wp_remote_retrieve_response_code( $response );
 			$response_body = (string) wp_remote_retrieve_body( $response );
-			$status = ( $http_code >= 200 && $http_code < 300 ) ? self::LOG_STATUS_SENT : self::LOG_STATUS_FAILED;
+			$status        = ( $http_code >= 200 && $http_code < 300 ) ? self::LOG_STATUS_SENT : self::LOG_STATUS_FAILED;
 		}
 
 		if ( strlen( $response_body ) > self::LOG_RESPONSE_MAX ) {
@@ -449,24 +454,26 @@ class XF_Webhooks {
 		}
 
 		// Log the test fire (lead_id = 0 indicates test).
-		self::add_log_entry( array(
-			'webhook_id' => $webhook_id,
-			'lead_id' => 0,
-			'trigger_type' => 'test',
-			'url' => $webhook->url,
-			'status' => $status,
-			'http_code' => $http_code,
-			'response_body' => $response_body,
-			'is_retry' => 0,
-			'original_attempt_id' => null,
-		) );
+		self::add_log_entry(
+			array(
+				'webhook_id'          => $webhook_id,
+				'lead_id'             => 0,
+				'trigger_type'        => 'test',
+				'url'                 => $webhook->url,
+				'status'              => $status,
+				'http_code'           => $http_code,
+				'response_body'       => $response_body,
+				'is_retry'            => 0,
+				'original_attempt_id' => null,
+			)
+		);
 
 		// Prune log.
 		self::prune_log( $webhook_id );
 
 		return array(
-			'status' => $status,
-			'http_code' => $http_code,
+			'status'        => $status,
+			'http_code'     => $http_code,
 			'response_body' => $response_body,
 			'error_message' => $error_message,
 		);
@@ -479,11 +486,11 @@ class XF_Webhooks {
 	/**
 	 * Schedule a retry for a failed webhook dispatch.
 	 *
-	 * @param int $webhook_id Webhook ID.
-	 * @param int $lead_id Lead ID.
+	 * @param int    $webhook_id Webhook ID.
+	 * @param int    $lead_id Lead ID.
 	 * @param string $trigger_type Trigger event type.
-	 * @param array $payload Original payload.
-	 * @param int $original_log_id Original delivery log entry ID.
+	 * @param array  $payload Original payload.
+	 * @param int    $original_log_id Original delivery log entry ID.
 	 */
 	public static function schedule_retry(
 		int $webhook_id,
@@ -503,11 +510,11 @@ class XF_Webhooks {
 	/**
 	 * Execute a retry. Called by WP Cron.
 	 *
-	 * @param int $webhook_id Webhook ID.
-	 * @param int $lead_id Lead ID.
+	 * @param int    $webhook_id Webhook ID.
+	 * @param int    $lead_id Lead ID.
 	 * @param string $trigger_type Trigger event type.
-	 * @param array $payload Original payload.
-	 * @param int $original_log_id Original delivery log entry ID.
+	 * @param array  $payload Original payload.
+	 * @param int    $original_log_id Original delivery log entry ID.
 	 */
 	public static function execute_retry(
 		int $webhook_id,
@@ -537,22 +544,22 @@ class XF_Webhooks {
 	public static function add_log_entry( array $data ): int|false {
 		global $wpdb;
 		$table = $wpdb->prefix . 'xtremeforms_webhook_log';
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$result = $wpdb->insert(
 			$table,
 			array(
-				'webhook_id' => absint( $data['webhook_id'] ),
-				'lead_id' => absint( $data['lead_id'] ),
-				'trigger_type' => sanitize_text_field( $data['trigger_type'] ?? '' ),
-				'url' => esc_url_raw( $data['url'] ?? '' ),
-				'status' => sanitize_text_field( $data['status'] ?? 'failed' ),
-				'http_code' => absint( $data['http_code'] ?? 0 ),
-				'response_body' => sanitize_textarea_field( $data['response_body'] ?? '' ),
-				'is_retry' => absint( $data['is_retry'] ?? 0 ),
+				'webhook_id'          => absint( $data['webhook_id'] ),
+				'lead_id'             => absint( $data['lead_id'] ),
+				'trigger_type'        => sanitize_text_field( $data['trigger_type'] ?? '' ),
+				'url'                 => esc_url_raw( $data['url'] ?? '' ),
+				'status'              => sanitize_text_field( $data['status'] ?? 'failed' ),
+				'http_code'           => absint( $data['http_code'] ?? 0 ),
+				'response_body'       => sanitize_textarea_field( $data['response_body'] ?? '' ),
+				'is_retry'            => absint( $data['is_retry'] ?? 0 ),
 				'original_attempt_id' => isset( $data['original_attempt_id'] ) ? absint( $data['original_attempt_id'] ) : null,
-				'delivered_at' => $now,
+				'delivered_at'        => $now,
 			),
 			array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s' )
 		);
@@ -569,7 +576,7 @@ class XF_Webhooks {
 	 */
 	public static function get_log( int $webhook_id, int $page = 1 ): array {
 		global $wpdb;
-		$table = $wpdb->prefix . 'xtremeforms_webhook_log';
+		$table  = $wpdb->prefix . 'xtremeforms_webhook_log';
 		$offset = ( max( 1, $page ) - 1 ) * self::LOG_PER_PAGE;
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -605,9 +612,9 @@ class XF_Webhooks {
 	 */
 	public static function get_all_log( int $page = 1 ): array {
 		global $wpdb;
-		$table = $wpdb->prefix . 'xtremeforms_webhook_log';
+		$table       = $wpdb->prefix . 'xtremeforms_webhook_log';
 		$hooks_table = $wpdb->prefix . 'xtremeforms_webhooks';
-		$offset = ( max( 1, $page ) - 1 ) * self::LOG_PER_PAGE;
+		$offset      = ( max( 1, $page ) - 1 ) * self::LOG_PER_PAGE;
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$total = (int) $wpdb->get_var(
@@ -666,8 +673,8 @@ class XF_Webhooks {
 	/**
 	 * Build a lead payload for webhook dispatch.
 	 *
-	 * @param int $lead_id Lead ID.
-	 * @param array $field_values Field values.
+	 * @param int    $lead_id Lead ID.
+	 * @param array  $field_values Field values.
 	 * @param string $source_url Source URL.
 	 * @param string $ip_address IP address.
 	 * @param string $timestamp Timestamp string.
@@ -681,11 +688,11 @@ class XF_Webhooks {
 		string $timestamp
 	): array {
 		return array(
-			'lead_id' => $lead_id,
-			'timestamp' => $timestamp,
+			'lead_id'    => $lead_id,
+			'timestamp'  => $timestamp,
 			'source_url' => $source_url,
 			'ip_address' => $ip_address,
-			'fields' => $field_values,
+			'fields'     => $field_values,
 		);
 	}
 }

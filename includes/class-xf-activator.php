@@ -24,7 +24,12 @@ class XF_Activator {
 	public static function activate( bool $network_wide = false ): void {
 		if ( is_multisite() && $network_wide ) {
 			// Create tables for every existing blog in the network.
-			$blog_ids = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
+			$blog_ids = get_sites(
+				array(
+					'fields' => 'ids',
+					'number' => 0,
+				)
+			);
 			foreach ( $blog_ids as $blog_id ) {
 				switch_to_blog( (int) $blog_id );
 				self::create_tables();
@@ -86,7 +91,7 @@ class XF_Activator {
 
 		// ── Forms table ────────────────────────────────────────────────────
 		$forms_table = $wpdb->prefix . 'xtremeforms_forms';
-		$sql_forms = "CREATE TABLE {$forms_table} (
+		$sql_forms   = "CREATE TABLE {$forms_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  name varchar(255) NOT NULL DEFAULT '',
  fields longtext NOT NULL,
@@ -100,7 +105,7 @@ class XF_Activator {
 
 		// ── Leads table ─────────────────────────────────────────────────────
 		$leads_table = $wpdb->prefix . 'xtremeforms_leads';
-		$sql_leads = "CREATE TABLE {$leads_table} (
+		$sql_leads   = "CREATE TABLE {$leads_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  form_id bigint(20) unsigned NOT NULL DEFAULT 0,
  status varchar(50) NOT NULL DEFAULT 'new',
@@ -133,7 +138,7 @@ class XF_Activator {
 
 		// ── Notes table ──────────────────────────────────────────────────────
 		$notes_table = $wpdb->prefix . 'xtremeforms_notes';
-		$sql_notes = "CREATE TABLE {$notes_table} (
+		$sql_notes   = "CREATE TABLE {$notes_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
  author_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -146,7 +151,7 @@ class XF_Activator {
 
 		// ── Activity table ───────────────────────────────────────────────────
 		$activity_table = $wpdb->prefix . 'xtremeforms_activity';
-		$sql_activity = "CREATE TABLE {$activity_table} (
+		$sql_activity   = "CREATE TABLE {$activity_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
  user_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -160,7 +165,7 @@ class XF_Activator {
 
 		// ── Tags table ───────────────────────────────────────────────────────
 		$tags_table = $wpdb->prefix . 'xtremeforms_tags';
-		$sql_tags = "CREATE TABLE {$tags_table} (
+		$sql_tags   = "CREATE TABLE {$tags_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  name varchar(100) NOT NULL DEFAULT '',
  slug varchar(100) NOT NULL DEFAULT '',
@@ -171,7 +176,7 @@ class XF_Activator {
 
 		// ── Lead Tags pivot table ────────────────────────────────────────────
 		$lead_tags_table = $wpdb->prefix . 'xtremeforms_lead_tags';
-		$sql_lead_tags = "CREATE TABLE {$lead_tags_table} (
+		$sql_lead_tags   = "CREATE TABLE {$lead_tags_table} (
  lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
  tag_id bigint(20) unsigned NOT NULL DEFAULT 0,
  PRIMARY KEY (lead_id,tag_id),
@@ -180,7 +185,7 @@ class XF_Activator {
 
 		// ── Email Log table ────────────────────────────────────────
 		$email_log_table = $wpdb->prefix . 'xtremeforms_email_log';
-		$sql_email_log = "CREATE TABLE {$email_log_table} (
+		$sql_email_log   = "CREATE TABLE {$email_log_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
  recipient varchar(255) NOT NULL DEFAULT '',
@@ -200,7 +205,7 @@ class XF_Activator {
 
 		// ── Routing Rules table ────────────────────────────────────
 		$routing_rules_table = $wpdb->prefix . 'xtremeforms_routing_rules';
-		$sql_routing_rules = "CREATE TABLE {$routing_rules_table} (
+		$sql_routing_rules   = "CREATE TABLE {$routing_rules_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  rule_order int(11) NOT NULL DEFAULT 0,
  condition_type varchar(50) NOT NULL DEFAULT 'form',
@@ -218,7 +223,7 @@ class XF_Activator {
 
 		// ── Form Impressions table ────────────────────────────────
 		$impressions_table = $wpdb->prefix . 'xtremeforms_form_impressions';
-		$sql_impressions = "CREATE TABLE {$impressions_table} (
+		$sql_impressions   = "CREATE TABLE {$impressions_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  form_id bigint(20) unsigned NOT NULL DEFAULT 0,
  post_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -232,7 +237,7 @@ class XF_Activator {
 
 		// ── Webhooks table ─────────────────────────────────────────
 		$webhooks_table = $wpdb->prefix . 'xtremeforms_webhooks';
-		$sql_webhooks = "CREATE TABLE {$webhooks_table} (
+		$sql_webhooks   = "CREATE TABLE {$webhooks_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  name varchar(255) NOT NULL DEFAULT '',
  url text NOT NULL,
@@ -248,7 +253,7 @@ class XF_Activator {
 
 		// ── Webhook Delivery Log table ─────────────────────────────
 		$webhook_log_table = $wpdb->prefix . 'xtremeforms_webhook_log';
-		$sql_webhook_log = "CREATE TABLE {$webhook_log_table} (
+		$sql_webhook_log   = "CREATE TABLE {$webhook_log_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  webhook_id bigint(20) unsigned NOT NULL DEFAULT 0,
  lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -269,7 +274,7 @@ class XF_Activator {
 
 		// ── Spam Log table ─────────────────────────────────────────
 		$spam_log_table = $wpdb->prefix . 'xtremeforms_spam_log';
-		$sql_spam_log = "CREATE TABLE {$spam_log_table} (
+		$sql_spam_log   = "CREATE TABLE {$spam_log_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  form_id bigint(20) unsigned NOT NULL DEFAULT 0,
  rejection_reason varchar(50) NOT NULL DEFAULT '',
@@ -286,7 +291,7 @@ class XF_Activator {
 
 		// ── Audit Log table ────────────────────────────────────────
 		$audit_log_table = $wpdb->prefix . 'xtremeforms_audit_log';
-		$sql_audit_log = "CREATE TABLE {$audit_log_table} (
+		$sql_audit_log   = "CREATE TABLE {$audit_log_table} (
  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
  user_id bigint(20) unsigned NOT NULL DEFAULT 0,
  user_display varchar(255) NOT NULL DEFAULT '',
@@ -322,7 +327,7 @@ class XF_Activator {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$col_exists = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s",
+					'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s',
 					DB_NAME,
 					$forms_table_check,
 					$col_name
@@ -370,10 +375,10 @@ class XF_Activator {
 	 */
 	private static function set_default_options(): void {
 		$defaults = array(
-			'recipients' => get_option( 'admin_email', '' ),
-			'anonymize_ip' => '0',
+			'recipients'      => get_option( 'admin_email', '' ),
+			'anonymize_ip'    => '0',
 			'email_from_name' => get_bloginfo( 'name' ),
-			'email_from' => get_option( 'admin_email', '' ),
+			'email_from'      => get_option( 'admin_email', '' ),
 		);
 
 		if ( false === get_option( 'xtremeforms_settings' ) ) {

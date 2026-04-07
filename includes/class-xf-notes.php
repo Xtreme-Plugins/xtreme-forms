@@ -15,8 +15,8 @@ class XF_Notes {
 	/**
 	 * Insert a new note for a lead.
 	 *
-	 * @param int $lead_id Lead ID.
-	 * @param int $author_id WordPress user ID of the note author.
+	 * @param int    $lead_id Lead ID.
+	 * @param int    $author_id WordPress user ID of the note author.
 	 * @param string $content Plain-text note content.
 	 * @return int|WP_Error New note ID on success, WP_Error on failure.
 	 */
@@ -28,16 +28,16 @@ class XF_Notes {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'xtremeforms_notes';
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'lead_id' => absint( $lead_id ),
-				'author_id' => absint( $author_id ),
+				'lead_id'      => absint( $lead_id ),
+				'author_id'    => absint( $author_id ),
 				'note_content' => sanitize_textarea_field( $content ),
-				'created_at' => $now,
+				'created_at'   => $now,
 			),
 			array( '%d', '%d', '%s', '%s' )
 		);
@@ -76,7 +76,7 @@ class XF_Notes {
 
 		// Enrich with author display name.
 		foreach ( $notes as $note ) {
-			$author = get_userdata( (int) $note->author_id );
+			$author            = get_userdata( (int) $note->author_id );
 			$note->author_name = $author ? $author->display_name : __( 'Unknown', 'xtreme-forms' );
 		}
 

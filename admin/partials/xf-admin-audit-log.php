@@ -7,31 +7,33 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
 
-$per_page = 50;
-$paged = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+$per_page    = 50;
+$paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
 $filter_type = isset( $_GET['action_type'] ) ? sanitize_key( $_GET['action_type'] ) : '';
 $filter_user = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
 
-$result = XF_Audit_Log::get_entries( array(
-	'action_type' => $filter_type,
-	'user_id' => $filter_user,
-	'per_page' => $per_page,
-	'paged' => $paged,
-) );
+$result = XF_Audit_Log::get_entries(
+	array(
+		'action_type' => $filter_type,
+		'user_id'     => $filter_user,
+		'per_page'    => $per_page,
+		'paged'       => $paged,
+	)
+);
 
-$entries = $result['entries'];
-$total = $result['total'];
+$entries     = $result['entries'];
+$total       = $result['total'];
 $total_pages = ceil( $total / $per_page );
 
 $action_types = XF_Audit_Log::get_all_action_types();
 
 $base_url = add_query_arg(
 	array(
-		'page' => 'xtremeleads-audit-log',
+		'page'        => 'xtremeleads-audit-log',
 		'action_type' => $filter_type,
-		'user_id' => $filter_user,
+		'user_id'     => $filter_user,
 	),
 	admin_url( 'admin.php' )
 );
@@ -92,7 +94,7 @@ $base_url = add_query_arg(
 			<?php else : ?>
 				<?php foreach ( $entries as $entry ) : ?>
 					<?php
-					$ctx = json_decode( $entry->context, true );
+					$ctx       = json_decode( $entry->context, true );
 					$ctx_parts = array();
 					if ( is_array( $ctx ) ) {
 						foreach ( $ctx as $k => $v ) {
@@ -104,8 +106,8 @@ $base_url = add_query_arg(
 					$ctx_html = ! empty( $ctx_parts ) ? implode( ' &bull; ', $ctx_parts ) : '—';
 
 					// ISO-8601 timestamp display.
-					$ts_raw = $entry->created_at; // stored as UTC MySQL datetime.
-					$ts_iso = str_replace( ' ', 'T', $ts_raw ) . 'Z';
+					$ts_raw  = $entry->created_at; // stored as UTC MySQL datetime.
+					$ts_iso  = str_replace( ' ', 'T', $ts_raw ) . 'Z';
 					$ts_disp = esc_html( $ts_raw );
 					?>
 					<tr>
@@ -142,10 +144,10 @@ $base_url = add_query_arg(
 			<div class="tablenav-pages">
 				<?php
 				$pagination_args = array(
-					'base' => add_query_arg( 'paged', '%#%', $base_url ),
-					'format' => '',
-					'total' => $total_pages,
-					'current' => $paged,
+					'base'      => add_query_arg( 'paged', '%#%', $base_url ),
+					'format'    => '',
+					'total'     => $total_pages,
+					'current'   => $paged,
 					'prev_text' => '&laquo; ' . esc_html__( 'Previous', 'xtreme-forms' ),
 					'next_text' => esc_html__( 'Next', 'xtreme-forms' ) . ' &raquo;',
 				);

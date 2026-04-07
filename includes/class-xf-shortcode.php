@@ -40,7 +40,7 @@ class XF_Shortcode {
 			return '<p class="xf-form-error">' . esc_html__( 'Xtreme Forms: The requested form could not be found.', 'xtreme-forms' ) . '</p>';
 		}
 
-		$fields = XF_Forms::decode_fields( $form );
+		$fields   = XF_Forms::decode_fields( $form );
 		$settings = XF_Forms::decode_settings( $form );
 
 		// ── Scheduling ────────────────────────────────────────────
@@ -62,15 +62,15 @@ class XF_Shortcode {
 	 * Check form scheduling and return appropriate output (or null to render form).
 	 *
 	 * @param object $form Form DB row.
-	 * @param int $form_id Form ID.
-	 * @param array $settings Form settings.
-	 * @param array $fields Form field definitions (used for countdown pre-render).
+	 * @param int    $form_id Form ID.
+	 * @param array  $settings Form settings.
+	 * @param array  $fields Form field definitions (used for countdown pre-render).
 	 * @return string|null HTML for closed/countdown state, or null to render the form.
 	 */
 	private function check_scheduling( object $form, int $form_id, array $settings, array $fields = array() ): ?string {
 		$activate_at = ! empty( $form->activate_at ) && '0000-00-00 00:00:00' !== $form->activate_at
 			? $form->activate_at : null;
-		$expire_at = ! empty( $form->expire_at ) && '0000-00-00 00:00:00' !== $form->expire_at
+		$expire_at   = ! empty( $form->expire_at ) && '0000-00-00 00:00:00' !== $form->expire_at
 			? $form->expire_at : null;
 
 		// No scheduling configured — render normally.
@@ -79,11 +79,11 @@ class XF_Shortcode {
 		}
 
 		// Use WordPress site timezone.
-		$now = current_time( 'mysql', false ); // localtime string.
+		$now    = current_time( 'mysql', false ); // localtime string.
 		$now_ts = strtotime( $now );
 
 		$activate_ts = $activate_at ? strtotime( $activate_at ) : null;
-		$expire_ts = $expire_at ? strtotime( $expire_at ) : null;
+		$expire_ts   = $expire_at ? strtotime( $expire_at ) : null;
 
 		$closed_message = ! empty( $form->closed_message ) ? $form->closed_message
 			: ( $settings['closed_message'] ?? __( 'This form is currently unavailable.', 'xtreme-forms' ) );
@@ -127,7 +127,7 @@ class XF_Shortcode {
 	 * When the countdown JS reaches zero it simply un-hides that container —
 	 * no page reload or additional AJAX request is required.
 	 *
-	 * @param int $form_id Form ID.
+	 * @param int    $form_id Form ID.
 	 * @param string $activate_at MySQL datetime (site timezone).
 	 * @param string $form_html Pre-rendered form HTML to inject when timer expires.
 	 * @return string HTML.
@@ -147,7 +147,7 @@ class XF_Shortcode {
 			return '';
 		}
 
-		$html = '<div class="xf-countdown-wrap" data-form-id="' . esc_attr( $form_id ) . '">';
+		$html  = '<div class="xf-countdown-wrap" data-form-id="' . esc_attr( $form_id ) . '">';
 		$html .= '<p class="xf-countdown-label">' . esc_html__( 'Form opens in:', 'xtreme-forms' ) . '</p>';
 		$html .= '<div class="xf-countdown-timer" aria-live="polite"></div>';
 		$html .= '</div>';
@@ -161,7 +161,7 @@ class XF_Shortcode {
 	/**
 	 * Enqueue the countdown timer JS and pass activation timestamp.
 	 *
-	 * @param int $form_id Form ID.
+	 * @param int    $form_id Form ID.
 	 * @param string $activate_at MySQL datetime (site timezone).
 	 */
 	private function enqueue_countdown_js( int $form_id, string $activate_at ): void {
@@ -176,7 +176,7 @@ class XF_Shortcode {
 		}
 
 		// Convert to UTC ISO-8601.
-		$tz = get_option( 'timezone_string' ) ?: 'UTC';
+		$tz  = get_option( 'timezone_string' ) ?: 'UTC';
 		$iso = '';
 		try {
 			$dt = new DateTime( $activate_at, new DateTimeZone( $tz ) );
@@ -192,16 +192,18 @@ class XF_Shortcode {
 
 		// Merge into xlCountdownData (multiple forms on same page).
 		// We use wp_add_inline_script to accumulate data per form.
-		$inline = 'if(typeof xlCountdownData === "undefined"){window.xlCountdownData={};}'.
-			'xlCountdownData[' . (int) $form_id . ']=' . wp_json_encode( array(
-				'activateAt' => $iso,
-				'i18n' => array(
-					'days' => __( 'd', 'xtreme-forms' ),
-					'hours' => __( 'h', 'xtreme-forms' ),
-					'minutes' => __( 'm', 'xtreme-forms' ),
-					'seconds' => __( 's', 'xtreme-forms' ),
-				),
-			) ) . ';';
+		$inline = 'if(typeof xlCountdownData === "undefined"){window.xlCountdownData={};}' .
+			'xlCountdownData[' . (int) $form_id . ']=' . wp_json_encode(
+				array(
+					'activateAt' => $iso,
+					'i18n'       => array(
+						'days'    => __( 'd', 'xtreme-forms' ),
+						'hours'   => __( 'h', 'xtreme-forms' ),
+						'minutes' => __( 'm', 'xtreme-forms' ),
+						'seconds' => __( 's', 'xtreme-forms' ),
+					),
+				)
+			) . ';';
 
 		wp_add_inline_script( 'xf-countdown', $inline, 'before' );
 	}
@@ -209,7 +211,7 @@ class XF_Shortcode {
 	/**
 	 * Enqueue conditional logic JS if the form has conditional rules.
 	 *
-	 * @param int $form_id Form ID.
+	 * @param int   $form_id Form ID.
 	 * @param array $fields Form field definitions.
 	 */
 	private function maybe_enqueue_conditional_js( int $form_id, array $fields ): void {
@@ -224,18 +226,25 @@ class XF_Shortcode {
 				continue;
 			}
 			$rules[] = array(
-				'fieldId' => $field['id'] ?? '',
-				'logic' => in_array( $cl['logic'] ?? 'and', array( 'and', 'or' ), true ) ? $cl['logic'] : 'and',
-				'conditions' => array_values( array_filter( array_map( static function ( $cond ) {
-					if ( empty( $cond['triggerFieldId'] ) ) {
-						return null;
-					}
-					return array(
-						'triggerFieldId' => sanitize_text_field( $cond['triggerFieldId'] ),
-						'operator' => in_array( $cond['operator'] ?? 'equals', array( 'equals', 'not_equals', 'contains', 'not_empty', 'is_empty' ), true ) ? $cond['operator'] : 'equals',
-						'value' => $cond['value'] ?? '',
-					);
-				}, $cl['conditions'] ) )),
+				'fieldId'    => $field['id'] ?? '',
+				'logic'      => in_array( $cl['logic'] ?? 'and', array( 'and', 'or' ), true ) ? $cl['logic'] : 'and',
+				'conditions' => array_values(
+					array_filter(
+						array_map(
+							static function ( $cond ) {
+								if ( empty( $cond['triggerFieldId'] ) ) {
+									return null;
+								}
+								return array(
+									'triggerFieldId' => sanitize_text_field( $cond['triggerFieldId'] ),
+									'operator'       => in_array( $cond['operator'] ?? 'equals', array( 'equals', 'not_equals', 'contains', 'not_empty', 'is_empty' ), true ) ? $cond['operator'] : 'equals',
+									'value'          => $cond['value'] ?? '',
+								);
+							},
+							$cl['conditions']
+						)
+					)
+				),
 			);
 		}
 
@@ -257,8 +266,8 @@ class XF_Shortcode {
 		}
 
 		// Merge rules for this form into the global data object.
-		$inline = 'if(typeof xlCondLogicData !== "undefined"){'.
-			'xlCondLogicData.rules = xlCondLogicData.rules.concat(' . wp_json_encode( $rules ) . ');'.
+		$inline = 'if(typeof xlCondLogicData !== "undefined"){' .
+			'xlCondLogicData.rules = xlCondLogicData.rules.concat(' . wp_json_encode( $rules ) . ');' .
 			'}';
 		wp_add_inline_script( 'xf-conditional', $inline, 'before' );
 	}
@@ -286,26 +295,29 @@ class XF_Shortcode {
 			);
 
 			// Determine if reCAPTCHA is enabled for this form.
-			$recaptcha = class_exists( 'XF_Spam' ) ? XF_Spam::get_recaptcha_settings() : array( 'enabled' => false, 'site_key' => '' );
+			$recaptcha     = class_exists( 'XF_Spam' ) ? XF_Spam::get_recaptcha_settings() : array(
+				'enabled'  => false,
+				'site_key' => '',
+			);
 			$use_recaptcha = $recaptcha['enabled'] && ! empty( $form_settings['recaptcha_enabled'] ) && '1' === (string) $form_settings['recaptcha_enabled'];
 
 			wp_localize_script(
 				'xf-public',
 				'xfPublicData',
 				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
 					// Nonce for the impression beacon endpoint (xf_track_impression).
-					'impressionNonce' => wp_create_nonce( 'xf_impression_nonce' ),
+					'impressionNonce'  => wp_create_nonce( 'xf_impression_nonce' ),
 					// Current post/page ID so the beacon can store post_id accurately.
-					'postId' => get_the_ID() ? (int) get_the_ID() : 0,
+					'postId'           => get_the_ID() ? (int) get_the_ID() : 0,
 					'recaptchaEnabled' => $use_recaptcha ? '1' : '0',
 					'recaptchaSiteKey' => $use_recaptcha ? esc_js( $recaptcha['site_key'] ) : '',
-					'i18n' => array(
-						'submitting' => __( 'Submitting…', 'xtreme-forms' ),
-						'submit' => __( 'Submit', 'xtreme-forms' ),
-						'errorGeneric' => __( 'Something went wrong. Please try again.', 'xtreme-forms' ),
+					'i18n'             => array(
+						'submitting'    => __( 'Submitting…', 'xtreme-forms' ),
+						'submit'        => __( 'Submit', 'xtreme-forms' ),
+						'errorGeneric'  => __( 'Something went wrong. Please try again.', 'xtreme-forms' ),
 						'fieldRequired' => __( 'This field is required.', 'xtreme-forms' ),
-						'invalidEmail' => __( 'Please enter a valid email address.', 'xtreme-forms' ),
+						'invalidEmail'  => __( 'Please enter a valid email address.', 'xtreme-forms' ),
 					),
 				)
 			);
@@ -314,7 +326,7 @@ class XF_Shortcode {
 		// Enqueue reCAPTCHA v3 JS only on pages with reCAPTCHA-enabled forms.
 		// Only loaded if not already enqueued (multiple forms on same page).
 		if ( class_exists( 'XF_Spam' ) ) {
-			$recaptcha = XF_Spam::get_recaptcha_settings();
+			$recaptcha     = XF_Spam::get_recaptcha_settings();
 			$use_recaptcha = $recaptcha['enabled'] && ! empty( $form_settings['recaptcha_enabled'] ) && '1' === (string) $form_settings['recaptcha_enabled'];
 
 			if ( $use_recaptcha && ! wp_script_is( 'xf-recaptcha', 'enqueued' ) ) {
@@ -332,7 +344,7 @@ class XF_Shortcode {
 	/**
 	 * Render the HTML form.
 	 *
-	 * @param int $form_id Form ID.
+	 * @param int   $form_id Form ID.
 	 * @param array $fields Field definitions.
 	 * @param array $settings Form settings.
 	 * @param array $errors Validation errors (field_id => message).
@@ -351,7 +363,7 @@ class XF_Shortcode {
 			: esc_html__( 'Submit', 'xtreme-forms' );
 
 		$form_id_attr = 'xf-form-' . $form_id;
-		$nonce = wp_create_nonce( 'xf_form_submit_' . $form_id );
+		$nonce        = wp_create_nonce( 'xf_form_submit_' . $form_id );
 
 		$fields_html = '';
 		foreach ( $fields as $field ) {
@@ -374,9 +386,9 @@ class XF_Shortcode {
 		// Consent checkbox (GDPR).
 		$consent_html = '';
 		if ( ! empty( $settings['consent_enabled'] ) && '1' === (string) $settings['consent_enabled'] ) {
-			$consent_label = ! empty( $settings['consent_label'] ) ? $settings['consent_label'] : __( 'I agree to the Privacy Policy', 'xtreme-forms' );
-			$consent_url = ! empty( $settings['consent_url'] ) ? esc_url( $settings['consent_url'] ) : '';
-			$consent_error = $errors['_consent'] ?? '';
+			$consent_label   = ! empty( $settings['consent_label'] ) ? $settings['consent_label'] : __( 'I agree to the Privacy Policy', 'xtreme-forms' );
+			$consent_url     = ! empty( $settings['consent_url'] ) ? esc_url( $settings['consent_url'] ) : '';
+			$consent_error   = $errors['_consent'] ?? '';
 			$consent_checked = ! empty( $values['_consent'] ) ? ' checked' : '';
 
 			$label_html = '';
@@ -387,7 +399,7 @@ class XF_Shortcode {
 				$label_html = esc_html( $consent_label );
 			}
 
-			$consent_html = '<div class="xf-field-wrap xf-field-consent' . ( $consent_error ? ' xf-field-error' : '' ) . '">';
+			$consent_html  = '<div class="xf-field-wrap xf-field-consent' . ( $consent_error ? ' xf-field-error' : '' ) . '">';
 			$consent_html .= '<label class="xf-consent-label">';
 			$consent_html .= '<input type="checkbox" name="xf_consent" value="1"' . $consent_checked . ' required aria-required="true" id="xf-consent-' . esc_attr( $form_id ) . '">';
 			$consent_html .= ' ' . $label_html;
@@ -398,7 +410,7 @@ class XF_Shortcode {
 			$consent_html .= '</div>';
 		}
 
-		$html = '<div class="xf-form-wrap" data-form-id="' . esc_attr( $form_id ) . '">';
+		$html  = '<div class="xf-form-wrap" data-form-id="' . esc_attr( $form_id ) . '">';
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form">';
 		$html .= '<input type="hidden" name="action" value="xf_submit_form">';
@@ -435,15 +447,15 @@ class XF_Shortcode {
 	 * @return string HTML.
 	 */
 	private function render_field( array $field, array $errors, array $values ): string {
-		$field_id = esc_attr( $field['id'] ?? '' );
-		$field_type = $field['type'] ?? 'text';
+		$field_id    = esc_attr( $field['id'] ?? '' );
+		$field_type  = $field['type'] ?? 'text';
 		$field_label = $field['label'] ?? '';
 		$placeholder = $field['placeholder'] ?? '';
-		$required = ! empty( $field['required'] );
-		$input_name = 'xf_field[' . $field_id . ']';
-		$input_id = 'xf-field-' . $field_id;
-		$value = $values[ $field['id'] ?? '' ] ?? '';
-		$error = $errors[ $field['id'] ?? '' ] ?? '';
+		$required    = ! empty( $field['required'] );
+		$input_name  = 'xf_field[' . $field_id . ']';
+		$input_id    = 'xf-field-' . $field_id;
+		$value       = $values[ $field['id'] ?? '' ] ?? '';
+		$error       = $errors[ $field['id'] ?? '' ] ?? '';
 
 		// Hidden fields render without wrapper/label.
 		if ( 'hidden' === $field_type ) {
@@ -451,15 +463,15 @@ class XF_Shortcode {
 		}
 
 		$required_attr = $required ? ' required aria-required="true"' : '';
-		$error_id = 'xf-error-' . $field_id;
-		$error_class = $error ? ' xf-field-error' : '';
-		$aria_desc = $error ? ' aria-describedby="' . esc_attr( $error_id ) . '"' : '';
+		$error_id      = 'xf-error-' . $field_id;
+		$error_class   = $error ? ' xf-field-error' : '';
+		$aria_desc     = $error ? ' aria-describedby="' . esc_attr( $error_id ) . '"' : '';
 
 		$html = '<div class="xf-field-wrap xf-field-' . esc_attr( $field_type ) . $error_class . '" data-field-id="' . esc_attr( $field['id'] ?? '' ) . '"' . ( $required ? ' data-required="1"' : '' ) . '>';
 
 		if ( '' !== $field_label ) {
 			$required_star = $required ? ' <span class="xf-required" aria-hidden="true">*</span>' : '';
-			$html .= '<label for="' . esc_attr( $input_id ) . '" class="xf-label">' . esc_html( $field_label ) . $required_star . '</label>';
+			$html         .= '<label for="' . esc_attr( $input_id ) . '" class="xf-label">' . esc_html( $field_label ) . $required_star . '</label>';
 		}
 
 		switch ( $field_type ) {
@@ -484,36 +496,36 @@ class XF_Shortcode {
 				break;
 
 			case 'dropdown':
-				$html .= '<select id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '"' . $required_attr . $aria_desc . ' class="xf-select">';
-				$html .= '<option value="">' . esc_html__( '-- Select --', 'xtreme-forms' ) . '</option>';
+				$html   .= '<select id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '"' . $required_attr . $aria_desc . ' class="xf-select">';
+				$html   .= '<option value="">' . esc_html__( '-- Select --', 'xtreme-forms' ) . '</option>';
 				$options = $field['options'] ?? array();
 				foreach ( $options as $option ) {
 					$option_val = esc_attr( $option );
-					$selected = selected( $value, $option, false );
-					$html .= '<option value="' . $option_val . '"' . $selected . '>' . esc_html( $option ) . '</option>';
+					$selected   = selected( $value, $option, false );
+					$html      .= '<option value="' . $option_val . '"' . $selected . '>' . esc_html( $option ) . '</option>';
 				}
 				$html .= '</select>';
 				break;
 
 			case 'checkbox':
-				$options = $field['options'] ?? array();
+				$options       = $field['options'] ?? array();
 				$selected_vals = is_array( $value ) ? $value : ( '' !== $value ? array( $value ) : array() );
-				$html .= '<div class="xf-checkbox-group"' . $aria_desc . '>';
+				$html         .= '<div class="xf-checkbox-group"' . $aria_desc . '>';
 				foreach ( $options as $idx => $option ) {
-					$cb_id = esc_attr( $input_id . '-' . $idx );
+					$cb_id      = esc_attr( $input_id . '-' . $idx );
 					$cb_checked = in_array( $option, $selected_vals, true ) ? ' checked' : '';
-					$html .= '<label class="xf-checkbox-label"><input type="checkbox" id="' . $cb_id . '" name="' . esc_attr( $input_name ) . '[]" value="' . esc_attr( $option ) . '"' . $cb_checked . '> ' . esc_html( $option ) . '</label>';
+					$html      .= '<label class="xf-checkbox-label"><input type="checkbox" id="' . $cb_id . '" name="' . esc_attr( $input_name ) . '[]" value="' . esc_attr( $option ) . '"' . $cb_checked . '> ' . esc_html( $option ) . '</label>';
 				}
 				$html .= '</div>';
 				break;
 
 			case 'radio':
 				$options = $field['options'] ?? array();
-				$html .= '<div class="xf-radio-group"' . $aria_desc . ( $required ? ' role="radiogroup"' : '' ) . '>';
+				$html   .= '<div class="xf-radio-group"' . $aria_desc . ( $required ? ' role="radiogroup"' : '' ) . '>';
 				foreach ( $options as $idx => $option ) {
-					$rb_id = esc_attr( $input_id . '-' . $idx );
+					$rb_id      = esc_attr( $input_id . '-' . $idx );
 					$rb_checked = ( $value === $option ) ? ' checked' : '';
-					$html .= '<label class="xf-radio-label"><input type="radio" id="' . $rb_id . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $option ) . '"' . $rb_checked . ( $required ? ' required' : '' ) . '> ' . esc_html( $option ) . '</label>';
+					$html      .= '<label class="xf-radio-label"><input type="radio" id="' . $rb_id . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $option ) . '"' . $rb_checked . ( $required ? ' required' : '' ) . '> ' . esc_html( $option ) . '</label>';
 				}
 				$html .= '</div>';
 				break;

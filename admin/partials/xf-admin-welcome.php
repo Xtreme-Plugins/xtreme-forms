@@ -6,12 +6,13 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file included inside a method; variables are local scope.
 
 if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
 }
 
-$forms_url = admin_url( 'admin.php?page=xtremeleads-forms' );
+$forms_url   = admin_url( 'admin.php?page=xtremeleads-forms' );
 $upgrade_url = 'https://xtremeplugins.com/plugins/xtreme-forms/pricing';
 $docs_url    = 'https://xtremeplugins.com/docs/xtreme-forms/';
 $video_url   = '#'; // Replace with actual YouTube URL when available.

@@ -6,22 +6,24 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$nonce = wp_create_nonce( 'xf_spam_log_nonce' );
+$nonce     = wp_create_nonce( 'xf_spam_log_nonce' );
 $all_forms = XF_Forms::get_all_forms();
-$reasons = XF_Spam::get_reason_labels();
+$reasons   = XF_Spam::get_reason_labels();
 
 // Current filter state from GET.
 $filter_reason = isset( $_GET['rejection_reason'] ) ? sanitize_key( wp_unslash( $_GET['rejection_reason'] ) ) : '';
-$filter_form = isset( $_GET['filter_form'] ) ? absint( $_GET['filter_form'] ) : 0;
-$current_page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+$filter_form   = isset( $_GET['filter_form'] ) ? absint( $_GET['filter_form'] ) : 0;
+$current_page  = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
 
-$log_data = XF_Spam::get_log( array(
-	'page' => $current_page,
-	'rejection_reason' => $filter_reason,
-	'form_id' => $filter_form,
-) );
+$log_data = XF_Spam::get_log(
+	array(
+		'page'             => $current_page,
+		'rejection_reason' => $filter_reason,
+		'form_id'          => $filter_form,
+	)
+);
 
 $items = $log_data['items'];
 $total = $log_data['total'];
@@ -88,7 +90,8 @@ $pages = $log_data['pages'];
 					</tr>
 				</thead>
 				<tbody>
-				<?php foreach ( $items as $item ) :
+				<?php
+				foreach ( $items as $item ) :
 					$form_name = '';
 					foreach ( $all_forms as $f ) {
 						if ( (int) $f->id === (int) $item->form_id ) {
@@ -106,15 +109,26 @@ $pages = $log_data['pages'];
 						<td><?php echo esc_html( $item->created_at ); ?></td>
 						<td><?php echo esc_html( $form_name ); ?></td>
 						<td>
-							<span class="xf-badge <?php
-								switch ( $item->rejection_reason ) {
-									case 'honeypot': echo 'xf-badge-secondary'; break;
-									case 'time_gate': echo 'xf-badge-warning'; break;
-									case 'recaptcha': echo 'xf-badge-info'; break;
-									case 'blocklist': echo 'xf-badge-danger'; break;
-									default: echo 'xf-badge-secondary';
-								}
-							?>">
+							<span class="xf-badge 
+							<?php
+							switch ( $item->rejection_reason ) {
+								case 'honeypot':
+										echo 'xf-badge-secondary';
+									break;
+								case 'time_gate':
+										echo 'xf-badge-warning';
+									break;
+								case 'recaptcha':
+										echo 'xf-badge-info';
+									break;
+								case 'blocklist':
+										echo 'xf-badge-danger';
+									break;
+								default:
+										echo 'xf-badge-secondary';
+							}
+							?>
+							">
 								<?php echo esc_html( $reason_label ); ?>
 							</span>
 						</td>
@@ -136,12 +150,15 @@ $pages = $log_data['pages'];
 				<div style="margin-top:16px;">
 					<?php
 					for ( $p = 1; $p <= $pages; $p++ ) {
-						$url = add_query_arg( array(
-							'page' => 'xtremeleads-spam-log',
-							'paged' => $p,
-							'rejection_reason' => $filter_reason,
-							'filter_form' => $filter_form,
-						), admin_url( 'admin.php' ) );
+						$url = add_query_arg(
+							array(
+								'page'             => 'xtremeleads-spam-log',
+								'paged'            => $p,
+								'rejection_reason' => $filter_reason,
+								'filter_form'      => $filter_form,
+							),
+							admin_url( 'admin.php' )
+						);
 						printf(
 							'<a href="%s" class="button%s" style="margin-right:4px;">%d</a>',
 							esc_url( $url ),

@@ -42,8 +42,8 @@ class XF_Analytics {
 	public static function count_leads_this_month(): int {
 		global $wpdb;
 
-		$tz = wp_timezone();
-		$now = new DateTimeImmutable( 'now', $tz );
+		$tz          = wp_timezone();
+		$now         = new DateTimeImmutable( 'now', $tz );
 		$month_start = $now->modify( 'first day of this month midnight' );
 		// Convert to UTC for comparison against stored UTC datetimes.
 		$month_start_utc = $month_start->setTimezone( new DateTimeZone( 'UTC' ) );
@@ -69,13 +69,13 @@ class XF_Analytics {
 	public static function count_leads_this_week(): int {
 		global $wpdb;
 
-		$tz = wp_timezone();
+		$tz  = wp_timezone();
 		$now = new DateTimeImmutable( 'now', $tz );
 		// Get the most recent Monday at midnight.
-		$day_of_week = (int) $now->format( 'N' ); // 1=Mon … 7=Sun.
+		$day_of_week       = (int) $now->format( 'N' ); // 1=Mon … 7=Sun.
 		$days_since_monday = $day_of_week - 1;
-		$week_start = $now->modify( "-{$days_since_monday} days midnight" );
-		$week_start_utc = $week_start->setTimezone( new DateTimeZone( 'UTC' ) );
+		$week_start        = $now->modify( "-{$days_since_monday} days midnight" );
+		$week_start_utc    = $week_start->setTimezone( new DateTimeZone( 'UTC' ) );
 
 		$table = $wpdb->prefix . 'xtremeforms_leads';
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -106,15 +106,15 @@ class XF_Analytics {
 		$leads_table = $wpdb->prefix . 'xtremeforms_leads';
 		$forms_table = $wpdb->prefix . 'xtremeforms_forms';
 
-		$where = '1=1';
+		$where  = '1=1';
 		$params = array();
 
 		if ( $date_from ) {
-			$where .= ' AND l.created_at >= %s';
+			$where   .= ' AND l.created_at >= %s';
 			$params[] = $date_from;
 		}
 		if ( $date_to ) {
-			$where .= ' AND l.created_at <= %s';
+			$where   .= ' AND l.created_at <= %s';
 			$params[] = $date_to;
 		}
 
@@ -136,9 +136,9 @@ class XF_Analytics {
 		return array_map(
 			static function ( $row ) {
 				return array(
-					'form_id' => (int) $row->form_id,
+					'form_id'   => (int) $row->form_id,
 					'form_name' => $row->form_name,
-					'count' => (int) $row->lead_count,
+					'count'     => (int) $row->lead_count,
 				);
 			},
 			$rows ?: array()
@@ -163,17 +163,17 @@ class XF_Analytics {
 	public static function leads_over_time( string $date_from, string $date_to ): array {
 		global $wpdb;
 
-		$tz = wp_timezone();
-		$start = new DateTimeImmutable( $date_from . ' 00:00:00', $tz );
-		$end = new DateTimeImmutable( $date_to . ' 23:59:59', $tz );
-		$diff = (int) $start->diff( $end )->days;
+		$tz          = wp_timezone();
+		$start       = new DateTimeImmutable( $date_from . ' 00:00:00', $tz );
+		$end         = new DateTimeImmutable( $date_to . ' 23:59:59', $tz );
+		$diff        = (int) $start->diff( $end )->days;
 		$granularity = $diff <= 30 ? 'daily' : 'weekly';
 
 		// Convert start/end to UTC for DB queries.
 		$start_utc = $start->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
-		$end_utc = $end->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+		$end_utc   = $end->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 
-		$table = $wpdb->prefix . 'xtremeforms_leads';
+		$table   = $wpdb->prefix . 'xtremeforms_leads';
 		$tz_name = $tz->getName();
 
 		if ( 'daily' === $granularity ) {
@@ -195,7 +195,7 @@ class XF_Analytics {
 
 			// Build a full date sequence so zero-days appear.
 			$labels = array();
-			$data = array();
+			$data   = array();
 			$counts = array();
 			foreach ( $rows ?: array() as $row ) {
 				$counts[ $row->period ] = (int) $row->cnt;
@@ -203,10 +203,10 @@ class XF_Analytics {
 
 			$cursor = clone $start;
 			while ( $cursor <= $end ) {
-				$key = $cursor->format( 'Y-m-d' );
+				$key      = $cursor->format( 'Y-m-d' );
 				$labels[] = $cursor->format( 'M j' );
-				$data[] = $counts[ $key ] ?? 0;
-				$cursor = $cursor->modify( '+1 day' );
+				$data[]   = $counts[ $key ] ?? 0;
+				$cursor   = $cursor->modify( '+1 day' );
 			}
 		} else {
 			// Weekly: group by ISO year-week.
@@ -226,7 +226,7 @@ class XF_Analytics {
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 			$labels = array();
-			$data = array();
+			$data   = array();
 			$counts = array();
 			foreach ( $rows ?: array() as $row ) {
 				$counts[ $row->period ] = (int) $row->cnt;
@@ -235,18 +235,18 @@ class XF_Analytics {
 			// Build week sequence.
 			// Move cursor to the Monday of the start week.
 			$cursor_day = (int) $start->format( 'N' );
-			$cursor = $start->modify( '-' . ( $cursor_day - 1 ) . ' days midnight' );
+			$cursor     = $start->modify( '-' . ( $cursor_day - 1 ) . ' days midnight' );
 			while ( $cursor <= $end ) {
-				$yw = $cursor->format( 'oW' ); // ISO year + zero-padded week.
+				$yw       = $cursor->format( 'oW' ); // ISO year + zero-padded week.
 				$labels[] = 'Wk ' . $cursor->format( 'M j' );
-				$data[] = $counts[ (int) $yw ] ?? 0;
-				$cursor = $cursor->modify( '+7 days' );
+				$data[]   = $counts[ (int) $yw ] ?? 0;
+				$cursor   = $cursor->modify( '+7 days' );
 			}
 		}
 
 		return array(
-			'labels' => $labels,
-			'data' => $data,
+			'labels'      => $labels,
+			'data'        => $data,
 			'granularity' => $granularity,
 		);
 	}
@@ -264,7 +264,7 @@ class XF_Analytics {
 	public static function leads_by_status(): array {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'xtremeforms_leads';
+		$table    = $wpdb->prefix . 'xtremeforms_leads';
 		$statuses = XF_Leads::get_statuses();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -278,11 +278,11 @@ class XF_Analytics {
 			$counts_by_status[ $row->status ] = (int) $row->cnt;
 		}
 
-		$total = array_sum( $counts_by_status );
+		$total  = array_sum( $counts_by_status );
 		$result = array();
 
 		$statuses_list = array_keys( $statuses );
-		$last_idx = count( $statuses_list ) - 1;
+		$last_idx      = count( $statuses_list ) - 1;
 		$allocated_pct = 0.0;
 
 		foreach ( $statuses_list as $idx => $slug ) {
@@ -292,16 +292,16 @@ class XF_Analytics {
 				// Last item absorbs rounding drift.
 				$pct = round( 100.0 - $allocated_pct, 2 );
 			} elseif ( $total > 0 ) {
-				$pct = round( ( $count / $total ) * 100, 2 );
+				$pct            = round( ( $count / $total ) * 100, 2 );
 				$allocated_pct += $pct;
 			} else {
 				$pct = 0.00;
 			}
 
 			$result[] = array(
-				'status' => $slug,
-				'label' => $statuses[ $slug ],
-				'count' => $count,
+				'status'     => $slug,
+				'label'      => $statuses[ $slug ],
+				'count'      => $count,
 				'percentage' => $pct,
 			);
 		}
@@ -339,7 +339,7 @@ class XF_Analytics {
 			static function ( $row ) {
 				return array(
 					'source_url' => $row->source_url,
-					'count' => (int) $row->cnt,
+					'count'      => (int) $row->cnt,
 				);
 			},
 			$rows ?: array()
@@ -373,8 +373,8 @@ class XF_Analytics {
 	public static function form_performance_metrics(): array {
 		global $wpdb;
 
-		$forms_table = $wpdb->prefix . 'xtremeforms_forms';
-		$leads_table = $wpdb->prefix . 'xtremeforms_leads';
+		$forms_table       = $wpdb->prefix . 'xtremeforms_forms';
+		$leads_table       = $wpdb->prefix . 'xtremeforms_leads';
 		$impressions_table = $wpdb->prefix . 'xtremeforms_form_impressions';
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -409,30 +409,30 @@ class XF_Analytics {
 
 		return array_map(
 			static function ( $row ) {
-				$views = (int) $row->views;
+				$views       = (int) $row->views;
 				$submissions = (int) $row->submissions;
 
 				// Conversion rate calculation (capped at 100.00, '—' when no views).
 				if ( $views === 0 ) {
-					$conversion_rate = null; // Display as '—'.
+					$conversion_rate         = null; // Display as '—'.
 					$conversion_rate_warning = false;
 				} else {
-					$raw_rate = ( $submissions / $views ) * 100;
+					$raw_rate                = ( $submissions / $views ) * 100;
 					$conversion_rate_warning = $raw_rate > 100;
-					$conversion_rate = round( min( $raw_rate, 100.0 ), 2 );
+					$conversion_rate         = round( min( $raw_rate, 100.0 ), 2 );
 				}
 
 				// Avg time-to-submit.
 				$avg_seconds = null !== $row->avg_seconds ? round( (float) $row->avg_seconds, 1 ) : null;
 
 				return array(
-					'form_id' => (int) $row->form_id,
-					'form_name' => $row->form_name,
-					'views' => $views,
-					'submissions' => $submissions,
-					'conversion_rate' => $conversion_rate,
+					'form_id'                 => (int) $row->form_id,
+					'form_name'               => $row->form_name,
+					'views'                   => $views,
+					'submissions'             => $submissions,
+					'conversion_rate'         => $conversion_rate,
 					'conversion_rate_warning' => $conversion_rate_warning ?? false,
-					'avg_seconds' => $avg_seconds,
+					'avg_seconds'             => $avg_seconds,
 				);
 			},
 			$rows ?: array()
@@ -451,8 +451,8 @@ class XF_Analytics {
 	 */
 	public static function utm_breakdown(): array {
 		return array(
-			'source' => self::utm_group( 'utm_source' ),
-			'medium' => self::utm_group( 'utm_medium' ),
+			'source'   => self::utm_group( 'utm_source' ),
+			'medium'   => self::utm_group( 'utm_medium' ),
 			'campaign' => self::utm_group( 'utm_campaign' ),
 		);
 	}
@@ -477,7 +477,11 @@ class XF_Analytics {
 		// Validate column name to prevent injection — only allow known columns.
 		$allowed = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' );
 		if ( ! in_array( $utm_column, $allowed, true ) ) {
-			return array( 'rows' => array(), 'total_attributed' => 0, 'has_more' => false );
+			return array(
+				'rows'             => array(),
+				'total_attributed' => 0,
+				'has_more'         => false,
+			);
 		}
 
 		$table = $wpdb->prefix . 'xtremeforms_leads';
@@ -505,7 +509,7 @@ class XF_Analytics {
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$has_more = count( $rows ) > 20;
-		$rows = array_slice( $rows ?: array(), 0, 20 );
+		$rows     = array_slice( $rows ?: array(), 0, 20 );
 
 		$formatted = array_map(
 			static function ( $row ) use ( $total_attributed ) {
@@ -513,8 +517,8 @@ class XF_Analytics {
 					? round( ( (int) $row->cnt / $total_attributed ) * 100, 2 )
 					: 0.00;
 				return array(
-					'value' => $row->utm_value,
-					'count' => (int) $row->cnt,
+					'value'      => $row->utm_value,
+					'count'      => (int) $row->cnt,
 					'percentage' => $pct,
 				);
 			},
@@ -522,9 +526,9 @@ class XF_Analytics {
 		);
 
 		return array(
-			'rows' => $formatted,
+			'rows'             => $formatted,
 			'total_attributed' => $total_attributed,
-			'has_more' => $has_more,
+			'has_more'         => $has_more,
 		);
 	}
 }

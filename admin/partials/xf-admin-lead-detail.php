@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
 
 $lead_id = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
 
@@ -22,20 +22,20 @@ if ( ! $lead ) {
 	wp_die( esc_html__( 'Lead not found.', 'xtreme-forms' ) );
 }
 
-$form = XF_Forms::get_form( (int) $lead->form_id );
-$form_name = $form ? esc_html( $form->name ) : esc_html__( '(deleted form)', 'xtreme-forms' );
-$statuses = XF_Leads::get_statuses();
-$status_key = $lead->status ?? 'new';
+$form         = XF_Forms::get_form( (int) $lead->form_id );
+$form_name    = $form ? esc_html( $form->name ) : esc_html__( '(deleted form)', 'xtreme-forms' );
+$statuses     = XF_Leads::get_statuses();
+$status_key   = $lead->status ?? 'new';
 $status_label = $statuses[ $status_key ] ?? ucfirst( $status_key );
 
 // Field values with labels.
-$field_values = XF_Leads::decode_field_values( $lead );
+$field_values       = XF_Leads::decode_field_values( $lead );
 $fields_with_labels = array();
 
 if ( $form ) {
 	$field_defs = XF_Forms::decode_fields( $form );
 	foreach ( $field_defs as $fd ) {
-		$fid = $fd['id'] ?? '';
+		$fid   = $fd['id'] ?? '';
 		$ftype = $fd['type'] ?? 'text';
 		if ( 'hidden' === $ftype ) {
 			continue;
@@ -47,8 +47,8 @@ if ( $form ) {
 			$val = implode( ', ', $val );
 		}
 		$fields_with_labels[] = array(
-			'label' => (string) $label,
-			'value' => null !== $val ? (string) $val : null,
+			'label'    => (string) $label,
+			'value'    => null !== $val ? (string) $val : null,
 			'is_empty' => ( null === $val || '' === (string) $val ),
 		);
 	}
@@ -59,8 +59,8 @@ if ( $form ) {
 			$val = implode( ', ', $val );
 		}
 		$fields_with_labels[] = array(
-			'label' => $key,
-			'value' => (string) $val,
+			'label'    => $key,
+			'value'    => (string) $val,
 			'is_empty' => '' === (string) $val,
 		);
 	}
@@ -80,15 +80,15 @@ if ( $form ) {
 			$val = implode( ', ', $val );
 		}
 		$fields_with_labels[] = array(
-			'label' => $key,
-			'value' => (string) $val,
+			'label'    => $key,
+			'value'    => (string) $val,
 			'is_empty' => '' === (string) $val,
 		);
 	}
 }
 
 // Assigned user.
-$assigned_to = (int) ( $lead->assigned_to ?? 0 );
+$assigned_to   = (int) ( $lead->assigned_to ?? 0 );
 $assignee_name = $assigned_to ? '' : esc_html__( 'Unassigned', 'xtreme-forms' );
 if ( $assigned_to ) {
 	$assignee_user = get_userdata( $assigned_to );
@@ -106,15 +106,15 @@ $activity = XF_Activity::get_activity_for_lead( $lead_id );
 
 // Eligible users for assignment dropdown.
 $eligible_users = XF_Leads::get_eligible_assignees();
-$all_tags = XF_Tags::get_all_tags();
+$all_tags       = XF_Tags::get_all_tags();
 
 // Back URL.
 $back_url = add_query_arg( array( 'page' => 'xtreme-forms' ), admin_url( 'admin.php' ) );
 
 // Admin notice for assignment email warning (from session / transient).
-$notice_html = '';
+$notice_html    = '';
 $email_warn_key = 'xf_assign_email_warn_' . $lead_id . '_' . get_current_user_id();
-$email_warn = get_transient( $email_warn_key );
+$email_warn     = get_transient( $email_warn_key );
 if ( $email_warn ) {
 	delete_transient( $email_warn_key );
 	$notice_html = '<div class="notice notice-warning is-dismissible"><p>' . esc_html( $email_warn ) . '</p></div>';
@@ -229,7 +229,7 @@ if ( $email_warn ) {
 						// Display GDPR consent status if the column exists on this lead.
 						if ( property_exists( $lead, 'consent_given' ) ) :
 							$consent_value = $lead->consent_given;
-						?>
+							?>
 						<tr>
 							<th><?php esc_html_e( 'GDPR Consent', 'xtreme-forms' ); ?></th>
 							<td>

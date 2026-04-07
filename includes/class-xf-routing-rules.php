@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 class XF_Routing_Rules {
 
 	/** Condition type constants. */
-	const CONDITION_FORM = 'form';
+	const CONDITION_FORM        = 'form';
 	const CONDITION_FIELD_VALUE = 'field_value';
 
 	/** Evaluation mode option key. */
@@ -31,7 +31,7 @@ class XF_Routing_Rules {
 
 	/** Evaluation mode values. */
 	const MODE_MATCH_FIRST = 'match_first';
-	const MODE_MATCH_ALL = 'match_all';
+	const MODE_MATCH_ALL   = 'match_all';
 
 	// ── CRUD ──────────────────────────────────────────────────────────────────
 
@@ -100,15 +100,15 @@ class XF_Routing_Rules {
 		}
 
 		$insert = array(
-			'condition_type' => sanitize_text_field( $data['condition_type'] ?? self::CONDITION_FORM ),
-			'form_id' => absint( $data['form_id'] ?? 0 ),
-			'field_id' => sanitize_text_field( $data['field_id'] ?? '' ),
-			'field_value' => sanitize_text_field( $data['field_value'] ?? '' ),
+			'condition_type'  => sanitize_text_field( $data['condition_type'] ?? self::CONDITION_FORM ),
+			'form_id'         => absint( $data['form_id'] ?? 0 ),
+			'field_id'        => sanitize_text_field( $data['field_id'] ?? '' ),
+			'field_value'     => sanitize_text_field( $data['field_value'] ?? '' ),
 			'recipient_email' => sanitize_email( $data['recipient_email'] ?? '' ),
-			'rule_order' => absint( $data['rule_order'] ),
-			'is_active' => isset( $data['is_active'] ) ? (int) (bool) $data['is_active'] : 1,
-			'created_at' => current_time( 'mysql' ),
-			'updated_at' => current_time( 'mysql' ),
+			'rule_order'      => absint( $data['rule_order'] ),
+			'is_active'       => isset( $data['is_active'] ) ? (int) (bool) $data['is_active'] : 1,
+			'created_at'      => current_time( 'mysql' ),
+			'updated_at'      => current_time( 'mysql' ),
 		);
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -121,7 +121,7 @@ class XF_Routing_Rules {
 	/**
 	 * Update an existing rule.
 	 *
-	 * @param int $rule_id Rule ID.
+	 * @param int   $rule_id Rule ID.
 	 * @param array $data Fields to update (same shape as create_rule $data).
 	 * @return bool True on success.
 	 */
@@ -216,7 +216,7 @@ class XF_Routing_Rules {
 	/**
 	 * Save multiple rules from the admin UI in one batch (replaces all existing rules).
 	 *
-	 * @param array $rules_data Array of rule data arrays.
+	 * @param array  $rules_data Array of rule data arrays.
 	 * @param string $mode Evaluation mode ('match_first' or 'match_all').
 	 * @return bool
 	 */
@@ -265,13 +265,13 @@ class XF_Routing_Rules {
 	 *
 	 * Field-value comparisons are CASE-SENSITIVE (exact string match).
 	 *
-	 * @param int $form_id The form ID the submission came from.
+	 * @param int   $form_id The form ID the submission came from.
 	 * @param array $field_values Submitted field values (field_id => value).
 	 * @return array<string> List of recipient email addresses (may be empty).
 	 */
 	public static function get_matching_recipients( int $form_id, array $field_values ): array {
 		$rules = self::get_all_rules();
-		$mode = self::get_mode();
+		$mode  = self::get_mode();
 
 		$recipients = array();
 
@@ -292,9 +292,9 @@ class XF_Routing_Rules {
 					continue;
 				}
 
-				$field_id = (string) $rule->field_id;
+				$field_id     = (string) $rule->field_id;
 				$expected_val = (string) $rule->field_value;
-				$actual_val = $field_values[ $field_id ] ?? '';
+				$actual_val   = $field_values[ $field_id ] ?? '';
 
 				if ( is_array( $actual_val ) ) {
 					// For multi-select / checkbox fields, check if any option matches.

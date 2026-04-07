@@ -54,24 +54,24 @@ class XF_Forms {
 	 * Create a new form.
 	 *
 	 * @param string $name Form name.
-	 * @param array $fields Field definitions.
-	 * @param array $settings Form settings.
+	 * @param array  $fields Field definitions.
+	 * @param array  $settings Form settings.
 	 * @return int|false New form ID or false on failure.
 	 */
 	public static function create_form( string $name, array $fields = array(), array $settings = array() ): int|false {
 		global $wpdb;
 
-		$now = current_time( 'mysql', true );
+		$now   = current_time( 'mysql', true );
 		$table = $wpdb->prefix . 'xtremeforms_forms';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'name' => sanitize_text_field( $name ),
-				'fields' => wp_json_encode( $fields ),
-				'settings' => wp_json_encode( $settings ),
-				'status' => 'active',
+				'name'       => sanitize_text_field( $name ),
+				'fields'     => wp_json_encode( $fields ),
+				'settings'   => wp_json_encode( $settings ),
+				'status'     => 'active',
 				'created_at' => $now,
 				'updated_at' => $now,
 			),
@@ -88,10 +88,10 @@ class XF_Forms {
 	/**
 	 * Update an existing form.
 	 *
-	 * @param int $form_id Form ID.
+	 * @param int    $form_id Form ID.
 	 * @param string $name Form name.
-	 * @param array $fields Field definitions.
-	 * @param array $settings Form settings.
+	 * @param array  $fields Field definitions.
+	 * @param array  $settings Form settings.
 	 * @return bool True on success.
 	 */
 	public static function update_form( int $form_id, string $name, array $fields, array $settings ): bool {
@@ -103,9 +103,9 @@ class XF_Forms {
 		$updated = $wpdb->update(
 			$table,
 			array(
-				'name' => sanitize_text_field( $name ),
-				'fields' => wp_json_encode( $fields ),
-				'settings' => wp_json_encode( $settings ),
+				'name'       => sanitize_text_field( $name ),
+				'fields'     => wp_json_encode( $fields ),
+				'settings'   => wp_json_encode( $settings ),
 				'updated_at' => current_time( 'mysql', true ),
 			),
 			array( 'id' => $form_id ),
@@ -172,7 +172,7 @@ class XF_Forms {
 
 		global $wpdb;
 
-		$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+		$ids   = array_values( array_filter( array_map( 'absint', $ids ) ) );
 		$table = $wpdb->prefix . 'xtremeforms_forms';
 
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
@@ -201,7 +201,7 @@ class XF_Forms {
 	 */
 	public static function validate_field( array $field ): ?string {
 		$requires_options = array( 'dropdown', 'checkbox', 'radio' );
-		$type = $field['type'] ?? '';
+		$type             = $field['type'] ?? '';
 
 		if ( in_array( $type, $requires_options, true ) ) {
 			$options = $field['options'] ?? array();

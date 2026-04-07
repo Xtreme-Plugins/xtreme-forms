@@ -6,15 +6,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification -- Read-only display page; all data rendered server-side via WP functions.
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only display page; all data rendered server-side via WP functions.
 
 $network_settings = get_site_option( XF_Multisite::NETWORK_SETTINGS_KEY, array() );
 
 $email_template_body = $network_settings['email_template_body'] ?? '';
-$email_header_color = $network_settings['email_header_color'] ?? '#1A73E8';
-$retention_days = isset( $network_settings['retention_days'] ) && '' !== $network_settings['retention_days']
+$email_header_color  = $network_settings['email_header_color'] ?? '#1A73E8';
+$retention_days      = isset( $network_settings['retention_days'] ) && '' !== $network_settings['retention_days']
 	? (int) $network_settings['retention_days'] : '';
-$anonymize_ip = ! empty( $network_settings['anonymize_ip'] ) && '1' === (string) $network_settings['anonymize_ip'];
+$anonymize_ip        = ! empty( $network_settings['anonymize_ip'] ) && '1' === (string) $network_settings['anonymize_ip'];
 ?>
 <div class="wrap xf-wrap">
 	<h1 class="xf-page-title"><?php esc_html_e( 'Xtreme Forms — Network Global Settings', 'xtreme-forms' ); ?></h1>
