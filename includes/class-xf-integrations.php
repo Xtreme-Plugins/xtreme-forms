@@ -59,6 +59,7 @@ class XF_Integrations {
 		}
 
 		$settings = self::get_settings();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array values are individually sanitized via sanitize_text_field() in the foreach loop below.
 		$data     = isset( $_POST['data'] ) && is_array( $_POST['data'] ) ? wp_unslash( $_POST['data'] ) : array();
 
 		// Sanitize all values as text; the 'enabled' key gets boolean treatment.

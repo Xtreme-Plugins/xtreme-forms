@@ -344,7 +344,7 @@ class XF_Shortcode {
 		if ( class_exists( 'XF_Spam' ) ) {
 			$turnstile = XF_Spam::get_turnstile_settings();
 			if ( $turnstile['enabled'] && ! wp_script_is( 'xf-turnstile', 'enqueued' ) ) {
-				// phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- Cloudflare Turnstile must be loaded from Cloudflare's CDN; self-hosting is not supported.
+				// phpcs:disable PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- Cloudflare Turnstile must be served from Cloudflare's CDN; self-hosting is not supported by Cloudflare.
 				wp_enqueue_script(
 					'xf-turnstile',
 					'https://challenges.cloudflare.com/turnstile/v0/api.js',
@@ -352,6 +352,7 @@ class XF_Shortcode {
 					null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 					true
 				);
+				// phpcs:enable PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
 			}
 		}
 	}
