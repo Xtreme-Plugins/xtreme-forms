@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "xtremeleads/form",
+	"name": "xtreme-forms/form",
 	"version": "1.0.0",
-	"title": "XtremeLeads Form",
-	"category": "xtremeleads",
+	"title": "Xtreme Forms Form",
+	"category": "xtreme-forms",
 	"description": "Embed a lead capture form on any page, post, or Full Site Editing template.",
 	"keywords": ["lead", "form", "contact", "capture"],
-	"textdomain": "xtremeleads",
+	"textdomain": "xtreme-forms",
 	"attributes": {
 		"formId": {
 			"type": "number",
@@ -47,5 +47,5 @@
 			"alignment": "center"
 		}
 	},
-	"editorScript": "xl-form-block"
+	"editorScript": "xf-form-block"
 }

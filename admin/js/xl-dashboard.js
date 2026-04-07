@@ -1,12 +1,12 @@
 /**
- * XtremeLeads Dashboard JS (Sprint 4 — Feature 4.1 + 4.2)
+ * Xtreme Forms Dashboard JS (Sprint 4 — Feature 4.1 + 4.2)
  *
  * Handles:
  *  - Leads-over-time line chart with selectable date ranges + custom date picker
  *  - Leads-by-form bar chart
  *  - Client-side sortable form comparison table
  *
- * Depends on: Chart.js (xl-chartjs), xlDashboardData (wp_localize_script)
+ * Depends on: Chart.js (xf-chartjs), xlDashboardData (wp_localize_script)
  */
 /* global xlDashboardData, xlDashboardInitialData, xlFormMetricsData, Chart */
 
@@ -66,37 +66,37 @@
 	// ── Line Chart (Leads Over Time) ──────────────────────────────────────────
 
 	function initLineChart() {
-		const canvas = document.getElementById( 'xl-line-chart' );
+		const canvas = document.getElementById( 'xf-line-chart' );
 		if ( ! canvas ) return;
 
 		// Load 30-day range by default.
 		loadLineChart( '30d' );
 
 		// Range tab buttons.
-		const tabs = document.querySelectorAll( '#xl-line-range-tabs .xl-range-tab' );
+		const tabs = document.querySelectorAll( '#xf-line-range-tabs .xf-range-tab' );
 		tabs.forEach( function ( tab ) {
 			tab.addEventListener( 'click', function () {
-				tabs.forEach( function ( t ) { t.classList.remove( 'xl-range-tab-active' ); } );
-				tab.classList.add( 'xl-range-tab-active' );
+				tabs.forEach( function ( t ) { t.classList.remove( 'xf-range-tab-active' ); } );
+				tab.classList.add( 'xf-range-tab-active' );
 
 				const range = tab.dataset.range;
 
 				if ( 'custom' === range ) {
-					document.getElementById( 'xl-custom-range' ).style.display = 'flex';
+					document.getElementById( 'xf-custom-range' ).style.display = 'flex';
 				} else {
-					document.getElementById( 'xl-custom-range' ).style.display = 'none';
+					document.getElementById( 'xf-custom-range' ).style.display = 'none';
 					loadLineChart( range );
 				}
 			} );
 		} );
 
 		// Custom range apply button.
-		const applyBtn = document.getElementById( 'xl-custom-range-apply' );
+		const applyBtn = document.getElementById( 'xf-custom-range-apply' );
 		if ( applyBtn ) {
 			applyBtn.addEventListener( 'click', function () {
-				const fromInput = document.getElementById( 'xl-custom-from' );
-				const toInput   = document.getElementById( 'xl-custom-to' );
-				const errEl     = document.getElementById( 'xl-custom-range-error' );
+				const fromInput = document.getElementById( 'xf-custom-from' );
+				const toInput   = document.getElementById( 'xf-custom-to' );
+				const errEl     = document.getElementById( 'xf-custom-range-error' );
 
 				const from = fromInput ? fromInput.value : '';
 				const to   = toInput   ? toInput.value   : '';
@@ -115,10 +115,10 @@
 	}
 
 	async function loadLineChart( range, dateFrom = '', dateTo = '' ) {
-		const canvas    = document.getElementById( 'xl-line-chart' );
-		const errEl     = document.getElementById( 'xl-line-chart-error' );
-		const noDataEl  = document.getElementById( 'xl-line-chart-no-data' );
-		const emptyEl   = document.getElementById( 'xl-line-chart-empty' );
+		const canvas    = document.getElementById( 'xf-line-chart' );
+		const errEl     = document.getElementById( 'xf-line-chart-error' );
+		const noDataEl  = document.getElementById( 'xf-line-chart-no-data' );
+		const emptyEl   = document.getElementById( 'xf-line-chart-empty' );
 
 		if ( ! canvas ) return;
 
@@ -134,7 +134,7 @@
 				body.date_to   = dateTo;
 			}
 
-			const data = await apiFetch( 'xl_chart_leads_over_time', body );
+			const data = await apiFetch( 'xf_chart_leads_over_time', body );
 
 			const labels = data.labels  || [];
 			const values = data.data    || [];
@@ -156,7 +156,7 @@
 			// Show visible inline error message in place of chart.
 			canvas.style.display = 'none';
 			if ( errEl ) {
-				errEl.querySelector( '.xl-chart-error-msg' ).textContent = i18n.error;
+				errEl.querySelector( '.xf-chart-error-msg' ).textContent = i18n.error;
 				errEl.style.display = 'flex';
 			}
 		}
@@ -200,25 +200,25 @@
 	// ── Bar Chart (Leads by Form) ─────────────────────────────────────────────
 
 	function initBarChart() {
-		const canvas = document.getElementById( 'xl-bar-chart' );
+		const canvas = document.getElementById( 'xf-bar-chart' );
 		if ( ! canvas ) return;
 
 		// Load all-time data by default.
 		loadBarChart();
 
 		// Wire up date-range tab buttons for the bar chart.
-		const barTabs = document.querySelectorAll( '#xl-bar-range-tabs .xl-range-tab' );
+		const barTabs = document.querySelectorAll( '#xf-bar-range-tabs .xf-range-tab' );
 		barTabs.forEach( function ( tab ) {
 			tab.addEventListener( 'click', function () {
-				barTabs.forEach( function ( t ) { t.classList.remove( 'xl-range-tab-active' ); } );
-				tab.classList.add( 'xl-range-tab-active' );
+				barTabs.forEach( function ( t ) { t.classList.remove( 'xf-range-tab-active' ); } );
+				tab.classList.add( 'xf-range-tab-active' );
 
 				const range = tab.dataset.range;
 
 				if ( 'custom' === range ) {
-					document.getElementById( 'xl-bar-custom-range' ).style.display = 'flex';
+					document.getElementById( 'xf-bar-custom-range' ).style.display = 'flex';
 				} else {
-					const customRange = document.getElementById( 'xl-bar-custom-range' );
+					const customRange = document.getElementById( 'xf-bar-custom-range' );
 					if ( customRange ) customRange.style.display = 'none';
 
 					if ( 'all' === range ) {
@@ -234,12 +234,12 @@
 		} );
 
 		// Wire up custom range Apply button for the bar chart.
-		const barApplyBtn = document.getElementById( 'xl-bar-custom-range-apply' );
+		const barApplyBtn = document.getElementById( 'xf-bar-custom-range-apply' );
 		if ( barApplyBtn ) {
 			barApplyBtn.addEventListener( 'click', function () {
-				const fromInput = document.getElementById( 'xl-bar-custom-from' );
-				const toInput   = document.getElementById( 'xl-bar-custom-to' );
-				const errEl     = document.getElementById( 'xl-bar-custom-range-error' );
+				const fromInput = document.getElementById( 'xf-bar-custom-from' );
+				const toInput   = document.getElementById( 'xf-bar-custom-to' );
+				const errEl     = document.getElementById( 'xf-bar-custom-range-error' );
 
 				const from = fromInput ? fromInput.value : '';
 				const to   = toInput   ? toInput.value   : '';
@@ -272,9 +272,9 @@
 	}
 
 	async function loadBarChart( dateFrom = '', dateTo = '' ) {
-		const canvas  = document.getElementById( 'xl-bar-chart' );
-		const errEl   = document.getElementById( 'xl-bar-chart-error' );
-		const emptyEl = document.getElementById( 'xl-bar-chart-empty' );
+		const canvas  = document.getElementById( 'xf-bar-chart' );
+		const errEl   = document.getElementById( 'xf-bar-chart-error' );
+		const emptyEl = document.getElementById( 'xf-bar-chart-empty' );
 
 		if ( ! canvas ) return;
 
@@ -286,7 +286,7 @@
 			if ( dateFrom ) body.date_from = dateFrom;
 			if ( dateTo   ) body.date_to   = dateTo;
 
-			const data = await apiFetch( 'xl_chart_leads_by_form', body );
+			const data = await apiFetch( 'xf_chart_leads_by_form', body );
 
 			if ( emptyEl ) emptyEl.style.display = 'none';
 			canvas.style.display = 'block';
@@ -296,7 +296,7 @@
 		} catch ( err ) {
 			canvas.style.display = 'none';
 			if ( errEl ) {
-				const msgEl = errEl.querySelector( '.xl-chart-error-msg' );
+				const msgEl = errEl.querySelector( '.xf-chart-error-msg' );
 				if ( msgEl ) msgEl.textContent = i18n.error;
 				errEl.style.display = 'flex';
 			}
@@ -347,7 +347,7 @@
 	 * page-slice of the full sorted dataset.
 	 */
 	function initMetricsTable() {
-		const table = document.getElementById( 'xl-metrics-comparison-table' );
+		const table = document.getElementById( 'xf-metrics-comparison-table' );
 		if ( ! table ) return;
 
 		// All metrics passed from PHP into window.xlFormMetricsData for full-dataset sorting.
@@ -358,12 +358,12 @@
 		let currentPage = 1;
 
 		const thead        = table.querySelector( 'thead' );
-		const tbody        = document.getElementById( 'xl-metrics-tbody' );
-		const paginationEl = document.getElementById( 'xl-metrics-pagination' );
+		const tbody        = document.getElementById( 'xf-metrics-tbody' );
+		const paginationEl = document.getElementById( 'xf-metrics-pagination' );
 		if ( ! thead || ! tbody ) return;
 
 		// Hide the server-side pagination fallback — JS pagination takes over.
-		const serverPagination = document.getElementById( 'xl-metrics-pagination-server' );
+		const serverPagination = document.getElementById( 'xf-metrics-pagination-server' );
 		if ( serverPagination ) serverPagination.style.display = 'none';
 
 		/** Re-sort, reset to page 1, and redraw table + pagination. */
@@ -391,21 +391,21 @@
 
 		/** Update column header arrows to reflect active sort. */
 		function updateSortArrows() {
-			thead.querySelectorAll( '.xl-sortable' ).forEach( function ( h ) {
-				h.classList.remove( 'xl-col-sort-active', 'xl-sort-asc', 'xl-sort-desc' );
-				const arrow = h.querySelector( '.xl-sort-arrow' );
+			thead.querySelectorAll( '.xf-sortable' ).forEach( function ( h ) {
+				h.classList.remove( 'xf-col-sort-active', 'xf-sort-asc', 'xf-sort-desc' );
+				const arrow = h.querySelector( '.xf-sort-arrow' );
 				if ( arrow ) arrow.textContent = '';
 			} );
 			const activeTh = thead.querySelector( '[data-col="' + sortCol + '"]' );
 			if ( activeTh ) {
-				activeTh.classList.add( 'xl-col-sort-active', 'xl-sort-' + sortDir );
-				const arrow = activeTh.querySelector( '.xl-sort-arrow' );
+				activeTh.classList.add( 'xf-col-sort-active', 'xf-sort-' + sortDir );
+				const arrow = activeTh.querySelector( '.xf-sort-arrow' );
 				if ( arrow ) arrow.textContent = sortDir === 'asc' ? '↑' : '↓';
 			}
 		}
 
 		// Attach click listeners to sortable headers.
-		thead.querySelectorAll( '.xl-sortable' ).forEach( function ( th ) {
+		thead.querySelectorAll( '.xf-sortable' ).forEach( function ( th ) {
 			th.addEventListener( 'click', function () {
 				applySort( th.dataset.col );
 			} );
@@ -456,7 +456,7 @@
 			const td = document.createElement( 'td' );
 			td.colSpan   = 5;
 			td.textContent = 'No forms found.';
-			tr.classList.add( 'xl-no-data-row' );
+			tr.classList.add( 'xf-no-data-row' );
 			tr.appendChild( td );
 			tbody.appendChild( tr );
 			return;
@@ -473,7 +473,7 @@
 			} else {
 				const rateStr = parseFloat( m.conversion_rate ).toFixed( 2 ) + '%';
 				if ( m.conversion_rate_warning ) {
-					rateHtml = rateStr + ' <span class="xl-warning-icon dashicons dashicons-warning" title="' +
+					rateHtml = rateStr + ' <span class="xf-warning-icon dashicons dashicons-warning" title="' +
 						escHtml( ( window.xlDashboardData && window.xlDashboardData.i18n.conversionWarning ) || '' ) +
 						'"></span>';
 				} else {
@@ -496,12 +496,12 @@
 				}
 			}
 
-			tr.innerHTML = '<td class="xl-col-form-name"><strong>' + escHtml( m.form_name ) +
-				'</strong><div class="xl-form-meta"><code>[xtremeleads id="' + escHtml( String( m.form_id ) ) + '"]</code></div></td>' +
-				'<td class="xl-col-views">' + escHtml( String( m.views ) ) + '</td>' +
-				'<td class="xl-col-submissions">' + escHtml( String( m.submissions ) ) + '</td>' +
-				'<td class="xl-col-conversion">' + rateHtml + '</td>' +
-				'<td class="xl-col-avg-time">' + avgHtml + '</td>';
+			tr.innerHTML = '<td class="xf-col-form-name"><strong>' + escHtml( m.form_name ) +
+				'</strong><div class="xf-form-meta"><code>[xtremeleads id="' + escHtml( String( m.form_id ) ) + '"]</code></div></td>' +
+				'<td class="xf-col-views">' + escHtml( String( m.views ) ) + '</td>' +
+				'<td class="xf-col-submissions">' + escHtml( String( m.submissions ) ) + '</td>' +
+				'<td class="xf-col-conversion">' + rateHtml + '</td>' +
+				'<td class="xf-col-avg-time">' + avgHtml + '</td>';
 
 			tbody.appendChild( tr );
 		} );
@@ -532,17 +532,17 @@
 		const start = ( current - 1 ) * TABLE_PER_PAGE + 1;
 		const end   = Math.min( current * TABLE_PER_PAGE, total );
 
-		let html = '<span class="xl-pagination-label">' +
+		let html = '<span class="xf-pagination-label">' +
 			escHtml( start + '–' + end + ' of ' + total + ' forms' ) +
 			'</span>';
 
-		html += '<span class="xl-pagination-controls">';
+		html += '<span class="xf-pagination-controls">';
 
 		// Previous button.
 		if ( current > 1 ) {
-			html += '<button class="button xl-page-btn" data-page="' + ( current - 1 ) + '" aria-label="Previous page">&laquo; Prev</button>';
+			html += '<button class="button xf-page-btn" data-page="' + ( current - 1 ) + '" aria-label="Previous page">&laquo; Prev</button>';
 		} else {
-			html += '<button class="button xl-page-btn" disabled aria-disabled="true">&laquo; Prev</button>';
+			html += '<button class="button xf-page-btn" disabled aria-disabled="true">&laquo; Prev</button>';
 		}
 
 		// Page number buttons — show up to 5 around the current page.
@@ -551,32 +551,32 @@
 		const pageMax    = Math.min( totalPages, current + pageWindow );
 
 		if ( pageMin > 1 ) {
-			html += '<button class="button xl-page-btn" data-page="1">1</button>';
+			html += '<button class="button xf-page-btn" data-page="1">1</button>';
 			if ( pageMin > 2 ) {
-				html += '<span class="xl-pagination-ellipsis">…</span>';
+				html += '<span class="xf-pagination-ellipsis">…</span>';
 			}
 		}
 
 		for ( let p = pageMin; p <= pageMax; p++ ) {
 			if ( p === current ) {
-				html += '<button class="button button-primary xl-page-btn xl-page-current" data-page="' + p + '" aria-current="page">' + p + '</button>';
+				html += '<button class="button button-primary xf-page-btn xf-page-current" data-page="' + p + '" aria-current="page">' + p + '</button>';
 			} else {
-				html += '<button class="button xl-page-btn" data-page="' + p + '">' + p + '</button>';
+				html += '<button class="button xf-page-btn" data-page="' + p + '">' + p + '</button>';
 			}
 		}
 
 		if ( pageMax < totalPages ) {
 			if ( pageMax < totalPages - 1 ) {
-				html += '<span class="xl-pagination-ellipsis">…</span>';
+				html += '<span class="xf-pagination-ellipsis">…</span>';
 			}
-			html += '<button class="button xl-page-btn" data-page="' + totalPages + '">' + totalPages + '</button>';
+			html += '<button class="button xf-page-btn" data-page="' + totalPages + '">' + totalPages + '</button>';
 		}
 
 		// Next button.
 		if ( current < totalPages ) {
-			html += '<button class="button xl-page-btn" data-page="' + ( current + 1 ) + '" aria-label="Next page">Next &raquo;</button>';
+			html += '<button class="button xf-page-btn" data-page="' + ( current + 1 ) + '" aria-label="Next page">Next &raquo;</button>';
 		} else {
-			html += '<button class="button xl-page-btn" disabled aria-disabled="true">Next &raquo;</button>';
+			html += '<button class="button xf-page-btn" disabled aria-disabled="true">Next &raquo;</button>';
 		}
 
 		html += '</span>';
@@ -584,7 +584,7 @@
 		container.innerHTML = html;
 
 		// Attach click handlers.
-		container.querySelectorAll( '.xl-page-btn[data-page]' ).forEach( function ( btn ) {
+		container.querySelectorAll( '.xf-page-btn[data-page]' ).forEach( function ( btn ) {
 			btn.addEventListener( 'click', function () {
 				const page = parseInt( btn.dataset.page, 10 );
 				if ( ! isNaN( page ) ) {

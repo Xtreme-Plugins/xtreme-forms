@@ -1,4 +1,4 @@
-=== XtremeLeads ===
+=== Xtreme Forms ===
 Contributors: xtremeplugins
 Tags: lead capture, contact form, leads, email notifications, webhooks, analytics, GDPR, spam protection, multisite
 Tested up to: 6.9
@@ -12,7 +12,7 @@ Powerful lead capture forms with email routing, webhooks, analytics, spam protec
 
 == Description ==
 
-XtremeLeads is a comprehensive WordPress lead capture and management plugin. Build custom forms, capture leads into a database, route notifications to the right team members, track analytics, and stay GDPR-compliant — all from a clean, fast admin interface.
+Xtreme Forms is a comprehensive WordPress lead capture and management plugin. Build custom forms, capture leads into a database, route notifications to the right team members, track analytics, and stay GDPR-compliant — all from a clean, fast admin interface.
 
 The free tier is fully featured for most use cases. An optional Pro upgrade unlocks advanced routing, webhook retries, extended analytics, and white-label mode.
 
@@ -35,32 +35,32 @@ The free tier is fully featured for most use cases. An optional Pro upgrade unlo
 * **Audit Log** — append-only log of all admin actions
 * **Import / Export** — full JSON round-trip export and import
 * **Multisite Support** — per-site tables, network-aware activation
-* **Gutenberg Block** — embed any form with the XtremeLeads block (live editor preview)
+* **Gutenberg Block** — embed any form with the Xtreme Forms block (live editor preview)
 * **Shortcode** — `[xtremeleads id="X"]` works everywhere
 
 = Pro Upgrade =
 
-Unlock advanced features with a Pro license from https://xtremeplugins.com/plugins/xtreme-leads/pro/:
+Unlock advanced features with a Pro license from https://xtremeplugins.com/plugins/xtreme-forms/pro/:
 
 * Priority routing rules with complex conditions
 * Webhook retry queue with exponential backoff
 * Advanced analytics: cohort analysis, lead value tracking
-* White-label mode (remove XtremeLeads branding from front-end forms)
+* White-label mode (remove Xtreme Forms branding from front-end forms)
 * Priority email support
 
 == Support ==
 
 Please submit bugs, patches, and feature requests to:
 
-https://github.com/Xtreme-Plugins/xtreme-leads
+https://github.com/Xtreme-Plugins/xtreme-forms
 
 == Installation ==
 
-1. Download `xtreme-leads.zip`
+1. Download `xtreme-forms.zip`
 1. Unzip
 1. Upload the `xtremeleads` directory to `/wp-content/plugins`
 1. Activate the plugin
-1. Go to **XtremeLeads → Forms** to build your first form
+1. Go to **Xtreme Forms → Forms** to build your first form
 1. Embed it with `[xtremeleads id="X"]` or the Gutenberg block
 
 == Screenshots ==
@@ -86,7 +86,7 @@ Yes. Use `[xtremeleads id="X"]` in Elementor's Shortcode widget, or the native G
 
 = Is it multisite compatible? =
 
-Yes. XtremeLeads creates per-site database tables and supports network-wide activation.
+Yes. Xtreme Forms creates per-site database tables and supports network-wide activation.
 
 = Does it work with GDPR / privacy laws? =
 

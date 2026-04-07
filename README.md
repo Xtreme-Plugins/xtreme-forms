@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/img/xtremeleads.webp" alt="XtremeLeads" width="400">
+  <img src="assets/img/xtremeleads.webp" alt="Xtreme Forms" width="400">
 </p>
 
-<h1 align="center">XtremeLeads</h1>
+<h1 align="center">Xtreme Forms</h1>
 <p align="center">A powerful, free WordPress lead capture plugin with form builder, email routing, webhooks, analytics, GDPR tools, and multisite support.</p>
 
 <p align="center">
@@ -14,9 +14,9 @@
 </p>
 
 <p align="center">
-  <a href="https://xtremeplugins.com/plugins/xtreme-leads"><img src="assets/img/btn-download.svg" alt="Download Free" height="50"></a>
+  <a href="https://xtremeplugins.com/plugins/xtreme-forms"><img src="assets/img/btn-download.svg" alt="Download Free" height="50"></a>
   &nbsp;&nbsp;
-  <a href="https://xtremeplugins.com/plugins/xtreme-leads/pro"><img src="assets/img/btn-upgrade.svg" alt="Upgrade to Pro" height="50"></a>
+  <a href="https://xtremeplugins.com/plugins/xtreme-forms/pro"><img src="assets/img/btn-upgrade.svg" alt="Upgrade to Pro" height="50"></a>
 </p>
 
 ---
@@ -46,12 +46,12 @@
 
 ### Pro Upgrade
 
-Available at [xtremeplugins.com/plugins/xtreme-leads/pro](https://xtremeplugins.com/plugins/xtreme-leads/pro):
+Available at [xtremeplugins.com/plugins/xtreme-forms/pro](https://xtremeplugins.com/plugins/xtreme-forms/pro):
 
 - Priority routing rules with complex AND/OR conditions
 - Webhook retry queue with exponential backoff and delivery dashboard
 - Advanced analytics: cohort analysis, lead value tracking
-- White-label mode — remove XtremeLeads branding from forms
+- White-label mode — remove Xtreme Forms branding from forms
 - Priority email support
 
 ---
@@ -63,10 +63,10 @@ Available at [xtremeplugins.com/plugins/xtreme-leads/pro](https://xtremeplugins.
 
 ## Installation
 
-1. Download `xtreme-leads.zip` from [https://xtremeplugins.com/plugins/xtreme-leads](https://xtremeplugins.com/plugins/xtreme-leads)
+1. Download `xtreme-forms.zip` from [https://xtremeplugins.com/plugins/xtreme-forms](https://xtremeplugins.com/plugins/xtreme-forms)
 2. Upload via **Plugins → Add New → Upload Plugin** or unzip to `/wp-content/plugins/`
 3. Activate the plugin
-4. Go to **XtremeLeads → Forms** to create your first form
+4. Go to **Xtreme Forms → Forms** to create your first form
 5. Embed it with `[xtremeleads id="X"]` or the Gutenberg block
 
 ## Compatibility
@@ -79,7 +79,7 @@ GPL-2.0-or-later — [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu
 
 ## Links
 
-- [Plugin Page](https://xtremeplugins.com/plugins/xtreme-leads)
-- [Pro Upgrade](https://xtremeplugins.com/plugins/xtreme-leads/pro)
+- [Plugin Page](https://xtremeplugins.com/plugins/xtreme-forms)
+- [Pro Upgrade](https://xtremeplugins.com/plugins/xtreme-forms/pro)
 - [Changelog](CHANGELOG.md)
-- [Report Issues](https://github.com/Xtreme-Plugins/xtreme-leads/issues)
+- [Report Issues](https://github.com/Xtreme-Plugins/xtreme-forms/issues)

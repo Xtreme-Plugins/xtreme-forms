@@ -1,12 +1,12 @@
-XtremeLeads – Freemium Plugin License
+Xtreme Forms – Freemium Plugin License
 
 Effective Date: July 10, 2025
-Plugin Name: XtremeLeads
+Plugin Name: Xtreme Forms
 Author: Xtreme Plugins Inc
 
 1. License Grant (GPL-Based)
 
-XtremeLeads is licensed under the GNU General Public License v2.0 or later (GPL v2+).
+Xtreme Forms is licensed under the GNU General Public License v2.0 or later (GPL v2+).
 
 You are free to:
 
@@ -16,7 +16,7 @@ Distribute the free version
 
 2. Free vs Pro
 
-XtremeLeads is available in two tiers:
+Xtreme Forms is available in two tiers:
 
 Free — core lead capture, form builder, email notifications, basic analytics, GDPR tools, and spam protection. No license key required.
 Pro (optional upgrade) — advanced features including priority routing rules, webhook retries, advanced analytics dashboards, white-label mode, and priority support. Requires a valid license key from https://xtremeplugins.com.
@@ -57,7 +57,7 @@ Pro license holders receive updates for the duration of their license term.
 
 7. Third-Party Libraries
 
-XtremeLeads may include third-party libraries or assets, which remain under their respective licenses.
+Xtreme Forms may include third-party libraries or assets, which remain under their respective licenses.
 
 8. Usage Restrictions
 
@@ -74,4 +74,4 @@ This license automatically terminates if you violate its terms.
 
 10. Acceptance of Terms
 
-By installing or using XtremeLeads, you agree to the terms of this license.
+By installing or using Xtreme Forms, you agree to the terms of this license.

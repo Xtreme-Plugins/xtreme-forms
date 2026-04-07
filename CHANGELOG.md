@@ -1,28 +1,28 @@
 # Changelog
 
-All notable changes to XtremeLeads are documented here.
+All notable changes to Xtreme Forms are documented here.
 
 ## [1.6.7] - 2026-04-07
 
 ### Fixed
-- PHPCS compliance: converted single-line `phpcs:ignore` comments placed above multi-line `$_POST`/`$_FILES` expressions to `phpcs:disable/enable` blocks so the suppression covers the actual violation line — affected `$_POST['xl_fields']`, `$_POST['rules']`, and `$_POST['webhook']`
-- PHPCS compliance: replaced `(int)` cast on `$_FILES['xl_import_file']['size']` with `absint()` which is recognized as a sanitization function by PHPCS
-- PHPCS compliance: added `WordPress.Security.ValidatedSanitizedInput.InputNotSanitized` to the existing `phpcs:ignore` on `$_FILES['xl_import_file']['tmp_name']` in `file_get_contents()` (tmp path cannot be passed through sanitize functions)
+- PHPCS compliance: converted single-line `phpcs:ignore` comments placed above multi-line `$_POST`/`$_FILES` expressions to `phpcs:disable/enable` blocks so the suppression covers the actual violation line — affected `$_POST['xf_fields']`, `$_POST['rules']`, and `$_POST['webhook']`
+- PHPCS compliance: replaced `(int)` cast on `$_FILES['xf_import_file']['size']` with `absint()` which is recognized as a sanitization function by PHPCS
+- PHPCS compliance: added `WordPress.Security.ValidatedSanitizedInput.InputNotSanitized` to the existing `phpcs:ignore` on `$_FILES['xf_import_file']['tmp_name']` in `file_get_contents()` (tmp path cannot be passed through sanitize functions)
 
 ## [1.6.6] - 2026-04-07
 
 ### Fixed
-- PHPCS compliance: added `WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare` and `WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber` to the phpcs:disable blocks in `class-xl-spam.php` covering the conditional `$wpdb->prepare()` calls with variadic spread parameters
-- PHPCS compliance: converted inline `phpcs:ignore` on `$wpdb->get_row()` in `class-xl-email-log.php` to a disable/enable block including `PluginCheck.Security.DirectDB.UnescapedDBParameter`
-- PHPCS compliance: added `PluginCheck.Security.DirectDB.UnescapedDBParameter` to all phpcs:disable/enable blocks in `class-xl-duplicates.php`, `class-xl-activity.php`, `class-xl-import-export.php`, `class-xl-notes.php`, and `class-xl-routing-rules.php` — this sniff fires from the PluginCheck sniff set separately from the `WordPress.DB.PreparedSQL.UnescapedDBParameter` rule
-- Issues 2 and 3 (`class-xl-ajax.php` line 1735, `class-xl-admin.php` lines 495, 950, 1433, 1440) were already correctly suppressed in the prior release
+- PHPCS compliance: added `WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare` and `WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber` to the phpcs:disable blocks in `class-xf-spam.php` covering the conditional `$wpdb->prepare()` calls with variadic spread parameters
+- PHPCS compliance: converted inline `phpcs:ignore` on `$wpdb->get_row()` in `class-xf-email-log.php` to a disable/enable block including `PluginCheck.Security.DirectDB.UnescapedDBParameter`
+- PHPCS compliance: added `PluginCheck.Security.DirectDB.UnescapedDBParameter` to all phpcs:disable/enable blocks in `class-xf-duplicates.php`, `class-xf-activity.php`, `class-xf-import-export.php`, `class-xf-notes.php`, and `class-xf-routing-rules.php` — this sniff fires from the PluginCheck sniff set separately from the `WordPress.DB.PreparedSQL.UnescapedDBParameter` rule
+- Issues 2 and 3 (`class-xf-ajax.php` line 1735, `class-xf-admin.php` lines 495, 950, 1433, 1440) were already correctly suppressed in the prior release
 
 ## [1.6.5] - 2026-04-07
 
 ### Fixed
-- PHPCS compliance: wrapped all remaining `$wpdb->` calls in `phpcs:disable/enable` blocks covering `InterpolatedNotPrepared`, `DirectQuery`, `NoCaching`, `NotPrepared`, and `UnescapedDBParameter` rules across `class-xl-activity.php`, `class-xl-notes.php`, `class-xl-duplicates.php`, `class-xl-import-export.php`, and `class-xl-routing-rules.php`
+- PHPCS compliance: wrapped all remaining `$wpdb->` calls in `phpcs:disable/enable` blocks covering `InterpolatedNotPrepared`, `DirectQuery`, `NoCaching`, `NotPrepared`, and `UnescapedDBParameter` rules across `class-xf-activity.php`, `class-xf-notes.php`, `class-xf-duplicates.php`, `class-xf-import-export.php`, and `class-xf-routing-rules.php`
 - PHPCS compliance: replaced trailing inline `phpcs:ignore` comments on multi-line `$wpdb->` call blocks with correct disable/enable block pairs
-- PHPCS compliance: added `phpcs:disable WordPress.Security.NonceVerification` to read-only admin display partials (`xl-admin-dashboard.php`, `xl-admin-network-dashboard.php`, `xl-admin-network-settings.php`)
+- PHPCS compliance: added `phpcs:disable WordPress.Security.NonceVerification` to read-only admin display partials (`xf-admin-dashboard.php`, `xf-admin-network-dashboard.php`, `xf-admin-network-settings.php`)
 
 ## [1.6.0] - 2026-02-28
 
