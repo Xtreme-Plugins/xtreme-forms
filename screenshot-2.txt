@@ -1,0 +1,2 @@
+Screenshot 2: Lead Inbox
+Shows the lead inbox admin screen listing all form submissions. Columns include submission date, form name, lead status (New, Read, Contacted, Converted), and a preview of key field values. A search bar and status filter are at the top. Clicking a lead row opens a detail panel on the right.

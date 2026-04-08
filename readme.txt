@@ -8,7 +8,7 @@ Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lead capture forms with email routing, webhooks, analytics, spam protection, and GDPR tools. Free with optional Pro upgrade.
+Lead capture forms with email routing, webhooks, analytics, spam protection, and GDPR tools. Free.
 
 == Description ==
 
@@ -18,12 +18,12 @@ The free tier is fully featured for most use cases. An optional Pro upgrade unlo
 
 = Core Features (Free) =
 
-* **Drag-and-drop Form Builder** — text, email, phone, select, checkbox, radio, textarea, date, file, hidden fields
+* **Drag-and-drop Form Builder** — text, email, phone, select, checkbox, radio, textarea, date, file, hidden fields with per-field conditional logic
 * **Lead Inbox** — searchable, filterable lead list with status management (new, read, contacted, converted, archived, spam)
 * **Email Notifications** — route notifications to different recipients based on form field values
 * **Auto-Responder** — send a branded confirmation email to the lead on submission
 * **Email Templates** — reusable templates with merge tags ({{first_name}}, {{form_name}}, etc.)
-* **Webhooks** — fire HTTP POST payloads to external URLs on lead capture
+* **Webhooks** — fire HTTP POST payloads to external URLs on lead capture with delivery logging
 * **Analytics Dashboard** — submission trends, conversion rates, top forms, lead source breakdown
 * **UTM Tracking** — automatically capture and store UTM parameters with each lead
 * **Duplicate Detection** — configurable duplicate suppression by email/phone within a time window
@@ -42,33 +42,22 @@ The free tier is fully featured for most use cases. An optional Pro upgrade unlo
 
 Unlock advanced features with a Pro license from https://xtremeplugins.com/plugins/xtreme-forms/pro/:
 
-* Priority routing rules with complex conditions
+* Priority routing rules with complex AND/OR conditions
 * Webhook retry queue with exponential backoff
 * Advanced analytics: cohort analysis, lead value tracking
 * White-label mode (remove Xtreme Forms branding from front-end forms)
 * Priority email support
 
-== Support ==
-
-Please submit bugs, patches, and feature requests to:
-
-https://github.com/Xtreme-Plugins/xtreme-forms
-
 == Installation ==
 
 1. Download `xtreme-forms.zip`
-1. Unzip
-1. Upload the `xtremeleads` directory to `/wp-content/plugins`
-1. Activate the plugin
-1. Go to **Xtreme Forms → Forms** to build your first form
-1. Embed it with `[xtremeleads id="X"]` or the Gutenberg block
+2. In your WordPress admin go to **Plugins → Add New → Upload Plugin**
+3. Select the zip file and click **Install Now**
+4. Activate the plugin
+5. Go to **Xtreme Forms → Forms** to build your first form
+6. Embed it with `[xtremeleads id="X"]` or the Gutenberg block
 
-== Screenshots ==
-
-1. Lead inbox — filterable, searchable list with status badges and bulk actions
-2. Form builder — drag-and-drop field editor with live preview
-3. Analytics dashboard — submission trends and lead source breakdown
-4. Lead detail — activity timeline, notes, tags, and audit trail
+Alternatively, unzip the archive and upload the `xtreme-forms` folder to `/wp-content/plugins/`, then activate from the Plugins screen.
 
 == Frequently Asked Questions ==
 
@@ -96,43 +85,69 @@ Yes. Includes consent checkbox, right-to-erasure data deletion, configurable dat
 
 Yes. Full JSON export and import from the Import/Export admin page.
 
+= Where do I report bugs or request features? =
+
+Please use the WordPress.org support forum for this plugin, or file an issue at https://github.com/Xtreme-Plugins/xtreme-forms.
+
+== Screenshots ==
+
+1. Lead inbox — filterable, searchable list with status badges and bulk actions
+2. Form builder — drag-and-drop field editor with live preview and conditional logic
+3. Analytics dashboard — submission trends and lead source breakdown
+4. Lead detail — activity timeline, notes, tags, and audit trail
+
 == Changelog ==
 
-= 1.6.0 - 28th February 2026 =
+= 2.0.3 =
+* Stability release following the XtremeLeads → Xtreme Forms rename
+* Ensured all text domain references use xtreme-forms
+* Minor admin UI polish
+
+= 2.0.2 =
+* Fixed hidden .gitkeep file in assets/img/ (Plugin Check compliance)
+* Added .distignore to exclude dev files from WP.org SVN releases
+* PHPCS compliance: fixed inline ignore comments on multi-line expressions in admin partials
+* Auto-corrected 1461 code formatting issues via phpcbf
+
+= 2.0.1 =
+* Added first-activation welcome screen (appears once after activation, dismissed automatically)
+* Welcome screen sections: getting started video placeholder, 8-feature grid, Pro upgrade section, testimonials
+* Version bump from 1.6.7 to 2.0.1 marks the plugin rename milestone (XtremeLeads → Xtreme Forms)
+
+= 1.6.0 =
 * Added full import/export with JSON round-trip (export all forms + leads, re-import on any site)
 * Added multisite support — per-site tables, network-aware activation, new blog provisioning
 * Added append-only audit log for all admin actions
 * Improved settings page organization with tabbed layout
 
-= 1.5.0 - 21st January 2026 =
+= 1.5.0 =
 * Added webhooks with delivery logging and configurable retry logic
 * Added GDPR consent checkbox (per form), right-to-erasure data deletion, configurable data retention
 * Added spam protection: honeypot, time-gate, reCAPTCHA v3, keyword blocklist
-* Fixed edge case where duplicate detection could fire on first submission in high-concurrency scenarios
 
-= 1.4.0 - 17th December 2025 =
+= 1.4.0 =
 * Added analytics dashboard: submission trends, lead source breakdown, top forms, conversion rates
 * Added UTM parameter capture and storage with each lead submission
 * Added duplicate detection: configurable by email/phone within a time window, with admin override
 
-= 1.3.0 - 26th November 2025 =
+= 1.3.0 =
 * Added email templates with merge tags ({{first_name}}, {{form_name}}, {{site_name}}, etc.)
 * Added email routing rules: route notifications to different recipients based on field values
 * Added email log: full record of all outbound emails per lead
 
-= 1.2.0 - 22nd October 2025 =
+= 1.2.0 =
 * Added lead activity timeline — per-lead event history
 * Added internal notes on leads
 * Added tag management for filtering and organizing leads
 * Improved lead inbox with bulk status updates
 
-= 1.1.0 - 18th September 2025 =
+= 1.1.0 =
 * Added auto-responder: branded confirmation email to submitter on capture
 * Added lead status workflow: new, read, contacted, converted, archived, spam
 * Added per-field conditional logic in form builder
-* Improved admin UI — neumorphic design refresh
+* Improved admin UI
 
-= 1.0.0 - 14th August 2025 =
+= 1.0.0 =
 * Initial production release
 * Drag-and-drop form builder with 10 field types
 * Lead capture database with searchable inbox
@@ -140,8 +155,10 @@ Yes. Full JSON export and import from the Import/Export admin page.
 * Shortcode `[xtremeleads id="X"]` and Gutenberg block
 * Clean uninstall — removes all tables and options
 
-= 0.9.0 - 10th July 2025 =
-* Beta release for internal testing
-* Basic form builder and lead capture
-* Email notification on submission
-* Admin lead list
+== Upgrade Notice ==
+
+= 2.0.3 =
+Stable release. Safe to upgrade from any 1.x or 2.0.x version — no database changes.
+
+= 2.0.1 =
+Plugin renamed from XtremeLeads to Xtreme Forms. Deactivate and delete XtremeLeads before installing if upgrading from the old plugin slug.

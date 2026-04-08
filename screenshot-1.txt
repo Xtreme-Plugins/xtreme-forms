@@ -1,0 +1,2 @@
+Screenshot 1: Form Builder
+Shows the Xtreme Forms drag-and-drop form builder in the WordPress admin. The canvas displays a multi-field form with text, email, phone, and select fields. Each field can be dragged to reorder. The right panel shows field configuration options including label, placeholder, required toggle, and conditional logic rules.

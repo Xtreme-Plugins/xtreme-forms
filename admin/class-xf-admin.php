@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class XF_Admin
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound -- XF_ is the registered plugin prefix.
 class XF_Admin {
 
 	public function __construct() {
