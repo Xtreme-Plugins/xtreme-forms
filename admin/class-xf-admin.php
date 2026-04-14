@@ -734,6 +734,14 @@ class XF_Admin {
 				}
 			}
 
+			$field_float = ! empty( $field['float'] );
+			$field_width = isset( $field['width'] ) ? (float) $field['width'] : 100.0;
+			if ( $field_width <= 0 || $field_width > 100 ) {
+				$field_width = 100.0;
+			}
+
+			$field_rows = isset( $field['rows'] ) ? max( 1, min( 20, (int) $field['rows'] ) ) : 1;
+
 			$clean = array(
 				'id'            => $field_id,
 				'type'          => $field_type,
@@ -741,6 +749,9 @@ class XF_Admin {
 				'placeholder'   => $field_ph,
 				'required'      => $field_req,
 				'default_value' => $field_dv,
+				'float'         => $field_float,
+				'width'         => $field_width,
+				'rows'          => $field_rows,
 			);
 
 			if ( ! empty( $field_opts ) ) {
@@ -850,6 +861,13 @@ class XF_Admin {
 			// Scheduling.
 			'countdown_timer_enabled' => isset( $_POST['countdown_timer_enabled'] ) ? '1' : '0',
 			'closed_message'          => sanitize_textarea_field( wp_unslash( $_POST['closed_message'] ?? '' ) ),
+			'center_form'             => isset( $_POST['center_form'] ) ? '1' : '0',
+			'submit_float'            => isset( $_POST['submit_float'] ) && '1' === $_POST['submit_float'] ? '1' : '0',
+			'submit_width'            => (string) max( 10, min( 100, (int) ( $_POST['submit_width'] ?? 100 ) ) ),
+			'submit_align'            => in_array( $_POST['submit_align'] ?? 'left', array( 'left', 'center', 'right' ), true ) ? sanitize_text_field( $_POST['submit_align'] ) : 'left',
+			'submit_bg_color'         => sanitize_hex_color( wp_unslash( $_POST['submit_bg_color'] ?? '#1A73E8' ) ) ?: '#1A73E8',
+			'submit_text_color'       => sanitize_hex_color( wp_unslash( $_POST['submit_text_color'] ?? '#ffffff' ) ) ?: '#ffffff',
+			'submit_btn_size'         => in_array( $_POST['submit_btn_size'] ?? 'md', array( 'sm', 'md', 'lg', 'xl' ), true ) ? sanitize_text_field( $_POST['submit_btn_size'] ) : 'md',
 		);
 
 		// Scheduling datetime values.

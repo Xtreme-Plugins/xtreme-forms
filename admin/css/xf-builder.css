@@ -320,9 +320,13 @@
 .xfb-canvas-inner {
   max-width: 680px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: block;
+}
+
+.xfb-canvas-inner::after {
+  content: '';
+  display: table;
+  clear: both;
 }
 
 .xfb-empty-hint {
@@ -348,10 +352,11 @@
 /* ── Drop Gap ────────────────────────────────────────────────────────────── */
 
 .xfb-drop-gap {
+  clear: both;
+  display: block;
   height: 8px;
   border-radius: 6px;
   transition: height 0.15s ease, border 0.15s ease, background 0.15s ease;
-  flex-shrink: 0;
   box-sizing: border-box;
 }
 
@@ -361,9 +366,23 @@
   background: rgba(219, 234, 254, 0.3);
 }
 
+/* Gap between two consecutive floated fields — invisible but still in DOM for drop events */
+.xfb-drop-gap.xfb-drop-gap-inline {
+  clear: none;
+  float: left;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* ── Field Card ──────────────────────────────────────────────────────────── */
 
 .xfb-field-card {
+  display: block;
+  clear: both;
+  width: 100%;
+  box-sizing: border-box;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -373,6 +392,29 @@
   border-left: 4px solid transparent;
   transition: border-left-color 0.15s, background 0.15s, box-shadow 0.15s;
   user-select: none;
+}
+
+/* Live-update flash animation */
+@keyframes xfb-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+  50%  { box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.08); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+.xfb-card-flash {
+  animation: xfb-flash 0.4s ease-out;
+}
+
+/* Textarea preview height transition */
+.xfb-field-card textarea {
+  transition: height 0.25s ease;
+}
+
+.xfb-field-card.xfb-field-floating {
+  float: left;
+  clear: none;
+  width: auto; /* overridden by inline style */
+  box-sizing: border-box;
 }
 
 .xfb-field-card:hover {
@@ -453,7 +495,6 @@
 
 .xfb-field-card textarea {
   resize: none;
-  height: 72px;
 }
 
 .xfb-field-card select {
@@ -544,20 +585,33 @@
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  color: #6b7280;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
   cursor: pointer;
   user-select: none;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  transition: background 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+
+.xfb-toolbar-required:hover {
+  background: #f3f4f6;
 }
 
 .xfb-toolbar-required input[type="checkbox"] {
   pointer-events: auto;
   cursor: pointer;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   margin: 0;
   padding: 0;
+  flex-shrink: 0;
+  accent-color: #2563eb;
 }
 
 /* ── Right Settings Panel ────────────────────────────────────────────────── */

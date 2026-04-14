@@ -1,4 +1,32 @@
 # Changelog
+
+## [2.0.4] - 2026-04-14
+
+### Added
+- Form Builder: float + width % layout system for fields — place two fields side by side using float toggle and Full / 1/2 / 1/3 / 1/4 preset buttons
+- Form Builder: Height (lines) slider for textbox and textarea fields with preset buttons (1–8 lines); textarea rows grow/shrink dynamically in the canvas preview
+- Form Builder: Submit button card on canvas — click to edit button text, colors, alignment, size, and layout
+- Form Builder: "Center form" toggle in General tab — applies `max-width: 720px; margin: auto` on the frontend
+- Form Builder: Submit button visual size presets (Small / Medium / Large / XL) — apply different padding/font-size; saved to DB and applied on frontend via `xf-btn-size-*` class
+- Form Builder: Submit button layout width presets (Full / 1/2 / 1/3 / 1/4) for floated positioning
+- Form Builder: Submit button alignment (Left / Center / Right) when not floated
+- Form Builder: Color picker popups for submit button — click the swatch to open a panel with the native color wheel and a hex text input; auto-prepends `#` when pasting bare hex codes (e.g. `ffa500`)
+- Form Builder: Live canvas preview updates for all field property changes (label, placeholder, required, rows, float, width, options) with flash animation feedback
+- Public CSS: float-based side-by-side field layout using `box-sizing: border-box` + `padding-right` (avoids flex-gap overflow); textarea custom scrollbar; placeholder color `#b0b8c4`
+- Font changed to Inter (loaded via Google Fonts) for a clean, modern look
+
+### Changed
+- Form Builder: field width control now uses preset buttons only (Full / 1/2 / 1/3 / 1/4) — removed free-form number input
+- Form Builder: canvas layout switched from `display: flex` to `display: block` + clearfix to support CSS floats for side-by-side fields
+- Form Builder: Required field indicator moved to a pill toggle in the field toolbar
+
+### Fixed
+- Float + width not persisting after page reload — PHP save handler now sanitizes and stores `float` and `width` per field
+- Side-by-side fields not rendering in canvas preview — fixed by switching from flex to block layout
+- Side-by-side fields not rendering on frontend — fixed by switching from flex+gap to float+padding layout
+- Submit button center alignment not working — wrapper switched from flex to `display: block`; `text-align: center` applied to wrapper
+- Textarea height fixed at 72px — removed CSS `height: 72px` override so `rows` attribute controls height naturally
+
 ## [2.0.2] - 2026-04-07
 
 ### Fixed

@@ -46,6 +46,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 }
 
 // Form settings values.
+$center_form      = ! empty( $settings['center_form'] ) && '1' === (string) $settings['center_form'];
 $submit_label     = $settings['submit_label'] ?? '';
 $redirect_url     = $settings['redirect_url'] ?? '';
 $thank_you_msg    = $settings['thank_you_message'] ?? '';
@@ -115,6 +116,14 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 
 		<!-- Hidden field that JS builder syncs to on every change and before submit -->
 		<input type="hidden" name="xf_fields" id="xf-fields-json" value="<?php echo esc_attr( $fields_json ); ?>">
+
+		<!-- Submit button layout settings (synced by JS) -->
+		<input type="hidden" name="submit_float" id="xf-submit-float" value="<?php echo esc_attr( $settings['submit_float'] ?? '0' ); ?>">
+		<input type="hidden" name="submit_width" id="xf-submit-width" value="<?php echo esc_attr( $settings['submit_width'] ?? '100' ); ?>">
+		<input type="hidden" name="submit_align" id="xf-submit-align" value="<?php echo esc_attr( $settings['submit_align'] ?? 'left' ); ?>">
+		<input type="hidden" name="submit_bg_color" id="xf-submit-bg-color" value="<?php echo esc_attr( $settings['submit_bg_color'] ?? '#1A73E8' ); ?>">
+		<input type="hidden" name="submit_text_color" id="xf-submit-text-color" value="<?php echo esc_attr( $settings['submit_text_color'] ?? '#ffffff' ); ?>">
+		<input type="hidden" name="submit_btn_size" id="xf-submit-btn-size" value="<?php echo esc_attr( $settings['submit_btn_size'] ?? 'md' ); ?>">
 
 		<!-- ── Title bar ──────────────────────────────────────────────────────── -->
 		<div class="xfb-title-bar">
@@ -203,6 +212,18 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 									value="<?php echo esc_attr( $submit_label ); ?>"
 									class="xf-input"
 									placeholder="<?php esc_attr_e( 'Submit', 'xtreme-forms' ); ?>">
+							</div>
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-row-label">
+									<label class="xfb-toggle xf-settings-toggle">
+										<input type="checkbox" name="center_form" value="1"<?php checked( $center_form ); ?>>
+										<span class="xfb-toggle-track"></span>
+										<span class="xfb-toggle-thumb"></span>
+									</label>
+									<span style="font-weight:600;font-size:13px;"><?php esc_html_e( 'Center form on page', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint" style="margin-top:4px;"><?php esc_html_e( 'Constrains the form to a max width and centers it within the content area.', 'xtreme-forms' ); ?></p>
 							</div>
 
 							<hr class="xf-divider">
@@ -563,5 +584,251 @@ var xfBuilderData = {
 	min-width: 280px;
 	padding: 16px;
 	border-right: 1px solid #e5e7eb;
+}
+
+/* ── Float / width layout controls ──────────────────────────────── */
+.xfb-sp-section-title {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #9ca3af;
+	margin-bottom: 8px;
+}
+
+.xfb-width-preset {
+	padding: 3px 8px;
+	font-size: 11px;
+	font-weight: 600;
+	background: #f3f4f6;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+	cursor: pointer;
+	color: #374151;
+	line-height: 1.4;
+}
+
+.xfb-width-preset:hover {
+	background: #e5e7eb;
+}
+
+/* Width badge on canvas card */
+.xfb-width-badge {
+	position: absolute;
+	top: 6px;
+	right: 36px;
+	font-size: 10px;
+	font-weight: 700;
+	background: #2563eb;
+	color: #fff;
+	border-radius: 3px;
+	padding: 1px 5px;
+	pointer-events: none;
+}
+
+/* ── Submit button canvas card ───────────────────────────────────── */
+.xfb-submit-preview {
+	clear: both;
+	display: block;
+	position: relative;
+	margin-top: 4px;
+	padding: 14px 16px;
+	border-radius: 8px;
+	border: 2px dashed #d1d5db;
+	cursor: pointer;
+	background: #fafafa;
+	transition: border-color 0.15s, background 0.15s;
+}
+
+.xfb-submit-preview:hover,
+.xfb-submit-preview.selected {
+	border-color: #2563eb;
+	background: #eff6ff;
+}
+
+.xfb-submit-btn-preview {
+	display: inline-block;
+	padding: 10px 28px;
+	font-size: 14px;
+	font-weight: 600;
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	pointer-events: none;
+	transition: padding 0.2s ease, font-size 0.2s ease;
+}
+
+/* Button size variants — canvas preview */
+.xfb-btn-size-sm { padding: 6px 16px;  font-size: 12px; }
+.xfb-btn-size-md { padding: 10px 28px; font-size: 14px; }
+.xfb-btn-size-lg { padding: 14px 36px; font-size: 16px; }
+.xfb-btn-size-xl { padding: 18px 52px; font-size: 19px; }
+
+.xfb-submit-hint {
+	position: absolute;
+	right: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 11px;
+	color: #9ca3af;
+	font-style: italic;
+	pointer-events: none;
+}
+
+/* Rows slider in settings panel */
+.xfb-rows-slider {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 100%;
+	height: 4px;
+	border-radius: 4px;
+	background: #e5e7eb;
+	outline: none;
+	cursor: pointer;
+}
+
+.xfb-rows-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #2563eb;
+	cursor: pointer;
+	box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+	transition: box-shadow 0.15s;
+}
+
+.xfb-rows-slider::-webkit-slider-thumb:hover {
+	box-shadow: 0 0 0 5px rgba(37,99,235,.2);
+}
+
+.xfb-rows-slider::-moz-range-thumb {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #2563eb;
+	cursor: pointer;
+	border: none;
+}
+
+.xfb-rows-display {
+	min-width: 54px;
+	text-align: center;
+	font-size: 12px;
+	font-weight: 700;
+	color: #2563eb;
+	background: #eff6ff;
+	border-radius: 4px;
+	padding: 2px 6px;
+}
+
+/* Alignment buttons in settings panel */
+.xfb-align-btn {
+	padding: 5px 12px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #f3f4f6;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+	cursor: pointer;
+	color: #374151;
+}
+
+.xfb-align-btn:hover {
+	background: #e5e7eb;
+}
+
+.xfb-align-btn.xfb-align-active {
+	background: #2563eb;
+	color: #fff;
+	border-color: #2563eb;
+}
+
+/* Color picker columns */
+.xfb-color-col {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	position: relative;
+}
+
+/* Clickable color swatch button */
+.xfb-color-swatch-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	border: 2px solid rgba(0,0,0,0.12);
+	cursor: pointer;
+	transition: border-color 0.15s, box-shadow 0.15s;
+	box-sizing: border-box;
+}
+
+.xfb-color-swatch-btn:hover {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.xfb-color-row-label {
+	font-size: 10px;
+	font-weight: 600;
+	color: #9ca3af;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* Color popup (hidden by default, shown on swatch click) */
+.xfb-color-popup {
+	display: none;
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	z-index: 999;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+	padding: 12px;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 140px;
+}
+
+.xfb-color-popup.xfb-color-popup-open {
+	display: flex;
+}
+
+/* Native color input inside popup — display as large block */
+.xfb-color-input-native {
+	width: 100%;
+	height: 80px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	padding: 0;
+	background: none;
+	box-sizing: border-box;
+}
+
+.xfb-hex-input {
+	width: 100%;
+	padding: 5px 8px;
+	font-size: 12px;
+	font-family: 'SFMono-Regular', Consolas, monospace;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	outline: none;
+	box-sizing: border-box;
+	color: #374151;
+	background: #fff;
+	transition: border-color 0.15s;
+}
+
+.xfb-hex-input:focus {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 2px rgba(37,99,235,0.12);
 }
 </style>

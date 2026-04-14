@@ -81,6 +81,9 @@
       placeholder: '',
       required:    false,
       options:     defaultOptionsForType(type),
+      float:       false,
+      width:       '100',
+      rows:        type === 'textarea' ? '4' : '1',
     };
     return defaults;
   }
@@ -227,6 +230,9 @@
         placeholder: f.placeholder || '',
         required:    !!f.required,
         options:     Array.isArray(f.options) ? f.options : [],
+        float:       !!f.float,
+        width:       String(f.width || '100'),
+        rows:        String(f.rows || (f.type === 'textarea' ? '4' : '1')),
       };
     },
 
@@ -364,8 +370,16 @@
       fields.forEach(function (field, idx) {
         var card = self.renderField(field);
         inner.appendChild(card);
-        inner.appendChild(self.makeDropGap(idx + 1));
+
+        // If this field AND the next are both floated, the drop gap between them
+        // must be invisible so they float side-by-side.
+        var nextField = fields[idx + 1];
+        var inline = !!(field.float && nextField && nextField.float);
+        inner.appendChild(self.makeDropGap(idx + 1, inline));
       });
+
+      // Submit button preview at the bottom.
+      inner.appendChild(this.renderSubmitCard());
 
       // Render settings panel.
       this.renderSettings(
@@ -374,11 +388,329 @@
     },
 
     // Create a drop gap element.
-    makeDropGap: function (index) {
+    // inline=true: hidden gap between two consecutive floated fields.
+    makeDropGap: function (index, inline) {
       var gap = document.createElement('div');
-      gap.className = 'xfb-drop-gap';
+      gap.className = 'xfb-drop-gap' + (inline ? ' xfb-drop-gap-inline' : '');
       gap.dataset.dropIndex = index;
       return gap;
+    },
+
+    // ── Submit button preview card ───────────────────────────────────────
+
+    // Read submit layout hidden inputs from the DOM.
+    getSubmitLayout: function () {
+      return {
+        float:     (document.getElementById('xf-submit-float')      || {}).value === '1',
+        width:     (document.getElementById('xf-submit-width')      || {}).value || '100',
+        align:     (document.getElementById('xf-submit-align')      || {}).value || 'left',
+        bgColor:   (document.getElementById('xf-submit-bg-color')   || {}).value || '#1A73E8',
+        textColor: (document.getElementById('xf-submit-text-color') || {}).value || '#ffffff',
+        btnSize:   (document.getElementById('xf-submit-btn-size')   || {}).value || 'md',
+      };
+    },
+
+    renderSubmitCard: function () {
+      var self    = this;
+      var label   = (document.getElementById('submit_label') || {}).value || 'Submit';
+      var layout  = this.getSubmitLayout();
+      var selected = this.state.selectedFieldId === '__submit__';
+
+      var wrap = document.createElement('div');
+      wrap.className = 'xfb-submit-preview' + (selected ? ' selected' : '') + (layout.float ? ' xfb-field-floating' : '');
+      if (layout.float) {
+        wrap.style.width = layout.width + '%';
+      }
+
+      // Apply alignment via text-align on the wrapper (works with inline-block button).
+      if (!layout.float) {
+        wrap.style.textAlign = layout.align || 'left';
+      }
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'xfb-submit-btn-preview xfb-btn-size-' + (layout.btnSize || 'md');
+      btn.textContent = label.trim() || 'Submit';
+      btn.style.background = layout.bgColor;
+      btn.style.color      = layout.textColor;
+      wrap.appendChild(btn);
+
+      if (layout.float) {
+        var badge = document.createElement('span');
+        badge.className = 'xfb-width-badge';
+        badge.textContent = layout.width + '%';
+        wrap.appendChild(badge);
+      }
+
+      var hint = document.createElement('span');
+      hint.className = 'xfb-submit-hint';
+      hint.textContent = 'Click to edit button';
+      wrap.appendChild(hint);
+
+      wrap.addEventListener('click', function () {
+        self.state.selectedFieldId = '__submit__';
+        // Deselect field cards.
+        self.els.canvasInner.querySelectorAll('.xfb-field-card.selected').forEach(function (el) {
+          el.classList.remove('selected');
+        });
+        self.renderSubmitSettings();
+      });
+
+      return wrap;
+    },
+
+    renderSubmitSettings: function () {
+      var self   = this;
+      var panel  = this.els.settingsPanel;
+      var body   = this.els.settingsBody;
+      panel.classList.remove('hidden');
+
+      var labelInput  = document.getElementById('submit_label');
+      var floatInput  = document.getElementById('xf-submit-float');
+      var widthInput  = document.getElementById('xf-submit-width');
+      var alignInput  = document.getElementById('xf-submit-align');
+
+      var layout = this.getSubmitLayout();
+      var currentLabel = (labelInput ? labelInput.value.trim() : '') || 'Submit';
+
+      var html = '<div class="xfb-sp-inner">';
+      html += '<div class="xfb-sp-title">Submit Button</div>';
+
+      // Label.
+      html += '<div class="xfb-sp-field">';
+      html += '<label class="xfb-sp-label" for="xfbs-submit-label">Button Text</label>';
+      html += '<input class="xfb-sp-input" id="xfbs-submit-label" type="text" value="' + this.esc(currentLabel) + '" placeholder="Submit">';
+      html += '</div>';
+
+      // Colors — two compact columns, each with a swatch that opens a popup with picker + hex input.
+      html += '<div class="xfb-sp-field">';
+      html += '<label class="xfb-sp-label">Colors</label>';
+      html += '<div style="display:flex;gap:20px;">';
+
+      // Background column.
+      html += '<div class="xfb-color-col">';
+      html += '<div class="xfb-color-swatch-btn" id="xfbs-bg-swatch" style="background:' + this.esc(layout.bgColor) + ';" title="Background color"></div>';
+      html += '<span class="xfb-color-row-label">Background</span>';
+      html += '<div class="xfb-color-popup" id="xfbs-bg-popup">';
+      html += '<input type="color" id="xfbs-submit-bg" value="' + this.esc(layout.bgColor) + '" class="xfb-color-input-native">';
+      html += '<input type="text" id="xfbs-submit-bg-hex" class="xfb-hex-input" value="' + this.esc(layout.bgColor) + '" placeholder="#1A73E8" maxlength="7" spellcheck="false">';
+      html += '</div>';
+      html += '</div>';
+
+      // Text color column.
+      html += '<div class="xfb-color-col">';
+      html += '<div class="xfb-color-swatch-btn" id="xfbs-text-swatch" style="background:' + this.esc(layout.textColor) + ';" title="Text color"></div>';
+      html += '<span class="xfb-color-row-label">Text</span>';
+      html += '<div class="xfb-color-popup" id="xfbs-text-popup">';
+      html += '<input type="color" id="xfbs-submit-text" value="' + this.esc(layout.textColor) + '" class="xfb-color-input-native">';
+      html += '<input type="text" id="xfbs-submit-text-hex" class="xfb-hex-input" value="' + this.esc(layout.textColor) + '" placeholder="#ffffff" maxlength="7" spellcheck="false">';
+      html += '</div>';
+      html += '</div>';
+
+      html += '</div>';
+      html += '</div>';
+
+      html += '<hr class="xfb-sp-divider">';
+
+      // Alignment (when not floated).
+      html += '<div class="xfb-sp-field" id="xfbs-align-wrap"' + (layout.float ? ' style="display:none;"' : '') + '>';
+      html += '<label class="xfb-sp-label">Alignment</label>';
+      html += '<div style="display:flex;gap:6px;">';
+      ['left','center','right'].forEach(function (a) {
+        var active = layout.align === a ? ' xfb-align-active' : '';
+        html += '<button type="button" class="xfb-align-btn' + active + '" data-align="' + a + '">' + a.charAt(0).toUpperCase() + a.slice(1) + '</button>';
+      });
+      html += '</div>';
+      html += '</div>';
+
+      html += '<hr class="xfb-sp-divider">';
+      html += '<div class="xfb-sp-section-title">Layout</div>';
+
+      // Button Size presets — control visual size (padding/font).
+      var currentBtnSize = layout.btnSize || 'md';
+      html += '<div class="xfb-sp-field">';
+      html += '<label class="xfb-sp-label">Button Size</label>';
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+      [['sm','Small'],['md','Medium'],['lg','Large'],['xl','XL']].forEach(function (pair) {
+        var active = currentBtnSize === pair[0] ? ' xfb-align-active' : '';
+        html += '<button type="button" class="xfb-width-preset xfb-submit-btnsize-btn' + active + '" data-btnsize="' + pair[0] + '">' + pair[1] + '</button>';
+      });
+      html += '</div>';
+      html += '</div>';
+
+      // Layout width presets — Full, 1/2, 1/3, 1/4.
+      var currentSize = layout.float ? String(layout.width) : 'auto';
+      html += '<div class="xfb-sp-field">';
+      html += '<label class="xfb-sp-label">Width</label>';
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+      [['100','Full'],['50','1/2'],['33','1/3'],['25','1/4']].forEach(function (pair) {
+        var active = currentSize === pair[0] ? ' xfb-align-active' : '';
+        html += '<button type="button" class="xfb-width-preset xfb-submit-size-btn' + active + '" data-size="' + pair[0] + '">' + pair[1] + '</button>';
+      });
+      html += '</div>';
+      html += '</div>';
+
+      // Float toggle (side-by-side with another element).
+      html += '<div class="xfb-sp-toggle-row" style="margin-top:8px;">';
+      html += '<span class="xfb-sp-toggle-label">Float (side-by-side)</span>';
+      html += '<label class="xfb-toggle">';
+      html += '<input type="checkbox" id="xfbs-submit-float"' + (layout.float ? ' checked' : '') + '>';
+      html += '<span class="xfb-toggle-track"></span>';
+      html += '<span class="xfb-toggle-thumb"></span>';
+      html += '</label>';
+      html += '</div>';
+
+      html += '</div>';
+      body.innerHTML = html;
+
+      // Helper: refresh the submit card in canvas.
+      function refreshCard() {
+        var existing = self.els.canvasInner.querySelector('.xfb-submit-preview');
+        if (existing) {
+          existing.parentNode.replaceChild(self.renderSubmitCard(), existing);
+        }
+      }
+
+      // Label.
+      var inp = body.querySelector('#xfbs-submit-label');
+      if (inp && labelInput) {
+        inp.addEventListener('input', function () {
+          labelInput.value = inp.value;
+          var livePreview = body.querySelector('#xfbs-btn-live-preview');
+          if (livePreview) livePreview.textContent = inp.value || 'Submit';
+          refreshCard();
+        });
+        inp.focus();
+      }
+
+      // Color pickers + popup logic.
+      var bgInput   = body.querySelector('#xfbs-submit-bg');
+      var textInput = body.querySelector('#xfbs-submit-text');
+      var bgHidden   = document.getElementById('xf-submit-bg-color');
+      var textHidden = document.getElementById('xf-submit-text-color');
+
+      // Helper: normalise hex value — prepend # if missing, return null if invalid.
+      function normaliseHex(val) {
+        val = val.trim();
+        if (/^[0-9a-fA-F]{6}$/.test(val)) val = '#' + val;
+        return /^#[0-9a-fA-F]{6}$/.test(val) ? val : null;
+      }
+
+      function syncColors(source) {
+        var bg   = bgInput   ? bgInput.value   : layout.bgColor;
+        var text = textInput ? textInput.value : layout.textColor;
+        if (bgHidden)   bgHidden.value   = bg;
+        if (textHidden) textHidden.value = text;
+        // Keep hex text inputs in sync with color pickers (skip if they were the source).
+        var bgHexEl   = body.querySelector('#xfbs-submit-bg-hex');
+        var textHexEl = body.querySelector('#xfbs-submit-text-hex');
+        if (bgHexEl   && source !== 'bghex')   bgHexEl.value   = bg;
+        if (textHexEl && source !== 'texthex') textHexEl.value = text;
+        // Update swatch buttons.
+        var bgSwatch   = body.querySelector('#xfbs-bg-swatch');
+        var textSwatch = body.querySelector('#xfbs-text-swatch');
+        if (bgSwatch)   bgSwatch.style.background = bg;
+        if (textSwatch) textSwatch.style.background = text;
+        refreshCard();
+      }
+
+      if (bgInput)   bgInput.addEventListener('input',   function () { syncColors('picker'); });
+      if (textInput) textInput.addEventListener('input', function () { syncColors('picker'); });
+
+      // Hex text inputs → sync to color picker (with auto # prepend).
+      var bgHexInp   = body.querySelector('#xfbs-submit-bg-hex');
+      var textHexInp = body.querySelector('#xfbs-submit-text-hex');
+      if (bgHexInp) bgHexInp.addEventListener('input', function () {
+        var hex = normaliseHex(bgHexInp.value);
+        if (hex) {
+          bgHexInp.value = hex;
+          if (bgInput) bgInput.value = hex;
+          syncColors('bghex');
+        }
+      });
+      if (textHexInp) textHexInp.addEventListener('input', function () {
+        var hex = normaliseHex(textHexInp.value);
+        if (hex) {
+          textHexInp.value = hex;
+          if (textInput) textInput.value = hex;
+          syncColors('texthex');
+        }
+      });
+
+      // Swatch click → toggle popup.
+      function togglePopup(swatchEl, popupEl) {
+        var isOpen = popupEl.classList.contains('xfb-color-popup-open');
+        // Close all popups.
+        body.querySelectorAll('.xfb-color-popup').forEach(function (p) { p.classList.remove('xfb-color-popup-open'); });
+        if (!isOpen) {
+          popupEl.classList.add('xfb-color-popup-open');
+          // Focus hex input.
+          var hexInp = popupEl.querySelector('.xfb-hex-input');
+          if (hexInp) setTimeout(function () { hexInp.focus(); hexInp.select(); }, 50);
+        }
+      }
+      var bgSwatch   = body.querySelector('#xfbs-bg-swatch');
+      var textSwatch = body.querySelector('#xfbs-text-swatch');
+      var bgPopup    = body.querySelector('#xfbs-bg-popup');
+      var textPopup  = body.querySelector('#xfbs-text-popup');
+      if (bgSwatch && bgPopup)     bgSwatch.addEventListener('click',   function () { togglePopup(bgSwatch, bgPopup); });
+      if (textSwatch && textPopup) textSwatch.addEventListener('click', function () { togglePopup(textSwatch, textPopup); });
+
+      // Close popups when clicking outside.
+      document.addEventListener('click', function closePopups(e) {
+        if (!body.contains(e.target)) {
+          body.querySelectorAll('.xfb-color-popup').forEach(function (p) { p.classList.remove('xfb-color-popup-open'); });
+          document.removeEventListener('click', closePopups);
+        }
+      });
+
+      // Button size preset buttons (Small/Medium/Large/XL).
+      var btnSizeInput = document.getElementById('xf-submit-btn-size');
+      body.querySelectorAll('.xfb-submit-btnsize-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.xfb-submit-btnsize-btn').forEach(function (b) { b.classList.remove('xfb-align-active'); });
+          btn.classList.add('xfb-align-active');
+          if (btnSizeInput) btnSizeInput.value = btn.dataset.btnsize;
+          refreshCard();
+        });
+      });
+
+      // Width preset buttons (Full/1/2/1/3/1/4).
+      var alignWrap = body.querySelector('#xfbs-align-wrap');
+      body.querySelectorAll('.xfb-submit-size-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.xfb-submit-size-btn').forEach(function (b) { b.classList.remove('xfb-align-active'); });
+          btn.classList.add('xfb-align-active');
+          var size = btn.dataset.size;
+          var floatCbEl = body.querySelector('#xfbs-submit-float');
+          // All width presets enable float so they behave like floated blocks.
+          if (floatInput) floatInput.value = '1';
+          if (widthInput) widthInput.value = size;
+          if (floatCbEl) floatCbEl.checked = true;
+          if (alignWrap) alignWrap.style.display = 'none';
+          refreshCard();
+        });
+      });
+
+      // Float toggle.
+      var floatCb = body.querySelector('#xfbs-submit-float');
+      if (floatCb) {
+        floatCb.addEventListener('change', function () {
+          if (floatInput) floatInput.value = floatCb.checked ? '1' : '0';
+          if (alignWrap) alignWrap.style.display = floatCb.checked ? 'none' : '';
+          refreshCard();
+        });
+      }
+
+      // Alignment buttons.
+      body.querySelectorAll('.xfb-align-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.xfb-align-btn').forEach(function (b) { b.classList.remove('xfb-align-active'); });
+          btn.classList.add('xfb-align-active');
+          if (alignInput) alignInput.value = btn.dataset.align;
+          refreshCard();
+        });
+      });
     },
 
     // ── Render a single field card ───────────────────────────────────────
@@ -386,9 +718,12 @@
     renderField: function (field) {
       var self = this;
       var card = document.createElement('div');
-      card.className = 'xfb-field-card' + (field.id === this.state.selectedFieldId ? ' selected' : '');
+      card.className = 'xfb-field-card' + (field.id === this.state.selectedFieldId ? ' selected' : '') + (field.float ? ' xfb-field-floating' : '');
       card.dataset.fieldId = field.id;
       card.draggable = true;
+      if (field.float) {
+        card.style.width = field.width + '%';
+      }
 
       // Drag handle.
       var handle = document.createElement('span');
@@ -396,6 +731,14 @@
       handle.textContent = '⠿';
       handle.title = 'Drag to reorder';
       card.appendChild(handle);
+
+      // Width badge (only when float is enabled).
+      if (field.float) {
+        var badge = document.createElement('span');
+        badge.className = 'xfb-width-badge';
+        badge.textContent = (field.width || '100') + '%';
+        card.appendChild(badge);
+      }
 
       // Field preview area.
       var preview = document.createElement('div');
@@ -491,16 +834,27 @@
 
       switch (field.type) {
         case 'textbox': {
-          var inp = document.createElement('input');
-          inp.type = 'text';
-          inp.disabled = true;
-          inp.placeholder = field.placeholder || 'Enter text…';
+          var rows = parseInt(field.rows || '1', 10) || 1;
+          if (rows > 1) {
+            // Multi-line textbox → show as textarea in preview.
+            var inp = document.createElement('textarea');
+            inp.disabled = true;
+            inp.rows = rows;
+            inp.placeholder = field.placeholder || 'Enter text…';
+            inp.style.resize = 'none';
+          } else {
+            var inp = document.createElement('input');
+            inp.type = 'text';
+            inp.disabled = true;
+            inp.placeholder = field.placeholder || 'Enter text…';
+          }
           wrap.appendChild(inp);
           break;
         }
         case 'textarea': {
           var ta = document.createElement('textarea');
           ta.disabled = true;
+          ta.rows = parseInt(field.rows || '4', 10) || 4;
           ta.placeholder = field.placeholder || 'Enter text…';
           wrap.appendChild(ta);
           break;
@@ -658,6 +1012,49 @@
         html += '</div>';
       }
 
+      // Lines (height) — textbox and textarea only.
+      if (field.type === 'textbox' || field.type === 'textarea') {
+        var rowVal = parseInt(field.rows || '1', 10) || 1;
+        html += '<hr class="xfb-sp-divider">';
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label" for="xfbs-rows">Height (lines)</label>';
+        html += '<div style="display:flex;gap:10px;align-items:center;">';
+        html += '<input class="xfb-rows-slider" id="xfbs-rows" type="range" min="1" max="12" step="1" data-prop="rows" value="' + rowVal + '" style="flex:1;">';
+        html += '<span class="xfb-rows-display" id="xfbs-rows-val">' + rowVal + ' line' + (rowVal === 1 ? '' : 's') + '</span>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:4px;margin-top:6px;">';
+        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="1">1</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="2">2</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="3">3</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="4">4</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="6">6</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="8">8</button>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      // Layout: float toggle + width %.
+      html += '<hr class="xfb-sp-divider">';
+      html += '<div class="xfb-sp-section-title">Layout</div>';
+      html += '<div class="xfb-sp-toggle-row">';
+      html += '<span class="xfb-sp-toggle-label">Float (side-by-side)</span>';
+      html += '<label class="xfb-toggle">';
+      html += '<input type="checkbox" id="xfbs-float" data-prop="float"' + (field.float ? ' checked' : '') + '>';
+      html += '<span class="xfb-toggle-track"></span>';
+      html += '<span class="xfb-toggle-thumb"></span>';
+      html += '</label>';
+      html += '</div>';
+      html += '<div class="xfb-sp-field" id="xfbs-width-wrap"' + (field.float ? '' : ' style="display:none;"') + '>';
+      html += '<label class="xfb-sp-label">Width</label>';
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+      html += '<button type="button" class="xfb-width-preset" data-val="100">Full</button>';
+      html += '<button type="button" class="xfb-width-preset" data-val="50">1/2</button>';
+      html += '<button type="button" class="xfb-width-preset" data-val="33">1/3</button>';
+      html += '<button type="button" class="xfb-width-preset" data-val="25">1/4</button>';
+      html += '</div>';
+      html += '<div class="xfb-sp-hint">Use 1/2 + 1/2 to place two fields side by side.</div>';
+      html += '</div>';
+
       html += '</div>'; // .xfb-sp-inner
 
       body.innerHTML = html;
@@ -666,10 +1063,12 @@
       var inputs = body.querySelectorAll('[data-prop]');
       inputs.forEach(function (inp) {
         var prop = inp.dataset.prop;
-        var eventType = (inp.tagName === 'TEXTAREA' || inp.type === 'text') ? 'input' : 'change';
+        // Use 'input' for text/textarea/number so changes fire on every keystroke.
+        // Use 'change' only for checkboxes/selects.
+        var eventType = (inp.type === 'checkbox' || inp.tagName === 'SELECT') ? 'change' : 'input';
         inp.addEventListener(eventType, function () {
           var value;
-          if (prop === 'required') {
+          if (prop === 'required' || prop === 'float') {
             value = inp.checked;
           } else if (prop === 'options') {
             value = inp.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
@@ -679,6 +1078,39 @@
           self.updateFieldProp(field.id, prop, value);
         });
       });
+
+      // Show/hide width row when float is toggled.
+      var floatCb   = body.querySelector('#xfbs-float');
+      var widthWrap = body.querySelector('#xfbs-width-wrap');
+      if (floatCb && widthWrap) {
+        floatCb.addEventListener('change', function () {
+          widthWrap.style.display = floatCb.checked ? '' : 'none';
+        });
+      }
+
+      // Width preset buttons — directly update the field prop (no number input).
+      body.querySelectorAll('.xfb-width-preset:not(.xfb-rows-preset)').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          self.updateFieldProp(field.id, 'width', btn.dataset.val);
+        });
+      });
+
+      // Rows slider.
+      var rowsSlider  = body.querySelector('#xfbs-rows');
+      var rowsDisplay = body.querySelector('#xfbs-rows-val');
+      if (rowsSlider) {
+        rowsSlider.addEventListener('input', function () {
+          var v = parseInt(rowsSlider.value, 10);
+          if (rowsDisplay) rowsDisplay.textContent = v + ' line' + (v === 1 ? '' : 's');
+        });
+        // Preset row buttons.
+        body.querySelectorAll('.xfb-rows-preset').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            rowsSlider.value = btn.dataset.val;
+            rowsSlider.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+        });
+      }
     },
 
     typeLabel: function (type) {
@@ -862,21 +1294,106 @@
       this.renderCanvas();
     },
 
+    // Pulse-highlight a card to signal it changed.
+    flashCard: function (el) {
+      el.classList.remove('xfb-card-flash');
+      void el.offsetWidth; // force reflow so animation restarts
+      el.classList.add('xfb-card-flash');
+    },
+
+    // Full card replace with entrance flash.
+    replaceCard: function (existing, field) {
+      var updated = this.renderField(field);
+      existing.parentNode.replaceChild(updated, existing);
+      this.flashCard(updated);
+      return updated;
+    },
+
     updateFieldProp: function (fieldId, prop, value) {
-      var pg = this.currentPageObj();
+      var self = this;
+      var pg   = this.currentPageObj();
       var field = pg.fields.find(function (f) { return f.id === fieldId; });
       if (!field) return;
 
       field[prop] = value;
 
-      // Re-render only the specific field card in the canvas — do NOT
-      // rebuild the full settings panel, which would destroy the focused
-      // input and lose the user's cursor position.
       var existing = this.els.canvasInner.querySelector('[data-field-id="' + fieldId + '"]');
-      if (existing) {
-        var updated = this.renderField(field);
-        existing.parentNode.replaceChild(updated, existing);
+      if (!existing) { this.syncToInput(); return; }
+
+      // ── Targeted DOM patches (no full re-render, no lost focus) ───────────
+
+      if (prop === 'label') {
+        var labelEl = existing.querySelector('.xfb-field-label');
+        if (labelEl) {
+          // Preserve the required star if present.
+          var star = labelEl.querySelector('.xfb-required');
+          labelEl.textContent = value || labelForType(field.type);
+          if (star) labelEl.appendChild(star);
+          this.flashCard(existing);
+        } else {
+          this.replaceCard(existing, field);
+        }
+
+      } else if (prop === 'placeholder') {
+        var inputEl = existing.querySelector('input:not([type=checkbox]):not([type=radio]), textarea, select');
+        if (inputEl) {
+          inputEl.placeholder = value;
+          this.flashCard(existing);
+        }
+
+      } else if (prop === 'required') {
+        var labelEl2 = existing.querySelector('.xfb-field-label');
+        if (labelEl2) {
+          var existingStar = labelEl2.querySelector('.xfb-required');
+          if (value && !existingStar) {
+            var newStar = document.createElement('span');
+            newStar.className = 'xfb-required';
+            newStar.textContent = ' *';
+            newStar.setAttribute('aria-hidden', 'true');
+            labelEl2.appendChild(newStar);
+          } else if (!value && existingStar) {
+            existingStar.remove();
+          }
+        }
+        this.flashCard(existing);
+
+      } else if (prop === 'rows') {
+        var rows = Math.max(1, parseInt(value, 10) || 1);
+        var previewEl = existing.querySelector('textarea, input[type=text]');
+        if (previewEl) {
+          if (rows > 1 && previewEl.tagName === 'INPUT') {
+            // Switch input → textarea: needs full replace.
+            this.replaceCard(existing, field);
+          } else if (rows <= 1 && previewEl.tagName === 'TEXTAREA') {
+            // Switch textarea → input: needs full replace.
+            this.replaceCard(existing, field);
+          } else if (previewEl.tagName === 'TEXTAREA') {
+            // Update rows in-place — browser resizes textarea naturally.
+            previewEl.rows = rows;
+            this.flashCard(existing);
+          }
+        }
+
+      } else if (prop === 'float' || prop === 'width') {
+        // Structural change — full replace needed.
+        this.replaceCard(existing, field);
+
+      } else if (prop === 'options') {
+        // Options change — re-render the preview part only.
+        var previewWrap = existing.querySelector('.xfb-field-preview');
+        if (previewWrap) {
+          previewWrap.innerHTML = '';
+          previewWrap.appendChild(this.renderFieldPreview(field));
+          this.flashCard(existing);
+        } else {
+          this.replaceCard(existing, field);
+        }
+
+      } else {
+        // Fallback: full replace.
+        this.replaceCard(existing, field);
       }
+
       this.syncToInput();
     },
 
@@ -942,6 +1459,9 @@
               placeholder: f.placeholder,
               required:    f.required,
               options:     f.options || [],
+              float:       !!f.float,
+              width:       String(f.width || '100'),
+              rows:        String(f.rows || '1'),
             };
             return out;
           }),

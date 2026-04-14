@@ -432,7 +432,10 @@ class XF_Shortcode {
 		$clean_uri    = strtok( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ), '?' );
 		$source_url   = esc_url( home_url( $clean_uri ) );
 
-		$html  = '<div class="xf-form-wrap" data-form-id="' . esc_attr( $form_id ) . '">';
+		$center_form  = ! empty( $settings['center_form'] ) && '1' === (string) $settings['center_form'];
+		$center_class = $center_form ? ' xf-form-centered' : '';
+
+		$html  = '<div class="xf-form-wrap' . $center_class . '" data-form-id="' . esc_attr( $form_id ) . '">';
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
 		$html .= '<input type="hidden" name="action" value="xl_submit_form">';
@@ -465,8 +468,35 @@ class XF_Shortcode {
 				$html .= '</div>';
 			}
 		}
-		$html .= '<div class="xf-form-submit">';
-		$html .= '<button type="submit" class="xf-btn-submit">' . $submit_label . '</button>';
+		// Submit button layout.
+		$submit_float      = ! empty( $settings['submit_float'] ) && '1' === (string) $settings['submit_float'];
+		$submit_width      = isset( $settings['submit_width'] ) ? (float) $settings['submit_width'] : 100;
+		$submit_align      = in_array( $settings['submit_align'] ?? 'left', array( 'left', 'center', 'right' ), true )
+			? $settings['submit_align']
+			: 'left';
+		$submit_bg_color   = ! empty( $settings['submit_bg_color'] ) ? $settings['submit_bg_color'] : '#1A73E8';
+		$submit_text_color = ! empty( $settings['submit_text_color'] ) ? $settings['submit_text_color'] : '#ffffff';
+		$submit_btn_size   = in_array( $settings['submit_btn_size'] ?? 'md', array( 'sm', 'md', 'lg', 'xl' ), true )
+			? $settings['submit_btn_size']
+			: 'md';
+
+		$submit_classes = 'xf-form-submit';
+		$submit_style   = '';
+		if ( $submit_float ) {
+			$submit_classes .= ' xf-field-float';
+			$submit_style    = ' style="width:' . $submit_width . '%;"';
+		}
+		if ( 'center' === $submit_align && ! $submit_float ) {
+			$submit_classes .= ' xf-submit-center';
+		} elseif ( 'right' === $submit_align && ! $submit_float ) {
+			$submit_classes .= ' xf-submit-right';
+		}
+
+		$btn_style = 'background:' . esc_attr( $submit_bg_color ) . ';color:' . esc_attr( $submit_text_color ) . ';';
+		$btn_size_class = 'xf-btn-size-' . esc_attr( $submit_btn_size );
+
+		$html .= '<div class="' . esc_attr( $submit_classes ) . '"' . $submit_style . '>';
+		$html .= '<button type="submit" class="xf-btn-submit ' . $btn_size_class . '" style="' . $btn_style . '">' . $submit_label . '</button>';
 		$html .= '</div>';
 		$html .= '</form>';
 		$html .= '</div>';
@@ -503,7 +533,16 @@ class XF_Shortcode {
 		$error_class   = $error ? ' xf-field-error' : '';
 		$aria_desc     = $error ? ' aria-describedby="' . esc_attr( $error_id ) . '"' : '';
 
-		$html = '<div class="xf-field-wrap xf-field-' . esc_attr( $field_type ) . $error_class . '" data-field-id="' . esc_attr( $field['id'] ?? '' ) . '"' . ( $required ? ' data-required="1"' : '' ) . '>';
+		$float_class  = ! empty( $field['float'] ) ? ' xf-field-float' : '';
+		$width_style  = '';
+		if ( ! empty( $field['float'] ) && isset( $field['width'] ) ) {
+			$w = (float) $field['width'];
+			if ( $w > 0 && $w <= 100 ) {
+				$width_style = ' style="width:' . $w . '%;"';
+			}
+		}
+
+		$html = '<div class="xf-field-wrap xf-field-' . esc_attr( $field_type ) . $float_class . $error_class . '"' . $width_style . ' data-field-id="' . esc_attr( $field['id'] ?? '' ) . '"' . ( $required ? ' data-required="1"' : '' ) . '>';
 
 		if ( '' !== $field_label ) {
 			$required_star = $required ? ' <span class="xf-required" aria-hidden="true">*</span>' : '';
@@ -511,9 +550,16 @@ class XF_Shortcode {
 		}
 
 		switch ( $field_type ) {
-			case 'text':
-				$html .= '<input type="text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
+			case 'text': {
+				$rows = max( 1, (int) ( $field['rows'] ?? 1 ) );
+				if ( $rows > 1 ) {
+					// Multi-line textbox → render as textarea.
+					$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="' . $rows . '">' . esc_textarea( $value ) . '</textarea>';
+				} else {
+					$html .= '<input type="text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
+				}
 				break;
+			}
 
 			case 'email':
 				$html .= '<input type="email" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
@@ -523,9 +569,11 @@ class XF_Shortcode {
 				$html .= '<input type="tel" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
 				break;
 
-			case 'textarea':
-				$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="4">' . esc_textarea( $value ) . '</textarea>';
+			case 'textarea': {
+				$rows = max( 1, (int) ( $field['rows'] ?? 4 ) );
+				$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="' . $rows . '">' . esc_textarea( $value ) . '</textarea>';
 				break;
+			}
 
 			case 'date':
 				$html .= '<input type="date" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';

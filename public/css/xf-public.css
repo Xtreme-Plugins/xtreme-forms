@@ -14,12 +14,14 @@
   --xf-mid:       #6C757D;
   --xf-dark:      #0D1B2A;
   --xf-radius:    4px;
-  --xf-font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --xf-font:      'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-family:    var(--xf-font);
-  font-size:      16px;
-  line-height:    1.5;
+  font-size:      15px;
+  line-height:    1.55;
+  letter-spacing: -0.01em;
   color:          var(--xf-dark);
   max-width:      100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── Form container ─────────────────────────────────────────────────────── */
@@ -29,15 +31,64 @@
   border-radius: 8px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  display: block;
+}
+
+.xf-form::after {
+  content: '';
+  display: table;
+  clear: both;
 }
 
 /* ── Field wraps ────────────────────────────────────────────────────────── */
 .xf-field-wrap {
-  margin-bottom: 20px;
+  display: block;
+  clear: both;
+  box-sizing: border-box;
+  margin-bottom: 16px;
 }
 
-.xf-field-wrap:last-of-type {
-  margin-bottom: 0;
+/* Float fields sit side-by-side.
+   box-sizing: border-box includes padding in the width %, preventing overflow. */
+.xf-field-float {
+  float: left;
+  clear: none;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  padding-right: 12px;
+}
+
+/* Last in a floated row: no right padding */
+.xf-field-float + .xf-field-wrap:not(.xf-field-float),
+.xf-field-float:last-of-type {
+  padding-right: 0;
+}
+
+/* Non-floated fields clear the row */
+.xf-field-wrap:not(.xf-field-float) {
+  clear: both;
+}
+
+/* Submit row and consent always full width */
+.xf-submit-row,
+.xf-field-consent {
+  clear: both;
+}
+
+/* ── Centered form wrapper ──────────────────────────────────────────────── */
+.xf-form-wrap.xf-form-centered {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 640px) {
+  .xf-field-float {
+    float: none !important;
+    width: 100% !important;
+    padding-right: 0 !important;
+    clear: both;
+  }
 }
 
 /* Error state */
@@ -88,6 +139,12 @@
   padding-right: 36px;
 }
 
+.xf-input::placeholder,
+.xf-textarea::placeholder {
+  color: #b0b8c4;
+  opacity: 1;
+}
+
 .xf-input:focus,
 .xf-select:focus {
   outline: none;
@@ -107,8 +164,30 @@
   border-radius: var(--xf-radius);
   box-sizing: border-box;
   resize: vertical;
-  min-height: 100px;
+  min-height: 40px;
+  line-height: 1.55;
   transition: border-color .15s ease, box-shadow .15s ease;
+  /* Nice custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #c7d2e0 transparent;
+}
+
+.xf-textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.xf-textarea::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 6px;
+}
+
+.xf-textarea::-webkit-scrollbar-thumb {
+  background: #c7d2e0;
+  border-radius: 6px;
+}
+
+.xf-textarea::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .xf-textarea:focus {
@@ -163,7 +242,33 @@
 
 /* ── Submit button ───────────────────────────────────────────────────────── */
 .xf-form-submit {
-  margin-top: 24px;
+  margin-top: 8px;
+  clear: both;
+  box-sizing: border-box;
+}
+
+/* Center / right alignment (non-floated) */
+.xf-form-submit.xf-submit-center {
+  text-align: center;
+}
+.xf-form-submit.xf-submit-right {
+  text-align: right;
+}
+
+/* When floated, submit sits in the field row */
+.xf-form-submit.xf-field-float {
+  float: left;
+  clear: none;
+  margin-top: 0;
+  padding-right: 12px;
+  display: flex;
+  align-items: flex-end; /* button sits at bottom of the row */
+}
+
+/* Full-width button option */
+.xf-form-submit .xf-btn-submit-full {
+  width: 100%;
+  display: block;
 }
 
 .xf-btn-submit {
@@ -198,6 +303,12 @@
   background: #93b8f0;
   cursor: not-allowed;
 }
+
+/* Button size variants */
+.xf-btn-size-sm { font-size: 12px; padding: 6px 16px; }
+.xf-btn-size-md { font-size: 14px; padding: 10px 28px; }
+.xf-btn-size-lg { font-size: 16px; padding: 14px 36px; }
+.xf-btn-size-xl { font-size: 19px; padding: 18px 52px; }
 
 /* ── Thank-you message ───────────────────────────────────────────────────── */
 .xf-thank-you {
