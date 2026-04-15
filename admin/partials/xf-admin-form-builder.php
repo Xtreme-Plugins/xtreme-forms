@@ -124,6 +124,7 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 		<input type="hidden" name="submit_bg_color" id="xf-submit-bg-color" value="<?php echo esc_attr( $settings['submit_bg_color'] ?? '#1A73E8' ); ?>">
 		<input type="hidden" name="submit_text_color" id="xf-submit-text-color" value="<?php echo esc_attr( $settings['submit_text_color'] ?? '#ffffff' ); ?>">
 		<input type="hidden" name="submit_btn_size" id="xf-submit-btn-size" value="<?php echo esc_attr( $settings['submit_btn_size'] ?? 'md' ); ?>">
+		<input type="hidden" name="submit_full_width" id="xf-submit-full-width" value="<?php echo esc_attr( $settings['submit_full_width'] ?? '0' ); ?>">
 
 		<!-- ── Title bar ──────────────────────────────────────────────────────── -->
 		<div class="xfb-title-bar">
@@ -747,74 +748,46 @@ var xfBuilderData = {
 	border-color: #2563eb;
 }
 
-/* Color picker columns */
-.xfb-color-col {
+/* Color picker rows: swatch + hex input side by side */
+.xfb-color-row {
 	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 4px;
-	position: relative;
-}
-
-/* Clickable color swatch button */
-.xfb-color-swatch-btn {
-	width: 40px;
-	height: 40px;
-	border-radius: 8px;
-	border: 2px solid rgba(0,0,0,0.12);
-	cursor: pointer;
-	transition: border-color 0.15s, box-shadow 0.15s;
-	box-sizing: border-box;
-}
-
-.xfb-color-swatch-btn:hover {
-	border-color: #2563eb;
-	box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
-}
-
-.xfb-color-row-label {
-	font-size: 10px;
-	font-weight: 600;
-	color: #9ca3af;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-}
-
-/* Color popup (hidden by default, shown on swatch click) */
-.xfb-color-popup {
-	display: none;
-	position: absolute;
-	top: calc(100% + 6px);
-	left: 0;
-	z-index: 999;
-	background: #fff;
-	border: 1px solid #e5e7eb;
-	border-radius: 10px;
-	box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-	padding: 12px;
-	flex-direction: column;
+	align-items: center;
 	gap: 8px;
-	min-width: 140px;
 }
 
-.xfb-color-popup.xfb-color-popup-open {
-	display: flex;
+.xfb-color-swatch-wrap {
+	position: relative;
+	width: 36px;
+	height: 36px;
+	border-radius: 7px;
+	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	cursor: pointer;
+	flex-shrink: 0;
+	box-shadow: 0 1px 3px rgba(0,0,0,.08);
 }
 
-/* Native color input inside popup — display as large block */
-.xfb-color-input-native {
+.xfb-color-input {
+	position: absolute;
+	inset: 0;
 	width: 100%;
-	height: 80px;
-	border: none;
-	border-radius: 6px;
+	height: 100%;
+	opacity: 0;
 	cursor: pointer;
 	padding: 0;
-	background: none;
-	box-sizing: border-box;
+	border: none;
+}
+
+.xfb-color-swatch {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	border-radius: 6px;
 }
 
 .xfb-hex-input {
-	width: 100%;
+	flex: 1;
+	min-width: 0;
 	padding: 5px 8px;
 	font-size: 12px;
 	font-family: 'SFMono-Regular', Consolas, monospace;
@@ -830,5 +803,12 @@ var xfBuilderData = {
 .xfb-hex-input:focus {
 	border-color: #2563eb;
 	box-shadow: 0 0 0 2px rgba(37,99,235,0.12);
+}
+
+.xfb-color-row-label {
+	font-size: 11px;
+	color: #9ca3af;
+	white-space: nowrap;
+	flex-shrink: 0;
 }
 </style>

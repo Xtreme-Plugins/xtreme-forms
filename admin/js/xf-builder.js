@@ -401,12 +401,13 @@
     // Read submit layout hidden inputs from the DOM.
     getSubmitLayout: function () {
       return {
-        float:     (document.getElementById('xf-submit-float')      || {}).value === '1',
-        width:     (document.getElementById('xf-submit-width')      || {}).value || '100',
-        align:     (document.getElementById('xf-submit-align')      || {}).value || 'left',
-        bgColor:   (document.getElementById('xf-submit-bg-color')   || {}).value || '#1A73E8',
-        textColor: (document.getElementById('xf-submit-text-color') || {}).value || '#ffffff',
-        btnSize:   (document.getElementById('xf-submit-btn-size')   || {}).value || 'md',
+        float:     (document.getElementById('xf-submit-float')       || {}).value === '1',
+        width:     (document.getElementById('xf-submit-width')       || {}).value || '100',
+        align:     (document.getElementById('xf-submit-align')       || {}).value || 'left',
+        bgColor:   (document.getElementById('xf-submit-bg-color')    || {}).value || '#1A73E8',
+        textColor: (document.getElementById('xf-submit-text-color')  || {}).value || '#ffffff',
+        btnSize:   (document.getElementById('xf-submit-btn-size')    || {}).value || 'md',
+        fullWidth: (document.getElementById('xf-submit-full-width')  || {}).value === '1',
       };
     },
 
@@ -433,6 +434,7 @@
       btn.textContent = label.trim() || 'Submit';
       btn.style.background = layout.bgColor;
       btn.style.color      = layout.textColor;
+      if (layout.fullWidth) { btn.style.width = '100%'; btn.style.display = 'block'; }
       wrap.appendChild(btn);
 
       if (layout.float) {
@@ -482,32 +484,30 @@
       html += '<input class="xfb-sp-input" id="xfbs-submit-label" type="text" value="' + this.esc(currentLabel) + '" placeholder="Submit">';
       html += '</div>';
 
-      // Colors — two compact columns, each with a swatch that opens a popup with picker + hex input.
+      // Colors — two rows, each: swatch (triggers native picker) + hex input side by side.
       html += '<div class="xfb-sp-field">';
       html += '<label class="xfb-sp-label">Colors</label>';
-      html += '<div style="display:flex;gap:20px;">';
 
-      // Background column.
-      html += '<div class="xfb-color-col">';
-      html += '<div class="xfb-color-swatch-btn" id="xfbs-bg-swatch" style="background:' + this.esc(layout.bgColor) + ';" title="Background color"></div>';
-      html += '<span class="xfb-color-row-label">Background</span>';
-      html += '<div class="xfb-color-popup" id="xfbs-bg-popup">';
-      html += '<input type="color" id="xfbs-submit-bg" value="' + this.esc(layout.bgColor) + '" class="xfb-color-input-native">';
+      // Background row.
+      html += '<div class="xfb-color-row">';
+      html += '<div class="xfb-color-swatch-wrap">';
+      html += '<input type="color" id="xfbs-submit-bg" value="' + this.esc(layout.bgColor) + '" class="xfb-color-input">';
+      html += '<div class="xfb-color-swatch" style="background:' + this.esc(layout.bgColor) + ';"></div>';
+      html += '</div>';
       html += '<input type="text" id="xfbs-submit-bg-hex" class="xfb-hex-input" value="' + this.esc(layout.bgColor) + '" placeholder="#1A73E8" maxlength="7" spellcheck="false">';
-      html += '</div>';
+      html += '<span class="xfb-color-row-label">Background</span>';
       html += '</div>';
 
-      // Text color column.
-      html += '<div class="xfb-color-col">';
-      html += '<div class="xfb-color-swatch-btn" id="xfbs-text-swatch" style="background:' + this.esc(layout.textColor) + ';" title="Text color"></div>';
-      html += '<span class="xfb-color-row-label">Text</span>';
-      html += '<div class="xfb-color-popup" id="xfbs-text-popup">';
-      html += '<input type="color" id="xfbs-submit-text" value="' + this.esc(layout.textColor) + '" class="xfb-color-input-native">';
+      // Text color row.
+      html += '<div class="xfb-color-row" style="margin-top:8px;">';
+      html += '<div class="xfb-color-swatch-wrap">';
+      html += '<input type="color" id="xfbs-submit-text" value="' + this.esc(layout.textColor) + '" class="xfb-color-input">';
+      html += '<div class="xfb-color-swatch" style="background:' + this.esc(layout.textColor) + ';"></div>';
+      html += '</div>';
       html += '<input type="text" id="xfbs-submit-text-hex" class="xfb-hex-input" value="' + this.esc(layout.textColor) + '" placeholder="#ffffff" maxlength="7" spellcheck="false">';
-      html += '</div>';
+      html += '<span class="xfb-color-row-label">Text</span>';
       html += '</div>';
 
-      html += '</div>';
       html += '</div>';
 
       html += '<hr class="xfb-sp-divider">';
@@ -536,6 +536,16 @@
         html += '<button type="button" class="xfb-width-preset xfb-submit-btnsize-btn' + active + '" data-btnsize="' + pair[0] + '">' + pair[1] + '</button>';
       });
       html += '</div>';
+      html += '</div>';
+
+      // Full width toggle.
+      html += '<div class="xfb-sp-toggle-row">';
+      html += '<span class="xfb-sp-toggle-label">Full width</span>';
+      html += '<label class="xfb-toggle">';
+      html += '<input type="checkbox" id="xfbs-submit-fullwidth"' + (layout.fullWidth ? ' checked' : '') + '>';
+      html += '<span class="xfb-toggle-track"></span>';
+      html += '<span class="xfb-toggle-thumb"></span>';
+      html += '</label>';
       html += '</div>';
 
       // Layout width presets — Full, 1/2, 1/3, 1/4.
@@ -606,9 +616,9 @@
         var textHexEl = body.querySelector('#xfbs-submit-text-hex');
         if (bgHexEl   && source !== 'bghex')   bgHexEl.value   = bg;
         if (textHexEl && source !== 'texthex') textHexEl.value = text;
-        // Update swatch buttons.
-        var bgSwatch   = body.querySelector('#xfbs-bg-swatch');
-        var textSwatch = body.querySelector('#xfbs-text-swatch');
+        // Update swatches.
+        var bgSwatch   = body.querySelector('#xfbs-submit-bg + .xfb-color-swatch');
+        var textSwatch = body.querySelector('#xfbs-submit-text + .xfb-color-swatch');
         if (bgSwatch)   bgSwatch.style.background = bg;
         if (textSwatch) textSwatch.style.background = text;
         refreshCard();
@@ -617,7 +627,7 @@
       if (bgInput)   bgInput.addEventListener('input',   function () { syncColors('picker'); });
       if (textInput) textInput.addEventListener('input', function () { syncColors('picker'); });
 
-      // Hex text inputs → sync to color picker (with auto # prepend).
+      // Hex text inputs → sync to native picker (with auto # prepend).
       var bgHexInp   = body.querySelector('#xfbs-submit-bg-hex');
       var textHexInp = body.querySelector('#xfbs-submit-text-hex');
       if (bgHexInp) bgHexInp.addEventListener('input', function () {
@@ -634,33 +644,6 @@
           textHexInp.value = hex;
           if (textInput) textInput.value = hex;
           syncColors('texthex');
-        }
-      });
-
-      // Swatch click → toggle popup.
-      function togglePopup(swatchEl, popupEl) {
-        var isOpen = popupEl.classList.contains('xfb-color-popup-open');
-        // Close all popups.
-        body.querySelectorAll('.xfb-color-popup').forEach(function (p) { p.classList.remove('xfb-color-popup-open'); });
-        if (!isOpen) {
-          popupEl.classList.add('xfb-color-popup-open');
-          // Focus hex input.
-          var hexInp = popupEl.querySelector('.xfb-hex-input');
-          if (hexInp) setTimeout(function () { hexInp.focus(); hexInp.select(); }, 50);
-        }
-      }
-      var bgSwatch   = body.querySelector('#xfbs-bg-swatch');
-      var textSwatch = body.querySelector('#xfbs-text-swatch');
-      var bgPopup    = body.querySelector('#xfbs-bg-popup');
-      var textPopup  = body.querySelector('#xfbs-text-popup');
-      if (bgSwatch && bgPopup)     bgSwatch.addEventListener('click',   function () { togglePopup(bgSwatch, bgPopup); });
-      if (textSwatch && textPopup) textSwatch.addEventListener('click', function () { togglePopup(textSwatch, textPopup); });
-
-      // Close popups when clicking outside.
-      document.addEventListener('click', function closePopups(e) {
-        if (!body.contains(e.target)) {
-          body.querySelectorAll('.xfb-color-popup').forEach(function (p) { p.classList.remove('xfb-color-popup-open'); });
-          document.removeEventListener('click', closePopups);
         }
       });
 
@@ -691,6 +674,16 @@
           refreshCard();
         });
       });
+
+      // Full width toggle.
+      var fullWidthInput = document.getElementById('xf-submit-full-width');
+      var fullWidthCb    = body.querySelector('#xfbs-submit-fullwidth');
+      if (fullWidthCb) {
+        fullWidthCb.addEventListener('change', function () {
+          if (fullWidthInput) fullWidthInput.value = fullWidthCb.checked ? '1' : '0';
+          refreshCard();
+        });
+      }
 
       // Float toggle.
       var floatCb = body.querySelector('#xfbs-submit-float');

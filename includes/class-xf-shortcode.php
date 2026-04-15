@@ -492,8 +492,13 @@ class XF_Shortcode {
 			$submit_classes .= ' xf-submit-right';
 		}
 
-		$btn_style = 'background:' . esc_attr( $submit_bg_color ) . ';color:' . esc_attr( $submit_text_color ) . ';';
+		$submit_full_width = ! empty( $settings['submit_full_width'] ) && '1' === (string) $settings['submit_full_width'];
+
+		$btn_style      = 'background:' . esc_attr( $submit_bg_color ) . ';color:' . esc_attr( $submit_text_color ) . ';';
 		$btn_size_class = 'xf-btn-size-' . esc_attr( $submit_btn_size );
+		if ( $submit_full_width ) {
+			$btn_size_class .= ' xf-btn-full-width';
+		}
 
 		$html .= '<div class="' . esc_attr( $submit_classes ) . '"' . $submit_style . '>';
 		$html .= '<button type="submit" class="xf-btn-submit ' . $btn_size_class . '" style="' . $btn_style . '">' . $submit_label . '</button>';

@@ -310,6 +310,9 @@
 .xf-btn-size-lg { font-size: 16px; padding: 14px 36px; }
 .xf-btn-size-xl { font-size: 19px; padding: 18px 52px; }
 
+/* Full width button */
+.xf-btn-full-width { width: 100%; display: block; }
+
 /* ── Thank-you message ───────────────────────────────────────────────────── */
 .xf-thank-you {
   background: #f8fffe;

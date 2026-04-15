@@ -868,6 +868,7 @@ class XF_Admin {
 			'submit_bg_color'         => sanitize_hex_color( wp_unslash( $_POST['submit_bg_color'] ?? '#1A73E8' ) ) ?: '#1A73E8',
 			'submit_text_color'       => sanitize_hex_color( wp_unslash( $_POST['submit_text_color'] ?? '#ffffff' ) ) ?: '#ffffff',
 			'submit_btn_size'         => in_array( $_POST['submit_btn_size'] ?? 'md', array( 'sm', 'md', 'lg', 'xl' ), true ) ? sanitize_text_field( $_POST['submit_btn_size'] ) : 'md',
+			'submit_full_width'       => isset( $_POST['submit_full_width'] ) && '1' === $_POST['submit_full_width'] ? '1' : '0',
 		);
 
 		// Scheduling datetime values.
