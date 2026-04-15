@@ -6,7 +6,7 @@
 <p align="center">A powerful, free WordPress lead capture plugin with form builder, email routing, webhooks, analytics, GDPR tools, and multisite support.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.6.0-blue" alt="Version 1.6.0">
+  <img src="https://img.shields.io/badge/version-2.0.4-blue" alt="Version 2.0.4">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-purple?logo=php" alt="PHP 8.1+">
