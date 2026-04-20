@@ -79,6 +79,56 @@
   border-bottom: 1px solid #f3f4f6;
 }
 
+.xfb-palette-search-wrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+/* Extra selector specificity so WP-admin's input[type=search] defaults don't override. */
+.xfb-palette .xfb-palette-search,
+input.xfb-palette-search[type="search"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px 7px 34px;
+  font-size: 12px;
+  line-height: 1.3;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.xfb-palette-search:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.xfb-palette-search::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.xfb-palette-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  display: flex;
+}
+
+.xfb-palette-empty {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+  border: 1px dashed #e5e7eb;
+  border-radius: 6px;
+}
+
 .xfb-palette-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -329,6 +379,15 @@
   clear: both;
 }
 
+/* When fields are present, render the inner area as one unified form. */
+.xfb-canvas-inner.has-fields {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
 .xfb-empty-hint {
   max-width: 680px;
   margin: 48px auto 0;
@@ -392,6 +451,22 @@
   border-left: 4px solid transparent;
   transition: border-left-color 0.15s, background 0.15s, box-shadow 0.15s;
   user-select: none;
+}
+
+/* Inside the unified form container, cards share the outer shell's edges. */
+.xfb-canvas-inner.has-fields .xfb-field-card {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.xfb-canvas-inner.has-fields .xfb-field-card:hover {
+  box-shadow: none;
+  background: #fafafa;
+}
+
+.xfb-canvas-inner.has-fields .xfb-field-card.selected {
+  box-shadow: none;
+  background: #eff6ff;
 }
 
 /* Live-update flash animation */
@@ -525,6 +600,17 @@
   list-style: none;
 }
 
+/* Multiple-choice column layouts (preview). */
+.xfb-options-list.xfb-cols-2,
+.xfb-options-list.xfb-cols-3,
+.xfb-options-list.xfb-cols-4 {
+  display: grid;
+  gap: 5px 18px;
+}
+.xfb-options-list.xfb-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.xfb-options-list.xfb-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.xfb-options-list.xfb-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
 .xfb-option-item {
   display: flex;
   align-items: center;
@@ -555,63 +641,63 @@
   border-top: 1px solid #e5e7eb;
 }
 
-.xfb-field-toolbar button {
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 4px;
+.xfb-tb-btn {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: 1px solid #e5e7eb;
+  border-radius: 6px;
   background: #fff;
+  color: #6b7280;
   cursor: pointer;
   font-family: inherit;
-  font-weight: 500;
-  color: #374151;
-  transition: background 0.12s, border-color 0.12s;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, box-shadow 0.12s;
 }
 
-.xfb-field-toolbar button:hover {
+.xfb-tb-btn:hover {
   background: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
 }
 
-.xfb-toolbar-delete {
-  color: #dc2626 !important;
-  border-color: #fca5a5 !important;
+.xfb-tb-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+  border-color: #2563eb;
 }
 
-.xfb-toolbar-delete:hover {
-  background: #fef2f2 !important;
+.xfb-tb-btn svg {
+  display: block;
 }
 
-.xfb-toolbar-required {
+.xfb-tb-delete {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  user-select: none;
-  padding: 4px 10px;
-  border-radius: 5px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  transition: background 0.12s, border-color 0.12s;
-  white-space: nowrap;
 }
 
-.xfb-toolbar-required:hover {
-  background: #f3f4f6;
+.xfb-tb-delete:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
-.xfb-toolbar-required input[type="checkbox"] {
-  pointer-events: auto;
-  cursor: pointer;
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  padding: 0;
-  flex-shrink: 0;
-  accent-color: #2563eb;
+.xfb-tb-required {
+  margin-left: auto;
+}
+
+.xfb-tb-required.is-on {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.xfb-tb-required.is-on:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
 }
 
 /* ── Right Settings Panel ────────────────────────────────────────────────── */
@@ -706,6 +792,169 @@
   color: #9ca3af;
   margin-top: 3px;
   line-height: 1.4;
+}
+
+/* Dropdown options list (interactive) */
+.xfb-opt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.xfb-opt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.xfb-opt-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.xfb-opt-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.xfb-opt-del {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  color: #9ca3af;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+
+.xfb-opt-del:hover {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+/* Default-value checkmark */
+.xfb-opt-default {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.xfb-opt-default-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.xfb-opt-default-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  color: transparent;
+  background: #fff;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.xfb-opt-default:hover .xfb-opt-default-mark {
+  border-color: #2563eb;
+  color: #9ca3af;
+}
+
+.xfb-opt-default-radio:checked + .xfb-opt-default-mark {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.xfb-opt-add {
+  margin-top: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px dashed #93c5fd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.xfb-opt-add:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+/* Active state for columns preset */
+.xfb-col-preset.is-active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+}
+
+/* Slider settings: Min/Max two-column layout */
+.xfb-slider-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.xfb-slider-range-col { display: flex; flex-direction: column; }
+.xfb-slider-range-hint {
+  margin-top: 3px;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+/* Slider preview in canvas */
+.xfb-slider-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.xfb-slider-preview input[type="range"] {
+  flex: 1;
+  accent-color: #2563eb;
+}
+.xfb-slider-edge {
+  font-size: 11px;
+  color: #6b7280;
+  min-width: 20px;
+  text-align: center;
+}
+.xfb-slider-value {
+  min-width: 36px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 5px;
+  padding: 3px 8px;
 }
 
 .xfb-sp-toggle-row {

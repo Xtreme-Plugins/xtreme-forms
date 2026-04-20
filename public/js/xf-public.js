@@ -472,8 +472,35 @@
 
 	// ── Init ─────────────────────────────────────────────────────────────────
 
+	/**
+	 * Initialise every slider field: live-update the value bubble + fill gradient.
+	 */
+	function initSliders() {
+		var sliders = document.querySelectorAll('[data-xf-slider]');
+		sliders.forEach(function (wrap) {
+			var input  = wrap.querySelector('[data-xf-slider-input]');
+			var bubble = wrap.querySelector('[data-xf-slider-value]');
+			if (!input) return;
+
+			var update = function () {
+				var min  = parseFloat(input.min)  || 0;
+				var max  = parseFloat(input.max)  || 100;
+				var val  = parseFloat(input.value);
+				if (isNaN(val)) val = min;
+				var pct  = max > min ? ((val - min) / (max - min)) * 100 : 0;
+				input.style.setProperty('--xf-slider-fill', pct + '%');
+				if (bubble) bubble.textContent = input.value;
+			};
+
+			update();
+			input.addEventListener('input',  update);
+			input.addEventListener('change', update);
+		});
+	}
+
 	function xfPublicInit() {
 		initForms();
+		initSliders();
 		initUtmCookie();
 		initImpressionTracking();
 	}

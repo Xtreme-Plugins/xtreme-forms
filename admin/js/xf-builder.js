@@ -21,6 +21,8 @@
     checkbox: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 12l4 4 6-6"/></svg>',
     date:     '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="8" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/></svg>',
     file:     '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>',
+    zipcode:  '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+    slider:   '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><circle cx="14" cy="12" r="3.5" fill="currentColor" stroke="none"/></svg>',
   };
 
   var FIELD_TYPES = [
@@ -32,6 +34,8 @@
     { type: 'checkbox', label: 'Multiple Choice', icon: SVG.checkbox },
     { type: 'date',     label: 'Date Picker',     icon: SVG.date     },
     { type: 'file',     label: 'File Upload',     icon: SVG.file     },
+    { type: 'zipcode',  label: 'Zip Code',        icon: SVG.zipcode  },
+    { type: 'slider',   label: 'Slider',          icon: SVG.slider   },
   ];
 
   // Map from builder type to the v1 type names the PHP handler recognises.
@@ -44,6 +48,8 @@
     checkbox: 'checkbox',
     date:     'date',
     file:     'file',
+    zipcode:  'zipcode',
+    slider:   'slider',
   };
 
   // Map legacy v1 types to builder types.
@@ -59,6 +65,8 @@
     file:     'file',
     header:   'header',
     hidden:   'textbox',
+    zipcode:  'zipcode',
+    slider:   'slider',
   };
 
   // ── Tiny ID generator ────────────────────────────────────────────────────
@@ -75,15 +83,20 @@
 
   function makeField(type) {
     var defaults = {
-      id:          makeId(),
-      type:        type,
-      label:       labelForType(type),
-      placeholder: '',
-      required:    false,
-      options:     defaultOptionsForType(type),
-      float:       false,
-      width:       '100',
-      rows:        type === 'textarea' ? '4' : '1',
+      id:           makeId(),
+      type:         type,
+      label:        labelForType(type),
+      placeholder:  '',
+      required:     false,
+      options:      defaultOptionsForType(type),
+      defaultValue: type === 'slider' ? '0' : '',
+      columns:      '1',
+      min:          type === 'slider' ? '0'  : '',
+      max:          type === 'slider' ? '10' : '',
+      step:         type === 'slider' ? '1'  : '',
+      float:        false,
+      width:        '100',
+      rows:         type === 'textarea' ? '4' : '1',
     };
     return defaults;
   }
@@ -98,6 +111,8 @@
       checkbox: 'Select all that apply',
       date:     'Select a date',
       file:     'Upload a file',
+      zipcode:  'Zip Code',
+      slider:   'Choose a value',
     };
     return map[type] || 'Field';
   }
@@ -119,6 +134,7 @@
       selectedFieldId: null,
       dragging:        null,  // { source: 'palette'|'canvas', type?, fieldId? }
       activeDropGap:   null,  // index of currently highlighted drop gap
+      paletteQuery:    '',
     },
 
     // ── DOM refs ────────────────────────────────────────────────────────
@@ -129,6 +145,8 @@
 
     init: function () {
       this.els.palette     = document.getElementById('xfb-palette');
+      this.els.paletteSearch = document.getElementById('xfb-palette-search');
+      this.els.paletteEmpty  = document.getElementById('xfb-palette-empty');
       this.els.pageTabs    = document.getElementById('xfb-page-tabs');
       this.els.canvasInner = document.getElementById('xfb-canvas-inner');
       this.els.canvas      = document.getElementById('xfb-canvas');
@@ -147,6 +165,15 @@
 
       // Render palette.
       this.renderPalette();
+
+      // Palette search binding.
+      var selfInit = this;
+      if (this.els.paletteSearch) {
+        this.els.paletteSearch.addEventListener('input', function () {
+          selfInit.state.paletteQuery = this.value || '';
+          selfInit.renderPalette();
+        });
+      }
 
       // Render initial state.
       this.renderPageTabs();
@@ -223,16 +250,24 @@
     // Ensure a field object from any source has builder-normalised properties.
     normaliseField: function (f) {
       var builderType = TYPE_MAP_FROM_LEGACY[f.type] || f.type || 'textbox';
+      var isSlider    = builderType === 'slider';
       return {
-        id:          f.id || makeId(),
-        type:        builderType,
-        label:       f.label || labelForType(builderType),
-        placeholder: f.placeholder || '',
-        required:    !!f.required,
-        options:     Array.isArray(f.options) ? f.options : [],
-        float:       !!f.float,
-        width:       String(f.width || '100'),
-        rows:        String(f.rows || (f.type === 'textarea' ? '4' : '1')),
+        id:           f.id || makeId(),
+        type:         builderType,
+        label:        f.label || labelForType(builderType),
+        placeholder:  f.placeholder || '',
+        required:     !!f.required,
+        options:      Array.isArray(f.options) ? f.options : [],
+        defaultValue: typeof f.defaultValue === 'string'
+          ? f.defaultValue
+          : (f.default_value != null ? String(f.default_value) : (isSlider ? '0' : '')),
+        columns:      String(f.columns || '1'),
+        min:          f.min != null && f.min !== '' ? String(f.min) : (isSlider ? '0'  : ''),
+        max:          f.max != null && f.max !== '' ? String(f.max) : (isSlider ? '10' : ''),
+        step:         f.step != null && f.step !== '' ? String(f.step) : (isSlider ? '1'  : ''),
+        float:        !!f.float,
+        width:        String(f.width || '100'),
+        rows:         String(f.rows || (f.type === 'textarea' ? '4' : '1')),
       };
     },
 
@@ -243,13 +278,25 @@
       return this.state.pages.find(function (p) { return p.id === id; }) || this.state.pages[0];
     },
 
+    getFieldById: function (fieldId) {
+      var pg = this.currentPageObj();
+      return pg.fields.find(function (f) { return f.id === fieldId; }) || null;
+    },
+
     // ── Render palette ───────────────────────────────────────────────────
 
     renderPalette: function () {
       var self = this;
       this.els.palette.innerHTML = '';
 
-      FIELD_TYPES.forEach(function (ft) {
+      var q = (this.state.paletteQuery || '').trim().toLowerCase();
+      var visible = FIELD_TYPES.filter(function (ft) {
+        if (!q) return true;
+        return ft.label.toLowerCase().indexOf(q) !== -1 ||
+               ft.type.toLowerCase().indexOf(q) !== -1;
+      });
+
+      visible.forEach(function (ft) {
         var item = document.createElement('div');
         item.className = 'xfb-palette-item';
         item.draggable = true;
@@ -275,6 +322,10 @@
 
         self.els.palette.appendChild(item);
       });
+
+      if (this.els.paletteEmpty) {
+        this.els.paletteEmpty.hidden = visible.length > 0;
+      }
     },
 
     palettePreview: function (type) {
@@ -297,6 +348,10 @@
           return '<input type="date" disabled>';
         case 'file':
           return '<span class="xfb-pi-file-btn">Choose File</span>';
+        case 'zipcode':
+          return '<input type="text" placeholder="12345" disabled>';
+        case 'slider':
+          return '<input type="range" min="0" max="10" value="4" disabled style="width:100%;">';
         default:
           return '';
       }
@@ -359,10 +414,11 @@
       var pg = this.currentPageObj();
       var fields = pg.fields;
 
-      // Show/hide empty hint.
+      // Show/hide empty hint + mark the inner as a "form container" when populated.
       if (this.els.emptyHint) {
         this.els.emptyHint.style.display = fields.length === 0 ? '' : 'none';
       }
+      inner.classList.toggle('has-fields', fields.length > 0);
 
       // Top drop gap.
       inner.appendChild(this.makeDropGap(0));
@@ -725,14 +781,6 @@
       handle.title = 'Drag to reorder';
       card.appendChild(handle);
 
-      // Width badge (only when float is enabled).
-      if (field.float) {
-        var badge = document.createElement('span');
-        badge.className = 'xfb-width-badge';
-        badge.textContent = (field.width || '100') + '%';
-        card.appendChild(badge);
-      }
-
       // Field preview area.
       var preview = document.createElement('div');
       preview.className = 'xfb-field-preview';
@@ -744,9 +792,17 @@
         var toolbar = document.createElement('div');
         toolbar.className = 'xfb-field-toolbar';
 
+        var ICONS = {
+          copy:   '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+          trash:  '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>',
+        };
+
         var copyBtn = document.createElement('button');
         copyBtn.type = 'button';
-        copyBtn.textContent = 'Copy';
+        copyBtn.className = 'xfb-tb-btn xfb-tb-copy';
+        copyBtn.title = 'Duplicate field';
+        copyBtn.setAttribute('aria-label', 'Duplicate field');
+        copyBtn.innerHTML = ICONS.copy;
         copyBtn.addEventListener('click', function (e) {
           e.stopPropagation();
           self.duplicateField(field.id);
@@ -755,27 +811,15 @@
 
         var delBtn = document.createElement('button');
         delBtn.type = 'button';
-        delBtn.className = 'xfb-toolbar-delete';
-        delBtn.textContent = 'Delete';
+        delBtn.className = 'xfb-tb-btn xfb-tb-delete';
+        delBtn.title = 'Delete field';
+        delBtn.setAttribute('aria-label', 'Delete field');
+        delBtn.innerHTML = ICONS.trash;
         delBtn.addEventListener('click', function (e) {
           e.stopPropagation();
           self.deleteField(field.id);
         });
         toolbar.appendChild(delBtn);
-
-        // Required toggle on the right.
-        var reqLabel = document.createElement('label');
-        reqLabel.className = 'xfb-toolbar-required';
-        var reqCb = document.createElement('input');
-        reqCb.type = 'checkbox';
-        reqCb.checked = field.required;
-        reqCb.addEventListener('change', function (e) {
-          e.stopPropagation();
-          self.updateFieldProp(field.id, 'required', reqCb.checked);
-        });
-        reqLabel.appendChild(reqCb);
-        reqLabel.appendChild(document.createTextNode(' Required'));
-        toolbar.appendChild(reqLabel);
 
         card.appendChild(toolbar);
       }
@@ -862,6 +906,9 @@
           opts.forEach(function (o) {
             var opt = document.createElement('option');
             opt.textContent = o;
+            if (field.defaultValue && o === field.defaultValue) {
+              opt.selected = true;
+            }
             sel.appendChild(opt);
           });
           wrap.appendChild(sel);
@@ -889,6 +936,10 @@
         case 'checkbox': {
           var cbUl = document.createElement('ul');
           cbUl.className = 'xfb-options-list';
+          var cols = Math.max(1, Math.min(4, parseInt(field.columns || '1', 10) || 1));
+          if (cols > 1) {
+            cbUl.classList.add('xfb-cols-' + cols);
+          }
           var checkOpts = field.options && field.options.length ? field.options : ['Option 1', 'Option 2'];
           checkOpts.forEach(function (o) {
             var li = document.createElement('li');
@@ -917,6 +968,57 @@
           fileInp.type = 'file';
           fileInp.disabled = true;
           wrap.appendChild(fileInp);
+          break;
+        }
+        case 'zipcode': {
+          var zipInp = document.createElement('input');
+          zipInp.type = 'text';
+          zipInp.disabled = true;
+          zipInp.placeholder = field.placeholder || '12345';
+          zipInp.inputMode = 'numeric';
+          zipInp.maxLength = 10;
+          wrap.appendChild(zipInp);
+          break;
+        }
+        case 'slider': {
+          var sMin  = parseFloat(field.min)  || 0;
+          var sMax  = parseFloat(field.max);
+          if (!isFinite(sMax) || sMax <= sMin) sMax = sMin + 10;
+          var sStep = parseFloat(field.step) || 1;
+          var sDef  = parseFloat(field.defaultValue);
+          if (!isFinite(sDef)) sDef = sMin;
+          if (sDef < sMin) sDef = sMin;
+          if (sDef > sMax) sDef = sMax;
+
+          var row = document.createElement('div');
+          row.className = 'xfb-slider-preview';
+
+          var minLbl = document.createElement('span');
+          minLbl.className = 'xfb-slider-edge';
+          minLbl.textContent = String(sMin);
+
+          var rng = document.createElement('input');
+          rng.type = 'range';
+          rng.disabled = true;
+          rng.min = String(sMin);
+          rng.max = String(sMax);
+          rng.step = String(sStep);
+          rng.value = String(sDef);
+          rng.style.flex = '1';
+
+          var maxLbl = document.createElement('span');
+          maxLbl.className = 'xfb-slider-edge';
+          maxLbl.textContent = String(sMax);
+
+          var valBubble = document.createElement('span');
+          valBubble.className = 'xfb-slider-value';
+          valBubble.textContent = String(sDef);
+
+          row.appendChild(minLbl);
+          row.appendChild(rng);
+          row.appendChild(maxLbl);
+          row.appendChild(valBubble);
+          wrap.appendChild(row);
           break;
         }
         default: {
@@ -963,15 +1065,15 @@
       html += '<input class="xfb-sp-input" id="xfbs-label" type="text" data-prop="label" value="' + this.esc(field.label) + '">';
       html += '</div>';
 
-      // Placeholder (textbox, textarea).
-      if (field.type === 'textbox' || field.type === 'textarea') {
+      // Placeholder (textbox, textarea, zipcode).
+      if (field.type === 'textbox' || field.type === 'textarea' || field.type === 'zipcode') {
         html += '<div class="xfb-sp-field">';
         html += '<label class="xfb-sp-label" for="xfbs-placeholder">Placeholder</label>';
         html += '<input class="xfb-sp-input" id="xfbs-placeholder" type="text" data-prop="placeholder" value="' + this.esc(field.placeholder) + '">';
         html += '</div>';
       }
 
-      // Options (dropdown, radio, checkbox).
+      // Options (dropdown, radio, checkbox) — plain one-per-line textarea.
       if (field.type === 'dropdown' || field.type === 'radio' || field.type === 'checkbox') {
         html += '<div class="xfb-sp-field">';
         html += '<label class="xfb-sp-label" for="xfbs-options">Options <span style="font-weight:400;text-transform:none;font-size:10px;color:#9ca3af;">(one per line)</span></label>';
@@ -982,12 +1084,62 @@
         html += '</div>';
       }
 
-      // Dropdown placeholder text.
+      // Dropdown-specific extras: default selected option + placeholder.
       if (field.type === 'dropdown') {
+        var dropOpts = (field.options || []).filter(function (o) { return o !== ''; });
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label" for="xfbs-default-value">Default Selected Option</label>';
+        html += '<select class="xfb-sp-input" id="xfbs-default-value" data-prop="defaultValue">';
+        html += '<option value=""' + (!field.defaultValue ? ' selected' : '') + '>— None (use placeholder) —</option>';
+        dropOpts.forEach(function (o) {
+          var esc = self.esc(o);
+          html += '<option value="' + esc + '"' + (o === field.defaultValue ? ' selected' : '') + '>' + esc + '</option>';
+        });
+        html += '</select>';
+        html += '<div class="xfb-sp-hint">Pre-selects this option when the form is shown.</div>';
+        html += '</div>';
+
         html += '<div class="xfb-sp-field">';
         html += '<label class="xfb-sp-label" for="xfbs-placeholder">Placeholder</label>';
         html += '<input class="xfb-sp-input" id="xfbs-placeholder" type="text" data-prop="placeholder" value="' + this.esc(field.placeholder) + '">';
-        html += '<div class="xfb-sp-hint">The blank/default choice shown first.</div>';
+        html += '<div class="xfb-sp-hint">The blank/default choice shown first (when no default is set).</div>';
+        html += '</div>';
+      }
+
+      // Slider settings (value range, default, increment).
+      if (field.type === 'slider') {
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label">Value Range</label>';
+        html += '<div class="xfb-slider-range">';
+        html += '<div class="xfb-slider-range-col"><input class="xfb-sp-input" type="number" data-prop="min" value="' + this.esc(field.min) + '" placeholder="0"><span class="xfb-slider-range-hint">Minimum</span></div>';
+        html += '<div class="xfb-slider-range-col"><input class="xfb-sp-input" type="number" data-prop="max" value="' + this.esc(field.max) + '" placeholder="10"><span class="xfb-slider-range-hint">Maximum</span></div>';
+        html += '</div>';
+        html += '</div>';
+
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label" for="xfbs-slider-default">Default Value</label>';
+        html += '<input class="xfb-sp-input" id="xfbs-slider-default" type="number" data-prop="defaultValue" value="' + this.esc(field.defaultValue) + '" placeholder="0">';
+        html += '</div>';
+
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label" for="xfbs-slider-step">Increment</label>';
+        html += '<input class="xfb-sp-input" id="xfbs-slider-step" type="number" data-prop="step" value="' + this.esc(field.step) + '" placeholder="1" min="0" step="any">';
+        html += '<div class="xfb-sp-hint">How much the slider moves per step (e.g. 0.5, 1, 5).</div>';
+        html += '</div>';
+      }
+
+      // Columns layout — Multiple Choice (checkbox) only.
+      if (field.type === 'checkbox') {
+        var colVal = String(field.columns || '1');
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label">Columns</label>';
+        html += '<div class="xfb-col-presets" style="display:flex;gap:4px;flex-wrap:wrap;">';
+        html += '<button type="button" class="xfb-width-preset xfb-col-preset' + (colVal === '1' ? ' is-active' : '') + '" data-col="1">1</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-col-preset' + (colVal === '2' ? ' is-active' : '') + '" data-col="2">2</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-col-preset' + (colVal === '3' ? ' is-active' : '') + '" data-col="3">3</button>';
+        html += '<button type="button" class="xfb-width-preset xfb-col-preset' + (colVal === '4' ? ' is-active' : '') + '" data-col="4">4</button>';
+        html += '</div>';
+        html += '<div class="xfb-sp-hint">How many columns to lay the options out in.</div>';
         html += '</div>';
       }
 
@@ -1082,11 +1234,53 @@
       }
 
       // Width preset buttons — directly update the field prop (no number input).
-      body.querySelectorAll('.xfb-width-preset:not(.xfb-rows-preset)').forEach(function (btn) {
+      body.querySelectorAll('.xfb-width-preset:not(.xfb-rows-preset):not(.xfb-col-preset)').forEach(function (btn) {
         btn.addEventListener('click', function () {
           self.updateFieldProp(field.id, 'width', btn.dataset.val);
         });
       });
+
+      // Column preset buttons (Multiple Choice only).
+      body.querySelectorAll('.xfb-col-preset').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.xfb-col-preset').forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          self.updateFieldProp(field.id, 'columns', btn.dataset.col);
+        });
+      });
+
+      // When options list is edited on a dropdown, refresh the Default Selected
+      // picker so it mirrors the live list (and drop any default that was removed).
+      var optsInput = body.querySelector('#xfbs-options');
+      var defaultSel = body.querySelector('#xfbs-default-value');
+      if (field.type === 'dropdown' && optsInput && defaultSel) {
+        optsInput.addEventListener('input', function () {
+          var opts = optsInput.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+          var cur  = self.getFieldById(field.id);
+          var currentDefault = cur ? cur.defaultValue : '';
+          // Rebuild the select options.
+          defaultSel.innerHTML = '';
+          var none = document.createElement('option');
+          none.value = '';
+          none.textContent = '— None (use placeholder) —';
+          defaultSel.appendChild(none);
+          opts.forEach(function (o) {
+            var opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o;
+            defaultSel.appendChild(opt);
+          });
+          // Preserve the current default if it still exists; otherwise clear.
+          if (currentDefault && opts.indexOf(currentDefault) !== -1) {
+            defaultSel.value = currentDefault;
+          } else {
+            defaultSel.value = '';
+            if (currentDefault) {
+              self.updateFieldProp(field.id, 'defaultValue', '');
+            }
+          }
+        });
+      }
 
       // Rows slider.
       var rowsSlider  = body.querySelector('#xfbs-rows');
@@ -1371,8 +1565,8 @@
         // Structural change — full replace needed.
         this.replaceCard(existing, field);
 
-      } else if (prop === 'options') {
-        // Options change — re-render the preview part only.
+      } else if (prop === 'options' || prop === 'defaultValue' || prop === 'columns' || prop === 'min' || prop === 'max' || prop === 'step') {
+        // Options / default / columns change — re-render the preview part only.
         var previewWrap = existing.querySelector('.xfb-field-preview');
         if (previewWrap) {
           previewWrap.innerHTML = '';
@@ -1446,15 +1640,20 @@
             // Convert builder types back to legacy PHP-understood types.
             var legacyType = TYPE_MAP_TO_LEGACY[f.type] || f.type;
             var out = {
-              id:          f.id,
-              type:        legacyType,
-              label:       f.label,
-              placeholder: f.placeholder,
-              required:    f.required,
-              options:     f.options || [],
-              float:       !!f.float,
-              width:       String(f.width || '100'),
-              rows:        String(f.rows || '1'),
+              id:           f.id,
+              type:         legacyType,
+              label:        f.label,
+              placeholder:  f.placeholder,
+              required:     f.required,
+              options:      f.options || [],
+              defaultValue: f.defaultValue || '',
+              columns:      String(f.columns || '1'),
+              min:          f.min != null ? String(f.min) : '',
+              max:          f.max != null ? String(f.max) : '',
+              step:         f.step != null ? String(f.step) : '',
+              float:        !!f.float,
+              width:        String(f.width || '100'),
+              rows:         String(f.rows || '1'),
             };
             return out;
           }),

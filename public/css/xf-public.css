@@ -13,8 +13,8 @@
   --xf-light:     #F8F9FA;
   --xf-mid:       #6C757D;
   --xf-dark:      #0D1B2A;
-  --xf-radius:    4px;
-  --xf-font:      'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --xf-radius:    5px;
+  --xf-font:      'Fira Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-family:    var(--xf-font);
   font-size:      15px;
   line-height:    1.55;
@@ -45,7 +45,7 @@
   display: block;
   clear: both;
   box-sizing: border-box;
-  margin-bottom: 16px;
+  margin-bottom: 56px;
 }
 
 /* Float fields sit side-by-side.
@@ -108,64 +108,102 @@
   color: var(--xf-dark);
 }
 
+.xf-form-wrap .xf-label {
+  display: block;
+  font-weight: 700;
+  font-style: normal;
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
 .xf-required {
   color: var(--xf-danger);
   margin-left: 2px;
 }
 
 /* ── Inputs ─────────────────────────────────────────────────────────────── */
-.xf-input,
-.xf-select {
+/* Selectors scoped under .xf-form-wrap to win specificity over theme/Elementor. */
+.xf-form-wrap .xf-input,
+.xf-form-wrap .xf-select,
+.xf-form-wrap input.xf-input,
+.xf-form-wrap select.xf-select {
   display: block;
   width: 100%;
-  height: 44px;
-  padding: 0 12px;
+  height: auto;
+  padding: 15px 25px;
+  font-family: "Fira Sans", sans-serif;
   font-size: 16px;
-  font-family: var(--xf-font);
+  font-weight: 400;
+  line-height: 1.3em;
   color: var(--xf-dark);
   background: #fff;
-  border: 1px solid var(--xf-border);
-  border-radius: var(--xf-radius);
+  border: 1px solid rgb(191, 191, 191);
+  border-radius: 5px;
   box-sizing: border-box;
   transition: border-color .15s ease, box-shadow .15s ease;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
-.xf-select {
+.xf-form-wrap .xf-select,
+.xf-form-wrap select.xf-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236C757D' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
+  background-position: right 16px center;
+  padding-right: 42px;
 }
 
-.xf-input::placeholder,
-.xf-textarea::placeholder {
-  color: #b0b8c4;
+/* Placeholder — explicit font-weight to beat theme's bold placeholder. */
+.xf-form-wrap .xf-input::placeholder,
+.xf-form-wrap .xf-select::placeholder,
+.xf-form-wrap .xf-textarea::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+  font-family: "Fira Sans", sans-serif;
   opacity: 1;
 }
+/* Vendor-prefixed variants (separate rules — browsers ignore unrecognised ones). */
+.xf-form-wrap .xf-input::-webkit-input-placeholder,
+.xf-form-wrap .xf-textarea::-webkit-input-placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+.xf-form-wrap .xf-input::-moz-placeholder,
+.xf-form-wrap .xf-textarea::-moz-placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+  opacity: 1;
+}
+.xf-form-wrap .xf-input:-ms-input-placeholder,
+.xf-form-wrap .xf-textarea:-ms-input-placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
 
-.xf-input:focus,
-.xf-select:focus {
+.xf-form-wrap .xf-input:focus,
+.xf-form-wrap .xf-select:focus {
   outline: none;
   border-color: var(--xf-primary);
   box-shadow: 0 0 0 3px rgba(26,115,232,.2);
 }
 
-.xf-textarea {
+.xf-form-wrap .xf-textarea,
+.xf-form-wrap textarea.xf-textarea {
   display: block;
   width: 100%;
-  padding: 10px 12px;
+  padding: 15px 25px;
+  font-family: "Fira Sans", sans-serif;
   font-size: 16px;
-  font-family: var(--xf-font);
+  font-weight: 400;
+  line-height: 1.3em;
   color: var(--xf-dark);
   background: #fff;
-  border: 1px solid var(--xf-border);
-  border-radius: var(--xf-radius);
+  border: 1px solid rgb(191, 191, 191);
+  border-radius: 5px;
   box-sizing: border-box;
   resize: vertical;
   min-height: 40px;
-  line-height: 1.55;
   transition: border-color .15s ease, box-shadow .15s ease;
   /* Nice custom scrollbar */
   scrollbar-width: thin;
@@ -190,7 +228,8 @@
   background: #94a3b8;
 }
 
-.xf-textarea:focus {
+.xf-form-wrap .xf-textarea:focus,
+.xf-form-wrap textarea.xf-textarea:focus {
   outline: none;
   border-color: var(--xf-primary);
   box-shadow: 0 0 0 3px rgba(26,115,232,.2);
@@ -201,7 +240,25 @@
 .xf-radio-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
+}
+
+/* Multi-column checkbox layout. */
+.xf-checkbox-group.xf-cols-2,
+.xf-checkbox-group.xf-cols-3,
+.xf-checkbox-group.xf-cols-4 {
+  display: grid;
+  gap: 16px 18px;
+}
+.xf-checkbox-group.xf-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.xf-checkbox-group.xf-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.xf-checkbox-group.xf-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+@media (max-width: 600px) {
+  .xf-checkbox-group.xf-cols-3,
+  .xf-checkbox-group.xf-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .xf-checkbox-label,
@@ -213,6 +270,14 @@
   cursor: pointer;
 }
 
+.xf-form-wrap .xf-checkbox-label,
+.xf-form-wrap .xf-radio-label {
+  font-weight: 400;
+  font-style: normal;
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
 .xf-checkbox-label input,
 .xf-radio-label input {
   width: 18px;
@@ -220,6 +285,168 @@
   accent-color: var(--xf-primary);
   cursor: pointer;
   flex-shrink: 0;
+}
+
+/* Custom-styled checkbox/radio — border matches input border color. */
+.xf-form-wrap .xf-checkbox-label input[type="checkbox"],
+.xf-form-wrap .xf-radio-label input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  border: 1px solid rgb(191, 191, 191);
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  transition: border-color .12s ease, background .12s ease;
+}
+
+.xf-form-wrap .xf-radio-label input[type="radio"] {
+  border-radius: 50%;
+}
+
+.xf-form-wrap .xf-checkbox-label input[type="checkbox"]:hover,
+.xf-form-wrap .xf-radio-label input[type="radio"]:hover {
+  border-color: #8a8a8a;
+}
+
+.xf-form-wrap .xf-checkbox-label input[type="checkbox"]:focus-visible,
+.xf-form-wrap .xf-radio-label input[type="radio"]:focus-visible {
+  outline: none;
+  border-color: var(--xf-primary);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, .2);
+}
+
+.xf-form-wrap .xf-checkbox-label input[type="checkbox"]:checked {
+  background: var(--xf-primary);
+  border-color: var(--xf-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8l4 4 6-8'/%3E%3C/svg%3E");
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.xf-form-wrap .xf-radio-label input[type="radio"]:checked {
+  border-color: var(--xf-primary);
+  background: radial-gradient(circle, var(--xf-primary) 45%, #fff 50%);
+}
+
+/* ── Slider ─────────────────────────────────────────────────────────────── */
+.xf-form-wrap .xf-slider {
+  width: 100%;
+}
+.xf-form-wrap .xf-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.xf-form-wrap .xf-slider-edge {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 24px;
+  text-align: center;
+  user-select: none;
+}
+.xf-form-wrap .xf-slider-readout {
+  margin-top: 8px;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--xf-dark);
+  text-align: left;
+}
+.xf-form-wrap .xf-slider-value {
+  font-weight: 700;
+  color: var(--xf-accent, var(--xf-primary));
+}
+
+/* Range input — reset + modern custom track/thumb. */
+.xf-form-wrap .xf-input-slider {
+  flex: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+.xf-form-wrap .xf-input-slider:focus {
+  outline: none;
+}
+
+/* Track — WebKit */
+.xf-form-wrap .xf-input-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(
+    to right,
+    var(--xf-accent, var(--xf-primary)) 0%,
+    var(--xf-accent, var(--xf-primary)) var(--xf-slider-fill, 0%),
+    rgb(220, 220, 220) var(--xf-slider-fill, 0%),
+    rgb(220, 220, 220) 100%
+  );
+  border-radius: 999px;
+  border: 1px solid rgb(191, 191, 191);
+  box-sizing: border-box;
+}
+/* Thumb — WebKit (solid filled circle matching the submit button) */
+.xf-form-wrap .xf-input-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--xf-accent, var(--xf-primary));
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  cursor: grab;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.xf-form-wrap .xf-input-slider:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.xf-form-wrap .xf-input-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Track — Firefox */
+.xf-form-wrap .xf-input-slider::-moz-range-track {
+  height: 6px;
+  background: rgb(220, 220, 220);
+  border-radius: 999px;
+  border: 1px solid rgb(191, 191, 191);
+}
+.xf-form-wrap .xf-input-slider::-moz-range-progress {
+  height: 6px;
+  background: var(--xf-accent, var(--xf-primary));
+  border-radius: 999px;
+}
+.xf-form-wrap .xf-input-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--xf-accent, var(--xf-primary));
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  cursor: grab;
+}
+.xf-form-wrap .xf-input-slider:active::-moz-range-thumb {
+  cursor: grabbing;
 }
 
 /* ── Error messages ─────────────────────────────────────────────────────── */

@@ -434,6 +434,26 @@ class XF_Ajax {
 				}
 			}
 
+			if ( 'zipcode' === $ftype && '' !== trim( (string) $sanitized ) ) {
+				if ( ! preg_match( '/^\d{5}(-\d{4})?$/', trim( (string) $sanitized ) ) ) {
+					$errors[ $fid ] = __( 'Please enter a valid ZIP code (e.g. 12345 or 12345-6789).', 'xtreme-forms' );
+					continue;
+				}
+			}
+
+			if ( 'slider' === $ftype && '' !== trim( (string) $sanitized ) ) {
+				if ( ! is_numeric( $sanitized ) ) {
+					$errors[ $fid ] = __( 'Please choose a valid value.', 'xtreme-forms' );
+					continue;
+				}
+				$slider_val_f = (float) $sanitized;
+				$smin         = isset( $field['min'] ) ? (float) $field['min'] : null;
+				$smax         = isset( $field['max'] ) ? (float) $field['max'] : null;
+				if ( null !== $smin && $slider_val_f < $smin ) { $slider_val_f = $smin; }
+				if ( null !== $smax && $slider_val_f > $smax ) { $slider_val_f = $smax; }
+				$sanitized = (string) $slider_val_f;
+			}
+
 			$field_values[ $fid ] = $sanitized;
 		}
 

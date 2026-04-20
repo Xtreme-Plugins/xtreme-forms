@@ -435,7 +435,11 @@ class XF_Shortcode {
 		$center_form  = ! empty( $settings['center_form'] ) && '1' === (string) $settings['center_form'];
 		$center_class = $center_form ? ' xf-form-centered' : '';
 
-		$html  = '<div class="xf-form-wrap' . $center_class . '" data-form-id="' . esc_attr( $form_id ) . '">';
+		// Accent color — shared by submit button + slider thumb/fill/value.
+		$accent_color = ! empty( $settings['submit_bg_color'] ) ? (string) $settings['submit_bg_color'] : '#1A73E8';
+		$wrap_style   = ' style="--xf-accent: ' . esc_attr( $accent_color ) . ';"';
+
+		$html  = '<div class="xf-form-wrap' . $center_class . '" data-form-id="' . esc_attr( $form_id ) . '"' . $wrap_style . '>';
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
 		$html .= '<input type="hidden" name="action" value="xl_submit_form">';
@@ -584,22 +588,61 @@ class XF_Shortcode {
 				$html .= '<input type="date" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
 				break;
 
+			case 'zipcode':
+				$zip_placeholder = '' !== $placeholder ? $placeholder : '12345';
+				$html           .= '<input type="text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $zip_placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input" inputmode="numeric" pattern="\d{5}(-\d{4})?" maxlength="10" autocomplete="postal-code">';
+				break;
+
+			case 'slider': {
+				$slider_min  = isset( $field['min'] )  ? (float) $field['min']  : 0.0;
+				$slider_max  = isset( $field['max'] )  ? (float) $field['max']  : 10.0;
+				$slider_step = isset( $field['step'] ) ? (float) $field['step'] : 1.0;
+				if ( $slider_max <= $slider_min ) { $slider_max = $slider_min + 1.0; }
+				if ( $slider_step <= 0 )          { $slider_step = 1.0; }
+
+				$slider_default = (string) ( $field['default_value'] ?? ( $field['defaultValue'] ?? '' ) );
+				if ( '' === $slider_default ) { $slider_default = (string) $slider_min; }
+
+				// Effective value = submitted value if present, else the configured default.
+				$slider_val = ( '' !== (string) $value ) ? (string) $value : $slider_default;
+
+				$fmt = function ( $n ) {
+					return rtrim( rtrim( number_format( (float) $n, 4, '.', '' ), '0' ), '.' );
+				};
+
+				$html .= '<div class="xf-slider" data-xf-slider>';
+				$html .= '<div class="xf-slider-row">';
+				$html .= '<input type="range" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" ';
+				$html .= 'min="' . esc_attr( $fmt( $slider_min ) ) . '" max="' . esc_attr( $fmt( $slider_max ) ) . '" step="' . esc_attr( $fmt( $slider_step ) ) . '" ';
+				$html .= 'value="' . esc_attr( $fmt( $slider_val ) ) . '"' . $required_attr . $aria_desc . ' class="xf-input-slider" data-xf-slider-input>';
+				$html .= '</div>';
+				$html .= '<div class="xf-slider-readout">' . esc_html__( 'Selected:', 'xtreme-forms' ) . ' <span class="xf-slider-value" data-xf-slider-value>' . esc_html( $fmt( $slider_val ) ) . '</span></div>';
+				$html .= '</div>';
+				break;
+			}
+
 			case 'dropdown':
-				$html   .= '<select id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '"' . $required_attr . $aria_desc . ' class="xf-select">';
-				$html   .= '<option value="">' . esc_html__( '-- Select --', 'xtreme-forms' ) . '</option>';
-				$options = $field['options'] ?? array();
+				$html         .= '<select id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '"' . $required_attr . $aria_desc . ' class="xf-select">';
+				$placeholder_text = '' !== $placeholder ? $placeholder : esc_html__( '-- Select --', 'xtreme-forms' );
+				$html            .= '<option value="">' . esc_html( $placeholder_text ) . '</option>';
+				$options          = $field['options'] ?? array();
+				$default_value    = (string) ( $field['default_value'] ?? ( $field['defaultValue'] ?? '' ) );
+				// If no user-submitted value, fall back to the configured default.
+				$effective_value  = ( '' === (string) $value && '' !== $default_value ) ? $default_value : $value;
 				foreach ( $options as $option ) {
 					$option_val = esc_attr( $option );
-					$selected   = selected( $value, $option, false );
+					$selected   = selected( $effective_value, $option, false );
 					$html      .= '<option value="' . $option_val . '"' . $selected . '>' . esc_html( $option ) . '</option>';
 				}
 				$html .= '</select>';
 				break;
 
-			case 'checkbox':
+			case 'checkbox': {
 				$options       = $field['options'] ?? array();
 				$selected_vals = is_array( $value ) ? $value : ( '' !== $value ? array( $value ) : array() );
-				$html         .= '<div class="xf-checkbox-group"' . $aria_desc . '>';
+				$cols          = max( 1, min( 4, (int) ( $field['columns'] ?? 1 ) ) );
+				$cols_class    = $cols > 1 ? ' xf-cols-' . $cols : '';
+				$html         .= '<div class="xf-checkbox-group' . $cols_class . '"' . $aria_desc . '>';
 				foreach ( $options as $idx => $option ) {
 					$cb_id      = esc_attr( $input_id . '-' . $idx );
 					$cb_checked = in_array( $option, $selected_vals, true ) ? ' checked' : '';
@@ -607,6 +650,7 @@ class XF_Shortcode {
 				}
 				$html .= '</div>';
 				break;
+			}
 
 			case 'radio':
 				$options = $field['options'] ?? array();

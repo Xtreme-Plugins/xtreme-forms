@@ -149,8 +149,19 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 			<!-- Left: Field palette -->
 			<div class="xfb-palette">
 				<div class="xfb-palette-title"><?php esc_html_e( 'Add Fields', 'xtreme-forms' ); ?></div>
+				<div class="xfb-palette-search-wrap">
+					<input type="search" id="xfb-palette-search" class="xfb-palette-search"
+						placeholder="<?php esc_attr_e( 'Search fields…', 'xtreme-forms' ); ?>"
+						autocomplete="off">
+					<span class="xfb-palette-search-icon" aria-hidden="true">
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+					</span>
+				</div>
 				<div class="xfb-palette-grid" id="xfb-palette">
 					<!-- Populated by xf-builder.js -->
+				</div>
+				<div class="xfb-palette-empty" id="xfb-palette-empty" hidden>
+					<?php esc_html_e( 'No matching fields.', 'xtreme-forms' ); ?>
 				</div>
 			</div>
 

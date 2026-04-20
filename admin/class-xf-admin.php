@@ -717,7 +717,20 @@ class XF_Admin {
 			$field_ph    = sanitize_text_field( $field['placeholder'] ?? '' );
 			$field_req   = ! empty( $field['required'] );
 			$field_opts  = array();
-			$field_dv    = sanitize_text_field( $field['default_value'] ?? '' );
+			// Accept both camelCase (from new JS builder) and snake_case (legacy).
+			$field_dv    = sanitize_text_field( $field['defaultValue'] ?? ( $field['default_value'] ?? '' ) );
+			$field_cols  = isset( $field['columns'] ) ? max( 1, min( 4, (int) $field['columns'] ) ) : 1;
+
+			// Slider range / step (only meaningful for the slider type).
+			$field_min   = ( isset( $field['min'] )  && '' !== $field['min']  ) ? (float) $field['min']  : null;
+			$field_max   = ( isset( $field['max'] )  && '' !== $field['max']  ) ? (float) $field['max']  : null;
+			$field_step  = ( isset( $field['step'] ) && '' !== $field['step'] ) ? (float) $field['step'] : null;
+			if ( 'slider' === $field_type ) {
+				if ( null === $field_min )  { $field_min  = 0.0;  }
+				if ( null === $field_max )  { $field_max  = 10.0; }
+				if ( null === $field_step || $field_step <= 0 ) { $field_step = 1.0; }
+				if ( $field_max <= $field_min ) { $field_max = $field_min + 1.0; }
+			}
 
 			$requires_options = array( 'dropdown', 'checkbox', 'radio' );
 			if ( in_array( $field_type, $requires_options, true ) ) {
@@ -749,10 +762,17 @@ class XF_Admin {
 				'placeholder'   => $field_ph,
 				'required'      => $field_req,
 				'default_value' => $field_dv,
+				'columns'       => $field_cols,
 				'float'         => $field_float,
 				'width'         => $field_width,
 				'rows'          => $field_rows,
 			);
+
+			if ( 'slider' === $field_type ) {
+				$clean['min']  = $field_min;
+				$clean['max']  = $field_max;
+				$clean['step'] = $field_step;
+			}
 
 			if ( ! empty( $field_opts ) ) {
 				$clean['options'] = $field_opts;
