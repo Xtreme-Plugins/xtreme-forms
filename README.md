@@ -1,8 +1,7 @@
-<h1 align="center">
-  <img src="assets/img/xtreme-forms.webp" alt="Xtreme Forms" width="360">
-</h1>
-
-<p align="center">A modern WordPress lead capture plugin — drag-and-drop form builder, lead inbox, email routing, webhooks, analytics, and GDPR tools. Built for teams that actually work their leads.</p>
+<p align="center">
+  <img src="assets/img/xtreme-forms.webp" alt="Xtreme Forms" width="280">
+</p>
+<p align="center"><em>A modern WordPress lead capture plugin — drag-and-drop form builder, lead inbox, email routing, webhooks, analytics, and GDPR tools. Built for teams that actually work their leads.</em></p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-2.0.5-blue" alt="Version 2.0.5">
