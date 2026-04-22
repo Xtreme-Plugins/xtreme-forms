@@ -497,7 +497,7 @@
 			}
 
 			tr.innerHTML = '<td class="xf-col-form-name"><strong>' + escHtml( m.form_name ) +
-				'</strong><div class="xf-form-meta"><code>[xtremeleads id="' + escHtml( String( m.form_id ) ) + '"]</code></div></td>' +
+				'</strong><div class="xf-form-meta"><code>[xtreme_forms id="' + escHtml( String( m.form_id ) ) + '"]</code></div></td>' +
 				'<td class="xf-col-views">' + escHtml( String( m.views ) ) + '</td>' +
 				'<td class="xf-col-submissions">' + escHtml( String( m.submissions ) ) + '</td>' +
 				'<td class="xf-col-conversion">' + rateHtml + '</td>' +

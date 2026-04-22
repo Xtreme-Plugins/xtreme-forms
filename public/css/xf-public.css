@@ -34,6 +34,14 @@
   display: block;
 }
 
+/* Styling → "Remove background": transparent wrapper, no border/shadow */
+.xf-form-wrap.xf-form-no-bg .xf-form {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
 .xf-form::after {
   content: '';
   display: table;

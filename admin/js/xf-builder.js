@@ -254,7 +254,7 @@
       return {
         id:           f.id || makeId(),
         type:         builderType,
-        label:        f.label || labelForType(builderType),
+        label:        typeof f.label === 'string' ? f.label : labelForType(builderType),
         placeholder:  f.placeholder || '',
         required:     !!f.required,
         options:      Array.isArray(f.options) ? f.options : [],
@@ -423,14 +423,19 @@
       // Top drop gap.
       inner.appendChild(this.makeDropGap(0));
 
+      var submitFloated = this.getSubmitLayout().float;
+
       fields.forEach(function (field, idx) {
         var card = self.renderField(field);
         inner.appendChild(card);
 
         // If this field AND the next are both floated, the drop gap between them
-        // must be invisible so they float side-by-side.
-        var nextField = fields[idx + 1];
-        var inline = !!(field.float && nextField && nextField.float);
+        // must be invisible so they float side-by-side. The next "element" after
+        // the last field is the submit card, so factor in its float state too —
+        // that lets the submit button inline with the last row of floated fields.
+        var nextField   = fields[idx + 1];
+        var nextFloated = nextField ? !!nextField.float : submitFloated;
+        var inline      = !!(field.float && nextFloated);
         inner.appendChild(self.makeDropGap(idx + 1, inline));
       });
 

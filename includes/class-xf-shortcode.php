@@ -435,11 +435,14 @@ class XF_Shortcode {
 		$center_form  = ! empty( $settings['center_form'] ) && '1' === (string) $settings['center_form'];
 		$center_class = $center_form ? ' xf-form-centered' : '';
 
+		$remove_bg    = ! empty( $settings['remove_background'] ) && '1' === (string) $settings['remove_background'];
+		$bg_class     = $remove_bg ? ' xf-form-no-bg' : '';
+
 		// Accent color — shared by submit button + slider thumb/fill/value.
 		$accent_color = ! empty( $settings['submit_bg_color'] ) ? (string) $settings['submit_bg_color'] : '#1A73E8';
 		$wrap_style   = ' style="--xf-accent: ' . esc_attr( $accent_color ) . ';"';
 
-		$html  = '<div class="xf-form-wrap' . $center_class . '" data-form-id="' . esc_attr( $form_id ) . '"' . $wrap_style . '>';
+		$html  = '<div class="xf-form-wrap' . $center_class . $bg_class . '" data-form-id="' . esc_attr( $form_id ) . '"' . $wrap_style . '>';
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
 		$html .= '<input type="hidden" name="action" value="xl_submit_form">';

@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.5] - 2026-04-22
+
+### Added
+- Form Settings: **Styling** tab with "Remove background" toggle — renders the frontend form without the white card, border, or shadow (`xf-form-no-bg` class on the wrapper).
+
+### Changed
+- Form Builder: when the Submit button is floated (Width 1/2, 1/3, or 1/4), the admin canvas now places it inline with the last row of floated fields. The dashed outline, percentage badge, and "Click to edit" hint are hidden on the floated submit preview so it reads as a real button.
+- Version bumped to 2.0.5 for the WordPress.org submission release.
+
+### Fixed
+- **Field labels** — clearing a label no longer reverts to the default "Text Field" after reload. The JS builder now preserves explicit empty strings in `normaliseField`.
+- **Shortcode mismatch** — the Forms list, Form Metrics table, Dashboard JS widget, and the Gutenberg block renderer all emitted `[xtremeleads id="X"]`, which is not a registered shortcode. The Gutenberg block was silently rendering nothing. All four sites plus readme.txt / README.md / CHANGELOG.md now use the registered `[xtreme_forms id="X"]` tag.
+- **Plugin Check — hidden file** — removed the plugin-directory `.gitignore` (dev ignores migrated to `.git/info/exclude`).
+- **Plugin Check — sanitization warnings** — all submit-layout `$_POST` reads in `admin/class-xf-admin.php::save_form` now go through `wp_unslash()` + `sanitize_text_field()` before use (covers `submit_width`, `submit_align`, `submit_btn_size`, plus the related `submit_float` / `submit_full_width` flag reads).
+- Removed `phpunit.xml` from the shipped plugin directory (dev-only; matches xtreme-slider layout).
+- Removed broken image reference (`assets/img/xtremeleads.webp`) from the GitHub README.
+
 ## [2.0.4] - 2026-04-14
 
 ### Added
@@ -160,7 +177,7 @@ All notable changes to Xtreme Forms are documented here.
 - Drag-and-drop form builder with 10 field types: text, email, phone, select, checkbox, radio, textarea, date, file, hidden
 - Lead capture with dedicated database table per field — searchable, filterable inbox
 - Email notifications on submission — configurable recipient, subject, and body
-- Shortcode `[xtremeleads id="X"]` for embedding forms in any page, post, or widget
+- Shortcode `[xtreme_forms id="X"]` for embedding forms in any page, post, or widget
 - Gutenberg block with live editor preview and form selector
 - Clean uninstall — drops all custom tables and removes all options
 
