@@ -1,12 +1,8 @@
-<p align="center">
-  <img src="assets/img/xtremeleads.webp" alt="Xtreme Forms" width="400">
-</p>
-
 <h1 align="center">Xtreme Forms</h1>
 <p align="center">A powerful, free WordPress lead capture plugin with form builder, email routing, webhooks, analytics, GDPR tools, and multisite support.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.4-blue" alt="Version 2.0.4">
+  <img src="https://img.shields.io/badge/version-2.0.5-blue" alt="Version 2.0.5">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-purple?logo=php" alt="PHP 8.1+">
@@ -42,7 +38,7 @@
 - **Import / Export** — full JSON round-trip; export forms + leads, import to any site
 - **Multisite** — per-site tables, network-aware activation
 - **Gutenberg Block** — live editor preview with form selector
-- **Shortcode** — `[xtremeleads id="X"]` works everywhere
+- **Shortcode** — `[xtreme_forms id="X"]` works everywhere
 
 ### Pro Upgrade
 
@@ -67,7 +63,7 @@ Available at [xtremeplugins.com/plugins/xtreme-forms/pro](https://xtremeplugins.
 2. Upload via **Plugins → Add New → Upload Plugin** or unzip to `/wp-content/plugins/`
 3. Activate the plugin
 4. Go to **Xtreme Forms → Forms** to create your first form
-5. Embed it with `[xtremeleads id="X"]` or the Gutenberg block
+5. Embed it with `[xtreme_forms id="X"]` or the Gutenberg block
 
 ## Compatibility
 

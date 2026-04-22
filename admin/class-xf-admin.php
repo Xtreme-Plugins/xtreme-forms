@@ -882,13 +882,14 @@ class XF_Admin {
 			'countdown_timer_enabled' => isset( $_POST['countdown_timer_enabled'] ) ? '1' : '0',
 			'closed_message'          => sanitize_textarea_field( wp_unslash( $_POST['closed_message'] ?? '' ) ),
 			'center_form'             => isset( $_POST['center_form'] ) ? '1' : '0',
-			'submit_float'            => isset( $_POST['submit_float'] ) && '1' === $_POST['submit_float'] ? '1' : '0',
-			'submit_width'            => (string) max( 10, min( 100, (int) ( $_POST['submit_width'] ?? 100 ) ) ),
-			'submit_align'            => in_array( $_POST['submit_align'] ?? 'left', array( 'left', 'center', 'right' ), true ) ? sanitize_text_field( $_POST['submit_align'] ) : 'left',
+			'submit_float'            => isset( $_POST['submit_float'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['submit_float'] ) ) ? '1' : '0',
+			'submit_width'            => (string) max( 10, min( 100, (int) sanitize_text_field( wp_unslash( $_POST['submit_width'] ?? '100' ) ) ) ),
+			'submit_align'            => in_array( sanitize_text_field( wp_unslash( $_POST['submit_align'] ?? 'left' ) ), array( 'left', 'center', 'right' ), true ) ? sanitize_text_field( wp_unslash( $_POST['submit_align'] ) ) : 'left',
 			'submit_bg_color'         => sanitize_hex_color( wp_unslash( $_POST['submit_bg_color'] ?? '#1A73E8' ) ) ?: '#1A73E8',
 			'submit_text_color'       => sanitize_hex_color( wp_unslash( $_POST['submit_text_color'] ?? '#ffffff' ) ) ?: '#ffffff',
-			'submit_btn_size'         => in_array( $_POST['submit_btn_size'] ?? 'md', array( 'sm', 'md', 'lg', 'xl' ), true ) ? sanitize_text_field( $_POST['submit_btn_size'] ) : 'md',
-			'submit_full_width'       => isset( $_POST['submit_full_width'] ) && '1' === $_POST['submit_full_width'] ? '1' : '0',
+			'submit_btn_size'         => in_array( sanitize_text_field( wp_unslash( $_POST['submit_btn_size'] ?? 'md' ) ), array( 'sm', 'md', 'lg', 'xl' ), true ) ? sanitize_text_field( wp_unslash( $_POST['submit_btn_size'] ) ) : 'md',
+			'submit_full_width'       => isset( $_POST['submit_full_width'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['submit_full_width'] ) ) ? '1' : '0',
+			'remove_background'       => isset( $_POST['remove_background'] ) ? '1' : '0',
 		);
 
 		// Scheduling datetime values.

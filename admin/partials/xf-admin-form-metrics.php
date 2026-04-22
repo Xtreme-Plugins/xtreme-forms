@@ -117,7 +117,7 @@ $forms   = XF_Forms::get_all_forms();
 							<td class="xf-col-form-name">
 								<strong><?php echo esc_html( $m['form_name'] ); ?></strong>
 								<div class="xf-form-meta">
-									<code><?php echo esc_html( sprintf( '[xtremeleads id="%d"]', $m['form_id'] ) ); ?></code>
+									<code><?php echo esc_html( sprintf( '[xtreme_forms id="%d"]', $m['form_id'] ) ); ?></code>
 								</div>
 							</td>
 							<td class="xf-col-views"><?php echo esc_html( number_format_i18n( $m['views'] ) ); ?></td>

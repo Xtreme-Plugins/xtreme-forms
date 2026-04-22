@@ -2,19 +2,19 @@
 Contributors: xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lead capture forms with email routing, webhooks, analytics, spam protection, and GDPR tools. Free.
+Lead capture forms with email routing, webhooks, analytics, spam protection, and GDPR tools.
 
 == Description ==
 
-Xtreme Forms is a comprehensive WordPress lead capture and management plugin. Build custom forms, capture leads into a database, route notifications to the right team members, track analytics, and stay GDPR-compliant — all from a clean, fast admin interface.
+Xtreme Forms is a WordPress lead capture and management plugin. Build custom forms, capture leads into your own database, route notifications to the right team members, track analytics, and use the included GDPR tools (consent checkbox, right-to-erasure, data retention) to help support your own privacy workflows — all from a clean, fast admin interface.
 
-The free tier is fully featured for most use cases. An optional Pro upgrade unlocks advanced routing, webhook retries, extended analytics, and white-label mode.
+All features listed below work in the plugin you are downloading. The optional Pro add-on offered by the author adds advanced routing, webhook retries, and extended analytics, but is not required for any of the features below.
 
 = Core Features (Free) =
 
@@ -28,7 +28,7 @@ The free tier is fully featured for most use cases. An optional Pro upgrade unlo
 * **UTM Tracking** — automatically capture and store UTM parameters with each lead
 * **Duplicate Detection** — configurable duplicate suppression by email/phone within a time window
 * **Spam Protection** — honeypot, time-gate, reCAPTCHA v3, and keyword blocklist
-* **GDPR Tools** — consent checkbox, right to erasure, configurable data retention
+* **GDPR Tools** — consent checkbox, right-to-erasure helper, configurable data retention (tools to support your own GDPR workflow; the plugin does not guarantee legal compliance)
 * **Activity Timeline** — per-lead event history (submitted, emailed, status changes, notes)
 * **Notes** — add internal notes to any lead
 * **Tags** — tag and filter leads with custom labels
@@ -36,16 +36,15 @@ The free tier is fully featured for most use cases. An optional Pro upgrade unlo
 * **Import / Export** — full JSON round-trip export and import
 * **Multisite Support** — per-site tables, network-aware activation
 * **Gutenberg Block** — embed any form with the Xtreme Forms block (live editor preview)
-* **Shortcode** — `[xtremeleads id="X"]` works everywhere
+* **Shortcode** — `[xtreme_forms id="X"]` works everywhere
 
-= Pro Upgrade =
+= Optional Pro Add-On =
 
-Unlock advanced features with a Pro license from https://xtremeplugins.com/plugins/xtreme-forms/pro/:
+An optional paid add-on from the author is available at https://xtremeplugins.com/plugins/xtreme-forms/pro/. It is not required for any feature listed above and is not bundled with this plugin.
 
 * Priority routing rules with complex AND/OR conditions
 * Webhook retry queue with exponential backoff
 * Advanced analytics: cohort analysis, lead value tracking
-* White-label mode (remove Xtreme Forms branding from front-end forms)
 * Priority email support
 
 == Installation ==
@@ -55,7 +54,7 @@ Unlock advanced features with a Pro license from https://xtremeplugins.com/plugi
 3. Select the zip file and click **Install Now**
 4. Activate the plugin
 5. Go to **Xtreme Forms → Forms** to build your first form
-6. Embed it with `[xtremeleads id="X"]` or the Gutenberg block
+6. Embed it with `[xtreme_forms id="X"]` or the Gutenberg block
 
 Alternatively, unzip the archive and upload the `xtreme-forms` folder to `/wp-content/plugins/`, then activate from the Plugins screen.
 
@@ -71,15 +70,15 @@ Yes. Fully standalone with zero external dependencies required.
 
 = Does it work with Elementor? =
 
-Yes. Use `[xtremeleads id="X"]` in Elementor's Shortcode widget, or the native Gutenberg block.
+Yes. Use `[xtreme_forms id="X"]` in Elementor's Shortcode widget, or the native Gutenberg block.
 
 = Is it multisite compatible? =
 
 Yes. Xtreme Forms creates per-site database tables and supports network-wide activation.
 
-= Does it work with GDPR / privacy laws? =
+= Does it include GDPR tools? =
 
-Yes. Includes consent checkbox, right-to-erasure data deletion, configurable data retention, and an append-only audit log.
+Yes — it ships a consent checkbox, a right-to-erasure helper, configurable data retention, and an append-only audit log. These are tools to help you build a GDPR-aware workflow. Compliance with GDPR or any other privacy law is your responsibility; the plugin does not guarantee legal compliance.
 
 = Can I export my leads? =
 
@@ -91,12 +90,25 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Screenshots ==
 
-1. Lead inbox — filterable, searchable list with status badges and bulk actions
-2. Form builder — drag-and-drop field editor with live preview and conditional logic
-3. Analytics dashboard — submission trends and lead source breakdown
-4. Lead detail — activity timeline, notes, tags, and audit trail
+1. Frontend form — published lead capture form on a live site with GDPR consent checkbox and custom-styled submit button
+2. Form builder — drag-and-drop field palette (textbox, dropdown, date picker, file upload, zip code, slider, etc.) with live canvas preview and editable submit button
+3. Lead detail — submitted data, lead metadata (source URL, IP, user agent, GDPR consent), status + assignment controls, tags, and notes timeline
+4. Automations — email templates with logo, header color, merge-tag support for subject/body/footer; tabs for Routing Rules, Webhooks, and Integrations
+5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.0.5 =
+* WordPress.org submission prep: resolved Plugin Check findings
+* Security: added `wp_unslash()` + `sanitize_text_field()` to all submit-layout `$_POST` reads in the admin save handler
+* Repository hygiene: removed the plugin-directory `.gitignore` (hidden file not allowed by Plugin Check); dev ignores moved to `.git/info/exclude`
+* Removed `phpunit.xml` from the shipped plugin (dev-only)
+* Form Builder: floated Submit button now sits inline with the last row of floated fields (width 1/2, 1/3, 1/4)
+* Form Builder: when Submit is floated, the admin preview hides the dashed outline, percentage badge, and "Click to edit" hint
+* Form Settings: new **Styling** tab with "Remove background" toggle — renders the frontend form without the white card, border, or shadow
+* Fix: cleared field labels now persist through reload (empty string no longer reverts to default "Text Field")
+* Fix: Forms list, Form Metrics table, Dashboard widget, and Gutenberg block all now emit the correct `[xtreme_forms id="X"]` shortcode (was `[xtremeleads]` in 4 places — block render was broken)
+* Docs: README.md, CHANGELOG.md and readme.txt updated with the corrected shortcode
 
 = 2.0.3 =
 * Stability release following the XtremeLeads → Xtreme Forms rename
@@ -152,10 +164,13 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Drag-and-drop form builder with 10 field types
 * Lead capture database with searchable inbox
 * Email notifications on submission
-* Shortcode `[xtremeleads id="X"]` and Gutenberg block
+* Shortcode `[xtreme_forms id="X"]` and Gutenberg block
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.0.5 =
+WordPress.org submission prep + layout/UX fixes. Safe to upgrade from any 2.x version — no database changes.
 
 = 2.0.3 =
 Stable release. Safe to upgrade from any 1.x or 2.0.x version — no database changes.

@@ -59,6 +59,7 @@ $consent_enabled  = ! empty( $settings['consent_enabled'] ) && '1' === (string) 
 $consent_label    = $settings['consent_label'] ?? '';
 $consent_url      = $settings['consent_url'] ?? '';
 $form_recaptcha   = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
+$remove_background = ! empty( $settings['remove_background'] ) && '1' === (string) $settings['remove_background'];
 $countdown_enabled  = ! empty( $settings['countdown_timer_enabled'] ) && '1' === (string) $settings['countdown_timer_enabled'];
 $closed_message_val = $form ? ( $form->closed_message ?? '' ) : '';
 $activate_at_val    = ( $form && ! empty( $form->activate_at ) && '0000-00-00 00:00:00' !== $form->activate_at )
@@ -213,6 +214,7 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 							<button type="button" class="xf-btab" data-tab="gdpr"     role="tab"><?php esc_html_e( 'GDPR', 'xtreme-forms' ); ?></button>
 							<button type="button" class="xf-btab" data-tab="schedule" role="tab"><?php esc_html_e( 'Schedule', 'xtreme-forms' ); ?></button>
 							<button type="button" class="xf-btab" data-tab="spam"     role="tab"><?php esc_html_e( 'Spam', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="styling"  role="tab"><?php esc_html_e( 'Styling', 'xtreme-forms' ); ?></button>
 						</div>
 
 						<!-- TAB: General -->
@@ -427,6 +429,23 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 							</div>
 
 						</div><!-- #xf-tab-spam -->
+
+						<!-- TAB: Styling -->
+						<div class="xf-btab-panel" id="xf-tab-styling" style="display:none;">
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-row-label">
+									<label class="xfb-toggle xf-settings-toggle">
+										<input type="checkbox" name="remove_background" value="1"<?php checked( $remove_background ); ?>>
+										<span class="xfb-toggle-track"></span>
+										<span class="xfb-toggle-thumb"></span>
+									</label>
+									<span style="font-weight:600;font-size:13px;"><?php esc_html_e( 'Remove background', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint" style="margin-top:4px;"><?php esc_html_e( 'Makes the form background transparent and hides the form border/shadow.', 'xtreme-forms' ); ?></p>
+							</div>
+
+						</div><!-- #xf-tab-styling -->
 
 					</aside><!-- .xf-builder-sidebar -->
 
@@ -656,6 +675,29 @@ var xfBuilderData = {
 .xfb-submit-preview.selected {
 	border-color: #2563eb;
 	background: #eff6ff;
+}
+
+/* When floated (width 1/2, 1/3, 1/4), sit inline with the last row of fields */
+.xfb-submit-preview.xfb-field-floating {
+	float: left;
+	clear: none;
+	margin-top: 0;
+	width: auto; /* overridden by inline style */
+	box-sizing: border-box;
+	border-color: transparent;
+	background: transparent;
+	padding: 14px 16px;
+}
+
+.xfb-submit-preview.xfb-field-floating:hover,
+.xfb-submit-preview.xfb-field-floating.selected {
+	border-color: transparent;
+	background: transparent;
+}
+
+.xfb-submit-preview.xfb-field-floating .xfb-submit-hint,
+.xfb-submit-preview.xfb-field-floating .xfb-width-badge {
+	display: none;
 }
 
 .xfb-submit-btn-preview {

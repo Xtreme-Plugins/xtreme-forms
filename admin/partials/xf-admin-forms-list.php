@@ -69,7 +69,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 					<tr>
 						<td><strong><?php echo esc_html( $form->name ); ?></strong></td>
 						<td>
-							<code class="xf-shortcode" title="<?php esc_attr_e( 'Click to copy', 'xtreme-forms' ); ?>">[xtremeleads id="<?php echo esc_attr( $form->id ); ?>"]</code>
+							<code class="xf-shortcode" title="<?php esc_attr_e( 'Click to copy', 'xtreme-forms' ); ?>">[xtreme_forms id="<?php echo esc_attr( $form->id ); ?>"]</code>
 						</td>
 						<td>
 							<span class="xf-status-badge xf-status-<?php echo esc_attr( $form->status ); ?>">
