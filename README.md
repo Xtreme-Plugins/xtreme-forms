@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/img/xtreme-forms.svg" alt="Xtreme Forms" width="400">
+  <img src="assets/img/xtreme-forms.webp" alt="Xtreme Forms" width="480">
 </p>
 
 <h1 align="center">Xtreme Forms</h1>
@@ -16,7 +16,7 @@
 <p align="center">
   <a href="https://xtremeplugins.com/plugins/xtreme-forms"><img src="assets/img/btn-download.svg" alt="Download Free" height="50"></a>
   &nbsp;&nbsp;
-  <a href="https://xtremeplugins.com/plugins/xtreme-forms/pro"><img src="assets/img/btn-upgrade.svg" alt="Upgrade to Pro" height="50"></a>
+  <a href="https://xtremeplugins.com/plugins/xtreme-forms"><img src="assets/img/btn-upgrade.svg" alt="Upgrade to Pro" height="50"></a>
 </p>
 
 ---
@@ -88,7 +88,7 @@ All-time / monthly / weekly totals, a leads-over-time chart, leads-by-form break
 
 ### Optional Pro Add-On
 
-Available at [xtremeplugins.com/plugins/xtreme-forms/pro](https://xtremeplugins.com/plugins/xtreme-forms/pro):
+Available at [xtremeplugins.com/plugins/xtreme-forms](https://xtremeplugins.com/plugins/xtreme-forms):
 
 - Priority routing rules with complex AND/OR conditions
 - Webhook retry queue with exponential backoff and delivery dashboard
@@ -140,7 +140,6 @@ GPL-2.0-or-later — [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu
 ## Links
 
 - [Plugin Page](https://xtremeplugins.com/plugins/xtreme-forms)
-- [Pro Upgrade](https://xtremeplugins.com/plugins/xtreme-forms/pro)
 - [Changelog](CHANGELOG.md)
 - [Report Issues](https://github.com/Xtreme-Plugins/xtreme-forms/issues)
 
