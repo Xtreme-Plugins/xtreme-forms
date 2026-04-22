@@ -40,7 +40,7 @@ All features listed below work in the plugin you are downloading. The optional P
 
 = Optional Pro Add-On =
 
-An optional paid add-on from the author is available at https://xtremeplugins.com/plugins/xtreme-forms/pro/. It is not required for any feature listed above and is not bundled with this plugin.
+An optional paid add-on from the author is available at https://xtremeplugins.com/plugins/xtreme-forms. It is not required for any feature listed above and is not bundled with this plugin.
 
 * Priority routing rules with complex AND/OR conditions
 * Webhook retry queue with exponential backoff
