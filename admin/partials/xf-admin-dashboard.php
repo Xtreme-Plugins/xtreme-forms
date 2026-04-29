@@ -359,10 +359,21 @@ $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_ur
 
 </div><!-- .xf-dashboard-wrap -->
 
-<script type="text/javascript">
-/* Dashboard initial data — passed to xf-dashboard.js to avoid redundant AJAX on load */
-window.xlDashboardInitialData = {
-	hasLeads: <?php echo $total_leads > 0 ? 'true' : 'false'; ?>,
-	hasForms: <?php echo $has_forms ? 'true' : 'false'; ?>,
-};
-</script>
+<?php
+/*
+ * Dashboard initial data — passed to xf-dashboard.js to avoid redundant AJAX
+ * on load. Attached via wp_add_inline_script() so the WordPress.org Plugin
+ * Check sees no inline <script> tags in the rendered HTML.
+ */
+wp_add_inline_script(
+	'xf-dashboard',
+	'window.xlDashboardInitialData = ' . wp_json_encode(
+		array(
+			'hasLeads' => $total_leads > 0,
+			'hasForms' => (bool) $has_forms,
+		),
+		JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+	) . ';',
+	'before'
+);
+?>

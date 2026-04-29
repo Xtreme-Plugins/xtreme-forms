@@ -4,7 +4,7 @@
 <p align="center"><em>A modern WordPress lead capture plugin — drag-and-drop form builder, lead inbox, email routing, webhooks, analytics, and GDPR tools. Built for teams that actually work their leads.</em></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.5-blue" alt="Version 2.0.5">
+  <img src="https://img.shields.io/badge/version-2.0.6-blue" alt="Version 2.0.6">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-purple?logo=php" alt="PHP 8.1+">

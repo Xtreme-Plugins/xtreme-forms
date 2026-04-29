@@ -181,24 +181,33 @@ $forms   = XF_Forms::get_all_forms();
 </div>
 
 <?php
-// Pass all metrics data to JS for client-side sorting (includes all pages).
-$all_metrics_json = wp_json_encode(
-	array_map(
-		static function ( $m ) {
-			return array(
-				'form_id'                 => $m['form_id'],
-				'form_name'               => $m['form_name'],
-				'views'                   => $m['views'],
-				'submissions'             => $m['submissions'],
-				'conversion_rate'         => $m['conversion_rate'],
-				'conversion_rate_warning' => $m['conversion_rate_warning'] ?? false,
-				'avg_seconds'             => $m['avg_seconds'],
-			);
-		},
-		$metrics
-	)
+/*
+ * Pass all metrics data to JS for client-side sorting (includes all pages).
+ *
+ * The metrics page already enqueues admin/js/xf-dashboard.js. We attach this
+ * payload via wp_add_inline_script() so the WordPress.org Plugin Check sees
+ * no inline <script> tags in the rendered HTML.
+ */
+$xf_metrics_payload = array_map(
+	static function ( $m ) {
+		return array(
+			'form_id'                 => $m['form_id'],
+			'form_name'               => $m['form_name'],
+			'views'                   => $m['views'],
+			'submissions'             => $m['submissions'],
+			'conversion_rate'         => $m['conversion_rate'],
+			'conversion_rate_warning' => $m['conversion_rate_warning'] ?? false,
+			'avg_seconds'             => $m['avg_seconds'],
+		);
+	},
+	$metrics
+);
+wp_add_inline_script(
+	'xf-dashboard',
+	'window.xlFormMetricsData = ' . wp_json_encode(
+		$xf_metrics_payload,
+		JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+	) . ';',
+	'before'
 );
 ?>
-<script type="text/javascript">
-window.xlFormMetricsData = <?php echo $all_metrics_json; // phpcs:ignore WordPress.Security.EscapeOutput ?>;
-</script>

@@ -94,7 +94,7 @@ class XF_Multisite {
 			'xtreme-forms-network',
 			array( static::class, 'page_network_dashboard' ),
 			'dashicons-email-alt',
-			25
+			81 // Match the per-site placement; sit after Settings, never compete with core items.
 		);
 
 		add_submenu_page(

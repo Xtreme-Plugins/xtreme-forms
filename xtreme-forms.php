@@ -3,7 +3,7 @@
  * Plugin Name: Xtreme Forms
  * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-forms/
  * Description: Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:     2.0.5
+ * Version:     2.0.6
  * Author:      XtremePlugins
  * Author URI:  https://xtremeplugins.com
  * License:     GPL-2.0-or-later
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.0.5' );
+define( 'XTREMEFORMS_VERSION', '2.0.6' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -262,14 +262,28 @@ function xtremeforms_block_render( array $attributes, string $content = '', $blo
 	}
 
 	$style_attr  = ! empty( $style_parts ) ? ' style="' . esc_attr( implode( ';', $style_parts ) ) . '"' : '';
-	$align_class = 'xf-block-align-' . $alignment; // Already validated to safe value.
+	$align_class = 'xf-block-align-' . $alignment; // Already validated against an allow-list above.
 
 	// Render the form via the shortcode engine, which works in all WordPress contexts
 	// including FSE template parts, query loops, and classic themes.
-	// do_shortcode() is safe to call here — Xtreme Forms shortcode is registered on init.
+	// $inner is the return value of XF_Shortcode::render() — our own registered shortcode
+	// callback at includes/class-xf-shortcode.php. That method is the canonical renderer
+	// for this plugin's form HTML and is responsible for escaping every dynamic value it
+	// emits (esc_html on labels, esc_attr on attributes, esc_url on URLs, esc_textarea on
+	// values). It returns a complete, already-safe HTML string. We must not re-escape with
+	// esc_html (that would render the form as literal text) and cannot run it through
+	// wp_kses_post (that would strip the <form> / <input> / <select> tags the form needs).
 	$inner = function_exists( 'do_shortcode' )
-		? do_shortcode( '[xtreme_forms id="' . $form_id . '"]' )
+		? do_shortcode( '[xtreme_forms id="' . absint( $form_id ) . '"]' )
 		: '';
 
-	return '<div class="xf-block-wrapper ' . esc_attr( $align_class ) . '"' . $style_attr . '>' . $inner . '</div>';
+	$wrapper_open  = sprintf(
+		'<div class="%s"%s>',
+		esc_attr( 'xf-block-wrapper ' . $align_class ),
+		$style_attr // already built from esc_attr() above
+	);
+	$wrapper_close = '</div>';
+
+	// $inner — pre-escaped HTML returned from our own registered shortcode (see comment above).
+	return $wrapper_open . $inner . $wrapper_close; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- see explanation above; $inner is the return value of XF_Shortcode::render() which escapes all of its own dynamic data.
 }

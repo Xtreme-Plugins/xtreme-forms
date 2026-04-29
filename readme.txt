@@ -1,8 +1,8 @@
 === Xtreme Forms ===
-Contributors: xtremeplugins
+Contributors: loanpartnership
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -86,7 +86,56 @@ Yes. Full JSON export and import from the Import/Export admin page.
 
 = Where do I report bugs or request features? =
 
-Please use the WordPress.org support forum for this plugin, or file an issue at https://github.com/Xtreme-Plugins/xtreme-forms.
+Please use the WordPress.org support forum for this plugin.
+
+== External services ==
+
+This plugin can connect to several third-party services. Every service listed below is **opt-in** — none are contacted unless a site administrator explicitly enables and configures them. The free, default install of the plugin does not contact any external service.
+
+= Google reCAPTCHA v3 (optional spam protection) =
+
+If a site administrator enables reCAPTCHA in **Xtreme Forms → Settings → Spam Protection** and provides their own Site Key and Secret Key, the plugin will:
+
+* Load the reCAPTCHA JavaScript from `https://www.google.com/recaptcha/api.js` on every page where a form is rendered.
+* Generate an anonymous reCAPTCHA token in the visitor's browser when the form is submitted.
+* Send that token (plus the site's secret key) to `https://www.google.com/recaptcha/api/siteverify` from your server to verify the submission is not spam. No form-field data is transmitted.
+
+Service provider: Google. [Terms of Service](https://policies.google.com/terms) · [Privacy Policy](https://policies.google.com/privacy)
+
+= Cloudflare Turnstile (optional spam protection) =
+
+If a site administrator enables Turnstile in **Xtreme Forms → Settings → Spam Protection** and provides their own Site Key and Secret Key, the plugin will:
+
+* Load the Turnstile JavaScript from `https://challenges.cloudflare.com/turnstile/v0/api.js` on every page where a form is rendered.
+* Generate an anonymous Turnstile token in the visitor's browser when the form is submitted.
+* Send that token (plus the site's secret key) to `https://challenges.cloudflare.com/turnstile/v0/siteverify` from your server to verify the submission is not spam. No form-field data is transmitted.
+
+Service provider: Cloudflare, Inc. [Terms of Service](https://www.cloudflare.com/website-terms/) · [Privacy Policy](https://www.cloudflare.com/privacypolicy/)
+
+= HubSpot CRM (optional lead forwarding) =
+
+If a site administrator enables the HubSpot integration in **Xtreme Forms → Automations → Integrations** and supplies a HubSpot Private App access token, then on every form submission the plugin sends the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `https://api.hubapi.com/crm/v3/objects/contacts`.
+
+Service provider: HubSpot, Inc. [Terms of Service](https://legal.hubspot.com/terms-of-service) · [Privacy Policy](https://legal.hubspot.com/privacy-policy)
+
+= Pipedrive CRM (optional lead forwarding) =
+
+If a site administrator enables the Pipedrive integration in **Xtreme Forms → Automations → Integrations** and supplies a Pipedrive API token, then on every form submission the plugin sends the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `https://api.pipedrive.com/v1/persons` and `https://api.pipedrive.com/v1/leads`. The token is also validated once at save-time against `https://api.pipedrive.com/v1/users/me`.
+
+Service provider: Pipedrive Inc. [Terms of Service](https://www.pipedrive.com/en/terms-of-service) · [Privacy Policy](https://www.pipedrive.com/en/privacy)
+
+= Zoho CRM (optional lead forwarding) =
+
+If a site administrator enables the Zoho integration in **Xtreme Forms → Automations → Integrations** and completes the Zoho OAuth handshake (providing client ID, client secret, refresh token, and data-center region), then on every form submission the plugin will:
+
+* Refresh the Zoho OAuth access token by calling `https://accounts.zoho.<region>/oauth/v2/token` (where `<region>` is the data-center suffix the admin configured, e.g. `com`, `eu`, `in`).
+* Send the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `https://www.zohoapis.<region>/crm/v2/Leads`.
+
+Service provider: Zoho Corporation. [Terms of Service](https://www.zoho.com/terms.html) · [Privacy Policy](https://www.zoho.com/privacy.html)
+
+= Webhooks (optional lead forwarding) =
+
+If a site administrator configures one or more webhook URLs in **Xtreme Forms → Automations → Webhooks**, the plugin will POST submitted form data (the field values, plus optional metadata such as form ID, submission timestamp, and source URL) to each configured URL. The destination is fully controlled by the site administrator.
 
 == Screenshots ==
 
@@ -97,6 +146,17 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.0.6 =
+* WordPress.org review feedback resolved:
+* All inline `<script>` and `<style>` tags in admin partials replaced with `wp_enqueue_*()` + `wp_add_inline_script()` / `wp_localize_script()` (16 blocks, 12 partials, 11 new asset files).
+* Removed hardcoded "Sent by Xtreme Forms" credit link from notification-email footer (Powered-By guideline 10).
+* Block render callback (`xtremeforms_block_render`) now uses `sprintf()` with explicit `esc_attr()` calls and a documented `phpcs:ignore` annotation for the pre-escaped shortcode HTML it concatenates.
+* Lowered admin menu position from 25 → 81 so it sits below Settings and never competes with core items (Dashboard / Posts / Comments).
+* Same change applied to the Network Admin menu (multisite).
+* `readme.txt` Contributors changed from `xtremeplugins` to `loanpartnership` (the actual WP.org username for the plugin owner).
+* `readme.txt` now has an `== External services ==` section documenting Google reCAPTCHA, Cloudflare Turnstile, HubSpot CRM, Pipedrive CRM, Zoho CRM, and Webhooks — what they do, when they fire, and the provider's Terms & Privacy links.
+* Removed the GitHub repository URL from `readme.txt` (the repository is private; reviewers got a 404).
 
 = 2.0.5 =
 * WordPress.org submission prep: resolved Plugin Check findings
@@ -168,6 +228,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.0.6 =
+WordPress.org review-feedback fixes. Safe to upgrade from any 2.x version — no database changes.
 
 = 2.0.5 =
 WordPress.org submission prep + layout/UX fixes. Safe to upgrade from any 2.x version — no database changes.

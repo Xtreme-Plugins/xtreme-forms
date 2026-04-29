@@ -186,41 +186,23 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 	<?php endif; ?>
 </div>
 
-<script>
-(function () {
-	'use strict';
 
-	document.querySelectorAll('.xf-resend-btn').forEach(function (btn) {
-		btn.addEventListener('click', function () {
-			if (!confirm('<?php echo esc_js( __( 'Resend this email to the original recipient?', 'xtreme-forms' ) ); ?>')) {
-				return;
-			}
-
-			btn.disabled = true;
-			btn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
-
-			const fd = new FormData();
-			fd.append('action', 'xf_resend_email');
-			fd.append('nonce', xfAdminData.nonce);
-			fd.append('log_id', btn.dataset.logId);
-
-			fetch(xfAdminData.ajaxUrl, { method: 'POST', body: fd })
-				.then(function (r) { return r.json(); })
-				.then(function (res) {
-					if (res.success) {
-						btn.textContent = '<?php echo esc_js( __( 'Sent ✓', 'xtreme-forms' ) ); ?>';
-						btn.style.color = '#28A745';
-					} else {
-						btn.disabled = false;
-						btn.textContent = '<?php echo esc_js( __( 'Resend', 'xtreme-forms' ) ); ?>';
-						alert((res.data && res.data.message) || '<?php echo esc_js( __( 'Resend failed.', 'xtreme-forms' ) ); ?>');
-					}
-				})
-				.catch(function () {
-					btn.disabled = false;
-					btn.textContent = '<?php echo esc_js( __( 'Resend', 'xtreme-forms' ) ); ?>';
-				});
-		});
-	});
-}());
-</script>
+<?php
+/*
+ * Email-log page i18n strings.
+ *
+ * The dedicated JS (admin/js/xf-email-log.js) is enqueued via the shared
+ * admin enqueue function. Translatable strings are attached here so the
+ * WordPress.org Plugin Check sees no inline <script> tags in the rendered HTML.
+ */
+wp_localize_script(
+	'xf-email-log',
+	'xfEmailLogI18n',
+	array(
+		'confirmResend' => __( 'Resend this email to the original recipient?', 'xtreme-forms' ),
+		'sending'       => __( 'Sending…', 'xtreme-forms' ),
+		'sent'          => __( 'Sent ✓', 'xtreme-forms' ),
+		'resend'        => __( 'Resend', 'xtreme-forms' ),
+		'resendFailed'  => __( 'Resend failed.', 'xtreme-forms' ),
+	)
+);

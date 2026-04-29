@@ -51,7 +51,7 @@ class XF_Admin {
 			'xtreme-forms',
 			array( $this, 'page_dashboard' ),
 			'dashicons-email-alt',
-			25
+			81 // After Settings (80); never compete with core menu positions like Comments (25).
 		);
 
 		add_submenu_page(
@@ -203,7 +203,22 @@ class XF_Admin {
 	// ── Asset enqueueing ─────────────────────────────────────────────────────
 
 	public function enqueue_assets( string $hook ): void {
-		if ( false === strpos( $hook, 'xtreme-forms' ) ) {
+		// Welcome screen is registered with slug 'xf-welcome' (its hook contains 'xf-welcome'),
+		// while every other plugin page slug starts with 'xtreme-forms'. Match either.
+		$is_welcome_page = false !== strpos( $hook, 'xf-welcome' );
+		$is_plugin_page  = false !== strpos( $hook, 'xtreme-forms' );
+		if ( ! $is_plugin_page && ! $is_welcome_page ) {
+			return;
+		}
+
+		// Welcome page only needs its dedicated stylesheet — none of the main admin assets.
+		if ( $is_welcome_page ) {
+			wp_enqueue_style(
+				'xf-welcome',
+				XTREMEFORMS_PLUGIN_URL . 'admin/css/xf-welcome.css',
+				array(),
+				XTREMEFORMS_VERSION
+			);
 			return;
 		}
 
@@ -226,6 +241,20 @@ class XF_Admin {
 		if ( false !== strpos( $hook, 'xtreme-forms-forms' ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification -- Read-only URL param for page routing, no state change.
 			$xf_action = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification -- Read-only URL param for page routing, no state change.
+			$xf_template = isset( $_GET['xf_template'] ) ? sanitize_key( wp_unslash( $_GET['xf_template'] ) ) : '';
+
+			// Template picker is shown when action=new and no template chosen.
+			if ( 'new' === $xf_action && '' === $xf_template ) {
+				wp_enqueue_script(
+					'xf-form-template-picker',
+					XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-form-template-picker.js',
+					array( 'xf-admin' ),
+					XTREMEFORMS_VERSION,
+					true
+				);
+			}
+
 			if ( in_array( $xf_action, array( 'new', 'edit' ), true ) ) {
 				wp_enqueue_style(
 					'xf-builder',
@@ -237,6 +266,23 @@ class XF_Admin {
 					'xf-builder',
 					XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-builder.js',
 					array( 'xf-admin' ),
+					XTREMEFORMS_VERSION,
+					true
+				);
+
+				// Form-settings styles + JS (advanced settings tabs, toggles, validation,
+				// shortcode-copy button). Previously inline blocks in the partial — now
+				// shipped as separate files and enqueued here for WP.org compliance.
+				wp_enqueue_style(
+					'xf-form-settings',
+					XTREMEFORMS_PLUGIN_URL . 'admin/css/xf-form-settings.css',
+					array( 'xf-builder' ),
+					XTREMEFORMS_VERSION
+				);
+				wp_enqueue_script(
+					'xf-form-settings',
+					XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-form-settings.js',
+					array( 'xf-builder' ),
 					XTREMEFORMS_VERSION,
 					true
 				);
@@ -290,6 +336,109 @@ class XF_Admin {
 						'invalidDateRange'  => __( 'End date cannot be before start date.', 'xtreme-forms' ),
 					),
 				)
+			);
+		}
+
+		// Settings page (and its sub-tabs).
+		if ( false !== strpos( $hook, 'xtreme-forms-settings' ) ) {
+			wp_enqueue_script(
+				'xf-settings',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-settings.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
+			);
+		}
+
+		// Webhooks page.
+		if ( false !== strpos( $hook, 'xtreme-forms-webhooks' ) ) {
+			wp_enqueue_style(
+				'xf-webhooks',
+				XTREMEFORMS_PLUGIN_URL . 'admin/css/xf-webhooks.css',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION
+			);
+			wp_enqueue_script(
+				'xf-webhooks',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-webhooks.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
+			);
+		}
+
+		// Integrations page.
+		if ( false !== strpos( $hook, 'xtreme-forms-integrations' ) ) {
+			wp_enqueue_script(
+				'xf-integrations',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-integrations.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
+			);
+		}
+
+		// Lead detail page (Leads inbox + lead detail share the same hook —
+		// only enqueue the detail script when the request targets the detail view).
+		if ( false !== strpos( $hook, 'xtreme-forms-leads' ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification -- Read-only URL param for page routing, no state change.
+			$xf_leads_action = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
+			if ( 'view' === $xf_leads_action ) {
+				wp_enqueue_script(
+					'xf-lead-detail',
+					XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-lead-detail.js',
+					array( 'xf-admin' ),
+					XTREMEFORMS_VERSION,
+					true
+				);
+			}
+		}
+
+		// Routing rules page.
+		if ( false !== strpos( $hook, 'xtreme-forms-routing-rules' ) ) {
+			wp_enqueue_script(
+				'xf-routing-rules',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-routing-rules.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
+			);
+		}
+
+		// Email templates page.
+		if ( false !== strpos( $hook, 'xtreme-forms-email-templates' ) ) {
+			wp_enqueue_script(
+				'xf-email-templates',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-email-templates.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
+			);
+		}
+
+		// Spam log page (also rendered as a sub-tab of the settings hub).
+		if ( false !== strpos( $hook, 'xtreme-forms-spam-log' )
+			|| false !== strpos( $hook, 'xtreme-forms-settings' )
+		) {
+			wp_enqueue_script(
+				'xf-spam-log',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-spam-log.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
+			);
+		}
+
+		// Email log page (also rendered as a sub-tab of the settings hub).
+		if ( false !== strpos( $hook, 'xtreme-forms-email-log' )
+			|| false !== strpos( $hook, 'xtreme-forms-settings' )
+		) {
+			wp_enqueue_script(
+				'xf-email-log',
+				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-email-log.js',
+				array( 'xf-admin' ),
+				XTREMEFORMS_VERSION,
+				true
 			);
 		}
 

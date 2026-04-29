@@ -276,8 +276,11 @@ class XF_Email_Templates {
 			</tr>';
 		}
 
-		// Powered-by footer line.
-		$powered_by = 'Sent by <a href="https://xtremeplugins.com/plugins/xtreme-forms" style="color:#6b7280;text-decoration:underline;">Xtreme Forms</a>';
+		// "Sent by Xtreme Forms" credit removed for WordPress.org compliance:
+		// Plugin guidelines forbid attribution on user-facing surfaces (which an
+		// email is) without an explicit opt-in toggle. We do not currently surface
+		// such a toggle, so the credit is omitted entirely from the rendered email.
+		$powered_by = '';
 
 		$body = '<!DOCTYPE html>
 <html lang="en">
@@ -346,7 +349,7 @@ class XF_Email_Templates {
     <!-- Footer -->
     <tr>
       <td style="padding:20px 0 0;text-align:center;">
-        <p style="margin:0;font-size:12px;color:#9ca3af;">' . $powered_by . ' &middot; ' . $footer_text . '</p>
+        <p style="margin:0;font-size:12px;color:#9ca3af;">' . $footer_text . '</p>
       </td>
     </tr>
 

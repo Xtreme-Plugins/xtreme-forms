@@ -200,20 +200,22 @@ if ( ! empty( $_GET['updated'] ) ) {
 
 </div><!-- .xf-wrap -->
 
-<style>
-.xf-header-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
-.xf-header-row input { flex:1; }
-.xf-header-row .xf-remove-header { color:#DC3545; cursor:pointer; background:none; border:none; font-size:18px; line-height:1; }
-</style>
-
-<script>
-(function() {
-	var nonce = <?php echo wp_json_encode( $nonce ); ?>;
-	var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
-	var allForms = 
-	<?php
-	echo wp_json_encode(
-		array_map(
+<?php
+/*
+ * Webhooks page bootstrap data + i18n strings.
+ *
+ * The dedicated JS/CSS files (admin/js/xf-webhooks.js, admin/css/xf-webhooks.css)
+ * are enqueued via the shared admin enqueue function. Per-render data and
+ * translatable strings are attached here so the WordPress.org Plugin Check
+ * sees no inline <script>/<style> tags in the rendered HTML.
+ */
+wp_localize_script(
+	'xf-webhooks',
+	'xfWebhooksData',
+	array(
+		'nonce'    => $nonce,
+		'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+		'allForms' => array_map(
 			function ( $f ) {
 				return array(
 					'id'   => (int) $f->id,
@@ -221,293 +223,41 @@ if ( ! empty( $_GET['updated'] ) ) {
 				);
 			},
 			$all_forms
-		)
-	);
-	?>
-	;
+		),
+	)
+);
 
-	var editor = document.getElementById('xf-webhook-editor');
-	var addBtn = document.getElementById('xf-add-webhook-btn');
-	var saveBtn = document.getElementById('xf-save-webhook-btn');
-	var cancelBtn = document.getElementById('xf-cancel-webhook-btn');
-	var addHeaderBtn = document.getElementById('xf-add-header-btn');
-	var headersList = document.getElementById('xf-wh-headers-list');
-	var ctWarning = document.getElementById('xf-header-content-type-warning');
-
-	function openEditor( webhookData ) {
-		document.getElementById('xf-webhook-editor-title').textContent = webhookData ? '<?php echo esc_js( __( 'Edit Webhook', 'xtreme-forms' ) ); ?>' : '<?php echo esc_js( __( 'Add Webhook', 'xtreme-forms' ) ); ?>';
-		document.getElementById('xf-webhook-id').value = webhookData ? webhookData.id : 0;
-		document.getElementById('xf-wh-name').value = webhookData ? webhookData.name : '';
-		document.getElementById('xf-wh-url').value = webhookData ? webhookData.url : '';
-
-		var events = webhookData ? (JSON.parse(webhookData.trigger_events) || []) : ['new_lead'];
-		document.getElementById('xf-wh-event-new-lead').checked = events.indexOf('new_lead') > -1;
-		document.getElementById('xf-wh-event-status-change').checked = events.indexOf('status_change') > -1;
-
-		var formIds = webhookData ? (JSON.parse(webhookData.form_ids) || []) : [];
-		document.querySelectorAll('.xf-wh-form-filter').forEach(function(cb) {
-			cb.checked = formIds.indexOf(parseInt(cb.value)) > -1;
-		});
-
-		document.getElementById('xf-wh-active').checked = webhookData ? !!parseInt(webhookData.is_active) : true;
-
-		// Populate headers.
-		headersList.innerHTML = '';
-		var headers = webhookData ? (JSON.parse(webhookData.custom_headers) || []) : [];
-		headers.forEach(function(h) { addHeaderRow(h.name, h.value); });
-
-		editor.style.display = '';
-		editor.scrollIntoView({behavior:'smooth', block:'start'});
-		document.getElementById('xf-webhook-save-msg').textContent = '';
-	}
-
-	function closeEditor() {
-		editor.style.display = 'none';
-	}
-
-	function addHeaderRow(name, value) {
-		name = name || '';
-		value = value || '';
-		var row = document.createElement('div');
-		row.className = 'xf-header-row';
-		row.innerHTML = '<input type="text" placeholder="<?php echo esc_js( __( 'Header Name', 'xtreme-forms' ) ); ?>" value="' + escAttr(name) + '" class="xf-header-name" maxlength="256">'
-			+ '<input type="text" placeholder="<?php echo esc_js( __( 'Header Value', 'xtreme-forms' ) ); ?>" value="' + escAttr(value) + '" class="xf-header-value" maxlength="256">'
-			+ '<button type="button" class="xf-remove-header" title="<?php echo esc_js( __( 'Remove', 'xtreme-forms' ) ); ?>">&times;</button>';
-		row.querySelector('.xf-remove-header').addEventListener('click', function() { row.remove(); checkCtWarning(); });
-		row.querySelector('.xf-header-name').addEventListener('input', checkCtWarning);
-		headersList.appendChild(row);
-	}
-
-	function checkCtWarning() {
-		var names = Array.from(headersList.querySelectorAll('.xf-header-name')).map(function(i){ return i.value.trim().toLowerCase(); });
-		ctWarning.style.display = names.indexOf('content-type') > -1 ? '' : 'none';
-	}
-
-	function escAttr(str) {
-		return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-	}
-
-	addBtn.addEventListener('click', function() { openEditor(null); });
-	cancelBtn.addEventListener('click', closeEditor);
-	addHeaderBtn.addEventListener('click', function() { addHeaderRow('', ''); });
-
-	saveBtn.addEventListener('click', function() {
-		var msg = document.getElementById('xf-webhook-save-msg');
-		msg.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
-
-		var events = [];
-		if (document.getElementById('xf-wh-event-new-lead').checked) events.push('new_lead');
-		if (document.getElementById('xf-wh-event-status-change').checked) events.push('status_change');
-
-		var formIds = Array.from(document.querySelectorAll('.xf-wh-form-filter:checked')).map(function(c){ return parseInt(c.value); });
-
-		var headers = [];
-		document.querySelectorAll('.xf-header-row').forEach(function(row) {
-			var name = row.querySelector('.xf-header-name').value.trim();
-			var val = row.querySelector('.xf-header-value').value;
-			if (name) headers.push({name: name, value: val});
-		});
-
-		var data = new FormData();
-		data.append('action', 'xf_webhook_save');
-		data.append('nonce', nonce);
-		data.append('webhook[id]', document.getElementById('xf-webhook-id').value);
-		data.append('webhook[name]', document.getElementById('xf-wh-name').value);
-		data.append('webhook[url]', document.getElementById('xf-wh-url').value);
-		data.append('webhook[trigger_events]', JSON.stringify(events));
-		data.append('webhook[form_ids]', JSON.stringify(formIds));
-		data.append('webhook[is_active]', document.getElementById('xf-wh-active').checked ? '1' : '0');
-		data.append('webhook[custom_headers]', JSON.stringify(headers));
-
-		fetch(ajaxUrl, {method:'POST', body:data})
-			.then(function(r){ return r.json(); })
-			.then(function(resp) {
-				if (resp.success) {
-					msg.textContent = '<?php echo esc_js( __( 'Saved!', 'xtreme-forms' ) ); ?>';
-					msg.style.color = '#28A745';
-					setTimeout(function(){ location.reload(); }, 800);
-				} else {
-					msg.textContent = (resp.data && resp.data.message) || '<?php echo esc_js( __( 'Save failed.', 'xtreme-forms' ) ); ?>';
-					msg.style.color = '#DC3545';
-				}
-			})
-			.catch(function() {
-				msg.textContent = '<?php echo esc_js( __( 'Network error.', 'xtreme-forms' ) ); ?>';
-				msg.style.color = '#DC3545';
-			});
-	});
-
-	// Edit buttons.
-	document.querySelectorAll('.xf-wh-edit-btn').forEach(function(btn) {
-		btn.addEventListener('click', function() {
-			var id = btn.getAttribute('data-id');
-			var fd = new FormData();
-			fd.append('action', 'xf_webhook_get');
-			fd.append('nonce', nonce);
-			fd.append('webhook_id', id);
-			fetch(ajaxUrl, {method:'POST', body:fd}).then(function(r){ return r.json(); }).then(function(resp) {
-				if (resp.success && resp.data.webhook) {
-					openEditor(resp.data.webhook);
-				}
-			});
-		});
-	});
-
-	// Delete buttons.
-	document.querySelectorAll('.xf-wh-delete-btn').forEach(function(btn) {
-		btn.addEventListener('click', function() {
-			if (!confirm('<?php echo esc_js( __( 'Delete this webhook and its delivery log? This cannot be undone.', 'xtreme-forms' ) ); ?>')) return;
-			var id = btn.getAttribute('data-id');
-			var fd = new FormData();
-			fd.append('action', 'xf_webhook_delete');
-			fd.append('nonce', nonce);
-			fd.append('webhook_id', id);
-			fetch(ajaxUrl, {method:'POST', body:fd}).then(function(r){ return r.json(); }).then(function(resp) {
-				if (resp.success) {
-					var row = document.querySelector('[data-webhook-id="'+id+'"]');
-					if (row) row.remove();
-				} else {
-					alert((resp.data && resp.data.message) || '<?php echo esc_js( __( 'Delete failed.', 'xtreme-forms' ) ); ?>');
-				}
-			});
-		});
-	});
-
-	// Test fire buttons.
-	document.querySelectorAll('.xf-wh-test-btn').forEach(function(btn) {
-		btn.addEventListener('click', function() {
-			var id = btn.getAttribute('data-id');
-			var orig = btn.textContent;
-			btn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
-			btn.disabled = true;
-
-			var fd = new FormData();
-			fd.append('action', 'xf_webhook_test');
-			fd.append('nonce', nonce);
-			fd.append('webhook_id', id);
-
-			fetch(ajaxUrl, {method:'POST', body:fd})
-				.then(function(r){ return r.json(); })
-				.then(function(resp) {
-					btn.textContent = orig;
-					btn.disabled = false;
-					var result = document.getElementById('xf-test-fire-result');
-					result.style.display = '';
-					if (resp.success) {
-						var d = resp.data;
-						document.getElementById('xf-tf-status').textContent = d.status || '';
-						document.getElementById('xf-tf-http-code').textContent = d.http_code || '0';
-						document.getElementById('xf-tf-response').textContent = d.response_body || '';
-						var errRow = document.getElementById('xf-tf-error-row');
-						if (d.error_message) {
-							errRow.style.display = '';
-							document.getElementById('xf-tf-error').textContent = d.error_message;
-						} else {
-							errRow.style.display = 'none';
-						}
-					} else {
-						document.getElementById('xf-tf-status').textContent = 'error';
-						document.getElementById('xf-tf-http-code').textContent = '0';
-						document.getElementById('xf-tf-response').textContent = '';
-						var errRow2 = document.getElementById('xf-tf-error-row');
-						errRow2.style.display = '';
-						document.getElementById('xf-tf-error').textContent = (resp.data && resp.data.message) || '<?php echo esc_js( __( 'Test fire failed.', 'xtreme-forms' ) ); ?>';
-					}
-					result.scrollIntoView({behavior:'smooth', block:'start'});
-				})
-				.catch(function(e) {
-					btn.textContent = orig;
-					btn.disabled = false;
-					alert('<?php echo esc_js( __( 'Network error. Test fire could not be sent.', 'xtreme-forms' ) ); ?>');
-				});
-		});
-	});
-
-	// Delivery log buttons.
-	document.querySelectorAll('.xf-wh-log-btn').forEach(function(btn) {
-		btn.addEventListener('click', function() {
-			var id = btn.getAttribute('data-id');
-			var row = document.querySelector('[data-webhook-id="'+id+'"]');
-			var name = row ? row.querySelector('strong').textContent : '#'+id;
-			document.getElementById('xf-log-webhook-name').textContent = '— ' + name;
-			loadLog(id, 1);
-		});
-	});
-
-	function loadLog(webhookId, page) {
-		var logWrap = document.getElementById('xf-delivery-log-wrap');
-		var logContent = document.getElementById('xf-delivery-log-content');
-		var logPager = document.getElementById('xf-log-pagination');
-		logWrap.style.display = '';
-		logContent.innerHTML = '<p><?php echo esc_js( __( 'Loading…', 'xtreme-forms' ) ); ?></p>';
-		logPager.innerHTML = '';
-
-		var fd = new FormData();
-		fd.append('action', 'xf_webhook_log');
-		fd.append('nonce', nonce);
-		fd.append('webhook_id', webhookId);
-		fd.append('page', page);
-
-		fetch(ajaxUrl, {method:'POST', body:fd})
-			.then(function(r){ return r.json(); })
-			.then(function(resp) {
-				if (!resp.success) {
-					logContent.innerHTML = '<p style="color:#DC3545;"><?php echo esc_js( __( 'Failed to load log.', 'xtreme-forms' ) ); ?></p>';
-					return;
-				}
-				var d = resp.data;
-				if (!d.items || d.items.length === 0) {
-					logContent.innerHTML = '<p><?php echo esc_js( __( 'No log entries found.', 'xtreme-forms' ) ); ?></p>';
-					return;
-				}
-				var html = '<table class="wp-list-table widefat striped"><thead><tr>'
-					+ '<th><?php echo esc_js( __( 'Time', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'Recipient URL', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'Lead ID', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'Event', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'Status', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'HTTP Code', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'Retry?', 'xtreme-forms' ) ); ?></th>'
-					+ '<th><?php echo esc_js( __( 'Response', 'xtreme-forms' ) ); ?></th>'
-					+ '</tr></thead><tbody>';
-
-				d.items.forEach(function(entry) {
-					var leadLabel = entry.lead_id == 0 ? '<?php echo esc_js( __( 'test', 'xtreme-forms' ) ); ?>' : entry.lead_id;
-					var statusClass = entry.status === 'sent' ? 'color:#28A745;' : 'color:#DC3545;';
-					var retryLabel = parseInt(entry.is_retry) ? ('<?php echo esc_js( __( 'Retry', 'xtreme-forms' ) ); ?> #' + (entry.original_attempt_id || '')) : '—';
-					var urlDisplay = entry.url ? '<code style="font-size:11px;word-break:break-all;">' + esc(entry.url) + '</code>' : '<em>—</em>';
-					html += '<tr>'
-						+ '<td>' + esc(entry.delivered_at) + '</td>'
-						+ '<td>' + urlDisplay + '</td>'
-						+ '<td>' + esc(leadLabel) + '</td>'
-						+ '<td>' + esc(entry.trigger_type) + '</td>'
-						+ '<td style="' + statusClass + '"><strong>' + esc(entry.status) + '</strong></td>'
-						+ '<td>' + esc(entry.http_code) + '</td>'
-						+ '<td>' + esc(retryLabel) + '</td>'
-						+ '<td><code style="font-size:11px;word-break:break-all;">' + esc(entry.response_body || '') + '</code></td>'
-						+ '</tr>';
-				});
-				html += '</tbody></table>';
-				logContent.innerHTML = html;
-
-				// Pagination.
-				if (d.pages > 1) {
-					var pHtml = '';
-					for (var p = 1; p <= d.pages; p++) {
-						pHtml += '<button type="button" class="button' + (p === page ? ' button-primary' : '') + '" data-page="' + p + '" style="margin-right:4px;">' + p + '</button>';
-					}
-					logPager.innerHTML = pHtml;
-					logPager.querySelectorAll('button').forEach(function(pb) {
-						pb.addEventListener('click', function() { loadLog(webhookId, parseInt(pb.getAttribute('data-page'))); });
-					});
-				}
-
-				logWrap.scrollIntoView({behavior:'smooth', block:'start'});
-			});
-	}
-
-	function esc(str) {
-		return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-	}
-})();
-</script>
+wp_localize_script(
+	'xf-webhooks',
+	'xfWebhooksI18n',
+	array(
+		'editWebhook'      => __( 'Edit Webhook', 'xtreme-forms' ),
+		'addWebhook'       => __( 'Add Webhook', 'xtreme-forms' ),
+		'headerName'       => __( 'Header Name', 'xtreme-forms' ),
+		'headerValue'      => __( 'Header Value', 'xtreme-forms' ),
+		'remove'           => __( 'Remove', 'xtreme-forms' ),
+		'saving'           => __( 'Saving…', 'xtreme-forms' ),
+		'saved'            => __( 'Saved!', 'xtreme-forms' ),
+		'saveFailed'       => __( 'Save failed.', 'xtreme-forms' ),
+		'networkError'     => __( 'Network error.', 'xtreme-forms' ),
+		'confirmDelete'    => __( 'Delete this webhook and its delivery log? This cannot be undone.', 'xtreme-forms' ),
+		'deleteFailed'     => __( 'Delete failed.', 'xtreme-forms' ),
+		'sending'          => __( 'Sending…', 'xtreme-forms' ),
+		'testFireFailed'   => __( 'Test fire failed.', 'xtreme-forms' ),
+		'networkErrorTest' => __( 'Network error. Test fire could not be sent.', 'xtreme-forms' ),
+		'loading'          => __( 'Loading…', 'xtreme-forms' ),
+		'failedLoadLog'    => __( 'Failed to load log.', 'xtreme-forms' ),
+		'noLogEntries'     => __( 'No log entries found.', 'xtreme-forms' ),
+		'colTime'          => __( 'Time', 'xtreme-forms' ),
+		'colRecipientUrl'  => __( 'Recipient URL', 'xtreme-forms' ),
+		'colLeadId'        => __( 'Lead ID', 'xtreme-forms' ),
+		'colEvent'         => __( 'Event', 'xtreme-forms' ),
+		'colStatus'        => __( 'Status', 'xtreme-forms' ),
+		'colHttpCode'      => __( 'HTTP Code', 'xtreme-forms' ),
+		'colRetry'         => __( 'Retry?', 'xtreme-forms' ),
+		'colResponse'      => __( 'Response', 'xtreme-forms' ),
+		'test'             => __( 'test', 'xtreme-forms' ),
+		'retry'            => __( 'Retry', 'xtreme-forms' ),
+	)
+);
+?>

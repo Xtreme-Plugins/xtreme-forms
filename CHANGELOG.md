@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.6] - 2026-04-29
+
+### Changed
+- **WordPress.org Plugin Check / review feedback** — resolved all reviewer findings.
+  - **Inline assets** — every `<script>` and `<style>` tag in `admin/partials/` is gone. 16 blocks across 12 partials were extracted to dedicated files in `admin/js/` and `admin/css/` and wired up via `wp_enqueue_script()` / `wp_enqueue_style()` in `XF_Admin::enqueue_assets()`. Per-render data and translatable strings are now passed via `wp_localize_script()` and `wp_add_inline_script()`.
+  - **Email branding** — removed the hardcoded `Sent by Xtreme Forms` link from the notification-email footer (`includes/class-xf-email-templates.php`). Plugin guideline 10 forbids credit links on user-facing surfaces (which an email is) without explicit admin opt-in, which we don't currently surface.
+  - **Block render callback** — `xtremeforms_block_render()` now uses `sprintf()` with explicit `esc_attr()` calls for the wrapper attributes, and the concatenation of pre-escaped shortcode HTML carries an explanatory `phpcs:ignore` annotation referencing `XF_Shortcode::render()` as the canonical escaper.
+  - **Admin menu position** — lowered from 25 (between Posts and Comments) to 81 (after Settings). Same change applied in `XF_Multisite::register_network_menu()`.
+  - **Contributors** — `readme.txt` Contributors changed from `xtremeplugins` (not a WP.org username) to `loanpartnership` (the actual plugin owner).
+  - **External services disclosure** — `readme.txt` now has an `== External services ==` section covering Google reCAPTCHA v3, Cloudflare Turnstile, HubSpot CRM, Pipedrive CRM, Zoho CRM, and Webhooks. Each entry documents what data is sent, when it fires, and links to the provider's Terms of Service and Privacy Policy.
+  - **Repository URL** — removed the GitHub URL from `readme.txt`. The repo is private; reviewers got 404.
+
+### Added
+- `admin/css/xf-welcome.css`, `admin/css/xf-form-settings.css`, `admin/css/xf-webhooks.css` — extracted from inline `<style>` blocks.
+- `admin/js/xf-form-settings.js`, `admin/js/xf-settings.js`, `admin/js/xf-webhooks.js`, `admin/js/xf-integrations.js`, `admin/js/xf-lead-detail.js`, `admin/js/xf-routing-rules.js`, `admin/js/xf-email-templates.js`, `admin/js/xf-spam-log.js`, `admin/js/xf-email-log.js`, `admin/js/xf-form-template-picker.js` — extracted from inline `<script>` blocks.
+
 ## [2.0.5] - 2026-04-22
 
 ### Added

@@ -1,0 +1,10 @@
+/**
+ * Xtreme Forms — Webhooks admin page styles.
+ *
+ * Extracted from inline <style> in admin/partials/xf-admin-webhooks.php
+ * for WordPress.org Plugin Check compliance.
+ */
+
+.xf-header-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+.xf-header-row input { flex:1; }
+.xf-header-row .xf-remove-header { color:#DC3545; cursor:pointer; background:none; border:none; font-size:18px; line-height:1; }
