@@ -55,7 +55,7 @@ class XF_Shortcode {
 		// Enqueue conditional logic JS if the form has rules.
 		$this->maybe_enqueue_conditional_js( $form_id, $fields );
 
-		return $this->render_form( $form_id, $fields, $settings );
+		return $this->render_form( $form_id, $fields, $settings, array(), array(), (string) ( $form->name ?? '' ) );
 	}
 
 	/**
@@ -104,7 +104,7 @@ class XF_Shortcode {
 
 				// Pre-render the form HTML into the hidden container so the JS can
 				// reveal it without a page reload when the countdown reaches zero.
-				$form_html = $this->render_form( $form_id, $fields, $settings );
+				$form_html = $this->render_form( $form_id, $fields, $settings, array(), array(), (string) ( $form->name ?? '' ) );
 				return $closed_html_tag . $this->render_countdown( $form_id, $activate_at, $form_html );
 			}
 
@@ -372,7 +372,8 @@ class XF_Shortcode {
 		array $fields,
 		array $settings,
 		array $errors = array(),
-		array $values = array()
+		array $values = array(),
+		string $form_name = ''
 	): string {
 		$submit_label = ! empty( $settings['submit_label'] )
 			? esc_html( $settings['submit_label'] )
@@ -443,6 +444,7 @@ class XF_Shortcode {
 		$wrap_style   = ' style="--xf-accent: ' . esc_attr( $accent_color ) . ';"';
 
 		$html  = '<div class="xf-form-wrap' . $center_class . $bg_class . '" data-form-id="' . esc_attr( $form_id ) . '"' . $wrap_style . '>';
+		$html .= self::build_form_jsonld( $form_id, $form_name, $source_url );
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
 		$html .= '<input type="hidden" name="action" value="xl_submit_form">';
@@ -540,6 +542,18 @@ class XF_Shortcode {
 			return '<input type="hidden" name="' . esc_attr( $input_name ) . '" id="' . esc_attr( $input_id ) . '" value="' . esc_attr( $field['default_value'] ?? '' ) . '">';
 		}
 
+		// Section header: heading text + optional subtitle. No label/input scaffolding.
+		if ( 'header' === $field_type ) {
+			$subtitle = isset( $field['subtitle'] ) ? (string) $field['subtitle'] : '';
+			$out  = '<div class="xf-field-wrap xf-field-header" data-field-id="' . esc_attr( $field['id'] ?? '' ) . '">';
+			$out .= '<h3 class="xf-heading">' . esc_html( $field_label ) . '</h3>';
+			if ( '' !== trim( $subtitle ) ) {
+				$out .= '<p class="xf-subtitle">' . esc_html( $subtitle ) . '</p>';
+			}
+			$out .= '</div>';
+			return $out;
+		}
+
 		$required_attr = $required ? ' required aria-required="true"' : '';
 		$error_id      = 'xf-error-' . $field_id;
 		$error_class   = $error ? ' xf-field-error' : '';
@@ -556,34 +570,52 @@ class XF_Shortcode {
 
 		$html = '<div class="xf-field-wrap xf-field-' . esc_attr( $field_type ) . $float_class . $error_class . '"' . $width_style . ' data-field-id="' . esc_attr( $field['id'] ?? '' ) . '"' . ( $required ? ' data-required="1"' : '' ) . '>';
 
+		// Field label. For group fields (radio / checkbox), use a span with an id
+		// instead of <label for> — labels can only target a single input, and the
+		// group is referenced via aria-labelledby below.
+		$is_group_field = in_array( $field_type, array( 'radio', 'checkbox' ), true );
+		$label_id       = 'xf-label-' . $field_id;
 		if ( '' !== $field_label ) {
 			$required_star = $required ? ' <span class="xf-required" aria-hidden="true">*</span>' : '';
-			$html         .= '<label for="' . esc_attr( $input_id ) . '" class="xf-label">' . esc_html( $field_label ) . $required_star . '</label>';
+			if ( $is_group_field ) {
+				$html .= '<span class="xf-label" id="' . esc_attr( $label_id ) . '">' . esc_html( $field_label ) . $required_star . '</span>';
+			} else {
+				$html .= '<label for="' . esc_attr( $input_id ) . '" class="xf-label">' . esc_html( $field_label ) . $required_star . '</label>';
+			}
 		}
+
+		// For groups, also expose the label via aria-labelledby on the group
+		// container; rendered cases inject this fragment before $aria_desc.
+		$aria_group = ( $is_group_field && '' !== $field_label )
+			? ' role="group" aria-labelledby="' . esc_attr( $label_id ) . '"'
+			: '';
 
 		switch ( $field_type ) {
 			case 'text': {
 				$rows = max( 1, (int) ( $field['rows'] ?? 1 ) );
+				// Heuristic: pick a sensible autocomplete token based on the
+				// label / placeholder so browsers can autofill. Helps form-fill
+				// UX significantly on mobile.
+				$ac_attr = self::guess_autocomplete_attr( $field_label, $placeholder );
 				if ( $rows > 1 ) {
-					// Multi-line textbox → render as textarea.
-					$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="' . $rows . '">' . esc_textarea( $value ) . '</textarea>';
+					$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="' . $rows . '" spellcheck="true">' . esc_textarea( $value ) . '</textarea>';
 				} else {
-					$html .= '<input type="text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
+					$html .= '<input type="text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input"' . $ac_attr . '>';
 				}
 				break;
 			}
 
 			case 'email':
-				$html .= '<input type="email" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
+				$html .= '<input type="email" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off">';
 				break;
 
 			case 'phone':
-				$html .= '<input type="tel" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input">';
+				$html .= '<input type="tel" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-input" autocomplete="tel" inputmode="tel">';
 				break;
 
 			case 'textarea': {
 				$rows = max( 1, (int) ( $field['rows'] ?? 4 ) );
-				$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="' . $rows . '">' . esc_textarea( $value ) . '</textarea>';
+				$html .= '<textarea id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_name ) . '" placeholder="' . esc_attr( $placeholder ) . '"' . $required_attr . $aria_desc . ' class="xf-textarea" rows="' . $rows . '" spellcheck="true">' . esc_textarea( $value ) . '</textarea>';
 				break;
 			}
 
@@ -642,14 +674,66 @@ class XF_Shortcode {
 
 			case 'checkbox': {
 				$options       = $field['options'] ?? array();
-				$selected_vals = is_array( $value ) ? $value : ( '' !== $value ? array( $value ) : array() );
-				$cols          = max( 1, min( 4, (int) ( $field['columns'] ?? 1 ) ) );
-				$cols_class    = $cols > 1 ? ' xf-cols-' . $cols : '';
-				$html         .= '<div class="xf-checkbox-group' . $cols_class . '"' . $aria_desc . '>';
+				$qty_mode      = ! empty( $field['quantity'] );
+
+				// Re-hydrate previously submitted state.
+				// In qty mode the saved value is a "Label ×N, Label ×N" string; we
+				// parse it back into an option => qty map so reloads preserve state.
+				$selected_qty = array();
+				$selected_vals = array();
+				if ( $qty_mode ) {
+					if ( is_array( $value ) ) {
+						foreach ( $value as $k => $v ) {
+							if ( is_string( $k ) ) {
+								$selected_qty[ $k ] = max( 1, (int) $v );
+							}
+						}
+					} elseif ( is_string( $value ) && '' !== $value ) {
+						foreach ( explode( ',', $value ) as $part ) {
+							$part = trim( $part );
+							if ( '' === $part ) { continue; }
+							if ( preg_match( '/^(.*?)\s*[×x]\s*(\d+)$/u', $part, $m ) ) {
+								$selected_qty[ trim( $m[1] ) ] = max( 1, (int) $m[2] );
+							} else {
+								$selected_qty[ $part ] = 1;
+							}
+						}
+					}
+				} else {
+					$selected_vals = is_array( $value ) ? $value : ( '' !== $value ? array( $value ) : array() );
+				}
+
+				$cols       = max( 1, min( 4, (int) ( $field['columns'] ?? 1 ) ) );
+				$cols_class = $cols > 1 ? ' xf-cols-' . $cols : '';
+				$qty_class  = $qty_mode ? ' xf-with-qty' : '';
+				$html      .= '<div class="xf-checkbox-group' . $cols_class . $qty_class . '"' . $aria_group . $aria_desc . ( $qty_mode ? ' data-xf-qty-group' : '' ) . '>';
+
 				foreach ( $options as $idx => $option ) {
-					$cb_id      = esc_attr( $input_id . '-' . $idx );
-					$cb_checked = in_array( $option, $selected_vals, true ) ? ' checked' : '';
-					$html      .= '<label class="xf-checkbox-label"><input type="checkbox" id="' . $cb_id . '" name="' . esc_attr( $input_name ) . '[]" value="' . esc_attr( $option ) . '"' . $cb_checked . '> ' . esc_html( $option ) . '</label>';
+					$cb_id = esc_attr( $input_id . '-' . $idx );
+
+					if ( $qty_mode ) {
+						$is_checked = array_key_exists( $option, $selected_qty );
+						$qty_val    = $is_checked ? (int) $selected_qty[ $option ] : 1;
+						$row_class  = 'xf-qty-row' . ( $is_checked ? ' is-checked' : '' );
+						// Hidden input is enabled only when checked, named like xf_field[fid][option]=qty.
+						$hidden_name    = esc_attr( $input_name ) . '[' . esc_attr( $option ) . ']';
+						$hidden_attrs   = $is_checked ? '' : ' disabled';
+						$stepper_hidden = $is_checked ? '' : ' hidden';
+
+						$html .= '<div class="' . $row_class . '" data-xf-qty-row>';
+						$html .= '<input type="checkbox" class="xf-qty-cb" id="' . $cb_id . '" data-xf-qty-cb' . ( $is_checked ? ' checked' : '' ) . '>';
+						$html .= '<label class="xf-qty-label" for="' . $cb_id . '">' . esc_html( $option ) . '</label>';
+						$html .= '<span class="xf-qty-stepper"' . $stepper_hidden . ' data-xf-qty-stepper>';
+						$html .= '<button type="button" class="xf-qty-btn xf-qty-dec" data-xf-qty-dec aria-label="' . esc_attr__( 'Decrease quantity', 'xtreme-forms' ) . '">−</button>';
+						$html .= '<span class="xf-qty-val" data-xf-qty-val aria-live="polite" aria-atomic="true">' . (int) $qty_val . '</span>';
+						$html .= '<button type="button" class="xf-qty-btn xf-qty-inc" data-xf-qty-inc aria-label="' . esc_attr__( 'Increase quantity', 'xtreme-forms' ) . '">+</button>';
+						$html .= '</span>';
+						$html .= '<input type="hidden" class="xf-qty-input" name="' . $hidden_name . '" value="' . (int) $qty_val . '"' . $hidden_attrs . ' data-xf-qty-input>';
+						$html .= '</div>';
+					} else {
+						$cb_checked = in_array( $option, $selected_vals, true ) ? ' checked' : '';
+						$html      .= '<label class="xf-checkbox-label"><input type="checkbox" id="' . $cb_id . '" name="' . esc_attr( $input_name ) . '[]" value="' . esc_attr( $option ) . '"' . $cb_checked . '> ' . esc_html( $option ) . '</label>';
+					}
 				}
 				$html .= '</div>';
 				break;
@@ -657,7 +741,11 @@ class XF_Shortcode {
 
 			case 'radio':
 				$options = $field['options'] ?? array();
-				$html   .= '<div class="xf-radio-group"' . $aria_desc . ( $required ? ' role="radiogroup"' : '' ) . '>';
+				// radiogroup role takes precedence over generic group when required.
+				$radio_role = $required
+					? ' role="radiogroup"' . ( '' !== $field_label ? ' aria-labelledby="' . esc_attr( $label_id ) . '"' : '' )
+					: $aria_group;
+				$html      .= '<div class="xf-radio-group"' . $radio_role . $aria_desc . '>';
 				foreach ( $options as $idx => $option ) {
 					$rb_id      = esc_attr( $input_id . '-' . $idx );
 					$rb_checked = ( $value === $option ) ? ' checked' : '';
@@ -687,5 +775,96 @@ class XF_Shortcode {
 	 */
 	public static function render_thank_you( string $message ): string {
 		return '<div class="xf-thank-you" role="status"><p>' . wp_kses_post( $message ) . '</p></div>';
+	}
+
+	/**
+	 * Build a JSON-LD <script> snippet describing the form as a CommunicateAction.
+	 * Helps search engines understand the page hosts a contactable / lead form.
+	 *
+	 * @param int    $form_id    Form ID.
+	 * @param string $form_name  Human-readable form name.
+	 * @param string $source_url URL of the page hosting the form.
+	 * @return string <script> tag (or empty string if name missing).
+	 */
+	private static function build_form_jsonld( int $form_id, string $form_name, string $source_url ): string {
+		$name = trim( $form_name );
+		if ( '' === $name ) {
+			return '';
+		}
+
+		$data = array(
+			'@context' => 'https://schema.org',
+			'@type'    => 'CommunicateAction',
+			'@id'      => $source_url . '#xf-form-' . $form_id,
+			'name'     => $name,
+			'target'   => array(
+				'@type'          => 'EntryPoint',
+				'urlTemplate'    => $source_url,
+				'actionPlatform' => array(
+					'http://schema.org/DesktopWebPlatform',
+					'http://schema.org/MobileWebPlatform',
+				),
+			),
+		);
+
+		// JSON_UNESCAPED_SLASHES keeps URLs readable; JSON_UNESCAPED_UNICODE for i18n.
+		$json = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( false === $json ) {
+			return '';
+		}
+
+		// </script> escape: defence-in-depth — wp_json_encode escapes "<" only via
+		// JSON_HEX_TAG which we're not using to keep URLs readable, so manually
+		// guard against an embedded "</script>" sequence.
+		$json = str_replace( '</', '<\/', $json );
+
+		return '<script type="application/ld+json" class="xf-jsonld">' . $json . '</script>';
+	}
+
+	/**
+	 * Guess an HTML autocomplete attribute for a generic text field, based on
+	 * its label / placeholder. Lets the browser autofill without requiring
+	 * the form author to configure each field.
+	 *
+	 * @param string $label       Field label.
+	 * @param string $placeholder Field placeholder.
+	 * @return string Attribute fragment ready to concatenate (e.g. ' autocomplete="given-name"'), or '' if no match.
+	 */
+	private static function guess_autocomplete_attr( string $label, string $placeholder ): string {
+		$hay = strtolower( trim( $label . ' ' . $placeholder ) );
+		if ( '' === $hay ) {
+			return '';
+		}
+
+		// Order matters: more specific patterns first.
+		$rules = array(
+			'given-name'      => array( 'first name', 'firstname', 'given name' ),
+			'family-name'     => array( 'last name', 'lastname', 'surname', 'family name' ),
+			'name'            => array( 'full name', 'your name', 'company name', 'business name' ),
+			'organization'    => array( 'company', 'organization', 'organisation', 'business' ),
+			'street-address'  => array( 'street address', 'address line', 'mailing address' ),
+			'address-line1'   => array( 'address 1', 'address1', 'address line 1' ),
+			'address-line2'   => array( 'address 2', 'address2', 'apt', 'apartment', 'suite', 'unit' ),
+			'address-level2'  => array( 'city', 'town' ),
+			'address-level1'  => array( 'state', 'province', 'region' ),
+			'country-name'    => array( 'country' ),
+			'postal-code'     => array( 'zip code', 'zipcode', 'postal code', 'post code' ),
+			'bday'            => array( 'birthday', 'birth date', 'date of birth', 'dob' ),
+			'url'             => array( 'website', 'website url', 'url' ),
+		);
+		foreach ( $rules as $token => $needles ) {
+			foreach ( $needles as $needle ) {
+				if ( false !== strpos( $hay, $needle ) ) {
+					return ' autocomplete="' . $token . '"';
+				}
+			}
+		}
+
+		// Fallback: bare "name" word — only if it's a likely person name field.
+		if ( preg_match( '/\bname\b/', $hay ) ) {
+			return ' autocomplete="name"';
+		}
+
+		return '';
 	}
 }

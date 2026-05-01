@@ -498,9 +498,72 @@
 		});
 	}
 
+	/**
+	 * Quantity-mode multiple choice.
+	 * Each row has: checkbox + label + stepper (− value +) + hidden input.
+	 * Toggling the checkbox shows/hides the stepper and enables/disables the
+	 * hidden input. Decrementing past 1 unchecks the row. Incrementing has no
+	 * upper bound (form authors can constrain visually if needed).
+	 */
+	function initQtyRows() {
+		var rows = document.querySelectorAll('[data-xf-qty-row]');
+		rows.forEach(function (row) {
+			var cb      = row.querySelector('[data-xf-qty-cb]');
+			var stepper = row.querySelector('[data-xf-qty-stepper]');
+			var valEl   = row.querySelector('[data-xf-qty-val]');
+			var dec     = row.querySelector('[data-xf-qty-dec]');
+			var inc     = row.querySelector('[data-xf-qty-inc]');
+			var hidden  = row.querySelector('[data-xf-qty-input]');
+			if (!cb || !stepper || !valEl || !dec || !inc || !hidden) return;
+
+			function setChecked(checked, qty) {
+				if (typeof qty !== 'number' || qty < 1) qty = 1;
+				cb.checked = checked;
+				if (checked) {
+					row.classList.add('is-checked');
+					stepper.hidden = false;
+					hidden.disabled = false;
+					hidden.value = qty;
+					valEl.textContent = qty;
+				} else {
+					row.classList.remove('is-checked');
+					stepper.hidden = true;
+					hidden.disabled = true;
+					hidden.value = 1;
+					valEl.textContent = 1;
+				}
+			}
+
+			cb.addEventListener('change', function () {
+				setChecked(cb.checked, 1);
+			});
+
+			inc.addEventListener('click', function () {
+				var n = parseInt(hidden.value, 10);
+				if (isNaN(n) || n < 1) n = 1;
+				n += 1;
+				hidden.value = n;
+				valEl.textContent = n;
+			});
+
+			dec.addEventListener('click', function () {
+				var n = parseInt(hidden.value, 10);
+				if (isNaN(n) || n < 1) n = 1;
+				if (n <= 1) {
+					setChecked(false);
+				} else {
+					n -= 1;
+					hidden.value = n;
+					valEl.textContent = n;
+				}
+			});
+		});
+	}
+
 	function xfPublicInit() {
 		initForms();
 		initSliders();
+		initQtyRows();
 		initUtmCookie();
 		initImpressionTracking();
 	}

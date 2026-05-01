@@ -31,6 +31,7 @@ $add_form_url = add_query_arg(
 	admin_url( 'admin.php' )
 );
 $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_url( 'admin.php' ) );
+$forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) );
 ?>
 <div class="wrap xf-wrap xf-dashboard-wrap">
 	<div class="xf-page-header">
@@ -113,8 +114,13 @@ $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_ur
 				<?php else : ?>
 					<div class="xf-empty-state" id="xf-line-chart-empty">
 						<span class="dashicons dashicons-chart-line xf-empty-icon"></span>
-						<p><?php esc_html_e( 'No submissions yet — your leads-over-time chart will appear here.', 'xtreme-forms' ); ?></p>
-						<a href="<?php echo esc_url( $add_form_url ); ?>" class="button xf-btn-primary"><?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?></a>
+						<?php if ( $has_forms ) : ?>
+							<p><?php esc_html_e( 'No submissions yet — your leads-over-time chart will appear here once leads come in.', 'xtreme-forms' ); ?></p>
+							<a href="<?php echo esc_url( $forms_url ); ?>" class="button xf-btn-primary"><?php esc_html_e( 'View Your Forms', 'xtreme-forms' ); ?></a>
+						<?php else : ?>
+							<p><?php esc_html_e( 'No submissions yet — your leads-over-time chart will appear here.', 'xtreme-forms' ); ?></p>
+							<a href="<?php echo esc_url( $add_form_url ); ?>" class="button xf-btn-primary"><?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?></a>
+						<?php endif; ?>
 					</div>
 					<!-- Hidden canvas for when data arrives after first submission -->
 					<canvas id="xf-line-chart" style="display:none;" aria-label="<?php esc_attr_e( 'Leads over time chart', 'xtreme-forms' ); ?>" role="img"></canvas>
@@ -210,7 +216,11 @@ $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_ur
 					<!-- Always show funnel with all statuses at 0% even with no data -->
 					<div class="xf-empty-state-inline">
 						<p><?php esc_html_e( 'Your conversion funnel will appear here once you capture leads.', 'xtreme-forms' ); ?></p>
-						<a href="<?php echo esc_url( $add_form_url ); ?>"><?php esc_html_e( 'Create a lead capture form', 'xtreme-forms' ); ?></a>
+						<?php if ( $has_forms ) : ?>
+							<a href="<?php echo esc_url( $forms_url ); ?>"><?php esc_html_e( 'View your forms', 'xtreme-forms' ); ?></a>
+						<?php else : ?>
+							<a href="<?php echo esc_url( $add_form_url ); ?>"><?php esc_html_e( 'Create a lead capture form', 'xtreme-forms' ); ?></a>
+						<?php endif; ?>
 					</div>
 					<table class="xf-funnel-table">
 						<thead>
@@ -290,7 +300,9 @@ $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_ur
 					<div class="xf-empty-state-inline">
 						<span class="dashicons dashicons-feedback xf-empty-icon-sm"></span>
 						<p><?php esc_html_e( 'Top-performing forms will appear here once leads are captured.', 'xtreme-forms' ); ?></p>
-						<a href="<?php echo esc_url( $add_form_url ); ?>"><?php esc_html_e( 'Create your first form', 'xtreme-forms' ); ?></a>
+						<?php if ( ! $has_forms ) : ?>
+							<a href="<?php echo esc_url( $add_form_url ); ?>"><?php esc_html_e( 'Create your first form', 'xtreme-forms' ); ?></a>
+						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 			</div>
