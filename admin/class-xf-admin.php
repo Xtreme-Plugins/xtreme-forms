@@ -768,6 +768,16 @@ class XF_Admin {
 				'rows'          => $field_rows,
 			);
 
+			// Quantity mode (Multiple Choice only): per-option +/− stepper.
+			if ( 'checkbox' === $field_type ) {
+				$clean['quantity'] = ! empty( $field['quantity'] );
+			}
+
+			// Section header subtitle (header only).
+			if ( 'header' === $field_type ) {
+				$clean['subtitle'] = sanitize_text_field( $field['subtitle'] ?? '' );
+			}
+
 			if ( 'slider' === $field_type ) {
 				$clean['min']  = $field_min;
 				$clean['max']  = $field_max;

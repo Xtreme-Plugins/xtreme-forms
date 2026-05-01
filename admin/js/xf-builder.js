@@ -87,10 +87,12 @@
       type:         type,
       label:        labelForType(type),
       placeholder:  '',
+      subtitle:     '',
       required:     false,
       options:      defaultOptionsForType(type),
       defaultValue: type === 'slider' ? '0' : '',
       columns:      '1',
+      quantity:     false,
       min:          type === 'slider' ? '0'  : '',
       max:          type === 'slider' ? '10' : '',
       step:         type === 'slider' ? '1'  : '',
@@ -256,12 +258,14 @@
         type:         builderType,
         label:        typeof f.label === 'string' ? f.label : labelForType(builderType),
         placeholder:  f.placeholder || '',
+        subtitle:     typeof f.subtitle === 'string' ? f.subtitle : '',
         required:     !!f.required,
         options:      Array.isArray(f.options) ? f.options : [],
         defaultValue: typeof f.defaultValue === 'string'
           ? f.defaultValue
           : (f.default_value != null ? String(f.default_value) : (isSlider ? '0' : '')),
         columns:      String(f.columns || '1'),
+        quantity:     !!f.quantity,
         min:          f.min != null && f.min !== '' ? String(f.min) : (isSlider ? '0'  : ''),
         max:          f.max != null && f.max !== '' ? String(f.max) : (isSlider ? '10' : ''),
         step:         f.step != null && f.step !== '' ? String(f.step) : (isSlider ? '1'  : ''),
@@ -859,6 +863,12 @@
         h3.className = 'xfb-heading-preview';
         h3.textContent = field.label || 'Section Header';
         wrap.appendChild(h3);
+        if (field.subtitle && field.subtitle.trim() !== '') {
+          var sub = document.createElement('p');
+          sub.className = 'xfb-subtitle-preview';
+          sub.textContent = field.subtitle;
+          wrap.appendChild(sub);
+        }
         return wrap;
       }
 
@@ -945,17 +955,34 @@
           if (cols > 1) {
             cbUl.classList.add('xfb-cols-' + cols);
           }
+          var qtyOn    = !!field.quantity;
           var checkOpts = field.options && field.options.length ? field.options : ['Option 1', 'Option 2'];
           checkOpts.forEach(function (o) {
             var li = document.createElement('li');
             li.className = 'xfb-option-item';
-            var cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.disabled = true;
-            var span = document.createElement('span');
-            span.textContent = o;
-            li.appendChild(cb);
-            li.appendChild(span);
+            if (qtyOn) {
+              // Builder preview: every option shows the stepper so the layout is
+              // clearly previewed at design time (live form still hides steppers
+              // until the user checks an option).
+              li.classList.add('xfb-qty-row-preview');
+              li.innerHTML =
+                '<span class="xfb-qty-label-preview">' +
+                  o.replace(/&/g, '&amp;').replace(/</g, '&lt;') +
+                '</span>' +
+                '<span class="xfb-qty-stepper-preview">' +
+                  '<span class="xfb-qty-btn-preview">−</span>' +
+                  '<span class="xfb-qty-val-preview">1</span>' +
+                  '<span class="xfb-qty-btn-preview">+</span>' +
+                '</span>';
+            } else {
+              var cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.disabled = true;
+              var span = document.createElement('span');
+              span.textContent = o;
+              li.appendChild(cb);
+              li.appendChild(span);
+            }
             cbUl.appendChild(li);
           });
           wrap.appendChild(cbUl);
@@ -1070,6 +1097,15 @@
       html += '<input class="xfb-sp-input" id="xfbs-label" type="text" data-prop="label" value="' + this.esc(field.label) + '">';
       html += '</div>';
 
+      // Subtitle (header only) — small caption text below the heading.
+      if (field.type === 'header') {
+        html += '<div class="xfb-sp-field">';
+        html += '<label class="xfb-sp-label" for="xfbs-subtitle">Subtitle <span class="xfb-sp-optional">(optional)</span></label>';
+        html += '<textarea class="xfb-sp-input" id="xfbs-subtitle" data-prop="subtitle" rows="2" placeholder="A short description, shown under the heading">' + this.esc(field.subtitle || '') + '</textarea>';
+        html += '<div class="xfb-sp-hint">Rendered in a smaller, lighter font under the heading.</div>';
+        html += '</div>';
+      }
+
       // Placeholder (textbox, textarea, zipcode).
       if (field.type === 'textbox' || field.type === 'textarea' || field.type === 'zipcode') {
         html += '<div class="xfb-sp-field">';
@@ -1162,6 +1198,20 @@
         html += '</div>';
       }
 
+      // Quantity toggle — Multiple Choice (checkbox) only.
+      // When on, each checked option turns into a − / value / + stepper.
+      if (field.type === 'checkbox') {
+        html += '<div class="xfb-sp-toggle-row">';
+        html += '<span class="xfb-sp-toggle-label">Quantity</span>';
+        html += '<label class="xfb-toggle">';
+        html += '<input type="checkbox" id="xfbs-quantity" data-prop="quantity"' + (field.quantity ? ' checked' : '') + '>';
+        html += '<span class="xfb-toggle-track"></span>';
+        html += '<span class="xfb-toggle-thumb"></span>';
+        html += '</label>';
+        html += '</div>';
+        html += '<div class="xfb-sp-hint">Replaces each checked option with a − / + stepper. Default count is 1.</div>';
+      }
+
       // Lines (height) — textbox and textarea only.
       if (field.type === 'textbox' || field.type === 'textarea') {
         var rowVal = parseInt(field.rows || '1', 10) || 1;
@@ -1218,7 +1268,7 @@
         var eventType = (inp.type === 'checkbox' || inp.tagName === 'SELECT') ? 'change' : 'input';
         inp.addEventListener(eventType, function () {
           var value;
-          if (prop === 'required' || prop === 'float') {
+          if (prop === 'required' || prop === 'float' || prop === 'quantity') {
             value = inp.checked;
           } else if (prop === 'options') {
             value = inp.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
@@ -1649,10 +1699,12 @@
               type:         legacyType,
               label:        f.label,
               placeholder:  f.placeholder,
+              subtitle:     f.subtitle || '',
               required:     f.required,
               options:      f.options || [],
               defaultValue: f.defaultValue || '',
               columns:      String(f.columns || '1'),
+              quantity:     !!f.quantity,
               min:          f.min != null ? String(f.min) : '',
               max:          f.max != null ? String(f.max) : '',
               step:         f.step != null ? String(f.step) : '',

@@ -299,21 +299,15 @@ $export_url = wp_nonce_url(
 			<?php else : ?>
 				<h2><?php esc_html_e( 'No leads yet', 'xtreme-forms' ); ?></h2>
 				<p><?php esc_html_e( 'When visitors submit your forms, their leads will appear here.', 'xtreme-forms' ); ?></p>
-				<a href="
-				<?php
-				echo esc_url(
-					add_query_arg(
-						array(
-							'page'      => 'xtreme-forms-forms',
-							'xf_action' => 'new',
-						),
-						admin_url( 'admin.php' )
-					)
-				);
-				?>
-							" class="button button-primary xf-btn-primary">
-					<?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?>
-				</a>
+				<?php if ( ! empty( $all_forms ) ) : ?>
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary xf-btn-primary">
+						<?php esc_html_e( 'View Your Forms', 'xtreme-forms' ); ?>
+					</a>
+				<?php else : ?>
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary xf-btn-primary">
+						<?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?>
+					</a>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 	<?php else : ?>

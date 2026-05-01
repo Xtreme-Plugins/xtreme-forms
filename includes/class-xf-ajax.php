@@ -401,11 +401,50 @@ class XF_Ajax {
 
 			// Sanitize value.
 			if ( is_array( $raw ) ) {
-				$sanitized = array_map( 'sanitize_text_field', $raw );
+				// Sanitize keys + values; key sanitisation matters for qty-mode
+				// checkboxes where keys are user-facing option labels.
+				$sanitized = array();
+				foreach ( $raw as $k => $v ) {
+					$ck = is_string( $k ) ? sanitize_text_field( $k ) : $k;
+					$sanitized[ $ck ] = sanitize_text_field( (string) $v );
+				}
 			} elseif ( 'textarea' === $ftype ) {
 				$sanitized = sanitize_textarea_field( (string) $raw );
 			} else {
 				$sanitized = sanitize_text_field( (string) $raw );
+			}
+
+			// Quantity-mode multiple choice: associative array of option => qty.
+			// Drop any qty <= 0 (treat as unselected) and flatten to a
+			// "Label ×N, Label ×N" string so all downstream display sites
+			// (email, lead detail, exports) work without changes.
+			if ( 'checkbox' === $ftype && ! empty( $field['quantity'] ) ) {
+				$qty_map = array();
+				if ( is_array( $sanitized ) ) {
+					$valid_options = isset( $field['options'] ) && is_array( $field['options'] )
+						? $field['options']
+						: array();
+					foreach ( $sanitized as $opt => $qty ) {
+						if ( ! is_string( $opt ) || '' === $opt ) { continue; }
+						// Only accept option labels actually defined on this field.
+						if ( ! empty( $valid_options ) && ! in_array( $opt, $valid_options, true ) ) {
+							continue;
+						}
+						$n = (int) $qty;
+						if ( $n > 0 ) {
+							$qty_map[ $opt ] = $n;
+						}
+					}
+				}
+				if ( empty( $qty_map ) ) {
+					$sanitized = '';
+				} else {
+					$parts = array();
+					foreach ( $qty_map as $opt => $n ) {
+						$parts[] = $opt . ' ×' . $n;
+					}
+					$sanitized = implode( ', ', $parts );
+				}
 			}
 
 			// Required check.
