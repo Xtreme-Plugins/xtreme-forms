@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.1.0] - 2026-05-01
+
+### Added
+- **Form Builder — Multiple Choice quantity stepper.** New "Quantity" toggle in field settings (next to Required) for Multiple Choice fields. When on, each checked option swaps the checkbox for a `−` / value / `+` stepper (default qty 1; decrement past 1 unchecks). Submission flattens to `"Label ×N, Label ×N"` so all downstream display sites (email templates, lead detail, exports) work unchanged. Builder canvas previews every option with the stepper.
+- **Form Builder — Section Header subtitle.** New optional "Subtitle" field on Section Header — renders smaller, muted text under the heading on the live form and in the builder preview.
+- **JSON-LD `CommunicateAction`** structured data emitted per form for Google: form name, target `EntryPoint` with desktop + mobile `actionPlatform`. Helps search engines understand the page hosts a contactable lead form.
+- **Browser autofill heuristics for text fields.** `guess_autocomplete_attr()` derives an `autocomplete` token from each text field's label/placeholder (e.g. `name` → `name`, "first name" → `given-name`, "city" → `address-level2`, "state" → `address-level1`, "zip code" → `postal-code`, "company" → `organization`, "address" → `street-address`, "apt/suite" → `address-line2`, "country" → `country-name`, "birthday" → `bday`, "url/website" → `url`).
+
+### Changed
+- **Email field**: now emits `autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off"`.
+- **Phone field**: now emits `autocomplete="tel" inputmode="tel"`.
+- **Textarea / multi-line textbox**: `spellcheck="true"` for natural-language input.
+- **Checkbox + radio groups**: `role="group" aria-labelledby="..."` referencing the field label (was using `<label for>` against an id that owned no single input). Group labels are rendered as `<span class="xf-label" id="...">` for non-required fields; the existing `role="radiogroup"` for required radios is preserved and extended with `aria-labelledby`.
+- **Quantity stepper value**: `aria-live="polite" aria-atomic="true"` so screen readers announce changes.
+- **Mobile responsive**: checkbox/radio columns collapse to 1 column at <420px; quantity stepper buttons grow to 36px on ≤600px screens; form padding tightens on mobile to reclaim screen real estate; input padding scales down on mobile.
+- **Section Header**: top spacing increased and `padding-top` added so each section visually separates from the previous one. First-child header has no top margin so the form doesn't open with an awkward gap.
+- **Section Header rendering**: explicit `header` case in the shortcode renderer emits `<h3 class="xf-heading">` + optional `<p class="xf-subtitle">`. Previously the type fell through to default and emitted a stray `<input type="text">` next to its label.
+
+### Fixed
+- **Dashboard "Create Your First Form" CTA.** Empty-state CTAs in Leads-over-time, Conversion Funnel, Top Performing Forms, and the Leads inbox no longer urge "Create Your First Form" when forms already exist. They now route to the existing Forms list (or are hidden when there's nothing useful to suggest).
+
 ## [2.0.5] - 2026-04-22
 
 ### Added
