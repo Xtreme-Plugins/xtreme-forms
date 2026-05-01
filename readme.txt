@@ -2,7 +2,7 @@
 Contributors: xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.0.5
+Stable tag: 2.1.0
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
