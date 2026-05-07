@@ -572,6 +572,102 @@ class XF_Leads {
 	}
 
 	/**
+	 * Detect the lead's email address from form fields + values.
+	 *
+	 * Older forms sometimes register the email field as type "text", so a strict
+	 * type match misses it. This helper tries (in priority order):
+	 *   1. Field of type "email"
+	 *   2. Field whose ID or label contains "email" or "e-mail"
+	 *   3. Any field whose value passes is_email()
+	 *
+	 * @param array $field_defs   Form field definitions.
+	 * @param array $field_values Submitted values keyed by field ID.
+	 * @return string Detected email or empty string.
+	 */
+	public static function detect_email( array $field_defs, array $field_values ): string {
+		$by_label = '';
+		foreach ( $field_defs as $fd ) {
+			$fid   = $fd['id'] ?? '';
+			$ftype = $fd['type'] ?? '';
+			$val   = $field_values[ $fid ] ?? '';
+			if ( is_array( $val ) ) {
+				$val = implode( ', ', $val );
+			}
+			$val = trim( (string) $val );
+			if ( '' === $val ) {
+				continue;
+			}
+			if ( 'email' === $ftype && is_email( $val ) ) {
+				return $val;
+			}
+			if ( '' === $by_label ) {
+				$haystack = strtolower( ( $fd['label'] ?? '' ) . ' ' . $fid );
+				if ( false !== strpos( $haystack, 'email' ) || false !== strpos( $haystack, 'e-mail' ) ) {
+					if ( is_email( $val ) ) {
+						$by_label = $val;
+					}
+				}
+			}
+		}
+		if ( '' !== $by_label ) {
+			return $by_label;
+		}
+		// Last resort: first value anywhere that looks like an email.
+		foreach ( $field_values as $val ) {
+			if ( is_array( $val ) ) {
+				$val = implode( ', ', $val );
+			}
+			$val = trim( (string) $val );
+			if ( '' !== $val && is_email( $val ) ) {
+				return $val;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Detect the lead's phone number from form fields + values.
+	 *
+	 * Tries (in priority order):
+	 *   1. Field of type "phone" or "tel"
+	 *   2. Field whose ID or label contains "phone", "cell", "mobile", or "tel"
+	 *
+	 * @param array $field_defs   Form field definitions.
+	 * @param array $field_values Submitted values keyed by field ID.
+	 * @return string Detected phone or empty string.
+	 */
+	public static function detect_phone( array $field_defs, array $field_values ): string {
+		$by_label = '';
+		foreach ( $field_defs as $fd ) {
+			$fid   = $fd['id'] ?? '';
+			$ftype = $fd['type'] ?? '';
+			$val   = $field_values[ $fid ] ?? '';
+			if ( is_array( $val ) ) {
+				$val = implode( ', ', $val );
+			}
+			$val = trim( (string) $val );
+			if ( '' === $val ) {
+				continue;
+			}
+			if ( 'phone' === $ftype || 'tel' === $ftype ) {
+				return $val;
+			}
+			if ( '' === $by_label ) {
+				$haystack = strtolower( ( $fd['label'] ?? '' ) . ' ' . $fid );
+				if (
+					false !== strpos( $haystack, 'phone' ) ||
+					false !== strpos( $haystack, 'cell' ) ||
+					false !== strpos( $haystack, 'mobile' ) ||
+					false !== strpos( $haystack, 'tel' )
+				) {
+					$by_label = $val;
+				}
+			}
+		}
+		return $by_label;
+	}
+
+	/**
 	 * Get multiple leads by IDs (for export).
 	 *
 	 * @param array $ids Lead IDs.

@@ -53,6 +53,12 @@ class XF_Ajax {
 		add_action( 'wp_ajax_xl_send_test_email', array( $this, 'handle_send_test_email' ) );
 		add_action( 'wp_ajax_xl_resend_email', array( $this, 'handle_resend_email' ) );
 
+		// Resend the new-lead notification email for an existing lead.
+		add_action( 'wp_ajax_xf_resend_lead_notification', array( $this, 'handle_resend_lead_notification' ) );
+
+		// Audience Insights: device / browser / OS breakdown.
+		add_action( 'wp_ajax_xf_user_agent_report', array( $this, 'handle_user_agent_report' ) );
+
 		// Form impression beacon (public — no login required).
 		add_action( 'wp_ajax_xl_track_impression', array( $this, 'handle_track_impression' ) );
 		add_action( 'wp_ajax_nopriv_xl_track_impression', array( $this, 'handle_track_impression' ) );
@@ -1559,6 +1565,65 @@ class XF_Ajax {
 				array(
 					'message'    => $result['message'],
 					'new_log_id' => $result['new_log_id'],
+				)
+			);
+		} else {
+			wp_send_json_error( array( 'message' => $result['message'] ) );
+		}
+	}
+
+	/**
+	 * Return the device / browser / OS breakdown for the dashboard
+	 * Audience Insights card.
+	 */
+	public function handle_user_agent_report(): void {
+		$this->require_admin_auth( 'xf_user_agent_report_nonce' );
+
+		$range = isset( $_POST['range'] ) ? sanitize_text_field( wp_unslash( $_POST['range'] ) ) : 'all';
+
+		$date_from = '';
+		$date_to   = '';
+		if ( in_array( $range, array( '7d', '30d', '90d' ), true ) ) {
+			$days      = (int) substr( $range, 0, -1 );
+			$tz        = wp_timezone();
+			$now       = new DateTimeImmutable( 'now', $tz );
+			$date_to   = $now->format( 'Y-m-d' );
+			$date_from = $now->modify( '-' . $days . ' days' )->format( 'Y-m-d' );
+		} elseif ( 'custom' === $range ) {
+			$date_from = isset( $_POST['date_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
+			$date_to   = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
+		}
+
+		$data = XF_Analytics::user_agent_breakdown( $date_from, $date_to );
+		wp_send_json_success( $data );
+	}
+
+	/**
+	 * Resend the new-lead notification email for an existing lead.
+	 *
+	 * Used from the lead-detail page and leads inbox row action when an email
+	 * failed to deliver and the admin wants to retry after fixing the issue.
+	 */
+	public function handle_resend_lead_notification(): void {
+		$this->require_admin_auth( 'xf_admin_nonce' );
+
+		$lead_id   = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
+		$recipient = isset( $_POST['recipient'] )
+			? sanitize_email( wp_unslash( $_POST['recipient'] ) )
+			: '';
+
+		if ( ! $lead_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid lead ID.', 'xtreme-forms' ) ) );
+		}
+
+		$result = XF_Email::resend_lead_notification( $lead_id, $recipient );
+
+		if ( $result['success'] ) {
+			wp_send_json_success(
+				array(
+					'message'      => $result['message'],
+					'sent_count'   => $result['sent_count'],
+					'failed_count' => $result['failed_count'],
 				)
 			);
 		} else {

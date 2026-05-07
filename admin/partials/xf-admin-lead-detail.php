@@ -357,6 +357,34 @@ if ( $email_warn ) {
 				</div>
 			</div>
 
+			<!-- Resend Notification -->
+			<div class="xf-detail-card">
+				<h2>
+					<span class="dashicons dashicons-email-alt" style="vertical-align:middle;color:var(--xf-teal);"></span>
+					<?php esc_html_e( 'Resend Notification', 'xtreme-forms' ); ?>
+				</h2>
+				<p class="xf-resend-help">
+					<?php esc_html_e( 'Use this if the original email failed to deliver. Leave the recipient blank to use the form\'s configured recipients.', 'xtreme-forms' ); ?>
+				</p>
+				<div class="xf-field-group">
+					<label class="xf-label" for="xf-resend-recipient">
+						<?php esc_html_e( 'Recipient (optional)', 'xtreme-forms' ); ?>
+					</label>
+					<input
+						type="email"
+						id="xf-resend-recipient"
+						class="xf-input xf-input-full"
+						placeholder="<?php esc_attr_e( 'leave empty to use form recipients', 'xtreme-forms' ); ?>"
+						autocomplete="off"
+					>
+					<div class="xf-resend-feedback xf-feedback-msg" style="display:none;"></div>
+					<button type="button" id="xf-resend-lead" class="button button-primary xf-btn-primary xf-mt-8 xf-btn-full">
+						<span class="dashicons dashicons-email" style="vertical-align:middle;font-size:16px;line-height:1.4;"></span>
+						<?php esc_html_e( 'Resend Lead Email', 'xtreme-forms' ); ?>
+					</button>
+				</div>
+			</div>
+
 			<!-- Tags -->
 			<div class="xf-detail-card">
 				<h2><?php esc_html_e( 'Tags', 'xtreme-forms' ); ?></h2>
@@ -723,6 +751,51 @@ if ( $email_warn ) {
 	}
 
 	function pad( n ) { return n < 10 ? '0' + n : String( n ); }
+
+	// ── Resend Notification ─────────────────────────────────────────────────
+
+	var resendBtn       = document.getElementById( 'xf-resend-lead' );
+	var resendRecipient = document.getElementById( 'xf-resend-recipient' );
+	var resendFeedback  = document.querySelector( '.xf-resend-feedback' );
+
+	if ( resendBtn ) {
+		var resendOriginalLabel = resendBtn.innerHTML;
+		resendBtn.addEventListener( 'click', function () {
+			var recipient = resendRecipient ? resendRecipient.value.trim() : '';
+
+			// Soft-confirm if no recipient typed (the user is about to send to all configured recipients).
+			if ( ! recipient ) {
+				if ( ! window.confirm( '<?php echo esc_js( __( 'Resend the notification to the form\'s configured recipients?', 'xtreme-forms' ) ); ?>' ) ) {
+					return;
+				}
+			}
+
+			resendBtn.disabled = true;
+			resendBtn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
+
+			post( {
+				action: 'xf_resend_lead_notification',
+				nonce: nonce,
+				lead_id: leadId,
+				recipient: recipient
+			}, function ( err, res ) {
+				resendBtn.disabled = false;
+				resendBtn.innerHTML = resendOriginalLabel;
+
+				if ( err || ! res || ! res.success ) {
+					var msg = ( res && res.data && res.data.message ) ? res.data.message : '<?php echo esc_js( __( 'Error resending email.', 'xtreme-forms' ) ); ?>';
+					showFeedback( resendFeedback, msg, true );
+					return;
+				}
+
+				showFeedback( resendFeedback, res.data.message, false );
+				if ( resendRecipient ) {
+					resendRecipient.value = '';
+				}
+				appendActivity( res.data.message, 'email_resent' );
+			} );
+		} );
+	}
 
 })();
 </script>

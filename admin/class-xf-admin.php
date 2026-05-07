@@ -275,6 +275,7 @@ class XF_Admin {
 						'xf_chart_leads_over_time' => wp_create_nonce( 'xf_chart_leads_over_time_nonce' ),
 						'xf_utm_report'            => wp_create_nonce( 'xf_utm_report_nonce' ),
 						'xf_form_metrics'          => wp_create_nonce( 'xf_form_metrics_nonce' ),
+						'xf_user_agent_report'     => wp_create_nonce( 'xf_user_agent_report_nonce' ),
 					),
 					'isFormMetrics' => false !== strpos( $hook, 'form-metrics' ),
 					'i18n'          => array(
@@ -307,6 +308,7 @@ class XF_Admin {
 				'spamLogNonce'       => wp_create_nonce( 'xf_spam_log_nonce' ),
 				'integrationsNonce'  => wp_create_nonce( 'xf_integrations_nonce' ),
 				'pluginUrl'    => XTREMEFORMS_PLUGIN_URL,
+				'version'      => XTREMEFORMS_VERSION,
 				'statuses'     => $statuses,
 				'allTags'      => array_map(
 					static function ( $t ) {
@@ -362,6 +364,10 @@ class XF_Admin {
 					'resending'        => __( 'Sending…', 'xtreme-forms' ),
 					'resendSuccess'    => __( 'Sent ✓', 'xtreme-forms' ),
 					'resendFailed'     => __( 'Resend failed.', 'xtreme-forms' ),
+					'sending'          => __( 'Sending…', 'xtreme-forms' ),
+					'resent'           => __( 'Email resent.', 'xtreme-forms' ),
+					'confirmResend'    => __( 'Resend the notification email for this lead to the form’s configured recipients?', 'xtreme-forms' ),
+					'pluginVersion'    => __( 'Plugin version', 'xtreme-forms' ),
 				),
 			)
 		);
@@ -877,6 +883,8 @@ class XF_Admin {
 			'redirect_url'            => esc_url_raw( wp_unslash( $_POST['redirect_url'] ?? '' ) ),
 			'thank_you_message'       => sanitize_textarea_field( wp_unslash( $_POST['thank_you_message'] ?? '' ) ),
 			'email_recipients'        => sanitize_text_field( wp_unslash( $_POST['email_recipients'] ?? '' ) ),
+			// Per-form admin notification subject (overrides the global template subject).
+			'email_subject'           => sanitize_text_field( wp_unslash( $_POST['email_subject'] ?? '' ) ),
 			// Auto-responder settings.
 			'auto_responder_enabled'  => isset( $_POST['auto_responder_enabled'] ) ? '1' : '0',
 			'auto_responder_subject'  => sanitize_text_field( wp_unslash( $_POST['auto_responder_subject'] ?? '' ) ),

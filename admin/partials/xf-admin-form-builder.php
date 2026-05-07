@@ -51,6 +51,7 @@ $submit_label     = $settings['submit_label'] ?? '';
 $redirect_url     = $settings['redirect_url'] ?? '';
 $thank_you_msg    = $settings['thank_you_message'] ?? '';
 $email_recipients = $settings['email_recipients'] ?? '';
+$email_subject    = $settings['email_subject'] ?? '';
 $ar_enabled       = ! empty( $settings['auto_responder_enabled'] ) && '1' === (string) $settings['auto_responder_enabled'];
 $ar_subject       = $settings['auto_responder_subject'] ?? '';
 $ar_body          = $settings['auto_responder_body'] ?? '';
@@ -220,13 +221,8 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 						<!-- TAB: General -->
 						<div class="xf-btab-panel" id="xf-tab-general">
 
-							<div class="xf-form-row">
-								<label for="submit_label" class="xf-label"><?php esc_html_e( 'Submit Button Label', 'xtreme-forms' ); ?></label>
-								<input type="text" id="submit_label" name="submit_label"
-									value="<?php echo esc_attr( $submit_label ); ?>"
-									class="xf-input"
-									placeholder="<?php esc_attr_e( 'Submit', 'xtreme-forms' ); ?>">
-							</div>
+							<?php /* Submit button label is configured in the right-sidebar field settings; preserve the existing value across saves. */ ?>
+							<input type="hidden" name="submit_label" value="<?php echo esc_attr( $submit_label ); ?>">
 
 							<div class="xf-form-row">
 								<label class="xf-toggle-row-label">
@@ -274,6 +270,23 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 
 						<!-- TAB: Email / Notifications -->
 						<div class="xf-btab-panel" id="xf-tab-notify" style="display:none;">
+
+							<p class="xf-section-heading"><?php esc_html_e( 'Admin Notification', 'xtreme-forms' ); ?></p>
+
+							<div class="xf-form-row">
+								<label for="email_subject" class="xf-label"><?php esc_html_e( 'Custom Subject Line', 'xtreme-forms' ); ?></label>
+								<input type="text" id="email_subject" name="email_subject"
+									value="<?php echo esc_attr( $email_subject ); ?>"
+									class="xf-input"
+									placeholder="<?php esc_attr_e( 'Leave blank to use the default global subject', 'xtreme-forms' ); ?>">
+								<p class="xf-input-hint">
+									<?php esc_html_e( 'Override the default new-lead notification subject for this form. Merge tags supported:', 'xtreme-forms' ); ?>
+									<code>{{lead_name}}</code>, <code>{{lead_email}}</code>, <code>{{form_name}}</code>, <code>{{site_name}}</code>, <code>{{lead_id}}</code>
+								</p>
+							</div>
+
+							<hr class="xf-divider">
+							<p class="xf-section-heading"><?php esc_html_e( 'Auto-Responder', 'xtreme-forms' ); ?></p>
 
 							<div class="xf-form-row">
 								<label class="xf-toggle-wrap">

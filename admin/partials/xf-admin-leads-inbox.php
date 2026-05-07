@@ -96,6 +96,7 @@ if ( ! function_exists( 'xtremeforms_inbox_get_field' ) ) :
 		$field_defs   = XF_Forms::decode_fields( $form );
 		$field_values = XF_Leads::decode_field_values( $lead );
 
+		// "Name" column: prefer a text field whose label/ID mentions "name", else first text field.
 		if ( 'text' === $field_type ) {
 			$best_match = null;
 			$first_text = null;
@@ -104,7 +105,12 @@ if ( ! function_exists( 'xtremeforms_inbox_get_field' ) ) :
 					if ( null === $first_text ) {
 						$first_text = $fd;
 					}
-					if ( false !== strpos( strtolower( $fd['label'] ?? '' ), 'name' ) ) {
+					$haystack = strtolower( ( $fd['label'] ?? '' ) . ' ' . ( $fd['id'] ?? '' ) );
+					// Skip text fields that are clearly email/phone (user-misclassified field types).
+					if ( false !== strpos( $haystack, 'email' ) || false !== strpos( $haystack, 'phone' ) || false !== strpos( $haystack, 'cell' ) ) {
+						continue;
+					}
+					if ( false !== strpos( $haystack, 'name' ) ) {
 						$best_match = $fd;
 						break;
 					}
@@ -115,9 +121,23 @@ if ( ! function_exists( 'xtremeforms_inbox_get_field' ) ) :
 				return '';
 			}
 			$val = $field_values[ $fd['id'] ?? '' ] ?? '';
-			return is_array( $val ) ? implode( ', ', $val ) : (string) $val;
+			$val = is_array( $val ) ? implode( ', ', $val ) : (string) $val;
+			// If the resolved "name" actually looks like an email, treat it as missing
+			// so the column doesn't duplicate the Email column.
+			return is_email( trim( $val ) ) ? '' : $val;
 		}
 
+		// "Email" column: smart detection (handles forms where Email field is type "text").
+		if ( 'email' === $field_type ) {
+			return XF_Leads::detect_email( $field_defs, $field_values );
+		}
+
+		// "Phone" column: smart detection.
+		if ( 'phone' === $field_type ) {
+			return XF_Leads::detect_phone( $field_defs, $field_values );
+		}
+
+		// Fallback: strict type match.
 		foreach ( $field_defs as $fd ) {
 			if ( ( $fd['type'] ?? '' ) === $field_type ) {
 				$val = $field_values[ $fd['id'] ?? '' ] ?? '';
@@ -377,6 +397,7 @@ $export_url = wp_nonce_url(
 						<th class="xf-col-tags"><?php esc_html_e( 'Tags', 'xtreme-forms' ); ?></th>
 						<th class="xf-col-status"><?php esc_html_e( 'Status', 'xtreme-forms' ); ?></th>
 						<th class="xf-col-date"><?php esc_html_e( 'Date', 'xtreme-forms' ); ?></th>
+						<th class="xf-col-actions"><?php esc_html_e( 'Actions', 'xtreme-forms' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -499,6 +520,16 @@ $export_url = wp_nonce_url(
 								<time datetime="<?php echo esc_attr( $lead->created_at ); ?>">
 									<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $lead->created_at . ' UTC' ) ) ); ?>
 								</time>
+							</td>
+							<td class="xf-col-actions" onclick="event.stopPropagation()">
+								<button type="button"
+									class="button button-small xf-row-resend"
+									data-lead-id="<?php echo esc_attr( $lead_id ); ?>"
+									title="<?php esc_attr_e( 'Resend lead notification email', 'xtreme-forms' ); ?>"
+									aria-label="<?php /* translators: %d: lead ID */ echo esc_attr( sprintf( __( 'Resend notification for lead #%d', 'xtreme-forms' ), $lead_id ) ); ?>">
+									<span class="dashicons dashicons-email-alt"></span>
+									<?php esc_html_e( 'Resend', 'xtreme-forms' ); ?>
+								</button>
 							</td>
 						</tr>
 					<?php endforeach; ?>

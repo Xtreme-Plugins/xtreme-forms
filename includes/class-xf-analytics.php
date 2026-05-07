@@ -539,4 +539,172 @@ class XF_Analytics {
 			'has_more'         => $has_more,
 		);
 	}
+
+	// ── User-Agent / Audience Insights ────────────────────────────────────────
+
+	/**
+	 * Aggregate device / browser / OS distribution across all leads.
+	 *
+	 * Parses each lead's stored user_agent string with a lightweight regex
+	 * matcher (no external dep). Used by the dashboard "Audience Insights"
+	 * card. Returns three breakdowns plus the total parsed.
+	 *
+	 * @param string $date_from Optional 'Y-m-d' lower bound (inclusive).
+	 * @param string $date_to   Optional 'Y-m-d' upper bound (inclusive).
+	 * @return array{
+	 *     device:  array<int, array{label:string, count:int, percentage:float}>,
+	 *     browser: array<int, array{label:string, count:int, percentage:float}>,
+	 *     os:      array<int, array{label:string, count:int, percentage:float}>,
+	 *     total:   int
+	 * }
+	 */
+	public static function user_agent_breakdown( string $date_from = '', string $date_to = '' ): array {
+		global $wpdb;
+		$table = $wpdb->prefix . 'xtremeforms_leads';
+
+		$where  = array( "user_agent != ''", 'user_agent IS NOT NULL' );
+		$params = array();
+
+		if ( '' !== $date_from && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_from ) ) {
+			$where[]  = 'created_at >= %s';
+			$params[] = $date_from . ' 00:00:00';
+		}
+		if ( '' !== $date_to && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_to ) ) {
+			$where[]  = 'created_at <= %s';
+			$params[] = $date_to . ' 23:59:59';
+		}
+
+		$sql = "SELECT user_agent FROM {$table} WHERE " . implode( ' AND ', $where );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		if ( empty( $params ) ) {
+			$rows = $wpdb->get_col( $sql );
+		} else {
+			$rows = $wpdb->get_col( $wpdb->prepare( $sql, $params ) );
+		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		$device_counts  = array();
+		$browser_counts = array();
+		$os_counts      = array();
+		$total          = 0;
+
+		foreach ( (array) $rows as $ua ) {
+			if ( '' === (string) $ua ) {
+				continue;
+			}
+			$parsed = self::parse_user_agent( (string) $ua );
+			$device_counts[ $parsed['device'] ]   = ( $device_counts[ $parsed['device'] ]   ?? 0 ) + 1;
+			$browser_counts[ $parsed['browser'] ] = ( $browser_counts[ $parsed['browser'] ] ?? 0 ) + 1;
+			$os_counts[ $parsed['os'] ]           = ( $os_counts[ $parsed['os'] ]           ?? 0 ) + 1;
+			++$total;
+		}
+
+		return array(
+			'device'  => self::format_breakdown( $device_counts, $total ),
+			'browser' => self::format_breakdown( $browser_counts, $total ),
+			'os'      => self::format_breakdown( $os_counts, $total ),
+			'total'   => $total,
+		);
+	}
+
+	/**
+	 * Sort + format an associative count map into the dashboard-ready shape.
+	 *
+	 * @param array<string,int> $counts Label => count.
+	 * @param int               $total  Total samples.
+	 * @return array<int, array{label:string, count:int, percentage:float}>
+	 */
+	private static function format_breakdown( array $counts, int $total ): array {
+		arsort( $counts );
+		$out = array();
+		foreach ( $counts as $label => $count ) {
+			$out[] = array(
+				'label'      => (string) $label,
+				'count'      => (int) $count,
+				'percentage' => $total > 0 ? round( $count / $total * 100, 1 ) : 0.0,
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Lightweight User-Agent string parser.
+	 *
+	 * Returns device class (Mobile / Tablet / Desktop / Bot), browser family,
+	 * and OS family. Order of pattern checks matters — more-specific tokens
+	 * are tested before more-generic ones (e.g. Edge before Chrome, since
+	 * Edge UA strings include "Chrome").
+	 *
+	 * @param string $ua Raw user-agent string.
+	 * @return array{device:string, browser:string, os:string}
+	 */
+	public static function parse_user_agent( string $ua ): array {
+		$ua = (string) $ua;
+
+		// Bots / crawlers — check first, before device classification.
+		if ( preg_match( '/(bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegrambot|preview|fetch)/i', $ua ) ) {
+			return array(
+				'device'  => 'Bot',
+				'browser' => 'Bot / Crawler',
+				'os'      => 'Unknown',
+			);
+		}
+
+		// Device classification.
+		if ( preg_match( '/iPad|Tablet|Nexus 7|Nexus 10|Kindle|PlayBook/i', $ua ) ) {
+			$device = 'Tablet';
+		} elseif ( preg_match( '/Android/i', $ua ) && ! preg_match( '/Mobile/i', $ua ) ) {
+			// Android without "Mobile" token typically means tablet.
+			$device = 'Tablet';
+		} elseif ( preg_match( '/Mobi|iPhone|iPod|Android|BlackBerry|webOS|IEMobile|Opera Mini|Windows Phone/i', $ua ) ) {
+			$device = 'Mobile';
+		} else {
+			$device = 'Desktop';
+		}
+
+		// Browser detection (order is important).
+		if ( preg_match( '/Edg(e|A|iOS)?\//i', $ua ) ) {
+			$browser = 'Edge';
+		} elseif ( preg_match( '/OPR\/|Opera/i', $ua ) ) {
+			$browser = 'Opera';
+		} elseif ( preg_match( '/SamsungBrowser/i', $ua ) ) {
+			$browser = 'Samsung Internet';
+		} elseif ( preg_match( '/UCBrowser/i', $ua ) ) {
+			$browser = 'UC Browser';
+		} elseif ( preg_match( '/Firefox/i', $ua ) ) {
+			$browser = 'Firefox';
+		} elseif ( preg_match( '/Chrome/i', $ua ) ) {
+			$browser = 'Chrome';
+		} elseif ( preg_match( '/Safari/i', $ua ) ) {
+			$browser = 'Safari';
+		} elseif ( preg_match( '/MSIE|Trident/i', $ua ) ) {
+			$browser = 'Internet Explorer';
+		} else {
+			$browser = 'Other';
+		}
+
+		// OS detection.
+		if ( preg_match( '/iPhone OS|iPad; CPU OS|iPod touch/i', $ua ) ) {
+			$os = 'iOS';
+		} elseif ( preg_match( '/Mac OS X|Macintosh/i', $ua ) ) {
+			$os = 'macOS';
+		} elseif ( preg_match( '/Android/i', $ua ) ) {
+			$os = 'Android';
+		} elseif ( preg_match( '/Windows NT/i', $ua ) ) {
+			$os = 'Windows';
+		} elseif ( preg_match( '/CrOS/i', $ua ) ) {
+			$os = 'Chrome OS';
+		} elseif ( preg_match( '/Ubuntu|Linux/i', $ua ) ) {
+			$os = 'Linux';
+		} else {
+			$os = 'Other';
+		}
+
+		return array(
+			'device'  => $device,
+			'browser' => $browser,
+			'os'      => $os,
+		);
+	}
 }

@@ -198,9 +198,11 @@ class XF_Email_Templates {
 			$logo_html = '<img src="' . $logo_url . '" alt="' . esc_attr( $site_name ) . '" style="max-height:50px;max-width:200px;display:block;margin-bottom:8px;">';
 		}
 
-		// Build field table rows.
+		// Build field rows — single-column stacked layout (label above value),
+		// matching the form's on-site styling and reading well on mobile.
 		$field_rows_html = '';
 		if ( ! empty( $field_defs ) ) {
+			$first = true;
 			foreach ( $field_defs as $field ) {
 				$fid   = $field['id'] ?? '';
 				$ftype = $field['type'] ?? 'text';
@@ -210,33 +212,71 @@ class XF_Email_Templates {
 					continue;
 				}
 
-				$raw_value = $field_values[ $fid ] ?? ( $is_test ? '' : '' );
-				if ( is_array( $raw_value ) ) {
-					$value = esc_html( implode( ', ', $raw_value ) );
-				} else {
-					$value = esc_html( (string) $raw_value );
-				}
+				$raw_value = $field_values[ $fid ] ?? '';
+				$is_empty  = false;
 
-				if ( '' === $value ) {
-					if ( $is_test ) {
-						$value = '<em style="color:#6C757D;">[' . esc_html__( 'Sample Value', 'xtreme-forms' ) . ']</em>';
+				// Render multi-value fields as a stacked list, single values as plain text.
+				if ( is_array( $raw_value ) ) {
+					$items = array_filter(
+						array_map( static fn( $v ) => trim( (string) $v ), $raw_value ),
+						static fn( $v ) => '' !== $v
+					);
+					if ( empty( $items ) ) {
+						$is_empty   = true;
+						$value_html = '';
 					} else {
-						$value = '<em style="color:#6C757D;">' . esc_html__( '(not provided)', 'xtreme-forms' ) . '</em>';
+						$value_html = '<ul style="margin:0;padding:0;list-style:none;">';
+						foreach ( $items as $item ) {
+							$value_html .= '<li style="padding:3px 0;font-size:15px;color:#111827;line-height:1.55;">' . esc_html( $item ) . '</li>';
+						}
+						$value_html .= '</ul>';
+					}
+				} else {
+					$value_str = trim( (string) $raw_value );
+					if ( '' === $value_str ) {
+						$is_empty   = true;
+						$value_html = '';
+					} elseif ( 'textarea' === $ftype ) {
+						$value_html = '<div style="font-size:15px;color:#111827;line-height:1.55;white-space:pre-wrap;">' . nl2br( esc_html( $value_str ) ) . '</div>';
+					} elseif ( false !== strpos( $value_str, ',' ) && in_array( $ftype, array( 'checkbox', 'multiselect' ), true ) ) {
+						// Values stored as comma-joined strings — split back into a list.
+						$items      = array_filter( array_map( 'trim', explode( ',', $value_str ) ) );
+						$value_html = '<ul style="margin:0;padding:0;list-style:none;">';
+						foreach ( $items as $item ) {
+							$value_html .= '<li style="padding:3px 0;font-size:15px;color:#111827;line-height:1.55;">' . esc_html( $item ) . '</li>';
+						}
+						$value_html .= '</ul>';
+					} else {
+						$value_html = '<div style="font-size:15px;color:#111827;line-height:1.55;word-break:break-word;">' . esc_html( $value_str ) . '</div>';
 					}
 				}
 
+				if ( $is_empty ) {
+					$value_html = '<div style="font-size:14px;color:#9ca3af;font-style:italic;">' .
+						( $is_test
+							? esc_html__( '[Sample Value]', 'xtreme-forms' )
+							: esc_html__( '(not provided)', 'xtreme-forms' )
+						) .
+						'</div>';
+				}
+
+				$top_border = $first ? 'none' : '1px solid #eef0f3';
+				$first      = false;
+
 				$field_rows_html .= '
 				<tr>
-					<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;width:30%;white-space:nowrap;">' . $label . '</td>
-					<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:14px;color:#111827;">' . $value . '</td>
+					<td style="padding:18px 24px;border-top:' . $top_border . ';">
+						<div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">' . $label . '</div>
+						' . $value_html . '
+					</td>
 				</tr>';
 			}
 		}
 
 		if ( '' === $field_rows_html && $is_test ) {
-			$field_rows_html = '<tr><td colspan="2" style="padding:16px;color:#6C757D;">' . esc_html__( '[Sample form fields will appear here]', 'xtreme-forms' ) . '</td></tr>';
+			$field_rows_html = '<tr><td style="padding:18px 24px;color:#6C757D;">' . esc_html__( '[Sample form fields will appear here]', 'xtreme-forms' ) . '</td></tr>';
 		} elseif ( '' === $field_rows_html ) {
-			$field_rows_html = '<tr><td colspan="2" style="padding:16px;color:#6C757D;">' . esc_html__( 'No field data submitted.', 'xtreme-forms' ) . '</td></tr>';
+			$field_rows_html = '<tr><td style="padding:18px 24px;color:#6C757D;">' . esc_html__( 'No field data submitted.', 'xtreme-forms' ) . '</td></tr>';
 		}
 
 		// Source URL — strip query string so only the clean page path is shown.
@@ -255,13 +295,13 @@ class XF_Email_Templates {
 
 		$admin_link = esc_url( $admin_link ?: ( $context['admin_link'] ?? '' ) );
 
-		// Build source-page row.
+		// Build source-page row in the same stacked single-column style.
 		$meta_rows = '';
 		if ( $source_url && $source_label ) {
-			$meta_rows .= '<tr style="background:#fafafa;">
-				<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;width:30%;white-space:nowrap;">Source</td>
-				<td style="padding:11px 16px;border-bottom:1px solid #f0f0f0;font-size:13px;">
-					<a href="' . $source_url . '" style="color:#374151;text-decoration:none;">' . esc_html( $source_label ) . '</a>
+			$meta_rows .= '<tr>
+				<td style="padding:18px 24px;border-top:1px solid #eef0f3;background:#fafbfc;">
+					<div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">' . esc_html__( 'Source Page', 'xtreme-forms' ) . '</div>
+					<a href="' . $source_url . '" style="font-size:14px;color:#2563eb;text-decoration:none;word-break:break-all;">' . esc_html( $source_label ) . '</a>
 				</td>
 			</tr>';
 		}
@@ -270,8 +310,8 @@ class XF_Email_Templates {
 		$btn_html = '';
 		if ( $admin_link ) {
 			$btn_html = '<tr>
-				<td align="center" style="padding:28px 32px 36px;">
-					<a href="' . $admin_link . '" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:13px 36px;border-radius:8px;font-weight:600;font-size:14px;letter-spacing:0.2px;">View Lead &rarr;</a>
+				<td align="center" class="xf-em-cta xf-em-pad" style="padding:24px 28px 32px;">
+					<a href="' . $admin_link . '" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-weight:600;font-size:14px;letter-spacing:0.2px;">' . esc_html__( 'View Lead', 'xtreme-forms' ) . ' &rarr;</a>
 				</td>
 			</tr>';
 		}
@@ -284,18 +324,28 @@ class XF_Email_Templates {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="x-apple-disable-message-reformatting">
 <title>New Lead</title>
+<style>
+@media only screen and (max-width: 600px) {
+	.xf-em-wrapper { width:100% !important; max-width:100% !important; }
+	.xf-em-pad     { padding-left:18px !important; padding-right:18px !important; }
+	.xf-em-pad-sm  { padding-left:16px !important; padding-right:16px !important; }
+	.xf-em-h1      { font-size:20px !important; }
+	.xf-em-cta a   { display:block !important; width:100% !important; box-sizing:border-box !important; }
+}
+</style>
 </head>
-<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 12px;">
 <tr><td align="center">
 
-  <table role="presentation" width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;">
+  <table role="presentation" class="xf-em-wrapper" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
     <!-- Brand bar -->
     <tr>
-      <td style="padding-bottom:20px;">
-        ' . ( $logo_html ? '<td>' . $logo_html . '</td>' : '' ) . '
+      <td style="padding:0 4px 16px;">
+        ' . $logo_html . '
         <span style="font-size:13px;font-weight:700;color:#374151;letter-spacing:.3px;">' . $site_name . '</span>
       </td>
     </tr>
@@ -304,32 +354,28 @@ class XF_Email_Templates {
     <tr>
       <td style="background:#ffffff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;">
 
-        <!-- Top accent -->
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          <tr><td style="height:4px;background:#111827;border-radius:12px 12px 0 0;"></td></tr>
+          <tr><td style="height:4px;background:#111827;border-radius:12px 12px 0 0;line-height:4px;font-size:0;">&nbsp;</td></tr>
 
           <!-- Heading -->
           <tr>
-            <td style="padding:28px 32px 8px;">
-              <p style="margin:0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">New Submission</p>
-              <h1 style="margin:6px 0 0;font-size:22px;font-weight:700;color:#111827;letter-spacing:-.3px;">' . esc_html( $context['form_name'] ?? 'Form Submission' ) . '</h1>
+            <td class="xf-em-pad" style="padding:26px 28px 6px;">
+              <p style="margin:0;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">' . esc_html__( 'New Submission', 'xtreme-forms' ) . '</p>
+              <h1 class="xf-em-h1" style="margin:6px 0 0;font-size:22px;font-weight:700;color:#111827;letter-spacing:-.3px;line-height:1.3;">' . esc_html( $context['form_name'] ?? 'Form Submission' ) . '</h1>
             </td>
           </tr>
 
-          <!-- Divider -->
-          <tr><td style="padding:0 32px;"><div style="height:1px;background:#f0f0f0;"></div></td></tr>
-
           <!-- Intro -->
           <tr>
-            <td style="padding:20px 32px 0;">
+            <td class="xf-em-pad" style="padding:14px 28px 4px;">
               <p style="margin:0;font-size:14px;color:#6b7280;line-height:1.6;">' . $body_intro . '</p>
             </td>
           </tr>
 
-          <!-- Fields table -->
+          <!-- Fields (stacked single column, mobile-first) -->
           <tr>
-            <td style="padding:20px 32px 0;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:8px;overflow:hidden;border:1px solid #f0f0f0;font-size:14px;">
+            <td class="xf-em-pad-sm" style="padding:18px 20px 8px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-radius:10px;border:1px solid #eef0f3;font-size:14px;background:#ffffff;">
                 ' . $field_rows_html . '
                 ' . $meta_rows . '
               </table>
@@ -345,8 +391,8 @@ class XF_Email_Templates {
 
     <!-- Footer -->
     <tr>
-      <td style="padding:20px 0 0;text-align:center;">
-        <p style="margin:0;font-size:12px;color:#9ca3af;">' . $powered_by . ' &middot; ' . $footer_text . '</p>
+      <td style="padding:18px 8px 0;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.5;">' . $powered_by . ' &middot; ' . $footer_text . '</p>
       </td>
     </tr>
 
@@ -377,42 +423,31 @@ class XF_Email_Templates {
 		array $field_values,
 		string $form_name = ''
 	): array {
-		// Try to find name, email, phone from well-known field types/IDs.
-		$lead_name  = '';
-		$lead_email = '';
-		$lead_phone = '';
+		// Smart detection for email/phone — handles forms where the field type was
+		// set to "text" instead of "email"/"phone" (common in user-built forms).
+		$lead_email = XF_Leads::detect_email( $field_defs, $field_values );
+		$lead_phone = XF_Leads::detect_phone( $field_defs, $field_values );
 
+		// Auto-detect name field (id or label contains "name", excluding email-named fields).
+		$lead_name = '';
 		foreach ( $field_defs as $field ) {
-			$fid   = $field['id'] ?? '';
-			$ftype = $field['type'] ?? 'text';
-			$val   = $field_values[ $fid ] ?? '';
-
+			$fid = $field['id'] ?? '';
+			$val = $field_values[ $fid ] ?? '';
 			if ( is_array( $val ) ) {
 				$val = implode( ', ', $val );
 			}
-
 			$val = (string) $val;
-
-			// Auto-detect email field.
-			if ( '' === $lead_email && 'email' === $ftype && $val ) {
-				$lead_email = $val;
+			if ( '' === $val ) {
+				continue;
 			}
-
-			// Auto-detect phone field.
-			if ( '' === $lead_phone && 'phone' === $ftype && $val ) {
-				$lead_phone = $val;
+			$haystack = strtolower( ( $field['label'] ?? '' ) . ' ' . $fid );
+			// Skip fields whose label/id is the email/phone we already detected.
+			if ( false !== strpos( $haystack, 'email' ) || false !== strpos( $haystack, 'phone' ) || false !== strpos( $haystack, 'cell' ) ) {
+				continue;
 			}
-
-			// Auto-detect name field (id or label contains "name").
-			if ( '' === $lead_name && $val ) {
-				$id_lower    = strtolower( $fid );
-				$label_lower = strtolower( $field['label'] ?? '' );
-				if (
-					str_contains( $id_lower, 'name' ) ||
-					str_contains( $label_lower, 'name' )
-				) {
-					$lead_name = $val;
-				}
+			if ( str_contains( $haystack, 'name' ) ) {
+				$lead_name = $val;
+				break;
 			}
 		}
 

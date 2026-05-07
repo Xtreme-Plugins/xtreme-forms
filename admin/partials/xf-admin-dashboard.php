@@ -32,6 +32,32 @@ $add_form_url = add_query_arg(
 );
 $leads_url    = add_query_arg( array( 'page' => 'xtreme-forms-leads' ), admin_url( 'admin.php' ) );
 $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_url( 'admin.php' ) );
+
+// KPI tile click-through links.
+$tz                      = wp_timezone();
+$now                     = new DateTimeImmutable( 'now', $tz );
+$first_of_month          = $now->modify( 'first day of this month' )->format( 'Y-m-d' );
+$last_of_month           = $now->modify( 'last day of this month' )->format( 'Y-m-d' );
+$monday_this_week        = $now->modify( 'monday this week' )->format( 'Y-m-d' );
+$today_str               = $now->format( 'Y-m-d' );
+
+$kpi_all_time_url   = $leads_url;
+$kpi_this_month_url = add_query_arg(
+	array(
+		'page'         => 'xtreme-forms-leads',
+		'xf_date_from' => $first_of_month,
+		'xf_date_to'   => $last_of_month,
+	),
+	admin_url( 'admin.php' )
+);
+$kpi_this_week_url = add_query_arg(
+	array(
+		'page'         => 'xtreme-forms-leads',
+		'xf_date_from' => $monday_this_week,
+		'xf_date_to'   => $today_str,
+	),
+	admin_url( 'admin.php' )
+);
 ?>
 <div class="wrap xf-wrap xf-dashboard-wrap">
 	<div class="xf-page-header">
@@ -50,30 +76,45 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 
 	<!-- ── KPI Tiles ──────────────────────────────────────────────────────── -->
 	<div class="xf-kpi-row">
-		<div class="xf-kpi-tile">
+		<a class="xf-kpi-tile xf-kpi-tile-link"
+			href="<?php echo esc_url( $kpi_all_time_url ); ?>"
+			title="<?php esc_attr_e( 'View all leads', 'xtreme-forms' ); ?>">
 			<div class="xf-kpi-icon"><span class="dashicons dashicons-email-alt"></span></div>
 			<div class="xf-kpi-body">
 				<span class="xf-kpi-label"><?php esc_html_e( 'All Time', 'xtreme-forms' ); ?></span>
-				<span class="xf-kpi-value" id="xf-kpi-all-time"><?php echo esc_html( number_format_i18n( $kpi_all_time ) ); ?></span>
+				<span class="xf-kpi-value xf-countup"
+					id="xf-kpi-all-time"
+					data-target="<?php echo esc_attr( $kpi_all_time ); ?>"><?php echo esc_html( number_format_i18n( $kpi_all_time ) ); ?></span>
 				<span class="xf-kpi-sublabel"><?php esc_html_e( 'Total Leads', 'xtreme-forms' ); ?></span>
 			</div>
-		</div>
-		<div class="xf-kpi-tile">
+			<span class="xf-kpi-arrow dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+		</a>
+		<a class="xf-kpi-tile xf-kpi-tile-link"
+			href="<?php echo esc_url( $kpi_this_month_url ); ?>"
+			title="<?php esc_attr_e( 'View this month\'s leads', 'xtreme-forms' ); ?>">
 			<div class="xf-kpi-icon"><span class="dashicons dashicons-calendar-alt"></span></div>
 			<div class="xf-kpi-body">
 				<span class="xf-kpi-label"><?php esc_html_e( 'This Month', 'xtreme-forms' ); ?></span>
-				<span class="xf-kpi-value" id="xf-kpi-this-month"><?php echo esc_html( number_format_i18n( $kpi_this_month ) ); ?></span>
+				<span class="xf-kpi-value xf-countup"
+					id="xf-kpi-this-month"
+					data-target="<?php echo esc_attr( $kpi_this_month ); ?>"><?php echo esc_html( number_format_i18n( $kpi_this_month ) ); ?></span>
 				<span class="xf-kpi-sublabel"><?php echo esc_html( wp_date( 'F Y' ) ); ?></span>
 			</div>
-		</div>
-		<div class="xf-kpi-tile">
+			<span class="xf-kpi-arrow dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+		</a>
+		<a class="xf-kpi-tile xf-kpi-tile-link"
+			href="<?php echo esc_url( $kpi_this_week_url ); ?>"
+			title="<?php esc_attr_e( 'View this week\'s leads', 'xtreme-forms' ); ?>">
 			<div class="xf-kpi-icon"><span class="dashicons dashicons-clock"></span></div>
 			<div class="xf-kpi-body">
 				<span class="xf-kpi-label"><?php esc_html_e( 'This Week', 'xtreme-forms' ); ?></span>
-				<span class="xf-kpi-value" id="xf-kpi-this-week"><?php echo esc_html( number_format_i18n( $kpi_this_week ) ); ?></span>
+				<span class="xf-kpi-value xf-countup"
+					id="xf-kpi-this-week"
+					data-target="<?php echo esc_attr( $kpi_this_week ); ?>"><?php echo esc_html( number_format_i18n( $kpi_this_week ) ); ?></span>
 				<span class="xf-kpi-sublabel"><?php esc_html_e( 'Since Monday', 'xtreme-forms' ); ?></span>
 			</div>
-		</div>
+			<span class="xf-kpi-arrow dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+		</a>
 	</div>
 
 	<!-- ── Charts Row ─────────────────────────────────────────────────────── -->
@@ -194,7 +235,22 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 						</thead>
 						<tbody>
 							<?php foreach ( $funnel_data as $item ) : ?>
-								<tr>
+								<?php
+								$status_url = add_query_arg(
+									array(
+										'page'      => 'xtreme-forms-leads',
+										'xf_status' => $item['status'],
+									),
+									admin_url( 'admin.php' )
+								);
+								?>
+								<tr class="xf-funnel-row<?php echo $item['count'] > 0 ? ' xf-funnel-row-clickable' : ''; ?>"
+									<?php if ( $item['count'] > 0 ) : ?>
+										data-href="<?php echo esc_url( $status_url ); ?>"
+										role="link"
+										tabindex="0"
+										title="<?php /* translators: %s: status label */ echo esc_attr( sprintf( __( 'View %s leads', 'xtreme-forms' ), $item['label'] ) ); ?>"
+									<?php endif; ?>>
 									<td>
 										<span class="xf-status-badge xf-status-<?php echo esc_attr( $item['status'] ); ?>">
 											<?php echo esc_html( $item['label'] ); ?>
@@ -263,11 +319,17 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 				<?php if ( ! empty( $top_pages ) ) : ?>
 					<ol class="xf-top-list">
 						<?php foreach ( $top_pages as $page_item ) : ?>
-							<li class="xf-top-list-item">
-								<span class="xf-top-list-url" title="<?php echo esc_attr( $page_item['source_url'] ); ?>">
-									<?php echo esc_html( wp_parse_url( $page_item['source_url'], PHP_URL_PATH ) ?: $page_item['source_url'] ); ?>
-								</span>
-								<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $page_item['count'] ) ); ?></span>
+							<li class="xf-top-list-item xf-top-list-item-link">
+								<a href="<?php echo esc_url( $page_item['source_url'] ); ?>"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="xf-top-list-link"
+									title="<?php echo esc_attr( $page_item['source_url'] ); ?>">
+									<span class="xf-top-list-url">
+										<?php echo esc_html( wp_parse_url( $page_item['source_url'], PHP_URL_PATH ) ?: $page_item['source_url'] ); ?>
+									</span>
+									<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $page_item['count'] ) ); ?></span>
+								</a>
 							</li>
 						<?php endforeach; ?>
 					</ol>
@@ -290,9 +352,22 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 				<?php if ( ! empty( $top_forms ) ) : ?>
 					<ol class="xf-top-list">
 						<?php foreach ( $top_forms as $form_item ) : ?>
-							<li class="xf-top-list-item">
-								<span class="xf-top-list-name"><?php echo esc_html( $form_item['form_name'] ); ?></span>
-								<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $form_item['count'] ) ); ?></span>
+							<?php
+							$form_filter_url = add_query_arg(
+								array(
+									'page'    => 'xtreme-forms-leads',
+									'xf_form' => (int) $form_item['form_id'],
+								),
+								admin_url( 'admin.php' )
+							);
+							?>
+							<li class="xf-top-list-item xf-top-list-item-link">
+								<a href="<?php echo esc_url( $form_filter_url ); ?>"
+									class="xf-top-list-link"
+									title="<?php /* translators: %s: form name */ echo esc_attr( sprintf( __( 'View leads from %s', 'xtreme-forms' ), $form_item['form_name'] ) ); ?>">
+									<span class="xf-top-list-name"><?php echo esc_html( $form_item['form_name'] ); ?></span>
+									<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $form_item['count'] ) ); ?></span>
+								</a>
 							</li>
 						<?php endforeach; ?>
 					</ol>
@@ -305,6 +380,62 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 						<?php endif; ?>
 					</div>
 				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Audience Insights (device / browser / OS) ──────────────────────── -->
+	<div class="xf-card xf-audience-card">
+		<div class="xf-card-header">
+			<h2><?php esc_html_e( 'Audience Insights', 'xtreme-forms' ); ?></h2>
+			<div class="xf-chart-controls">
+				<div class="xf-range-tabs" id="xf-audience-range-tabs" role="tablist">
+					<button type="button" class="xf-range-tab xf-range-tab-active" data-range="all" role="tab"><?php esc_html_e( 'All Time', 'xtreme-forms' ); ?></button>
+					<button type="button" class="xf-range-tab" data-range="30d"  role="tab"><?php esc_html_e( 'Last 30 Days', 'xtreme-forms' ); ?></button>
+					<button type="button" class="xf-range-tab" data-range="90d"  role="tab"><?php esc_html_e( 'Last 90 Days', 'xtreme-forms' ); ?></button>
+				</div>
+			</div>
+		</div>
+		<div class="xf-card-body xf-audience-mini-row">
+			<?php
+			$audience_panes = array(
+				'device'  => array( __( 'Device', 'xtreme-forms' ),           'dashicons-smartphone' ),
+				'browser' => array( __( 'Browser', 'xtreme-forms' ),          'dashicons-admin-site-alt3' ),
+				'os'      => array( __( 'Operating System', 'xtreme-forms' ), 'dashicons-desktop' ),
+			);
+			foreach ( $audience_panes as $view => $meta ) :
+				list( $label, $icon ) = $meta;
+				?>
+				<div class="xf-audience-mini" data-view="<?php echo esc_attr( $view ); ?>">
+					<div class="xf-audience-mini-head">
+						<span class="xf-audience-mini-icon dashicons <?php echo esc_attr( $icon ); ?>"></span>
+						<span class="xf-audience-mini-title"><?php echo esc_html( $label ); ?></span>
+					</div>
+					<div class="xf-audience-mini-body">
+						<div class="xf-audience-donut">
+							<canvas
+								id="xf-audience-donut-<?php echo esc_attr( $view ); ?>"
+								width="120"
+								height="120"
+								aria-label="<?php /* translators: %s: pane label */ echo esc_attr( sprintf( __( '%s breakdown chart', 'xtreme-forms' ), $label ) ); ?>"
+								role="img"></canvas>
+							<div class="xf-audience-donut-center">
+								<div class="xf-audience-donut-pct" data-pct-for="<?php echo esc_attr( $view ); ?>">—</div>
+								<div class="xf-audience-donut-top"  data-top-for="<?php echo esc_attr( $view ); ?>"></div>
+							</div>
+						</div>
+						<ul class="xf-audience-mini-legend" data-legend-for="<?php echo esc_attr( $view ); ?>"></ul>
+					</div>
+				</div>
+			<?php endforeach; ?>
+
+			<div class="xf-audience-empty" id="xf-audience-empty" style="display:none;">
+				<span class="dashicons dashicons-chart-pie xf-empty-icon"></span>
+				<p><?php esc_html_e( 'No audience data yet — submit a form to see device, browser, and OS analytics.', 'xtreme-forms' ); ?></p>
+			</div>
+			<div class="xf-audience-error" id="xf-audience-error" style="display:none;">
+				<span class="dashicons dashicons-warning"></span>
+				<span class="xf-audience-error-msg"><?php esc_html_e( 'Failed to load audience data.', 'xtreme-forms' ); ?></span>
 			</div>
 		</div>
 	</div>

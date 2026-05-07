@@ -600,6 +600,201 @@
 		return div.innerHTML;
 	}
 
+	// ── Audience Insights — 3 compact mini-donuts ───────────────────────────
+
+	// Vibrant palette used in the order rows arrive (most → least).
+	const AUDIENCE_PALETTE = [
+		'#0ABAB5', // teal
+		'#3b82f6', // blue
+		'#a855f7', // purple
+		'#FF6B35', // orange
+		'#22c55e', // green
+		'#ec4899', // pink
+		'#eab308', // amber
+		'#64748b', // slate
+	];
+
+	const audienceCharts = {}; // view → Chart instance
+	let   audienceData   = null;
+	let   audienceRange  = 'all';
+
+	function initAudienceChart() {
+		// Range tabs (All / 30d / 90d).
+		const rangeTabs = document.querySelectorAll( '#xf-audience-range-tabs .xf-range-tab' );
+		if ( ! rangeTabs.length ) return;
+
+		rangeTabs.forEach( function ( tab ) {
+			tab.addEventListener( 'click', function () {
+				rangeTabs.forEach( function ( t ) { t.classList.remove( 'xf-range-tab-active' ); } );
+				tab.classList.add( 'xf-range-tab-active' );
+				audienceRange = tab.dataset.range || 'all';
+				loadAudience();
+			} );
+		} );
+
+		// Click on a mini panel cycles through its top segment (subtle interactivity hint).
+		document.querySelectorAll( '.xf-audience-mini' ).forEach( function ( mini ) {
+			mini.addEventListener( 'click', function ( e ) {
+				if ( e.target.closest( 'a, button' ) ) return;
+				const view = mini.dataset.view;
+				if ( ! audienceData || ! audienceData[ view ] ) return;
+				const rows = audienceData[ view ];
+				if ( rows.length < 2 ) return;
+				// Rotate the array so the highlighted segment changes on click.
+				audienceData[ view ] = rows.slice( 1 ).concat( rows.slice( 0, 1 ) );
+				renderMini( view );
+			} );
+		} );
+
+		loadAudience();
+	}
+
+	async function loadAudience() {
+		const errEl    = document.getElementById( 'xf-audience-error' );
+		const emptyEl  = document.getElementById( 'xf-audience-empty' );
+		if ( errEl )   errEl.style.display = 'none';
+		if ( emptyEl ) emptyEl.style.display = 'none';
+
+		try {
+			audienceData = await apiFetch( 'xf_user_agent_report', { range: audienceRange } );
+
+			if ( ! audienceData || ( audienceData.total || 0 ) === 0 ) {
+				hideMinis();
+				if ( emptyEl ) emptyEl.style.display = 'flex';
+				return;
+			}
+			showMinis();
+			[ 'device', 'browser', 'os' ].forEach( renderMini );
+		} catch ( e ) {
+			hideMinis();
+			if ( errEl ) {
+				const msg = errEl.querySelector( '.xf-audience-error-msg' );
+				if ( msg && e && e.message ) msg.textContent = e.message;
+				errEl.style.display = 'flex';
+			}
+		}
+	}
+
+	function hideMinis() {
+		document.querySelectorAll( '.xf-audience-mini' ).forEach( function ( m ) { m.style.visibility = 'hidden'; } );
+	}
+	function showMinis() {
+		document.querySelectorAll( '.xf-audience-mini' ).forEach( function ( m ) { m.style.visibility = 'visible'; } );
+	}
+
+	function renderMini( view ) {
+		const canvas = document.getElementById( 'xf-audience-donut-' + view );
+		if ( ! canvas || ! audienceData ) return;
+
+		const rows  = audienceData[ view ] || [];
+		const total = audienceData.total   || 0;
+
+		// Center stat = top segment.
+		const top    = rows[ 0 ] || null;
+		const pctEl  = document.querySelector( '[data-pct-for="' + view + '"]' );
+		const topEl  = document.querySelector( '[data-top-for="' + view + '"]' );
+		const legend = document.querySelector( '[data-legend-for="' + view + '"]' );
+
+		if ( ! top ) {
+			if ( pctEl ) pctEl.textContent = '0%';
+			if ( topEl ) topEl.textContent = '—';
+			if ( legend ) legend.innerHTML = '';
+			return;
+		}
+
+		const topPct = top.percentage != null
+			? Math.round( top.percentage )
+			: ( total > 0 ? Math.round( top.count / total * 100 ) : 0 );
+
+		if ( pctEl ) pctEl.textContent = topPct + '%';
+		if ( topEl ) topEl.textContent = top.label;
+
+		const labels = rows.map( function ( r ) { return r.label; } );
+		const values = rows.map( function ( r ) { return r.count; } );
+		const colors = rows.map( function ( _r, i ) { return AUDIENCE_PALETTE[ i % AUDIENCE_PALETTE.length ]; } );
+
+		if ( audienceCharts[ view ] ) {
+			audienceCharts[ view ].data.labels                     = labels;
+			audienceCharts[ view ].data.datasets[ 0 ].data         = values;
+			audienceCharts[ view ].data.datasets[ 0 ].backgroundColor = colors;
+			audienceCharts[ view ].update();
+		} else {
+			audienceCharts[ view ] = new Chart( canvas, {
+				type: 'doughnut',
+				data: {
+					labels,
+					datasets: [ {
+						data: values,
+						backgroundColor: colors,
+						borderColor: '#ffffff',
+						borderWidth: 2,
+						hoverOffset: 6,
+					} ],
+				},
+				options: {
+					responsive: false, // fixed pixel sizing — guaranteed render
+					maintainAspectRatio: false,
+					cutout: '68%',
+					animation: { animateRotate: true, duration: 600, easing: 'easeOutCubic' },
+					plugins: {
+						legend: { display: false },
+						tooltip: {
+							backgroundColor: '#0f172a',
+							titleColor: '#fff',
+							bodyColor: '#cbd5e1',
+							padding: 10,
+							cornerRadius: 6,
+							displayColors: false,
+							callbacks: {
+								label: function ( ctx ) {
+									const t = audienceData.total || 1;
+									const p = ( ( ctx.parsed / t ) * 100 ).toFixed( 1 );
+									return ctx.label + ': ' + ctx.parsed.toLocaleString() + ' (' + p + '%)';
+								},
+							},
+						},
+					},
+				},
+			} );
+		}
+
+		// Mini-legend rows (top 3).
+		if ( legend ) {
+			let html = '';
+			rows.slice( 0, 3 ).forEach( function ( r, i ) {
+				const color  = colors[ i ];
+				const pct    = r.percentage != null ? r.percentage : ( total > 0 ? r.count / total * 100 : 0 );
+				const pctTxt = pct.toFixed( pct >= 10 ? 0 : 1 );
+				html +=
+					'<li class="xf-audience-mini-legend-row" data-view="' + view + '" data-idx="' + i + '">' +
+						'<span class="xf-audience-swatch" style="background:' + color + '"></span>' +
+						'<span class="xf-audience-mini-legend-label">' + escHtml( r.label ) + '</span>' +
+						'<span class="xf-audience-mini-legend-pct">' + pctTxt + '%</span>' +
+					'</li>';
+			} );
+			legend.innerHTML = html;
+
+			// Hover legend row → highlight wedge.
+			legend.querySelectorAll( '.xf-audience-mini-legend-row' ).forEach( function ( row ) {
+				const idx = parseInt( row.dataset.idx, 10 );
+				row.addEventListener( 'mouseenter', function () {
+					const c = audienceCharts[ view ];
+					if ( ! c ) return;
+					c.setActiveElements( [ { datasetIndex: 0, index: idx } ] );
+					if ( c.tooltip ) c.tooltip.setActiveElements( [ { datasetIndex: 0, index: idx } ], { x: 0, y: 0 } );
+					c.update();
+				} );
+				row.addEventListener( 'mouseleave', function () {
+					const c = audienceCharts[ view ];
+					if ( ! c ) return;
+					c.setActiveElements( [] );
+					if ( c.tooltip ) c.tooltip.setActiveElements( [], { x: 0, y: 0 } );
+					c.update();
+				} );
+			} );
+		}
+	}
+
 	// ── Init ──────────────────────────────────────────────────────────────────
 
 	document.addEventListener( 'DOMContentLoaded', function () {
@@ -608,6 +803,7 @@
 			if ( typeof Chart !== 'undefined' ) {
 				initLineChart();
 				initBarChart();
+				initAudienceChart();
 			}
 		} else {
 			// Form metrics page.

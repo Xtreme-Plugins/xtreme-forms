@@ -72,6 +72,12 @@ class XF_Email {
 		$subject = $email_data['subject'];
 		$body    = $email_data['body'];
 
+		// Per-form custom subject override (with merge-tag processing).
+		$custom_subject = trim( (string) ( $form_settings['email_subject'] ?? '' ) );
+		if ( '' !== $custom_subject ) {
+			$subject = XF_Email_Templates::process_merge_tags( $custom_subject, $context, false );
+		}
+
 		// Determine notification recipients via routing rules.
 		$routing_recipients = XF_Routing_Rules::get_matching_recipients( $form_id, $field_values );
 
@@ -450,7 +456,172 @@ class XF_Email {
 		}
 	}
 
-	// ── Resend ────────────────────────────────────────────────────────────────
+	// ── Resend (lead-level) ───────────────────────────────────────────────────
+
+	/**
+	 * Re-dispatch the new-lead notification for an existing lead.
+	 *
+	 * Used from the admin UI when an email failed to deliver (e.g. SMTP outage,
+	 * misconfiguration) and the admin wants to retry after fixing the issue.
+	 * The email body is rebuilt from the lead's stored field values rather than
+	 * pulled from the log, so it always reflects the current template settings.
+	 *
+	 * Recipient resolution mirrors send_new_lead_notification(): routing rules
+	 * take precedence; if none match, fall back to per-form / global recipients.
+	 * If $override_recipient is provided, only that address is used.
+	 *
+	 * @param int    $lead_id            Existing lead ID.
+	 * @param string $override_recipient Optional: send only to this address (admin-typed).
+	 * @return array{ success: bool, message: string, sent_count: int, failed_count: int }
+	 */
+	public static function resend_lead_notification( int $lead_id, string $override_recipient = '' ): array {
+		$lead = XF_Leads::get_lead( $lead_id );
+		if ( ! $lead ) {
+			return array(
+				'success'      => false,
+				'message'      => __( 'Lead not found.', 'xtreme-forms' ),
+				'sent_count'   => 0,
+				'failed_count' => 0,
+			);
+		}
+
+		$form         = XF_Forms::get_form( (int) $lead->form_id );
+		$field_values = XF_Leads::decode_field_values( $lead );
+		$field_defs   = $form ? XF_Forms::decode_fields( $form ) : array();
+		$form_name    = $form ? (string) $form->name : '';
+
+		$form_settings              = $form ? XF_Forms::decode_settings( $form ) : array();
+		$form_settings['_form_id']   = $form ? (int) $form->id : 0;
+		$form_settings['_form_name'] = $form_name;
+
+		$context = XF_Email_Templates::build_context_from_lead(
+			$lead,
+			$field_defs,
+			$field_values,
+			$form_name
+		);
+
+		$admin_link = admin_url( 'admin.php?page=xtreme-forms-leads&xf_action=view&lead_id=' . $lead_id );
+
+		$email_data = XF_Email_Templates::build_email(
+			$context,
+			$field_defs,
+			$field_values,
+			$admin_link,
+			false
+		);
+
+		$subject = $email_data['subject'];
+		$body    = $email_data['body'];
+
+		// Per-form custom subject override (with merge-tag processing).
+		$custom_subject = trim( (string) ( $form_settings['email_subject'] ?? '' ) );
+		if ( '' !== $custom_subject ) {
+			$subject = XF_Email_Templates::process_merge_tags( $custom_subject, $context, false );
+		}
+
+		// Resolve recipients.
+		$override_recipient = trim( $override_recipient );
+		if ( '' !== $override_recipient ) {
+			if ( ! is_email( $override_recipient ) ) {
+				return array(
+					'success'      => false,
+					'message'      => __( 'Invalid recipient email address.', 'xtreme-forms' ),
+					'sent_count'   => 0,
+					'failed_count' => 0,
+				);
+			}
+			$recipients = array( sanitize_email( $override_recipient ) );
+		} else {
+			$routing = XF_Routing_Rules::get_matching_recipients(
+				(int) $form_settings['_form_id'],
+				$field_values
+			);
+			if ( ! empty( $routing ) ) {
+				$recipients = $routing;
+			} else {
+				$global_settings = get_option( 'xtremeforms_settings', array() );
+				$recipients      = self::get_recipients( $form_settings, $global_settings );
+			}
+		}
+
+		if ( empty( $recipients ) ) {
+			return array(
+				'success'      => false,
+				'message'      => __( 'No recipients configured for this form. Add a recipient in form or plugin settings, or specify one when resending.', 'xtreme-forms' ),
+				'sent_count'   => 0,
+				'failed_count' => 0,
+			);
+		}
+
+		$global_settings = get_option( 'xtremeforms_settings', array() );
+
+		$sent_count   = 0;
+		$failed_count = 0;
+
+		foreach ( $recipients as $recipient ) {
+			$headers = self::build_headers( $global_settings );
+			$sent    = wp_mail( $recipient, $subject, $body, $headers );
+
+			$log_id = XF_Email_Log::insert(
+				array(
+					'lead_id'        => $lead_id,
+					'recipient'      => $recipient,
+					'subject'        => $subject,
+					'body'           => $body,
+					'headers'        => $headers,
+					'trigger_type'   => XF_Email_Log::TRIGGER_RESEND,
+					'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+					'failure_reason' => $sent ? '' : 'wp_mail() returned false on lead resend',
+				)
+			);
+
+			if ( $sent && class_exists( 'XF_Audit_Log' ) ) {
+				XF_Audit_Log::record(
+					XF_Audit_Log::ACTION_EMAIL_SENT,
+					$lead_id,
+					array(
+						'recipient'    => $recipient,
+						'trigger_type' => XF_Email_Log::TRIGGER_RESEND,
+						'log_id'       => (int) $log_id,
+					)
+				);
+			}
+
+			if ( $sent ) {
+				++$sent_count;
+			} else {
+				++$failed_count;
+			}
+		}
+
+		$success = $sent_count > 0;
+		if ( $success && 0 === $failed_count ) {
+			$message = sprintf(
+				/* translators: %d: recipient count */
+				_n( 'Notification resent to %d recipient.', 'Notification resent to %d recipients.', $sent_count, 'xtreme-forms' ),
+				$sent_count
+			);
+		} elseif ( $success ) {
+			$message = sprintf(
+				/* translators: 1: sent count, 2: failed count */
+				__( 'Resent to %1$d recipient(s); %2$d failed.', 'xtreme-forms' ),
+				$sent_count,
+				$failed_count
+			);
+		} else {
+			$message = __( 'Failed to resend notification. Check your email configuration.', 'xtreme-forms' );
+		}
+
+		return array(
+			'success'      => $success,
+			'message'      => $message,
+			'sent_count'   => $sent_count,
+			'failed_count' => $failed_count,
+		);
+	}
+
+	// ── Resend (from log) ─────────────────────────────────────────────────────
 
 	/**
 	 * Re-dispatch an email from a log entry.

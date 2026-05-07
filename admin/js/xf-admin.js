@@ -14,6 +14,33 @@
 	var ajaxUrl   = adminData.ajaxUrl  || '';
 	var nonce     = adminData.nonce    || '';
 	var i18n      = adminData.i18n     || {};
+	var pluginVer = adminData.version  || '';
+
+	// ── Version chip — injected into every Xtreme Forms admin page header ────
+
+	function injectVersionChip() {
+		if ( ! pluginVer ) {
+			return;
+		}
+		var headers = document.querySelectorAll( '.xf-wrap .xf-page-header' );
+		headers.forEach( function ( header ) {
+			if ( header.querySelector( '.xf-version-chip' ) ) {
+				return;
+			}
+			var title = header.querySelector( '.xf-page-title' );
+			if ( ! title ) {
+				return;
+			}
+			var chip = document.createElement( 'span' );
+			chip.className = 'xf-version-chip';
+			chip.title = ( i18n.pluginVersion || 'Plugin version' ) + ' ' + pluginVer;
+			chip.setAttribute( 'aria-label', chip.title );
+			chip.innerHTML =
+				'<span class="xf-version-chip-label">Xtreme Forms</span>' +
+				'<span class="xf-version-chip-num">v' + esc( pluginVer ) + '</span>';
+			title.appendChild( chip );
+		} );
+	}
 
 	function esc( str ) {
 		var d = document.createElement( 'div' );
@@ -101,6 +128,9 @@
 			// Inline status change (click badge → show select).
 			inbox._initInlineStatus();
 
+			// Per-row Resend Notification.
+			inbox._initRowResend();
+
 			// Shortcode copy on click (for forms list page).
 			document.querySelectorAll( '.xf-shortcode' ).forEach( function ( el ) {
 				el.addEventListener( 'click', function ( e ) {
@@ -173,7 +203,66 @@
 					}
 				} );
 			} );
-		}
+		},
+
+		_initRowResend: function () {
+			document.querySelectorAll( '.xf-row-resend' ).forEach( function ( btn ) {
+				btn.addEventListener( 'click', function ( e ) {
+					e.stopPropagation();
+					var leadId = parseInt( btn.dataset.leadId, 10 );
+					if ( ! leadId ) {
+						return;
+					}
+					if ( ! confirm( ( i18n.confirmResend || 'Resend the notification email for this lead to the form’s configured recipients?' ) ) ) {
+						return;
+					}
+					var originalHTML = btn.innerHTML;
+					btn.disabled = true;
+					btn.textContent = i18n.sending || 'Sending…';
+
+					post( {
+						action:    'xf_resend_lead_notification',
+						nonce:     nonce,
+						lead_id:   leadId,
+						recipient: ''
+					}, function ( err, res ) {
+						btn.disabled = false;
+						btn.innerHTML = originalHTML;
+
+						if ( err || ! res || ! res.success ) {
+							var msg = ( res && res.data && res.data.message ) || ( i18n.error || 'Error resending email.' );
+							inbox._showToast( msg, true );
+							return;
+						}
+						inbox._showToast( res.data.message || ( i18n.resent || 'Email resent.' ), false );
+
+						// Brief success pulse.
+						btn.classList.add( 'xf-row-resend-success' );
+						setTimeout( function () {
+							btn.classList.remove( 'xf-row-resend-success' );
+						}, 1500 );
+					} );
+				} );
+			} );
+		},
+
+		_showToast: function ( msg, isError ) {
+			var toast = document.getElementById( 'xf-toast' );
+			if ( ! toast ) {
+				toast = document.createElement( 'div' );
+				toast.id = 'xf-toast';
+				toast.className = 'xf-toast';
+				document.body.appendChild( toast );
+			}
+			toast.textContent = msg;
+			toast.className = 'xf-toast' + ( isError ? ' xf-toast-error' : ' xf-toast-success' ) + ' xf-toast-show';
+			clearTimeout( inbox._toastTimer );
+			inbox._toastTimer = setTimeout( function () {
+				toast.classList.remove( 'xf-toast-show' );
+			}, 3500 );
+		},
+
+		_toastTimer: null
 	};
 
 	// ── Form Builder ─────────────────────────────────────────────────────────
@@ -737,11 +826,69 @@
 		}
 	};
 
+	// ── Dashboard interactivity (count-up, clickable funnel rows) ─────────────
+
+	var dashboard = {
+		init: function () {
+			dashboard._initCountUp();
+			dashboard._initFunnelRows();
+		},
+
+		_initCountUp: function () {
+			var els = document.querySelectorAll( '.xf-countup' );
+			if ( ! els.length ) {
+				return;
+			}
+			// Respect reduced-motion preference.
+			if ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
+				return;
+			}
+			els.forEach( function ( el ) {
+				var target = parseInt( el.getAttribute( 'data-target' ), 10 );
+				if ( isNaN( target ) || target <= 0 ) {
+					return;
+				}
+				var duration = Math.min( 1400, 400 + target * 8 );
+				var start    = performance.now();
+				var format   = function ( n ) { return n.toLocaleString(); };
+				el.textContent = '0';
+				function frame( now ) {
+					var t = Math.min( 1, ( now - start ) / duration );
+					// easeOutCubic
+					var eased = 1 - Math.pow( 1 - t, 3 );
+					el.textContent = format( Math.round( eased * target ) );
+					if ( t < 1 ) {
+						requestAnimationFrame( frame );
+					}
+				}
+				requestAnimationFrame( frame );
+			} );
+		},
+
+		_initFunnelRows: function () {
+			document.querySelectorAll( '.xf-funnel-row-clickable' ).forEach( function ( row ) {
+				var href = row.getAttribute( 'data-href' );
+				if ( ! href ) return;
+				row.addEventListener( 'click', function () {
+					window.location.href = href;
+				} );
+				row.addEventListener( 'keydown', function ( e ) {
+					if ( e.key === 'Enter' || e.key === ' ' ) {
+						e.preventDefault();
+						window.location.href = href;
+					}
+				} );
+			} );
+		}
+	};
+
 	// ── Init ─────────────────────────────────────────────────────────────────
 
 	document.addEventListener( 'DOMContentLoaded', function () {
+		injectVersionChip();
 		inbox.init();
 		builder.init();
+		dashboard.init();
 	} );
 
 	// Expose for legacy usage.
