@@ -6,15 +6,27 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local variables in admin partial scope.
 
-$nonce     = wp_create_nonce( 'xf_spam_log_nonce' );
+$nonce     = wp_create_nonce( 'xtremeforms_spam_log_nonce' );
 $all_forms = XF_Forms::get_all_forms();
 $reasons   = XF_Spam::get_reason_labels();
 
-// Current filter state from GET.
-$filter_reason = isset( $_GET['rejection_reason'] ) ? sanitize_key( wp_unslash( $_GET['rejection_reason'] ) ) : '';
-$filter_form   = isset( $_GET['filter_form'] ) ? absint( $_GET['filter_form'] ) : 0;
+// Filter form GET reads — only honoured when the inline nonce verifies.
+// When the user follows a normal admin link (no nonce yet), filters default to off.
+$filter_nonce_ok = isset( $_GET['_xf_nonce'] )
+	&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_xf_nonce'] ) ), 'xtremeforms_filter_spam_log' );
+
+$filter_reason = ( $filter_nonce_ok && isset( $_GET['rejection_reason'] ) )
+	? sanitize_key( wp_unslash( $_GET['rejection_reason'] ) )
+	: '';
+
+$filter_form = ( $filter_nonce_ok && isset( $_GET['filter_form'] ) )
+	? absint( $_GET['filter_form'] )
+	: 0;
+
+// Pagination is non-destructive and self-validating (absint), so it does not require nonce verification.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $current_page  = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
 
 $log_data = XF_Spam::get_log(
@@ -41,6 +53,7 @@ $pages = $log_data['pages'];
 	<!-- Filters -->
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="margin-bottom:16px;">
 		<input type="hidden" name="page" value="xtreme-forms-spam-log">
+		<?php wp_nonce_field( 'xtremeforms_filter_spam_log', '_xf_nonce' ); ?>
 		<select name="rejection_reason" style="margin-right:8px;">
 			<option value=""><?php esc_html_e( 'All Reasons', 'xtreme-forms' ); ?></option>
 			<?php foreach ( $reasons as $key => $label ) : ?>
@@ -158,6 +171,7 @@ $pages = $log_data['pages'];
 								'paged'            => $p,
 								'rejection_reason' => $filter_reason,
 								'filter_form'      => $filter_form,
+								'_xf_nonce'        => wp_create_nonce( 'xtremeforms_filter_spam_log' ),
 							),
 							admin_url( 'admin.php' )
 						);
@@ -186,7 +200,7 @@ $pages = $log_data['pages'];
 			if (!confirm('<?php echo esc_js( __( 'Permanently delete this spam log entry?', 'xtreme-forms' ) ); ?>')) return;
 			var id = btn.getAttribute('data-id');
 			var fd = new FormData();
-			fd.append('action', 'xf_spam_log_delete');
+			fd.append('action', 'xtremeforms_spam_log_delete');
 			fd.append('nonce', nonce);
 			fd.append('entry_id', id);
 			fetch(ajaxUrl, {method:'POST', body:fd})
@@ -210,7 +224,7 @@ $pages = $log_data['pages'];
 			var msg = document.getElementById('xf-spam-clear-msg');
 			msg.textContent = '<?php echo esc_js( __( 'Clearing…', 'xtreme-forms' ) ); ?>';
 			var fd = new FormData();
-			fd.append('action', 'xf_spam_log_clear');
+			fd.append('action', 'xtremeforms_spam_log_clear');
 			fd.append('nonce', nonce);
 			fetch(ajaxUrl, {method:'POST', body:fd})
 				.then(function(r){ return r.json(); })

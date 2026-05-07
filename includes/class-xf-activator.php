@@ -40,7 +40,7 @@ class XF_Activator {
 			self::create_tables();
 			self::set_default_options();
 			// Signal the admin class to redirect to the welcome screen once.
-			set_transient( 'xf_activation_redirect', true, 30 );
+			set_transient( 'xtremeforms_activation_redirect', true, 30 );
 		}
 		flush_rewrite_rules();
 	}

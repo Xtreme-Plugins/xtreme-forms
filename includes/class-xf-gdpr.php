@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 class XF_GDPR {
 
 	/** Cron hook for daily retention purge. */
-	const RETENTION_CRON_HOOK = 'xf_gdpr_retention_purge';
+	const RETENTION_CRON_HOOK = 'xtremeforms_gdpr_retention_purge';
 
 	/**
 	 * Register cron actions on class load.

@@ -482,19 +482,11 @@ class XF_Analytics {
 	private static function utm_group( string $utm_column ): array {
 		global $wpdb;
 
-		// Validate column name to prevent injection — only allow known columns.
-		$allowed = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' );
-		if ( ! in_array( $utm_column, $allowed, true ) ) {
-			return array(
-				'rows'             => array(),
-				'total_attributed' => 0,
-				'has_more'         => false,
-			);
-		}
-
 		$table = $wpdb->prefix . 'xtremeforms_leads';
 
-		// Total UTM-attributed leads (at least one non-NULL UTM field).
+		// Total UTM-attributed leads (at least one non-NULL UTM field). The query
+		// is fully static — only the table-prefix interpolation needs the phpcs
+		// suppression (the prefix is not user input; it's WP's own configuration).
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$total_attributed = (int) $wpdb->get_var(
 			"SELECT COUNT(*) FROM {$table}
@@ -505,15 +497,54 @@ class XF_Analytics {
 			 OR utm_content IS NOT NULL"
 		);
 
-		// Fetch top 21 rows for the specific column (to detect has_more with 21st row).
-		$rows = $wpdb->get_results(
-			"SELECT {$utm_column} AS utm_value, COUNT(*) AS cnt
-			 FROM {$table}
-			 WHERE {$utm_column} IS NOT NULL
-			 GROUP BY {$utm_column}
-			 ORDER BY cnt DESC
-			 LIMIT 21"
-		);
+		// Fetch top 21 rows for the specific column. We dispatch to one of five
+		// fully-static queries based on $utm_column. This eliminates any column-
+		// name interpolation: the column identifier is now a literal in each
+		// branch. Unknown values fall through to the early return below.
+		switch ( $utm_column ) {
+			case 'utm_source':
+				$rows = $wpdb->get_results(
+					"SELECT utm_source AS utm_value, COUNT(*) AS cnt FROM {$table}
+					 WHERE utm_source IS NOT NULL
+					 GROUP BY utm_source ORDER BY cnt DESC LIMIT 21"
+				);
+				break;
+			case 'utm_medium':
+				$rows = $wpdb->get_results(
+					"SELECT utm_medium AS utm_value, COUNT(*) AS cnt FROM {$table}
+					 WHERE utm_medium IS NOT NULL
+					 GROUP BY utm_medium ORDER BY cnt DESC LIMIT 21"
+				);
+				break;
+			case 'utm_campaign':
+				$rows = $wpdb->get_results(
+					"SELECT utm_campaign AS utm_value, COUNT(*) AS cnt FROM {$table}
+					 WHERE utm_campaign IS NOT NULL
+					 GROUP BY utm_campaign ORDER BY cnt DESC LIMIT 21"
+				);
+				break;
+			case 'utm_term':
+				$rows = $wpdb->get_results(
+					"SELECT utm_term AS utm_value, COUNT(*) AS cnt FROM {$table}
+					 WHERE utm_term IS NOT NULL
+					 GROUP BY utm_term ORDER BY cnt DESC LIMIT 21"
+				);
+				break;
+			case 'utm_content':
+				$rows = $wpdb->get_results(
+					"SELECT utm_content AS utm_value, COUNT(*) AS cnt FROM {$table}
+					 WHERE utm_content IS NOT NULL
+					 GROUP BY utm_content ORDER BY cnt DESC LIMIT 21"
+				);
+				break;
+			default:
+				// Unknown column — return empty so the caller still gets a valid shape.
+				return array(
+					'rows'             => array(),
+					'total_attributed' => 0,
+					'has_more'         => false,
+				);
+		}
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$has_more = count( $rows ) > 20;

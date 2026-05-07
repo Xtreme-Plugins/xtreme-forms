@@ -6,16 +6,22 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local variables in admin partial scope.
 
-$per_page     = 25;
+$per_page = 25;
+// Pagination is non-destructive (absint clamp), no nonce required.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
 
+// Filter form GET reads — only honoured when the inline nonce verifies.
+$filter_nonce_ok = isset( $_GET['_xf_nonce'] )
+	&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_xf_nonce'] ) ), 'xtremeforms_filter_email_log' );
+
 $filters = array();
-if ( ! empty( $_GET['xf_trigger'] ) ) {
+if ( $filter_nonce_ok && ! empty( $_GET['xf_trigger'] ) ) {
 	$filters['trigger_type'] = sanitize_text_field( wp_unslash( $_GET['xf_trigger'] ) );
 }
-if ( ! empty( $_GET['xf_log_status'] ) ) {
+if ( $filter_nonce_ok && ! empty( $_GET['xf_log_status'] ) ) {
 	$filters['status'] = sanitize_text_field( wp_unslash( $_GET['xf_log_status'] ) );
 }
 
@@ -26,11 +32,16 @@ $pages  = (int) ceil( $total / $per_page );
 
 $trigger_labels = XF_Email_Log::get_trigger_labels();
 
+// Notice flags ('resent', 'resend_failed') come from the resend admin-post handler which
+// includes a nonce in its redirect URL. Verify it before showing notices.
+$notice_nonce_ok = isset( $_GET['_xf_notice_nonce'] )
+	&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_xf_notice_nonce'] ) ), 'xtremeforms_email_log_notice' );
+
 $notice = '';
-if ( ! empty( $_GET['resent'] ) ) {
+if ( $notice_nonce_ok && ! empty( $_GET['resent'] ) ) {
 	$notice = '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Email resent successfully.', 'xtreme-forms' ) . '</p></div>';
 }
-if ( ! empty( $_GET['resend_failed'] ) ) {
+if ( $notice_nonce_ok && ! empty( $_GET['resend_failed'] ) ) {
 	$notice = '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Failed to resend email. Check your WordPress email configuration.', 'xtreme-forms' ) . '</p></div>';
 }
 ?>
@@ -44,6 +55,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 	<!-- Filters -->
 	<form method="get" class="xf-filter-bar" style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
 		<input type="hidden" name="page" value="xtreme-forms-email-log">
+		<?php wp_nonce_field( 'xtremeforms_filter_email_log', '_xf_nonce' ); ?>
 
 		<select name="xf_trigger" style="height:32px;">
 			<option value=""><?php esc_html_e( 'All Trigger Types', 'xtreme-forms' ); ?></option>
@@ -163,6 +175,8 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 						array(
 							'xf_trigger'    => $filters['trigger_type'] ?? '',
 							'xf_log_status' => $filters['status'] ?? '',
+							// Carry the filter nonce on paginated URLs so filter values survive page navigation.
+							'_xf_nonce'     => ! empty( $filters ) ? wp_create_nonce( 'xtremeforms_filter_email_log' ) : '',
 						)
 					)
 				),
@@ -200,11 +214,11 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 			btn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
 
 			const fd = new FormData();
-			fd.append('action', 'xf_resend_email');
-			fd.append('nonce', xfAdminData.nonce);
+			fd.append('action', 'xtremeforms_resend_email');
+			fd.append('nonce', xtremeFormsAdminData.nonce);
 			fd.append('log_id', btn.dataset.logId);
 
-			fetch(xfAdminData.ajaxUrl, { method: 'POST', body: fd })
+			fetch(xtremeFormsAdminData.ajaxUrl, { method: 'POST', body: fd })
 				.then(function (r) { return r.json(); })
 				.then(function (res) {
 					if (res.success) {

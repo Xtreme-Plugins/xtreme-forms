@@ -38,9 +38,9 @@ class XF_Multisite {
 
 		add_action( 'network_admin_menu', array( static::class, 'register_network_menu' ) );
 		add_action( 'network_admin_notices', array( static::class, 'display_network_notices' ) );
-		add_action( 'admin_post_xl_network_push_settings', array( static::class, 'handle_push_settings' ) );
+		add_action( 'admin_post_xtremeforms_network_push_settings', array( static::class, 'handle_push_settings' ) );
 		// Per-site opt-out toggle (available to site admins).
-		add_action( 'admin_post_xl_toggle_site_disabled', array( static::class, 'handle_toggle_site_disabled' ) );
+		add_action( 'admin_post_xtremeforms_toggle_site_disabled', array( static::class, 'handle_toggle_site_disabled' ) );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class XF_Multisite {
 	 * Allows a site admin to hide/show Xtreme Forms for their subsite.
 	 */
 	public static function handle_toggle_site_disabled(): void {
-		check_admin_referer( 'xf_toggle_site_disabled' );
+		check_admin_referer( 'xtremeforms_toggle_site_disabled' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -76,6 +76,7 @@ class XF_Multisite {
 				array(
 					'xf_site_toggled'  => '1',
 					'xf_site_disabled' => $new_val,
+					'_xf_notice_nonce' => wp_create_nonce( 'xtremeforms_settings_notice' ),
 				),
 				admin_url( 'admin.php?page=xtreme-forms-settings' )
 			)
@@ -171,7 +172,7 @@ class XF_Multisite {
 	 * Handle the "Push Settings to All Sites" admin post action.
 	 */
 	public static function handle_push_settings(): void {
-		check_admin_referer( 'xf_network_push_settings' );
+		check_admin_referer( 'xtremeforms_network_push_settings' );
 
 		if ( ! current_user_can( 'manage_network' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );

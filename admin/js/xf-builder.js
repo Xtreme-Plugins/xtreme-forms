@@ -5,7 +5,7 @@
  * @package Xtreme Forms
  */
 
-/* global xfBuilderData */
+/* global xtremeFormsBuilderData */
 
 (function () {
   'use strict';

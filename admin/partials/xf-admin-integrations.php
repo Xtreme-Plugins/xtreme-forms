@@ -252,7 +252,7 @@ $xf_integrations = array(
 
 <?php
 // Pass saved settings and nonce to JS.
-$xf_int_nonce = wp_create_nonce( 'xf_integrations_nonce' );
+$xf_int_nonce = wp_create_nonce( 'xtremeforms_integrations_nonce' );
 echo '<script>window.xfIntegrationsData = ' . wp_json_encode( $xf_int_saved ) . '; window.xfIntegrationsNonce = ' . wp_json_encode( $xf_int_nonce ) . '; window.xfAdminAjaxUrl = ' . wp_json_encode( admin_url( 'admin-ajax.php' ) ) . ';</script>';
 ?>
 

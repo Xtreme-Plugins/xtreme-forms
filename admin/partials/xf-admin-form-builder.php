@@ -33,7 +33,7 @@ if ( $xf_template_slug && ! $is_edit ) {
 $xf_template_name = ( $xf_template_slug && ! $is_edit && isset( $tpl_data ) && $tpl_data ) ? $tpl_data['name'] : '';
 
 // Retrieve any validation errors from previous save attempt.
-$transient_key = 'xf_form_errors_' . get_current_user_id();
+$transient_key = 'xtremeforms_form_errors_' . get_current_user_id();
 $save_errors   = get_transient( $transient_key );
 delete_transient( $transient_key );
 
@@ -111,9 +111,9 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 	<?php echo wp_kses_post( $notice_html ); ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-form-builder" novalidate>
-		<input type="hidden" name="action" value="xl_save_form">
+		<input type="hidden" name="action" value="xtremeforms_save_form">
 		<input type="hidden" name="form_id" value="<?php echo esc_attr( $form_id ); ?>">
-		<?php wp_nonce_field( 'xf_save_form' ); ?>
+		<?php wp_nonce_field( 'xtremeforms_save_form' ); ?>
 
 		<!-- Hidden field that JS builder syncs to on every change and before submit -->
 		<input type="hidden" name="xf_fields" id="xf-fields-json" value="<?php echo esc_attr( $fields_json ); ?>">
@@ -457,7 +457,7 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 </div><!-- .xf-form-builder-wrap -->
 
 <script>
-var xfBuilderData = {
+var xtremeFormsBuilderData = {
 	fields: <?php echo wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT ); ?>,
 };
 </script>

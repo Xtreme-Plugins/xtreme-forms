@@ -6,8 +6,10 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local variables in admin partial scope.
 
+// Tab routing: read-only navigation, validated against an allow-list below; not state-changing.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $xf_settings_tab  = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
 $xf_settings_tabs = array(
 	'general'       => array( 'label' => __( 'General', 'xtreme-forms' ), 'icon' => 'dashicons-admin-settings' ),
@@ -59,14 +61,18 @@ $retention_days  = isset( $settings['retention_days'] ) ? (int) $settings['reten
 $next_purge_time = XF_GDPR::get_next_purge_time();
 
 // GDPR nonce for erasure AJAX.
-$gdpr_nonce = wp_create_nonce( 'xf_gdpr_nonce' );
+$gdpr_nonce = wp_create_nonce( 'xtremeforms_gdpr_nonce' );
 
-// Notices.
+// Notice GET params come from server-side admin-post redirects.  Each redirect attaches a
+// nonce so the notice is verified before being displayed.
+$notice_nonce_ok = isset( $_GET['_xf_notice_nonce'] )
+	&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_xf_notice_nonce'] ) ), 'xtremeforms_settings_notice' );
+
 $notice_html = '';
-if ( ! empty( $_GET['updated'] ) ) {
+if ( $notice_nonce_ok && ! empty( $_GET['updated'] ) ) {
 	$notice_html = '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Settings saved.', 'xtreme-forms' ) . '</p></div>';
 }
-if ( ! empty( $_GET['xf_site_toggled'] ) && is_multisite() ) {
+if ( $notice_nonce_ok && ! empty( $_GET['xf_site_toggled'] ) && is_multisite() ) {
 	$disabled_now = '1' === sanitize_text_field( wp_unslash( $_GET['xf_site_disabled'] ?? '0' ) );
 	if ( $disabled_now ) {
 		$notice_html .= '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'Xtreme Forms has been disabled for this site.', 'xtreme-forms' ) . '</p></div>';
@@ -74,11 +80,11 @@ if ( ! empty( $_GET['xf_site_toggled'] ) && is_multisite() ) {
 		$notice_html .= '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Xtreme Forms has been re-enabled for this site.', 'xtreme-forms' ) . '</p></div>';
 	}
 }
-if ( ! empty( $_GET['error'] ) && 'retention_min' === sanitize_key( $_GET['error'] ) ) {
+if ( $notice_nonce_ok && ! empty( $_GET['error'] ) && 'retention_min' === sanitize_key( wp_unslash( $_GET['error'] ) ) ) {
 	$notice_html .= '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Retention period must be at least 1 day.', 'xtreme-forms' ) . '</p></div>';
 }
-if ( ! empty( $_GET['recaptcha_warning'] ) ) {
-	$rc_warn_type = sanitize_key( $_GET['recaptcha_warning'] );
+if ( $notice_nonce_ok && ! empty( $_GET['recaptcha_warning'] ) ) {
+	$rc_warn_type = sanitize_key( wp_unslash( $_GET['recaptcha_warning'] ) );
 	if ( 'missing' === $rc_warn_type ) {
 		$notice_html .= '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'reCAPTCHA is enabled but one or both keys are missing. Verification is inactive until both keys are provided.', 'xtreme-forms' ) . '</p></div>';
 	} elseif ( 'invalid' === $rc_warn_type ) {
@@ -130,8 +136,8 @@ if ( $rc_enabled ) {
 <?php if ( 'general' === $xf_settings_tab ) : ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-settings-form">
-		<input type="hidden" name="action" value="xf_save_settings">
-		<?php wp_nonce_field( 'xf_save_settings' ); ?>
+		<input type="hidden" name="action" value="xtremeforms_save_settings">
+		<?php wp_nonce_field( 'xtremeforms_save_settings' ); ?>
 
 		<!-- ── Email Notifications ───────────────────────────────────────────── -->
 		<div class="xf-settings-card">

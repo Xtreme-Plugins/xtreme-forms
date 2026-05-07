@@ -113,7 +113,7 @@ $back_url = add_query_arg( array( 'page' => 'xtreme-forms' ), admin_url( 'admin.
 
 // Admin notice for assignment email warning (from session / transient).
 $notice_html    = '';
-$email_warn_key = 'xf_assign_email_warn_' . $lead_id . '_' . get_current_user_id();
+$email_warn_key = 'xtremeforms_assign_email_warn_' . $lead_id . '_' . get_current_user_id();
 $email_warn     = get_transient( $email_warn_key );
 if ( $email_warn ) {
 	delete_transient( $email_warn_key );
@@ -396,7 +396,7 @@ if ( $email_warn ) {
 	'use strict';
 
 	var leadId = <?php echo absint( $lead_id ); ?>;
-	var nonce = '<?php echo esc_js( wp_create_nonce( 'xf_admin_nonce' ) ); ?>';
+	var nonce = '<?php echo esc_js( wp_create_nonce( 'xtremeforms_admin_nonce' ) ); ?>';
 	var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
 
 	function post( data, callback ) {
@@ -451,7 +451,7 @@ if ( $email_warn ) {
 			saveStatusBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_update_status',
+				action: 'xtremeforms_update_status',
 				nonce: nonce,
 				lead_id: leadId,
 				status: newStatus
@@ -490,7 +490,7 @@ if ( $email_warn ) {
 			saveAssignBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_assign_lead',
+				action: 'xtremeforms_assign_lead',
 				nonce: nonce,
 				lead_id: leadId,
 				assigned_to: assignSelect.value
@@ -538,7 +538,7 @@ if ( $email_warn ) {
 			submitNoteBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_add_note',
+				action: 'xtremeforms_add_note',
 				nonce: nonce,
 				lead_id: leadId,
 				note_content: content
@@ -601,7 +601,7 @@ if ( $email_warn ) {
 		btn.addEventListener( 'click', function () {
 			var tagId = parseInt( btn.getAttribute( 'data-tag-id' ), 10 );
 			post( {
-				action: 'xf_remove_tag',
+				action: 'xtremeforms_remove_tag',
 				nonce: nonce,
 				lead_id: leadId,
 				tag_id: tagId
@@ -633,7 +633,7 @@ if ( $email_warn ) {
 			}
 			_suggestTimer = setTimeout( function () {
 				post( {
-					action: 'xf_search_tags',
+					action: 'xtremeforms_search_tags',
 					nonce: nonce,
 					query: query
 				}, function ( err, res ) {
@@ -683,7 +683,7 @@ if ( $email_warn ) {
 
 	function applyTag( tag ) {
 		post( {
-			action: 'xf_apply_tag',
+			action: 'xtremeforms_apply_tag',
 			nonce: nonce,
 			lead_id: leadId,
 			tag_id: tag.id

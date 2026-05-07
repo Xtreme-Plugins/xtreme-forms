@@ -50,8 +50,8 @@ $merge_tags_desc = implode(
 		<!-- ── Editor ────────────────────────────────────────────────────── -->
 		<div class="xf-main-col">
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data" id="xf-template-form">
-				<input type="hidden" name="action" value="xf_save_email_template">
-				<?php wp_nonce_field( 'xf_save_email_template' ); ?>
+				<input type="hidden" name="action" value="xtremeforms_save_email_template">
+				<?php wp_nonce_field( 'xtremeforms_save_email_template' ); ?>
 
 				<div class="xf-settings-card">
 					<h2><?php esc_html_e( 'Template Design', 'xtreme-forms' ); ?></h2>
@@ -242,17 +242,17 @@ $merge_tags_desc = implode(
 	const testBtn = document.getElementById('xf-send-test-email');
 	const testResult = document.getElementById('xf-test-email-result');
 
-	if (testBtn && typeof xfAdminData !== 'undefined') {
+	if (testBtn && typeof xtremeFormsAdminData !== 'undefined') {
 		testBtn.addEventListener('click', function () {
 			testBtn.disabled = true;
 			testResult.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
 			testResult.style.color = '#6C757D';
 
 			const fd = new FormData();
-			fd.append('action', 'xf_send_test_email');
-			fd.append('nonce', xfAdminData.nonce);
+			fd.append('action', 'xtremeforms_send_test_email');
+			fd.append('nonce', xtremeFormsAdminData.nonce);
 
-			fetch(xfAdminData.ajaxUrl, { method: 'POST', body: fd })
+			fetch(xtremeFormsAdminData.ajaxUrl, { method: 'POST', body: fd })
 				.then(function (r) { return r.json(); })
 				.then(function (res) {
 					testBtn.disabled = false;

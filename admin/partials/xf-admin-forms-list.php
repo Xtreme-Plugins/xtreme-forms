@@ -102,12 +102,12 @@ if ( ! empty( $_GET['updated'] ) ) {
 								wp_nonce_url(
 									add_query_arg(
 										array(
-											'action'  => 'xf_delete_form',
+											'action'  => 'xtremeforms_delete_form',
 											'form_id' => $form->id,
 										),
 										admin_url( 'admin-post.php' )
 									),
-									'xf_delete_form_' . $form->id
+									'xtremeforms_delete_form_' . $form->id
 								)
 							);
 							?>

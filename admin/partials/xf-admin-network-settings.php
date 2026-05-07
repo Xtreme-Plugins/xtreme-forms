@@ -25,8 +25,8 @@ $anonymize_ip        = ! empty( $network_settings['anonymize_ip'] ) && '1' === (
 	</p>
 
 	<form method="post" action="<?php echo esc_url( network_admin_url( 'admin-post.php' ) ); ?>">
-		<input type="hidden" name="action" value="xf_network_push_settings">
-		<?php wp_nonce_field( 'xf_network_push_settings' ); ?>
+		<input type="hidden" name="action" value="xtremeforms_network_push_settings">
+		<?php wp_nonce_field( 'xtremeforms_network_push_settings' ); ?>
 
 		<table class="form-table" role="presentation">
 			<tr>

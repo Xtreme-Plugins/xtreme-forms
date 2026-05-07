@@ -4,17 +4,15 @@
 <p align="center"><em>A modern WordPress lead capture plugin — drag-and-drop form builder, lead inbox, email routing, webhooks, analytics, and GDPR tools. Built for teams that actually work their leads.</em></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-blue" alt="Version 2.1.0">
+  <img src="https://img.shields.io/badge/version-2.2.0-blue" alt="Version 2.2.0">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-purple?logo=php" alt="PHP 8.1+">
-  <img src="https://img.shields.io/badge/price-free%20%2B%20pro-brightgreen" alt="Free + Pro">
+  <img src="https://img.shields.io/badge/price-free-brightgreen" alt="Free">
 </p>
 
 <p align="center">
   <a href="https://xtremeplugins.com/plugins/xtreme-forms"><img src="assets/img/btn-download.svg" alt="Download Free" height="50"></a>
-  &nbsp;&nbsp;
-  <a href="https://xtremeplugins.com/plugins/xtreme-forms"><img src="assets/img/btn-upgrade.svg" alt="Upgrade to Pro" height="50"></a>
 </p>
 
 ---
@@ -84,17 +82,7 @@ All-time / monthly / weekly totals, a leads-over-time chart, leads-by-form break
 | **Gutenberg Block** | Live editor preview with form selector |
 | **Shortcode** | `[xtreme_forms id="X"]` works in any page, post, or widget |
 
-### Optional Pro Add-On
-
-Available at [xtremeplugins.com/plugins/xtreme-forms](https://xtremeplugins.com/plugins/xtreme-forms):
-
-- Priority routing rules with complex AND/OR conditions
-- Webhook retry queue with exponential backoff and delivery dashboard
-- Advanced analytics: cohort analysis, lead value tracking
-- CRM integrations (HubSpot, Salesforce, Mailchimp)
-- Priority email support
-
-> The free plugin is fully functional on its own — no feature listed above is behind the Pro paywall.
+> Every feature listed above ships in this plugin. There is no license, trial, or paywall.
 
 ---
 

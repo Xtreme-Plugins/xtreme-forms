@@ -110,12 +110,43 @@ class XF_Leads {
 		// Only set to 1 when the form has consent enabled and the user checked the box.
 		$row['consent_given'] = isset( $data['consent_given'] ) ? absint( $data['consent_given'] ) : 0;
 
-		// Use $wpdb->query with prepare for nullable columns (wpdb->insert can't handle NULL elegantly).
-		$columns_sql  = implode( ', ', array_keys( $row ) );
+		// Hardcoded whitelist of every column that may appear in the lead row,
+		// matching the schema in XF_Activator::create_tables(). Each $row key is
+		// validated against this list before any SQL is built — so the column
+		// list inside the INSERT is always assembled from compile-time constants,
+		// never from user-controlled data.
+		$allowed_columns = array(
+			'form_id',
+			'status',
+			'source_url',
+			'ip_address',
+			'user_agent',
+			'field_values',
+			'assigned_to',
+			'utm_source',
+			'utm_medium',
+			'utm_campaign',
+			'utm_term',
+			'utm_content',
+			'email_address',
+			'is_duplicate',
+			'duplicate_status',
+			'original_lead_id',
+			'submit_duration_seconds',
+			'consent_given',
+			'created_at',
+			'updated_at',
+		);
+
+		// Filter $row to allowed columns only and split into prepared / NULL parts.
+		$columns      = array();
 		$placeholders = array();
 		$values       = array();
-
 		foreach ( $row as $col => $val ) {
+			if ( ! in_array( $col, $allowed_columns, true ) ) {
+				continue; // Defense-in-depth — should not happen in normal flow.
+			}
+			$columns[] = $col;
 			if ( null === $val ) {
 				$placeholders[] = 'NULL';
 			} else {
@@ -124,19 +155,17 @@ class XF_Leads {
 			}
 		}
 
+		// Build the INSERT from compile-time-validated identifiers + placeholders.
+		$columns_sql      = implode( ', ', $columns );
 		$placeholders_sql = implode( ', ', $placeholders );
+		$sql              = "INSERT INTO {$table} ({$columns_sql}) VALUES ({$placeholders_sql})";
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( empty( $values ) ) {
 			// All nulls (unlikely).
-			$inserted = $wpdb->query( "INSERT INTO {$table} ({$columns_sql}) VALUES ({$placeholders_sql})" );
+			$inserted = $wpdb->query( $sql );
 		} else {
-			$inserted = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO {$table} ({$columns_sql}) VALUES ({$placeholders_sql})",
-					$values
-				)
-			);
+			$inserted = $wpdb->query( $wpdb->prepare( $sql, $values ) );
 		}
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 

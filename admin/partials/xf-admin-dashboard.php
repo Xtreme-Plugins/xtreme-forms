@@ -373,7 +373,7 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 
 <script type="text/javascript">
 /* Dashboard initial data — passed to xf-dashboard.js to avoid redundant AJAX on load */
-window.xlDashboardInitialData = {
+window.xtremeFormsDashboardInitialData = {
 	hasLeads: <?php echo $total_leads > 0 ? 'true' : 'false'; ?>,
 	hasForms: <?php echo $has_forms ? 'true' : 'false'; ?>,
 };

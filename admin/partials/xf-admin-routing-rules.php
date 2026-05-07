@@ -32,8 +32,8 @@ if ( ! empty( $_GET['updated'] ) ) {
 	</p>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-routing-rules-form">
-		<input type="hidden" name="action" value="xf_save_routing_rules">
-		<?php wp_nonce_field( 'xf_save_routing_rules' ); ?>
+		<input type="hidden" name="action" value="xtremeforms_save_routing_rules">
+		<?php wp_nonce_field( 'xtremeforms_save_routing_rules' ); ?>
 
 		<!-- Evaluation Mode -->
 		<div class="xf-settings-card" style="margin-bottom:24px;">

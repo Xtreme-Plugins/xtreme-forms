@@ -17,23 +17,19 @@ class XF_Admin {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_init', array( $this, 'maybe_redirect_to_welcome' ) );
-		add_action( 'admin_post_xl_save_settings', array( $this, 'handle_save_settings' ) );
-		add_action( 'admin_post_xl_save_form', array( $this, 'handle_save_form' ) );
-		add_action( 'admin_post_xl_delete_form', array( $this, 'handle_delete_form' ) );
-		add_action( 'admin_post_xl_bulk_leads', array( $this, 'handle_bulk_leads_post' ) );
-		add_action( 'admin_post_xl_save_tag', array( $this, 'handle_save_tag' ) );
-		add_action( 'admin_post_xl_delete_tag', array( $this, 'handle_delete_tag' ) );
-		add_action( 'admin_post_xl_export_leads', array( $this, 'handle_export_leads' ) );
-		add_action( 'admin_post_xl_save_email_template', array( $this, 'handle_save_email_template' ) );
-		add_action( 'admin_post_xl_save_routing_rules', array( $this, 'handle_save_routing_rules' ) );
-		add_action( 'admin_post_xl_save_settings_s4', array( $this, 'handle_save_settings_s4' ) );
-		add_action( 'admin_post_xl_save_settings_s5', array( $this, 'handle_save_settings_s5' ) );
-		add_action( 'admin_post_xl_export_data', array( $this, 'handle_export_data' ) );
-		add_action( 'admin_post_xl_import_data', array( $this, 'handle_import_data' ) );
-		// xf_ prefix aliases for admin-post actions (form action names use xf_ prefix).
-		add_action( 'admin_post_xf_save_settings', array( $this, 'handle_save_settings' ) );
-		add_action( 'admin_post_xf_save_settings_s4', array( $this, 'handle_save_settings_s4' ) );
-		add_action( 'admin_post_xf_save_settings_s5', array( $this, 'handle_save_settings_s5' ) );
+		add_action( 'admin_post_xtremeforms_save_settings', array( $this, 'handle_save_settings' ) );
+		add_action( 'admin_post_xtremeforms_save_form', array( $this, 'handle_save_form' ) );
+		add_action( 'admin_post_xtremeforms_delete_form', array( $this, 'handle_delete_form' ) );
+		add_action( 'admin_post_xtremeforms_bulk_leads', array( $this, 'handle_bulk_leads_post' ) );
+		add_action( 'admin_post_xtremeforms_save_tag', array( $this, 'handle_save_tag' ) );
+		add_action( 'admin_post_xtremeforms_delete_tag', array( $this, 'handle_delete_tag' ) );
+		add_action( 'admin_post_xtremeforms_export_leads', array( $this, 'handle_export_leads' ) );
+		add_action( 'admin_post_xtremeforms_save_email_template', array( $this, 'handle_save_email_template' ) );
+		add_action( 'admin_post_xtremeforms_save_routing_rules', array( $this, 'handle_save_routing_rules' ) );
+		add_action( 'admin_post_xtremeforms_save_settings_s4', array( $this, 'handle_save_settings_s4' ) );
+		add_action( 'admin_post_xtremeforms_save_settings_s5', array( $this, 'handle_save_settings_s5' ) );
+		add_action( 'admin_post_xtremeforms_export_data', array( $this, 'handle_export_data' ) );
+		add_action( 'admin_post_xtremeforms_import_data', array( $this, 'handle_import_data' ) );
 	}
 
 	// ── Menus ────────────────────────────────────────────────────────────────
@@ -105,7 +101,7 @@ class XF_Admin {
 			__( 'Welcome to Xtreme Forms', 'xtreme-forms' ),
 			__( 'Welcome', 'xtreme-forms' ),
 			'manage_options',
-			'xf-welcome',
+			'xtremeforms-welcome',
 			array( $this, 'page_welcome' )
 		);
 
@@ -208,14 +204,14 @@ class XF_Admin {
 		}
 
 		wp_enqueue_style(
-			'xf-admin',
+			'xtremeforms-admin',
 			XTREMEFORMS_PLUGIN_URL . 'admin/css/xf-admin.css',
 			array(),
 			XTREMEFORMS_VERSION
 		);
 
 		wp_enqueue_script(
-			'xf-admin',
+			'xtremeforms-admin',
 			XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-admin.js',
 			array(),
 			XTREMEFORMS_VERSION,
@@ -228,15 +224,15 @@ class XF_Admin {
 			$xf_action = isset( $_GET['xf_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_action'] ) ) : '';
 			if ( in_array( $xf_action, array( 'new', 'edit' ), true ) ) {
 				wp_enqueue_style(
-					'xf-builder',
+					'xtremeforms-builder',
 					XTREMEFORMS_PLUGIN_URL . 'admin/css/xf-builder.css',
-					array( 'xf-admin' ),
+					array( 'xtremeforms-admin' ),
 					XTREMEFORMS_VERSION
 				);
 				wp_enqueue_script(
-					'xf-builder',
+					'xtremeforms-builder',
 					XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-builder.js',
-					array( 'xf-admin' ),
+					array( 'xtremeforms-admin' ),
 					XTREMEFORMS_VERSION,
 					true
 				);
@@ -248,33 +244,33 @@ class XF_Admin {
 			|| false !== strpos( $hook, 'toplevel_page_xtreme-forms' )
 		) {
 			wp_enqueue_script(
-				'xf-chartjs',
+				'xtremeforms-chartjs',
 				XTREMEFORMS_PLUGIN_URL . 'admin/js/vendor/chart.umd.min.js',
 				array(),
 				'4.4.0',
 				true
 			);
 			wp_enqueue_script(
-				'xf-dashboard',
+				'xtremeforms-dashboard',
 				XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-dashboard.js',
-				array( 'xf-chartjs' ),
+				array( 'xtremeforms-chartjs' ),
 				XTREMEFORMS_VERSION,
 				true
 			);
 			wp_localize_script(
-				'xf-dashboard',
-				'xlDashboardData',
+				'xtremeforms-dashboard',
+				'xtremeFormsDashboardData',
 				array(
 					'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
 					// Legacy fallback nonce (kept for backward compatibility with non-analytics calls).
-					'nonce'         => wp_create_nonce( 'xf_admin_nonce' ),
+					'nonce'         => wp_create_nonce( 'xtremeforms_admin_nonce' ),
 					// Per-endpoint nonces — each analytics endpoint verifies its own specific action.
 					'nonces'        => array(
-						'xf_dashboard_stats'       => wp_create_nonce( 'xf_dashboard_stats_nonce' ),
-						'xf_chart_leads_by_form'   => wp_create_nonce( 'xf_chart_leads_by_form_nonce' ),
-						'xf_chart_leads_over_time' => wp_create_nonce( 'xf_chart_leads_over_time_nonce' ),
-						'xf_utm_report'            => wp_create_nonce( 'xf_utm_report_nonce' ),
-						'xf_form_metrics'          => wp_create_nonce( 'xf_form_metrics_nonce' ),
+						'xtremeforms_dashboard_stats'       => wp_create_nonce( 'xtremeforms_dashboard_stats_nonce' ),
+						'xtremeforms_chart_leads_by_form'   => wp_create_nonce( 'xtremeforms_chart_leads_by_form_nonce' ),
+						'xtremeforms_chart_leads_over_time' => wp_create_nonce( 'xtremeforms_chart_leads_over_time_nonce' ),
+						'xtremeforms_utm_report'            => wp_create_nonce( 'xtremeforms_utm_report_nonce' ),
+						'xtremeforms_form_metrics'          => wp_create_nonce( 'xtremeforms_form_metrics_nonce' ),
 					),
 					'isFormMetrics' => false !== strpos( $hook, 'form-metrics' ),
 					'i18n'          => array(
@@ -297,15 +293,15 @@ class XF_Admin {
 		$all_tags = XF_Tags::get_all_tags();
 
 		wp_localize_script(
-			'xf-admin',
-			'xfAdminData',
+			'xtremeforms-admin',
+			'xtremeFormsAdminData',
 			array(
 				'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
-				'nonce'              => wp_create_nonce( 'xf_admin_nonce' ),
-				'webhookNonce'       => wp_create_nonce( 'xf_webhook_nonce' ),
-				'gdprNonce'          => wp_create_nonce( 'xf_gdpr_nonce' ),
-				'spamLogNonce'       => wp_create_nonce( 'xf_spam_log_nonce' ),
-				'integrationsNonce'  => wp_create_nonce( 'xf_integrations_nonce' ),
+				'nonce'              => wp_create_nonce( 'xtremeforms_admin_nonce' ),
+				'webhookNonce'       => wp_create_nonce( 'xtremeforms_webhook_nonce' ),
+				'gdprNonce'          => wp_create_nonce( 'xtremeforms_gdpr_nonce' ),
+				'spamLogNonce'       => wp_create_nonce( 'xtremeforms_spam_log_nonce' ),
+				'integrationsNonce'  => wp_create_nonce( 'xtremeforms_integrations_nonce' ),
 				'pluginUrl'    => XTREMEFORMS_PLUGIN_URL,
 				'statuses'     => $statuses,
 				'allTags'      => array_map(
@@ -384,13 +380,13 @@ class XF_Admin {
 			return;
 		}
 
-		if ( ! get_transient( 'xf_activation_redirect' ) ) {
+		if ( ! get_transient( 'xtremeforms_activation_redirect' ) ) {
 			return;
 		}
 
-		delete_transient( 'xf_activation_redirect' );
+		delete_transient( 'xtremeforms_activation_redirect' );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=xf-welcome' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=xtremeforms-welcome' ) );
 		exit;
 	}
 
@@ -538,7 +534,7 @@ class XF_Admin {
 	 * Handle settings form save.
 	 */
 	public function handle_save_settings(): void {
-		check_admin_referer( 'xf_save_settings' );
+		check_admin_referer( 'xtremeforms_save_settings' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -603,8 +599,9 @@ class XF_Admin {
 				wp_safe_redirect(
 					add_query_arg(
 						array(
-							'page'  => 'xtreme-forms-settings',
-							'error' => 'retention_min',
+							'page'             => 'xtreme-forms-settings',
+							'error'            => 'retention_min',
+							'_xf_notice_nonce' => wp_create_nonce( 'xtremeforms_settings_notice' ),
 						),
 						admin_url( 'admin.php' )
 					)
@@ -654,8 +651,9 @@ class XF_Admin {
 		}
 
 		$redirect_args = array(
-			'page'    => 'xtreme-forms-settings',
-			'updated' => '1',
+			'page'             => 'xtreme-forms-settings',
+			'updated'          => '1',
+			'_xf_notice_nonce' => wp_create_nonce( 'xtremeforms_settings_notice' ),
 		);
 		if ( '' !== $recaptcha_key_warning ) {
 			$redirect_args['recaptcha_warning'] = $recaptcha_key_warning;
@@ -669,7 +667,7 @@ class XF_Admin {
 	 * Handle form builder save.
 	 */
 	public function handle_save_form(): void {
-		check_admin_referer( 'xf_save_form' );
+		check_admin_referer( 'xtremeforms_save_form' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -836,7 +834,7 @@ class XF_Admin {
 		}
 
 		if ( ! empty( $validation_errors ) ) {
-			$transient_key = 'xf_form_errors_' . get_current_user_id();
+			$transient_key = 'xtremeforms_form_errors_' . get_current_user_id();
 			set_transient( $transient_key, $validation_errors, 60 );
 
 			$redirect_args = array(
@@ -856,7 +854,7 @@ class XF_Admin {
 		$ar_reply_to = sanitize_email( wp_unslash( $_POST['auto_responder_reply_to'] ?? '' ) );
 		if ( '' !== $ar_reply_to && ! is_email( $ar_reply_to ) ) {
 			// Invalid reply-to — store error and redirect back.
-			$transient_key = 'xf_form_errors_' . get_current_user_id();
+			$transient_key = 'xtremeforms_form_errors_' . get_current_user_id();
 			set_transient( $transient_key, array( __( 'Auto-responder reply-to address is not a valid email.', 'xtreme-forms' ) ), 60 );
 			wp_safe_redirect(
 				add_query_arg(
@@ -965,7 +963,7 @@ class XF_Admin {
 	public function handle_delete_form(): void {
 		$form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
 
-		check_admin_referer( 'xf_delete_form_' . $form_id );
+		check_admin_referer( 'xtremeforms_delete_form_' . $form_id );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1000,7 +998,7 @@ class XF_Admin {
 	 * Handle bulk lead actions via POST form.
 	 */
 	public function handle_bulk_leads_post(): void {
-		check_admin_referer( 'xf_bulk_leads' );
+		check_admin_referer( 'xtremeforms_bulk_leads' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1058,7 +1056,7 @@ class XF_Admin {
 	 * Handle email template settings save.
 	 */
 	public function handle_save_email_template(): void {
-		check_admin_referer( 'xf_save_email_template' );
+		check_admin_referer( 'xtremeforms_save_email_template' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1082,7 +1080,7 @@ class XF_Admin {
 			$upload_result = $this->handle_logo_upload();
 
 			if ( is_wp_error( $upload_result ) ) {
-				set_transient( 'xf_template_error_' . get_current_user_id(), $upload_result->get_error_message(), 30 );
+				set_transient( 'xtremeforms_template_error_' . get_current_user_id(), $upload_result->get_error_message(), 30 );
 				wp_safe_redirect( add_query_arg( 'logo_error', '1', $redirect ) );
 				exit;
 			}
@@ -1195,7 +1193,7 @@ class XF_Admin {
 	 * Handle routing rules save.
 	 */
 	public function handle_save_routing_rules(): void {
-		check_admin_referer( 'xf_save_routing_rules' );
+		check_admin_referer( 'xtremeforms_save_routing_rules' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1245,7 +1243,7 @@ class XF_Admin {
 	 * Handle tag creation from the tag management page.
 	 */
 	public function handle_save_tag(): void {
-		check_admin_referer( 'xf_save_tag' );
+		check_admin_referer( 'xtremeforms_save_tag' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1257,7 +1255,7 @@ class XF_Admin {
 
 		if ( is_wp_error( $result ) ) {
 			set_transient(
-				'xf_tag_error_' . get_current_user_id(),
+				'xtremeforms_tag_error_' . get_current_user_id(),
 				$result->get_error_message(),
 				30
 			);
@@ -1274,7 +1272,7 @@ class XF_Admin {
 	public function handle_delete_tag(): void {
 		$tag_id = isset( $_GET['tag_id'] ) ? absint( $_GET['tag_id'] ) : 0;
 
-		check_admin_referer( 'xf_delete_tag_' . $tag_id );
+		check_admin_referer( 'xtremeforms_delete_tag_' . $tag_id );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1303,7 +1301,7 @@ class XF_Admin {
 	 * This extends the main settings save to include the new fields.
 	 */
 	public function handle_save_settings_s4(): void {
-		check_admin_referer( 'xf_save_settings' );
+		check_admin_referer( 'xtremeforms_save_settings' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1341,7 +1339,7 @@ class XF_Admin {
 	 * Handle CSV export via admin-post.
 	 */
 	public function handle_export_leads(): void {
-		check_admin_referer( 'xf_export_leads' );
+		check_admin_referer( 'xtremeforms_export_leads' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1506,7 +1504,7 @@ class XF_Admin {
 	 * Handle spam and GDPR settings (reCAPTCHA, spam blocklists, retention, etc.).
 	 */
 	public function handle_save_settings_s5(): void {
-		check_admin_referer( 'xf_save_settings' );
+		check_admin_referer( 'xtremeforms_save_settings' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1543,8 +1541,9 @@ class XF_Admin {
 				wp_safe_redirect(
 					add_query_arg(
 						array(
-							'page'  => 'xtreme-forms-settings',
-							'error' => 'retention_min',
+							'page'             => 'xtreme-forms-settings',
+							'error'            => 'retention_min',
+							'_xf_notice_nonce' => wp_create_nonce( 'xtremeforms_settings_notice' ),
 						),
 						admin_url( 'admin.php' )
 					)
@@ -1601,8 +1600,9 @@ class XF_Admin {
 		}
 
 		$redirect_args = array(
-			'page'    => 'xtreme-forms-settings',
-			'updated' => '1',
+			'page'             => 'xtreme-forms-settings',
+			'updated'          => '1',
+			'_xf_notice_nonce' => wp_create_nonce( 'xtremeforms_settings_notice' ),
 		);
 
 		if ( '' !== $recaptcha_key_warning ) {
@@ -1644,7 +1644,7 @@ class XF_Admin {
 	 * Handle data export (full or per-form).
 	 */
 	public function handle_export_data(): void {
-		check_admin_referer( 'xf_export_data' );
+		check_admin_referer( 'xtremeforms_export_data' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -1699,13 +1699,13 @@ class XF_Admin {
 	 * Handle data import from uploaded JSON file.
 	 */
 	public function handle_import_data(): void {
-		check_admin_referer( 'xf_import_data' );
+		check_admin_referer( 'xtremeforms_import_data' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
 		}
 
-		$transient_key = 'xf_import_result_' . get_current_user_id();
+		$transient_key = 'xtremeforms_import_result_' . get_current_user_id();
 		$redirect      = add_query_arg( array( 'page' => 'xtreme-forms-import-export' ), admin_url( 'admin.php' ) );
 
 		// Validate file upload.

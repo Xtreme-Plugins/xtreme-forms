@@ -4,7 +4,7 @@
  * Evaluates per-field visibility rules in real time.
  * Runs with `defer` (no blocking). Zero jQuery dependency.
  *
- * Rule schema (stored in form field JSON, passed via xlCondLogicData):
+ * Rule schema (stored in form field JSON, passed via xtremeFormsCondLogicData):
  * {
  *   fieldId: "field_abc",          // target field to show/hide
  *   logic:   "and"|"or",
@@ -16,12 +16,12 @@
  *
  * @package Xtreme Forms
  */
-/* global xlCondLogicData */
+/* global xtremeFormsCondLogicData */
 (function () {
 	'use strict';
 
-	var rules = (typeof xlCondLogicData !== 'undefined' && Array.isArray(xlCondLogicData.rules))
-		? xlCondLogicData.rules
+	var rules = (typeof xtremeFormsCondLogicData !== 'undefined' && Array.isArray(xtremeFormsCondLogicData.rules))
+		? xtremeFormsCondLogicData.rules
 		: [];
 
 	if (!rules.length) {

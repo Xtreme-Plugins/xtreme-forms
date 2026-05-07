@@ -172,10 +172,10 @@ if ( 'my_leads' === $current_filter ) {
 }
 $export_url = wp_nonce_url(
 	add_query_arg(
-		array_merge( array( 'action' => 'xf_export_leads' ), $export_filters ),
+		array_merge( array( 'action' => 'xtremeforms_export_leads' ), $export_filters ),
 		admin_url( 'admin-post.php' )
 	),
-	'xf_export_leads'
+	'xtremeforms_export_leads'
 );
 ?>
 <div class="wrap xf-wrap">
@@ -314,8 +314,8 @@ $export_url = wp_nonce_url(
 
 		<!-- Bulk action bar + table -->
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-leads-form">
-			<input type="hidden" name="action" value="xf_bulk_leads">
-			<?php wp_nonce_field( 'xf_bulk_leads' ); ?>
+			<input type="hidden" name="action" value="xtremeforms_bulk_leads">
+			<?php wp_nonce_field( 'xtremeforms_bulk_leads' ); ?>
 			<!-- Preserve filter state in bulk form -->
 			<?php
 			if ( $current_status ) :

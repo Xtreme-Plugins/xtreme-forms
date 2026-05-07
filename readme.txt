@@ -1,8 +1,8 @@
 === Xtreme Forms ===
-Contributors: xtremeplugins
+Contributors: loanpartnership
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -14,9 +14,9 @@ Lead capture forms with email routing, webhooks, analytics, spam protection, and
 
 Xtreme Forms is a WordPress lead capture and management plugin. Build custom forms, capture leads into your own database, route notifications to the right team members, track analytics, and use the included GDPR tools (consent checkbox, right-to-erasure, data retention) to help support your own privacy workflows — all from a clean, fast admin interface.
 
-All features listed below work in the plugin you are downloading. The optional Pro add-on offered by the author adds advanced routing, webhook retries, and extended analytics, but is not required for any of the features below.
+Every feature listed below ships in this plugin and is fully functional. There is no license, trial, or paywall — the plugin you download is the complete plugin.
 
-= Core Features (Free) =
+= Features =
 
 * **Drag-and-drop Form Builder** — text, email, phone, select, checkbox, radio, textarea, date, file, hidden fields with per-field conditional logic
 * **Lead Inbox** — searchable, filterable lead list with status management (new, read, contacted, converted, archived, spam)
@@ -37,15 +37,7 @@ All features listed below work in the plugin you are downloading. The optional P
 * **Multisite Support** — per-site tables, network-aware activation
 * **Gutenberg Block** — embed any form with the Xtreme Forms block (live editor preview)
 * **Shortcode** — `[xtreme_forms id="X"]` works everywhere
-
-= Optional Pro Add-On =
-
-An optional paid add-on from the author is available at https://xtremeplugins.com/plugins/xtreme-forms. It is not required for any feature listed above and is not bundled with this plugin.
-
-* Priority routing rules with complex AND/OR conditions
-* Webhook retry queue with exponential backoff
-* Advanced analytics: cohort analysis, lead value tracking
-* Priority email support
+* **CRM Integrations** — HubSpot, Pipedrive, Zoho, and Salesforce. Configure once under **Automations → Integrations**; new leads are forwarded automatically. All integrations are opt-in.
 
 == Installation ==
 
@@ -60,9 +52,9 @@ Alternatively, unzip the archive and upload the `xtreme-forms` folder to `/wp-co
 
 == Frequently Asked Questions ==
 
-= Is the free version really free? =
+= Is this plugin really free? =
 
-Yes. The free version has no artificial limits on forms, leads, or submissions. Pro adds advanced features for power users.
+Yes. There are no license keys, no usage limits, no time limits, and no paywalled features. Every feature in the plugin works on every install.
 
 = Does it work without WooCommerce? =
 
@@ -86,7 +78,62 @@ Yes. Full JSON export and import from the Import/Export admin page.
 
 = Where do I report bugs or request features? =
 
-Please use the WordPress.org support forum for this plugin, or file an issue at https://github.com/Xtreme-Plugins/xtreme-forms.
+Please use the WordPress.org support forum for this plugin.
+
+== External services ==
+
+This plugin can connect to several third-party services. Every service listed below is **opt-in** — none are contacted unless a site administrator explicitly enables and configures them. The default install of the plugin does not contact any external service.
+
+= Google reCAPTCHA v3 (optional spam protection) =
+
+If a site administrator enables reCAPTCHA in **Xtreme Forms → Settings → Spam Protection** and provides their own Site Key and Secret Key, the plugin will:
+
+* Load the reCAPTCHA JavaScript from `https://www.google.com/recaptcha/api.js` on every page where a form is rendered.
+* Generate an anonymous reCAPTCHA token in the visitor's browser when the form is submitted.
+* Send that token (plus the site's secret key) to `https://www.google.com/recaptcha/api/siteverify` from your server to verify the submission is not spam. No form-field data is transmitted.
+
+Service provider: Google. [Terms of Service](https://policies.google.com/terms) · [Privacy Policy](https://policies.google.com/privacy)
+
+= Cloudflare Turnstile (optional spam protection) =
+
+If a site administrator enables Turnstile in **Xtreme Forms → Settings → Spam Protection** and provides their own Site Key and Secret Key, the plugin will:
+
+* Load the Turnstile JavaScript from `https://challenges.cloudflare.com/turnstile/v0/api.js` on every page where a form is rendered.
+* Generate an anonymous Turnstile token in the visitor's browser when the form is submitted.
+* Send that token (plus the site's secret key) to `https://challenges.cloudflare.com/turnstile/v0/siteverify` from your server to verify the submission is not spam. No form-field data is transmitted.
+
+Service provider: Cloudflare, Inc. [Terms of Service](https://www.cloudflare.com/website-terms/) · [Privacy Policy](https://www.cloudflare.com/privacypolicy/)
+
+= HubSpot CRM (optional lead forwarding) =
+
+If a site administrator enables the HubSpot integration in **Xtreme Forms → Automations → Integrations** and supplies a HubSpot Private App access token, then on every form submission the plugin sends the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `https://api.hubapi.com/crm/v3/objects/contacts`.
+
+Service provider: HubSpot, Inc. [Terms of Service](https://legal.hubspot.com/terms-of-service) · [Privacy Policy](https://legal.hubspot.com/privacy-policy)
+
+= Pipedrive CRM (optional lead forwarding) =
+
+If a site administrator enables the Pipedrive integration in **Xtreme Forms → Automations → Integrations** and supplies a Pipedrive API token, then on every form submission the plugin sends the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `https://api.pipedrive.com/v1/persons` and `https://api.pipedrive.com/v1/leads`. The token is also validated once at save-time against `https://api.pipedrive.com/v1/users/me`.
+
+Service provider: Pipedrive Inc. [Terms of Service](https://www.pipedrive.com/en/terms-of-service) · [Privacy Policy](https://www.pipedrive.com/en/privacy)
+
+= Zoho CRM (optional lead forwarding) =
+
+If a site administrator enables the Zoho integration in **Xtreme Forms → Automations → Integrations** and completes the Zoho OAuth handshake (providing client ID, client secret, refresh token, and data-center region), then on every form submission the plugin will:
+
+* Refresh the Zoho OAuth access token by calling `https://accounts.zoho.<region>/oauth/v2/token` (where `<region>` is the data-center suffix the admin configured, e.g. `com`, `eu`, `in`).
+* Send the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `https://www.zohoapis.<region>/crm/v2/Leads`.
+
+Service provider: Zoho Corporation. [Terms of Service](https://www.zoho.com/terms.html) · [Privacy Policy](https://www.zoho.com/privacy.html)
+
+= Salesforce CRM (optional lead forwarding) =
+
+If a site administrator enables the Salesforce integration in **Xtreme Forms → Automations → Integrations** and completes the Salesforce OAuth handshake (providing the consumer key/secret and instance URL), then on every form submission the plugin sends the submitted lead's contact data (e.g. name, email, phone, plus any custom fields the admin maps) to `<instance_url>/services/data/v57.0/sobjects/Lead/` (where `<instance_url>` is the Salesforce instance URL the admin configured, typically of the form `https://<your-org>.my.salesforce.com`).
+
+Service provider: Salesforce, Inc. [Terms of Service](https://www.salesforce.com/company/legal/sfdc-website-terms-of-service/) · [Privacy Policy](https://www.salesforce.com/company/privacy/)
+
+= Webhooks (optional lead forwarding) =
+
+If a site administrator configures one or more webhook URLs in **Xtreme Forms → Automations → Webhooks**, the plugin will POST submitted form data (the field values, plus optional metadata such as form ID, submission timestamp, and source URL) to each configured URL. The destination is fully controlled by the site administrator.
 
 == Screenshots ==
 
@@ -97,6 +144,16 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.2.0 =
+* WordPress.org review round 2 — full compliance pass.
+* **Trialware (Guideline 5)** — removed every "Pro Add-On" / "Upgrade to Pro" upsell from `readme.txt`, the in-admin Welcome page, and `README.md`. The features that were advertised as Pro (CRM integrations, webhook retry queue, delivery log) are already implemented in this codebase, so advertising them as locked was non-compliant. The plugin is now declared free and fully functional everywhere.
+* **External services** — added Salesforce CRM disclosure to the `== External services ==` section (was previously missing). All six third-party endpoints (Google reCAPTCHA, Cloudflare Turnstile, HubSpot, Pipedrive, Zoho, Salesforce) plus user-configured webhooks are now documented with what data is sent, when, and links to each provider's Terms of Service + Privacy Policy.
+* **Nonces visible to static analysis** — added explicit `check_ajax_referer()` at the top of every public AJAX handler in `XF_Ajax` (28 added, alongside the existing helper-based verification that the static checker couldn't follow). Filter-form GET reads in `xf-admin-spam-log.php`, `xf-admin-email-log.php`, and `xf-admin-settings.php` now go through `wp_verify_nonce()` on a `_xf_nonce` field added to each `<form method="get">`. Notice-trigger redirects in `class-xf-admin.php` and `class-xf-multisite.php` now attach a nonce via `wp_nonce_url()`.
+* **Prefix `xl_` removed** — every legacy `xl_` AJAX action registration deleted (31 of them). `xl` was a 2-character prefix, below the 4-character minimum. The legacy aliases were not used by any current client.
+* **Prefix `xf_` → `xtremeforms_`** — every WordPress identifier 2-character prefix renamed: `wp_ajax_xf_*` action hooks, nonce action names (`xf_admin_nonce` → `xtremeforms_admin_nonce`, plus 10+ others), `admin_post_xf_*` handlers, transient keys, cron hooks (`xf_gdpr_retention_purge` → `xtremeforms_gdpr_retention_purge`, `xf_webhook_retry` → `xtremeforms_webhook_retry`), the hidden `xf-welcome` menu slug, all `wp_register_script`/`style` handles (`xf-admin` → `xtremeforms-admin`, `xf-builder` → `xtremeforms-builder`, etc.), and the corresponding `wp_localize_script` JS globals (`xfAdminData` → `xtremeFormsAdminData`, `xfBuilderData` → `xtremeFormsBuilderData`, etc.). All consumer JS files updated to read from the new global names.
+* **SQL hardening — UTM column query** (`includes/class-xf-analytics.php`) — replaced the dynamic `{$utm_column}` interpolation with a `switch` block that dispatches to one of five fully-static prepared queries (one per allowed column). Eliminates any column-name interpolation.
+* **SQL hardening — lead INSERT** (`includes/class-xf-leads.php`) — added an explicit hardcoded whitelist of column names (matching the schema in `XF_Activator::create_tables()`). Each `$row` key is validated against the whitelist before being added to the INSERT, so the column list is always assembled from compile-time constants.
 
 = 2.0.5 =
 * WordPress.org submission prep: resolved Plugin Check findings
@@ -168,6 +225,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+WordPress.org review round 2 — full compliance pass. Removed all Pro upsells (the plugin is now fully free), added Salesforce to External Services, added explicit nonces, renamed 2-character `xl_` and `xf_` prefixes to `xtremeforms_`, and hardened two SQL queries. Safe to upgrade — no database schema changes.
 
 = 2.0.5 =
 WordPress.org submission prep + layout/UX fixes. Safe to upgrade from any 2.x version — no database changes.

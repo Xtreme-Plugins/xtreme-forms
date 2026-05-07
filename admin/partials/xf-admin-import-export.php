@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
 $notice_html   = '';
-$transient_key = 'xf_import_result_' . get_current_user_id();
+$transient_key = 'xtremeforms_import_result_' . get_current_user_id();
 $import_result = get_transient( $transient_key );
 if ( false !== $import_result ) {
 	delete_transient( $transient_key );
@@ -61,9 +61,9 @@ $all_forms = XF_Forms::get_all_forms();
 
 		<!-- Full export -->
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:16px;">
-			<input type="hidden" name="action" value="xf_export_data">
+			<input type="hidden" name="action" value="xtremeforms_export_data">
 			<input type="hidden" name="export_type" value="full">
-			<?php wp_nonce_field( 'xf_export_data' ); ?>
+			<?php wp_nonce_field( 'xtremeforms_export_data' ); ?>
 			<button type="submit" class="button button-primary">
 				<?php esc_html_e( 'Export All Settings & Forms', 'xtreme-forms' ); ?>
 			</button>
@@ -75,9 +75,9 @@ $all_forms = XF_Forms::get_all_forms();
 		<!-- Per-form export -->
 		<?php if ( ! empty( $all_forms ) ) : ?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<input type="hidden" name="action" value="xf_export_data">
+			<input type="hidden" name="action" value="xtremeforms_export_data">
 			<input type="hidden" name="export_type" value="form">
-			<?php wp_nonce_field( 'xf_export_data' ); ?>
+			<?php wp_nonce_field( 'xtremeforms_export_data' ); ?>
 			<label for="xf-export-form-id" style="font-weight:600;"><?php esc_html_e( 'Export Single Form:', 'xtreme-forms' ); ?></label>
 			<select id="xf-export-form-id" name="form_id" style="margin:0 8px;">
 				<option value=""><?php esc_html_e( '— Select a form —', 'xtreme-forms' ); ?></option>
@@ -102,8 +102,8 @@ $all_forms = XF_Forms::get_all_forms();
 		</p>
 
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
-			<input type="hidden" name="action" value="xf_import_data">
-			<?php wp_nonce_field( 'xf_import_data' ); ?>
+			<input type="hidden" name="action" value="xtremeforms_import_data">
+			<?php wp_nonce_field( 'xtremeforms_import_data' ); ?>
 
 			<table class="form-table" role="presentation">
 				<tr>

@@ -12,10 +12,9 @@ if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
 }
 
-$forms_url   = admin_url( 'admin.php?page=xtreme-forms-forms' );
-$upgrade_url = 'https://xtremeplugins.com/plugins/xtreme-forms/pricing';
-$docs_url    = 'https://xtremeplugins.com/docs/xtreme-forms/';
-$video_url   = '#'; // Replace with actual YouTube URL when available.
+$forms_url = admin_url( 'admin.php?page=xtreme-forms-forms' );
+$docs_url  = 'https://xtremeplugins.com/docs/xtreme-forms/';
+$video_url = '#'; // Replace with actual YouTube URL when available.
 ?>
 <style>
 /* ── Xtreme Forms Welcome Screen styles (scoped to .xf-welcome-wrap) ── */
@@ -517,53 +516,6 @@ $video_url   = '#'; // Replace with actual YouTube URL when available.
 		</div>
 	</div>
 
-	<!-- ── Upgrade to Pro ────────────────────────────────────── -->
-	<div class="xf-pro-section">
-		<div class="xf-pro-inner">
-
-			<div class="xf-pro-features">
-				<h2><?php esc_html_e( 'Unlock Even More with Pro', 'xtreme-forms' ); ?></h2>
-				<p><?php esc_html_e( 'Supercharge your lead capture with advanced features built for growing businesses.', 'xtreme-forms' ); ?></p>
-				<ul class="xf-pro-list">
-					<li>
-						<span class="xf-checkmark">&#10003;</span>
-						<?php esc_html_e( 'Advanced Conditional Logic', 'xtreme-forms' ); ?>
-					</li>
-					<li>
-						<span class="xf-checkmark">&#10003;</span>
-						<?php esc_html_e( 'CRM Integrations (HubSpot, Salesforce, Mailchimp)', 'xtreme-forms' ); ?>
-					</li>
-					<li>
-						<span class="xf-checkmark">&#10003;</span>
-						<?php esc_html_e( 'Priority Email Support', 'xtreme-forms' ); ?>
-					</li>
-					<li>
-						<span class="xf-checkmark">&#10003;</span>
-						<?php esc_html_e( 'Advanced File Upload Fields', 'xtreme-forms' ); ?>
-					</li>
-					<li>
-						<span class="xf-checkmark">&#10003;</span>
-						<?php esc_html_e( 'Custom Confirmation Redirects', 'xtreme-forms' ); ?>
-					</li>
-					<li>
-						<span class="xf-checkmark">&#10003;</span>
-						<?php esc_html_e( 'White-Label Mode', 'xtreme-forms' ); ?>
-					</li>
-				</ul>
-			</div>
-
-			<div class="xf-pricing-card">
-				<div class="xf-pricing-badge"><?php esc_html_e( 'PRO', 'xtreme-forms' ); ?></div>
-				<div class="xf-pricing-price"><sup>$</sup>79</div>
-				<div class="xf-pricing-period"><?php esc_html_e( 'per year', 'xtreme-forms' ); ?></div>
-				<a href="<?php echo esc_url( $upgrade_url ); ?>" class="xf-btn-orange" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( 'Upgrade Now', 'xtreme-forms' ); ?>
-				</a>
-			</div>
-
-		</div>
-	</div>
-
 	<!-- ── Testimonials ──────────────────────────────────────── -->
 	<div class="xf-welcome-card">
 		<h2><?php esc_html_e( 'What Our Users Are Saying', 'xtreme-forms' ); ?></h2>
@@ -604,9 +556,6 @@ $video_url   = '#'; // Replace with actual YouTube URL when available.
 		<div class="xf-footer-actions">
 			<a href="<?php echo esc_url( $forms_url ); ?>" class="xf-btn-primary">
 				<?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?>
-			</a>
-			<a href="<?php echo esc_url( $upgrade_url ); ?>" class="xf-link-upgrade" target="_blank" rel="noopener noreferrer">
-				<?php esc_html_e( 'Upgrade to Pro &rarr;', 'xtreme-forms' ); ?>
 			</a>
 		</div>
 	</div>

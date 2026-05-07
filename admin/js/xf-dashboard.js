@@ -6,9 +6,9 @@
  *  - Leads-by-form bar chart
  *  - Client-side sortable form comparison table
  *
- * Depends on: Chart.js (xf-chartjs), xlDashboardData (wp_localize_script)
+ * Depends on: Chart.js (xf-chartjs), xtremeFormsDashboardData (wp_localize_script)
  */
-/* global xlDashboardData, xlDashboardInitialData, xlFormMetricsData, Chart */
+/* global xtremeFormsDashboardData, xtremeFormsDashboardInitialData, xtremeFormsFormMetricsData, Chart */
 
 (function () {
 	'use strict';
@@ -18,14 +18,14 @@
 	let lineChart = null;
 	let barChart  = null;
 
-	const cfg    = window.xlDashboardData || {};
+	const cfg    = window.xtremeFormsDashboardData || {};
 	const i18n   = cfg.i18n   || {};
 	const ajaxUrl = cfg.ajaxUrl || '';
 	// Per-endpoint nonces (each analytics endpoint requires its own nonce action).
 	const nonces  = cfg.nonces  || {};
 	// Legacy fallback — used for any endpoint not in the per-endpoint map.
 	const nonce   = cfg.nonce   || '';
-	const init    = window.xlDashboardInitialData || {};
+	const init    = window.xtremeFormsDashboardInitialData || {};
 	const isFormMetrics = !! cfg.isFormMetrics;
 
 	// ── Utility: fetch wrapper with error handling ────────────────────────────
@@ -134,7 +134,7 @@
 				body.date_to   = dateTo;
 			}
 
-			const data = await apiFetch( 'xf_chart_leads_over_time', body );
+			const data = await apiFetch( 'xtremeforms_chart_leads_over_time', body );
 
 			const labels = data.labels  || [];
 			const values = data.data    || [];
@@ -286,7 +286,7 @@
 			if ( dateFrom ) body.date_from = dateFrom;
 			if ( dateTo   ) body.date_to   = dateTo;
 
-			const data = await apiFetch( 'xf_chart_leads_by_form', body );
+			const data = await apiFetch( 'xtremeforms_chart_leads_by_form', body );
 
 			if ( emptyEl ) emptyEl.style.display = 'none';
 			canvas.style.display = 'block';
@@ -350,8 +350,8 @@
 		const table = document.getElementById( 'xf-metrics-comparison-table' );
 		if ( ! table ) return;
 
-		// All metrics passed from PHP into window.xlFormMetricsData for full-dataset sorting.
-		const allData = window.xlFormMetricsData || [];
+		// All metrics passed from PHP into window.xtremeFormsFormMetricsData for full-dataset sorting.
+		const allData = window.xtremeFormsFormMetricsData || [];
 
 		let sortCol  = 'submissions';
 		let sortDir  = 'desc'; // Default: submissions descending.
@@ -474,7 +474,7 @@
 				const rateStr = parseFloat( m.conversion_rate ).toFixed( 2 ) + '%';
 				if ( m.conversion_rate_warning ) {
 					rateHtml = rateStr + ' <span class="xf-warning-icon dashicons dashicons-warning" title="' +
-						escHtml( ( window.xlDashboardData && window.xlDashboardData.i18n.conversionWarning ) || '' ) +
+						escHtml( ( window.xtremeFormsDashboardData && window.xtremeFormsDashboardData.i18n.conversionWarning ) || '' ) +
 						'"></span>';
 				} else {
 					rateHtml = rateStr;

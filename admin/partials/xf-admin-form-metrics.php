@@ -200,5 +200,5 @@ $all_metrics_json = wp_json_encode(
 );
 ?>
 <script type="text/javascript">
-window.xlFormMetricsData = <?php echo $all_metrics_json; // phpcs:ignore WordPress.Security.EscapeOutput ?>;
+window.xtremeFormsFormMetricsData = <?php echo $all_metrics_json; // phpcs:ignore WordPress.Security.EscapeOutput ?>;
 </script>

@@ -4,13 +4,13 @@
  *
  * @package Xtreme Forms
  */
-/* global xfAdminData, xfBuilderData */
+/* global xtremeFormsAdminData, xtremeFormsBuilderData */
 (function () {
 	'use strict';
 
 	// ── Utilities ────────────────────────────────────────────────────────────
 
-	var adminData = window.xfAdminData || {};
+	var adminData = window.xtremeFormsAdminData || {};
 	var ajaxUrl   = adminData.ajaxUrl  || '';
 	var nonce     = adminData.nonce    || '';
 	var i18n      = adminData.i18n     || {};
@@ -139,7 +139,7 @@
 					var badge     = wrap ? wrap.querySelector( '.xf-inline-status-badge' ) : null;
 
 					post( {
-						action:  'xf_update_status',
+						action:  'xtremeforms_update_status',
 						nonce:   nonce,
 						lead_id: leadId,
 						status:  newStatus
@@ -188,7 +188,7 @@
 		_counter:    0,
 
 		init: function () {
-			var builderData = window.xfBuilderData;
+			var builderData = window.xtremeFormsBuilderData;
 			if ( ! builderData ) return;
 
 			this.canvas    = document.getElementById( 'xf-fields-canvas' );
@@ -452,7 +452,7 @@
 			var logic = cl.logic || 'and';
 			var conditions = Array.isArray( cl.conditions ) ? cl.conditions : [];
 			var i18n = self.i18n;
-			var ops = window.xfBuilderData.condOperators || {};
+			var ops = window.xtremeFormsBuilderData.condOperators || {};
 
 			var html = '<div class="xf-cond-logic-section">';
 			html += '<hr style="margin:12px 0;border-color:#DEE2E6;">';
@@ -529,7 +529,7 @@
 		_bindCondLogicEditor: function ( el, field ) {
 			var self = this;
 			var i18n = self.i18n;
-			var ops  = window.xfBuilderData.condOperators || {};
+			var ops  = window.xtremeFormsBuilderData.condOperators || {};
 
 			var section     = el.querySelector( '.xf-cond-logic-section' );
 			if ( ! section ) return;

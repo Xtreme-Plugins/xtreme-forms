@@ -3,7 +3,7 @@
  * Plugin Name: Xtreme Forms
  * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-forms/
  * Description: Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:     2.1.0
+ * Version:     2.2.0
  * Author:      XtremePlugins
  * Author URI:  https://xtremeplugins.com
  * License:     GPL-2.0-or-later
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.1.0' );
+define( 'XTREMEFORMS_VERSION', '2.2.0' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -108,7 +108,7 @@ function xtremeforms_register_block(): void {
 	// Register the editor-facing script with the block dependencies.
 	// Loaded only inside the block editor — not on the front end.
 	wp_register_script(
-		'xf-form-block',
+		'xtremeforms-form-block',
 		XTREMEFORMS_PLUGIN_URL . 'blocks/xf-form-block.js',
 		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data' ),
 		XTREMEFORMS_VERSION,
@@ -160,8 +160,8 @@ function xtremeforms_register_block(): void {
 	}
 
 	wp_localize_script(
-		'xf-form-block',
-		'xfBlockData',
+		'xtremeforms-form-block',
+		'xtremeFormsBlockData',
 		array(
 			'forms'     => $forms_data,
 			'pluginUrl' => esc_url( XTREMEFORMS_PLUGIN_URL ),

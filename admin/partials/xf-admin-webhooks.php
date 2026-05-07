@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 
 $webhooks  = XF_Webhooks::get_all();
 $all_forms = XF_Forms::get_all_forms();
-$nonce     = wp_create_nonce( 'xf_webhook_nonce' );
+$nonce     = wp_create_nonce( 'xtremeforms_webhook_nonce' );
 
 $notice_html = '';
 if ( ! empty( $_GET['updated'] ) ) {
@@ -309,7 +309,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		});
 
 		var data = new FormData();
-		data.append('action', 'xf_webhook_save');
+		data.append('action', 'xtremeforms_webhook_save');
 		data.append('nonce', nonce);
 		data.append('webhook[id]', document.getElementById('xf-webhook-id').value);
 		data.append('webhook[name]', document.getElementById('xf-wh-name').value);
@@ -342,7 +342,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		btn.addEventListener('click', function() {
 			var id = btn.getAttribute('data-id');
 			var fd = new FormData();
-			fd.append('action', 'xf_webhook_get');
+			fd.append('action', 'xtremeforms_webhook_get');
 			fd.append('nonce', nonce);
 			fd.append('webhook_id', id);
 			fetch(ajaxUrl, {method:'POST', body:fd}).then(function(r){ return r.json(); }).then(function(resp) {
@@ -359,7 +359,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 			if (!confirm('<?php echo esc_js( __( 'Delete this webhook and its delivery log? This cannot be undone.', 'xtreme-forms' ) ); ?>')) return;
 			var id = btn.getAttribute('data-id');
 			var fd = new FormData();
-			fd.append('action', 'xf_webhook_delete');
+			fd.append('action', 'xtremeforms_webhook_delete');
 			fd.append('nonce', nonce);
 			fd.append('webhook_id', id);
 			fetch(ajaxUrl, {method:'POST', body:fd}).then(function(r){ return r.json(); }).then(function(resp) {
@@ -382,7 +382,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 			btn.disabled = true;
 
 			var fd = new FormData();
-			fd.append('action', 'xf_webhook_test');
+			fd.append('action', 'xtremeforms_webhook_test');
 			fd.append('nonce', nonce);
 			fd.append('webhook_id', id);
 
@@ -443,7 +443,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		logPager.innerHTML = '';
 
 		var fd = new FormData();
-		fd.append('action', 'xf_webhook_log');
+		fd.append('action', 'xtremeforms_webhook_log');
 		fd.append('nonce', nonce);
 		fd.append('webhook_id', webhookId);
 		fd.append('page', page);

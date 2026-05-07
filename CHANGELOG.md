@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.2.0] - 2026-04-30
+
+### Changed
+- **WordPress.org review round 2 — full compliance pass.** This release addresses every finding from the second WordPress.org reviewer report and brings the plugin up to a clean Plugin Check pass.
+
+### Removed
+- **All Pro / paid-upgrade upsells** removed from `readme.txt`, the admin Welcome page, and `README.md` (Trialware Guideline 5 violation). The features previously advertised as "Pro" (CRM integrations, webhook retry queue, delivery log) are already in this codebase and fully functional. The plugin is now declared free and fully functional throughout.
+- **Legacy `xl_*` AJAX action aliases** in `XF_Ajax::__construct()` (31 of them) — the `xl` prefix is 2 characters, below the 4-character minimum required by WordPress.org. No active client used these aliases.
+
+### Added
+- **`Salesforce CRM` entry** in the `readme.txt` `== External services ==` section. The plugin already implemented Salesforce in `class-xf-integrations.php` but the disclosure was missing.
+- **Explicit `check_ajax_referer()` calls** at the top of every public method on `XF_Ajax` that processes `$_POST` data (28 added). The existing `$this->check_admin_ajax()` / `$this->check_ajax_auth()` helper calls already verified nonces via `wp_verify_nonce()`, but the static analysis tools used by reviewers can't follow that indirection. The explicit calls are now visible at each handler's read site.
+- **Nonce-verified GET reads** in `xf-admin-spam-log.php`, `xf-admin-email-log.php`, and `xf-admin-settings.php`. Filter forms now emit `wp_nonce_field( 'xtremeforms_filter_<page>', '_xf_nonce' )`; the partials verify it before reading any filter param. Settings-page notice redirects (`?updated=1`, `?xf_site_toggled=1`, etc.) now carry a `_xf_notice_nonce` produced by `wp_nonce_url()` in the redirector.
+
+### Security
+- **`includes/class-xf-analytics.php`** — replaced the dynamic `{$utm_column}` interpolation in the UTM-attribution query with a `switch` block dispatching to one of five fully-static `SELECT` statements (one per allowed UTM column). The column identifier is now a compile-time literal in every branch — no interpolation of any kind, no whitelist-then-interpolate pattern. Unknown column values fall through to an early empty-result return.
+- **`includes/class-xf-leads.php`** — the lead `INSERT` builder now validates each `$row` key against an explicit hardcoded whitelist (`form_id`, `status`, `source_url`, `ip_address`, `user_agent`, `field_values`, `assigned_to`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `email_address`, `is_duplicate`, `duplicate_status`, `original_lead_id`, `submit_duration_seconds`, `consent_given`, `created_at`, `updated_at`) that mirrors the `XF_Activator::create_tables()` schema. The column list inside the SQL is therefore always built from compile-time constants, never from caller-controlled keys.
+
+### Renamed
+WordPress.org requires plugin prefixes of 4+ characters. Every 2-character prefix in WordPress-API identifiers was renamed:
+
+- **AJAX hooks** — `wp_ajax_xf_*` → `wp_ajax_xtremeforms_*` (and `nopriv_*` siblings).
+- **`admin_post_*` hooks** — `admin_post_xf_*` → `admin_post_xtremeforms_*`.
+- **Nonce action names** — `xf_admin_nonce`, `xf_webhook_nonce`, `xf_gdpr_nonce`, `xf_spam_log_nonce`, `xf_integrations_nonce`, `xf_impression_nonce`, all dashboard analytics nonces, and per-form `xf_form_submit_<id>` / `xf_form_redirect_<id>` → `xtremeforms_*` equivalents.
+- **Cron hook names** — `xf_gdpr_retention_purge` → `xtremeforms_gdpr_retention_purge`; `xf_webhook_retry` → `xtremeforms_webhook_retry`.
+- **Hidden menu slug** — `xf-welcome` → `xtremeforms-welcome`.
+- **Script/style handles** — `xf-admin`, `xf-builder`, `xf-public`, `xf-form-block`, `xf-dashboard`, `xf-chartjs`, `xf-recaptcha`, `xf-turnstile`, `xf-conditional`, `xf-countdown` → `xtremeforms-*`. All `wp_localize_script` calls and consumer JS files updated to read from the new globals (`xfAdminData` → `xtremeFormsAdminData`, etc.).
+- **Transient keys** — `xf_activation_redirect`, `xf_form_errors_*`, `xf_template_error_*`, `xf_tag_error_*`, `xf_import_result_*`, `xf_assign_email_warn_*`, `xf_rl_*`, `xf_dup_*` → `xtremeforms_*`.
+
+PHP class names (`XF_*`) and HTML/CSS class names (`xf-*`) are preserved — those are not WordPress-API identifiers and weren't flagged.
+
 ## [2.1.0] - 2026-05-01
 
 ### Added

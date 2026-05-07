@@ -5,11 +5,11 @@
  *
  * @package Xtreme Forms
  */
-/* global xfPublicData */
+/* global xtremeFormsPublicData */
 (function () {
 	'use strict';
 
-	var data              = window.xfPublicData || {};
+	var data              = window.xtremeFormsPublicData || {};
 	var ajaxUrl           = data.ajaxUrl          || '';
 	var nonce             = data.nonce            || '';
 	var impressionNonce   = data.impressionNonce  || '';
@@ -236,7 +236,7 @@
 			redirectForm.style.display = 'none';
 
 			var redirectFields = {
-				action:            'xf_do_form_redirect',
+				action:            'xtremeforms_do_form_redirect',
 				xf_form_id:        String(responseData.form_id || this.formId),
 				xf_redirect_nonce: responseData.redirect_nonce
 			};
@@ -454,7 +454,7 @@
 				} else {
 					// Fallback: fetch with keepalive:true (non-blocking).
 					var fd = new FormData();
-					fd.append('action',  'xf_track_impression');
+					fd.append('action',  'xtremeforms_track_impression');
 					fd.append('nonce',   impressionNonce);
 					fd.append('form_id', String(formId));
 					fd.append('post_id', String(postId));

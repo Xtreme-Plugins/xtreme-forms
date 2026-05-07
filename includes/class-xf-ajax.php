@@ -20,88 +20,67 @@ class XF_Ajax {
 
 	public function __construct() {
 		// Public form submission (logged-in and non-logged-in users).
-		add_action( 'wp_ajax_xl_submit_form', array( $this, 'handle_form_submit' ) );
-		add_action( 'wp_ajax_nopriv_xl_submit_form', array( $this, 'handle_form_submit' ) );
+		add_action( 'wp_ajax_xtremeforms_submit_form', array( $this, 'handle_form_submit' ) );
+		add_action( 'wp_ajax_nopriv_xtremeforms_submit_form', array( $this, 'handle_form_submit' ) );
 
 		// Public: server-side redirect after successful submission.
-		add_action( 'wp_ajax_xl_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
-		add_action( 'wp_ajax_nopriv_xl_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
-
-		// Admin: get lead detail (AJAX flyout).
-		add_action( 'wp_ajax_xl_get_lead', array( $this, 'handle_get_lead' ) );
-
-		// Admin: bulk actions.
-		add_action( 'wp_ajax_xl_bulk_action', array( $this, 'handle_bulk_action' ) );
-
-		// Notes.
-		add_action( 'wp_ajax_xl_add_note', array( $this, 'handle_add_note' ) );
-
-		// Status update.
-		add_action( 'wp_ajax_xl_update_status', array( $this, 'handle_update_status' ) );
-
-		// Tags.
-		add_action( 'wp_ajax_xl_create_tag', array( $this, 'handle_create_tag' ) );
-		add_action( 'wp_ajax_xl_search_tags', array( $this, 'handle_search_tags' ) );
-		add_action( 'wp_ajax_xl_apply_tag', array( $this, 'handle_apply_tag' ) );
-		add_action( 'wp_ajax_xl_remove_tag', array( $this, 'handle_remove_tag' ) );
-
-		// Assignment.
-		add_action( 'wp_ajax_xl_assign_lead', array( $this, 'handle_assign_lead' ) );
-		add_action( 'wp_ajax_xl_get_eligible_users', array( $this, 'handle_get_eligible_users' ) );
-
-		// Email templates / log.
-		add_action( 'wp_ajax_xl_send_test_email', array( $this, 'handle_send_test_email' ) );
-		add_action( 'wp_ajax_xl_resend_email', array( $this, 'handle_resend_email' ) );
+		add_action( 'wp_ajax_xtremeforms_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
+		add_action( 'wp_ajax_nopriv_xtremeforms_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
 
 		// Form impression beacon (public — no login required).
-		add_action( 'wp_ajax_xl_track_impression', array( $this, 'handle_track_impression' ) );
-		add_action( 'wp_ajax_nopriv_xl_track_impression', array( $this, 'handle_track_impression' ) );
+		add_action( 'wp_ajax_xtremeforms_track_impression', array( $this, 'handle_track_impression' ) );
+		add_action( 'wp_ajax_nopriv_xtremeforms_track_impression', array( $this, 'handle_track_impression' ) );
+
+		// Admin: get lead detail (AJAX flyout).
+		add_action( 'wp_ajax_xtremeforms_get_lead', array( $this, 'handle_get_lead' ) );
+
+		// Admin: bulk actions.
+		add_action( 'wp_ajax_xtremeforms_bulk_action', array( $this, 'handle_bulk_action' ) );
+
+		// Notes.
+		add_action( 'wp_ajax_xtremeforms_add_note', array( $this, 'handle_add_note' ) );
+
+		// Status update.
+		add_action( 'wp_ajax_xtremeforms_update_status', array( $this, 'handle_update_status' ) );
+
+		// Tags.
+		add_action( 'wp_ajax_xtremeforms_create_tag', array( $this, 'handle_create_tag' ) );
+		add_action( 'wp_ajax_xtremeforms_search_tags', array( $this, 'handle_search_tags' ) );
+		add_action( 'wp_ajax_xtremeforms_apply_tag', array( $this, 'handle_apply_tag' ) );
+		add_action( 'wp_ajax_xtremeforms_remove_tag', array( $this, 'handle_remove_tag' ) );
+
+		// Assignment.
+		add_action( 'wp_ajax_xtremeforms_assign_lead', array( $this, 'handle_assign_lead' ) );
+		add_action( 'wp_ajax_xtremeforms_get_eligible_users', array( $this, 'handle_get_eligible_users' ) );
+
+		// Email templates / log.
+		add_action( 'wp_ajax_xtremeforms_send_test_email', array( $this, 'handle_send_test_email' ) );
+		add_action( 'wp_ajax_xtremeforms_resend_email', array( $this, 'handle_resend_email' ) );
 
 		// Dashboard data endpoints (admin only).
-		add_action( 'wp_ajax_xl_dashboard_stats', array( $this, 'handle_dashboard_stats' ) );
-		add_action( 'wp_ajax_xl_chart_leads_by_form', array( $this, 'handle_chart_leads_by_form' ) );
-		add_action( 'wp_ajax_xl_chart_leads_over_time', array( $this, 'handle_chart_leads_over_time' ) );
-		add_action( 'wp_ajax_xl_utm_report', array( $this, 'handle_utm_report' ) );
-		add_action( 'wp_ajax_xl_form_metrics', array( $this, 'handle_form_metrics' ) );
+		add_action( 'wp_ajax_xtremeforms_dashboard_stats', array( $this, 'handle_dashboard_stats' ) );
+		add_action( 'wp_ajax_xtremeforms_chart_leads_by_form', array( $this, 'handle_chart_leads_by_form' ) );
+		add_action( 'wp_ajax_xtremeforms_chart_leads_over_time', array( $this, 'handle_chart_leads_over_time' ) );
+		add_action( 'wp_ajax_xtremeforms_utm_report', array( $this, 'handle_utm_report' ) );
+		add_action( 'wp_ajax_xtremeforms_form_metrics', array( $this, 'handle_form_metrics' ) );
 
 		// Admin-facing duplicate email check (admin only).
-		add_action( 'wp_ajax_xl_duplicate_check', array( $this, 'handle_duplicate_check' ) );
+		add_action( 'wp_ajax_xtremeforms_duplicate_check', array( $this, 'handle_duplicate_check' ) );
 
 		// Webhook CRUD + delivery log.
-		add_action( 'wp_ajax_xl_webhook_save', array( $this, 'handle_webhook_save' ) );
-		add_action( 'wp_ajax_xl_webhook_delete', array( $this, 'handle_webhook_delete' ) );
-		add_action( 'wp_ajax_xl_webhook_test', array( $this, 'handle_webhook_test' ) );
-		add_action( 'wp_ajax_xl_webhook_log', array( $this, 'handle_webhook_log' ) );
-		add_action( 'wp_ajax_xl_webhook_get', array( $this, 'handle_webhook_get' ) );
+		add_action( 'wp_ajax_xtremeforms_webhook_save', array( $this, 'handle_webhook_save' ) );
+		add_action( 'wp_ajax_xtremeforms_webhook_delete', array( $this, 'handle_webhook_delete' ) );
+		add_action( 'wp_ajax_xtremeforms_webhook_test', array( $this, 'handle_webhook_test' ) );
+		add_action( 'wp_ajax_xtremeforms_webhook_log', array( $this, 'handle_webhook_log' ) );
+		add_action( 'wp_ajax_xtremeforms_webhook_get', array( $this, 'handle_webhook_get' ) );
 
 		// GDPR Right to Erasure.
-		add_action( 'wp_ajax_xl_gdpr_erase', array( $this, 'handle_gdpr_erase' ) );
+		add_action( 'wp_ajax_xtremeforms_gdpr_erase', array( $this, 'handle_gdpr_erase' ) );
 
 		// Spam log actions.
-		add_action( 'wp_ajax_xl_spam_log_get', array( $this, 'handle_spam_log_get' ) );
-		add_action( 'wp_ajax_xl_spam_log_delete', array( $this, 'handle_spam_log_delete' ) );
-		add_action( 'wp_ajax_xl_spam_log_clear', array( $this, 'handle_spam_log_clear' ) );
-
-		// ── xf_ prefix aliases ────────────────────────────────────────────────
-		// The JS files use xf_ prefix; register aliases so both work.
-		add_action( 'wp_ajax_xf_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
-		add_action( 'wp_ajax_nopriv_xf_do_form_redirect', array( $this, 'handle_do_form_redirect' ) );
-		add_action( 'wp_ajax_xf_track_impression', array( $this, 'handle_track_impression' ) );
-		add_action( 'wp_ajax_nopriv_xf_track_impression', array( $this, 'handle_track_impression' ) );
-		add_action( 'wp_ajax_xf_update_status', array( $this, 'handle_update_status' ) );
-		add_action( 'wp_ajax_xf_chart_leads_by_form', array( $this, 'handle_chart_leads_by_form' ) );
-		add_action( 'wp_ajax_xf_chart_leads_over_time', array( $this, 'handle_chart_leads_over_time' ) );
-		add_action( 'wp_ajax_xf_dashboard_stats', array( $this, 'handle_dashboard_stats' ) );
-		add_action( 'wp_ajax_xf_utm_report', array( $this, 'handle_utm_report' ) );
-		add_action( 'wp_ajax_xf_form_metrics', array( $this, 'handle_form_metrics' ) );
-		// Lead detail page actions (all use xf_ prefix in JS).
-		add_action( 'wp_ajax_xf_assign_lead', array( $this, 'handle_assign_lead' ) );
-		add_action( 'wp_ajax_xf_get_eligible_users', array( $this, 'handle_get_eligible_users' ) );
-		add_action( 'wp_ajax_xf_add_note', array( $this, 'handle_add_note' ) );
-		add_action( 'wp_ajax_xf_search_tags', array( $this, 'handle_search_tags' ) );
-		add_action( 'wp_ajax_xf_apply_tag', array( $this, 'handle_apply_tag' ) );
-		add_action( 'wp_ajax_xf_remove_tag', array( $this, 'handle_remove_tag' ) );
-		add_action( 'wp_ajax_xf_gdpr_erase', array( $this, 'handle_gdpr_erase' ) );
+		add_action( 'wp_ajax_xtremeforms_spam_log_get', array( $this, 'handle_spam_log_get' ) );
+		add_action( 'wp_ajax_xtremeforms_spam_log_delete', array( $this, 'handle_spam_log_delete' ) );
+		add_action( 'wp_ajax_xtremeforms_spam_log_clear', array( $this, 'handle_spam_log_clear' ) );
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
@@ -194,7 +173,7 @@ class XF_Ajax {
 	 * @return void Sends JSON error and exits on failure.
 	 */
 	private function check_admin_ajax(): void {
-		$this->require_admin_auth( 'xf_admin_nonce' );
+		$this->require_admin_auth( 'xtremeforms_admin_nonce' );
 	}
 
 	// ── Public Form Submission ──────────────────────────────────────────────
@@ -214,7 +193,7 @@ class XF_Ajax {
 		}
 
 		$nonce = isset( $_POST['xf_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['xf_nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'xf_form_submit_' . $form_id ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'xtremeforms_form_submit_' . $form_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed. Please refresh the page and try again.', 'xtreme-forms' ) ), 403 );
 		}
 
@@ -222,7 +201,7 @@ class XF_Ajax {
 		// Limit each IP to 10 submissions per 10 minutes across all forms.
 		$visitor_ip_rl = $this->get_visitor_ip();
 		// Hash the IP so we don't store raw IPs in option names.
-		$ip_key   = 'xf_rl_' . md5( $visitor_ip_rl . '_' . $form_id );
+		$ip_key   = 'xtremeforms_rl_' . md5( $visitor_ip_rl . '_' . $form_id );
 		$rl_count = (int) get_transient( $ip_key );
 		$rl_limit = apply_filters( 'xtremeforms_rate_limit_per_form', 10 );
 
@@ -632,7 +611,7 @@ class XF_Ajax {
 						? wp_kses_post( $settings['thank_you_message'] )
 						: esc_html__( 'Thank you! Your submission has been received.', 'xtreme-forms' );
 
-					$redirect_nonce = $redirect_url ? wp_create_nonce( 'xf_form_redirect_' . $form_id ) : '';
+					$redirect_nonce = $redirect_url ? wp_create_nonce( 'xtremeforms_form_redirect_' . $form_id ) : '';
 
 					wp_send_json_success(
 						array(
@@ -776,7 +755,7 @@ class XF_Ajax {
 			? wp_kses_post( $settings['thank_you_message'] )
 			: esc_html__( 'Thank you! Your submission has been received.', 'xtreme-forms' );
 
-		$redirect_nonce = $redirect_url ? wp_create_nonce( 'xf_form_redirect_' . $form_id ) : '';
+		$redirect_nonce = $redirect_url ? wp_create_nonce( 'xtremeforms_form_redirect_' . $form_id ) : '';
 
 		wp_send_json_success(
 			array(
@@ -805,7 +784,7 @@ class XF_Ajax {
 			? sanitize_text_field( wp_unslash( $_POST['xf_redirect_nonce'] ) )
 			: '';
 
-		if ( ! wp_verify_nonce( $nonce, 'xf_form_redirect_' . $form_id ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'xtremeforms_form_redirect_' . $form_id ) ) {
 			wp_die( esc_html__( 'Security check failed. Please refresh and try again.', 'xtreme-forms' ) );
 		}
 
@@ -857,6 +836,8 @@ class XF_Ajax {
 	 * Return full lead detail data as JSON (includes notes, activity, tags).
 	 */
 	public function handle_get_lead(): void {
+		// Inline nonce check for static analysers (helper below performs the same plus capability check).
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
@@ -995,6 +976,7 @@ class XF_Ajax {
 	 * Handle bulk actions from the leads inbox.
 	 */
 	public function handle_bulk_action(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$action = isset( $_POST['bulk_action'] ) ? sanitize_text_field( wp_unslash( $_POST['bulk_action'] ) ) : '';
@@ -1054,6 +1036,7 @@ class XF_Ajax {
 	 * Add a note to a lead.
 	 */
 	public function handle_add_note(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
@@ -1115,6 +1098,7 @@ class XF_Ajax {
 	 * Update a lead's status.
 	 */
 	public function handle_update_status(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
@@ -1199,6 +1183,7 @@ class XF_Ajax {
 	 * Create a new tag.
 	 */
 	public function handle_create_tag(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$name = isset( $_POST['name'] )
@@ -1226,6 +1211,7 @@ class XF_Ajax {
 	 * Search tags by name (autocomplete).
 	 */
 	public function handle_search_tags(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$query = isset( $_POST['query'] )
@@ -1250,6 +1236,7 @@ class XF_Ajax {
 	 * Apply a tag to a lead.
 	 */
 	public function handle_apply_tag(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
@@ -1298,6 +1285,7 @@ class XF_Ajax {
 	 * Remove a tag from a lead.
 	 */
 	public function handle_remove_tag(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$lead_id = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
@@ -1333,6 +1321,7 @@ class XF_Ajax {
 	 * Assign a lead to a WordPress user.
 	 */
 	public function handle_assign_lead(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$lead_id     = isset( $_POST['lead_id'] ) ? absint( $_POST['lead_id'] ) : 0;
@@ -1490,6 +1479,7 @@ class XF_Ajax {
 	 * Get eligible users for lead assignment.
 	 */
 	public function handle_get_eligible_users(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
 		$this->check_admin_ajax();
 
 		$users = XF_Leads::get_eligible_assignees();
@@ -1503,11 +1493,13 @@ class XF_Ajax {
 	 */
 	public function handle_send_test_email(): void {
 		// Verify nonce and manage_options capability.
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
+
 		$nonce = isset( $_POST['nonce'] )
 			? sanitize_text_field( wp_unslash( $_POST['nonce'] ) )
 			: '';
 
-		if ( ! wp_verify_nonce( $nonce, 'xf_admin_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'xtremeforms_admin_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'xtreme-forms' ) ), 403 );
 		}
 
@@ -1534,11 +1526,13 @@ class XF_Ajax {
 	 */
 	public function handle_resend_email(): void {
 		// Verify nonce and manage_options capability.
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce' );
+
 		$nonce = isset( $_POST['nonce'] )
 			? sanitize_text_field( wp_unslash( $_POST['nonce'] ) )
 			: '';
 
-		if ( ! wp_verify_nonce( $nonce, 'xf_admin_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'xtremeforms_admin_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'xtreme-forms' ) ), 403 );
 		}
 
@@ -1571,19 +1565,21 @@ class XF_Ajax {
 	/**
 	 * Record a form impression.
 	 *
-	 * Endpoint: wp_ajax_xl_track_impression / wp_ajax_nopriv_xl_track_impression
+	 * Endpoint: wp_ajax_xtremeforms_track_impression / wp_ajax_nopriv_xtremeforms_track_impression
 	 * Method: POST (via fetch with keepalive:true or sendBeacon)
-	 * Auth: Nonce-verified (tied to action 'xf_impression_nonce').
+	 * Auth: Nonce-verified (tied to action 'xtremeforms_impression_nonce').
 	 * The form_id must correspond to an existing, published form.
 	 * Response: HTTP 204 No Content on success.
 	 */
 	public function handle_track_impression(): void {
 		// Verify nonce.
+		check_ajax_referer( 'xtremeforms_impression_nonce', 'nonce' );
+
 		$nonce = isset( $_POST['nonce'] )
 			? sanitize_text_field( wp_unslash( $_POST['nonce'] ) )
 			: '';
 
-		if ( ! wp_verify_nonce( $nonce, 'xf_impression_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'xtremeforms_impression_nonce' ) ) {
 			// Return JSON error so test environments can detect rejection via wp_send_json_error.
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'xtreme-forms' ) ), 403 );
 		}
@@ -1630,7 +1626,8 @@ class XF_Ajax {
 	 * Return KPI tiles, funnel data, top source pages, and top forms.
 	 */
 	public function handle_dashboard_stats(): void {
-		$this->check_analytics_ajax( 'xf_dashboard_stats_nonce' );
+		check_ajax_referer( 'xtremeforms_dashboard_stats_nonce', 'nonce' );
+		$this->check_analytics_ajax( 'xtremeforms_dashboard_stats_nonce' );
 
 		wp_send_json_success(
 			array(
@@ -1653,7 +1650,8 @@ class XF_Ajax {
 	 * Supports optional date_from / date_to filters (ISO Y-m-d strings).
 	 */
 	public function handle_chart_leads_by_form(): void {
-		$this->check_analytics_ajax( 'xf_chart_leads_by_form_nonce' );
+		check_ajax_referer( 'xtremeforms_chart_leads_by_form_nonce', 'nonce' );
+		$this->check_analytics_ajax( 'xtremeforms_chart_leads_by_form_nonce' );
 
 		$date_from = isset( $_POST['date_from'] )
 			? sanitize_text_field( wp_unslash( $_POST['date_from'] ) )
@@ -1704,7 +1702,8 @@ class XF_Ajax {
 	 * Validation: if custom end < start, returns 400 error.
 	 */
 	public function handle_chart_leads_over_time(): void {
-		$this->check_analytics_ajax( 'xf_chart_leads_over_time_nonce' );
+		check_ajax_referer( 'xtremeforms_chart_leads_over_time_nonce', 'nonce' );
+		$this->check_analytics_ajax( 'xtremeforms_chart_leads_over_time_nonce' );
 
 		$range     = isset( $_POST['range'] ) ? sanitize_text_field( wp_unslash( $_POST['range'] ) ) : '30d';
 		$date_from = isset( $_POST['date_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
@@ -1768,7 +1767,8 @@ class XF_Ajax {
 	 * Return UTM breakdown data (source, medium, campaign).
 	 */
 	public function handle_utm_report(): void {
-		$this->check_analytics_ajax( 'xf_utm_report_nonce' );
+		check_ajax_referer( 'xtremeforms_utm_report_nonce', 'nonce' );
+		$this->check_analytics_ajax( 'xtremeforms_utm_report_nonce' );
 
 		$data = XF_Analytics::utm_breakdown();
 
@@ -1781,7 +1781,8 @@ class XF_Ajax {
 	 * Return per-form performance metrics for the comparison table.
 	 */
 	public function handle_form_metrics(): void {
-		$this->check_analytics_ajax( 'xf_form_metrics_nonce' );
+		check_ajax_referer( 'xtremeforms_form_metrics_nonce', 'nonce' );
+		$this->check_analytics_ajax( 'xtremeforms_form_metrics_nonce' );
 
 		$metrics = XF_Analytics::form_performance_metrics();
 
@@ -1794,9 +1795,9 @@ class XF_Ajax {
 	 * Admin-facing endpoint to check whether a given email address already exists
 	 * in the leads database. Returns the original lead ID when a duplicate is found.
 	 *
-	 * Endpoint: wp_ajax_xl_duplicate_check (admin only — no nopriv variant)
+	 * Endpoint: wp_ajax_xtremeforms_duplicate_check (admin only — no nopriv variant)
 	 * Method: POST
-	 * Auth: Nonce-verified (tied to action 'xf_duplicate_check_nonce').
+	 * Auth: Nonce-verified (tied to action 'xtremeforms_duplicate_check_nonce').
 	 * Requires manage_options capability.
 	 * Params: email (string) — the email address to check.
 	 * Response: JSON with is_duplicate (bool) and original_lead_id (int|null).
@@ -1807,7 +1808,8 @@ class XF_Ajax {
 	 */
 	public function handle_duplicate_check(): void {
 		// Nonce + manage_options capability check.
-		$this->check_analytics_ajax( 'xf_duplicate_check_nonce' );
+		check_ajax_referer( 'xtremeforms_duplicate_check_nonce', 'nonce' );
+		$this->check_analytics_ajax( 'xtremeforms_duplicate_check_nonce' );
 
 		$email = isset( $_POST['email'] )
 			? sanitize_email( wp_unslash( $_POST['email'] ) )
@@ -1859,7 +1861,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_save(): void {
-		$this->check_ajax_auth( 'xf_webhook_nonce' );
+		check_ajax_referer( 'xtremeforms_webhook_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_webhook_nonce' );
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- webhook array; each key sanitized individually after decoding.
 		$raw = isset( $_POST['webhook'] ) ? wp_unslash( $_POST['webhook'] ) : array();
@@ -1887,7 +1890,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_delete(): void {
-		$this->check_ajax_auth( 'xf_webhook_nonce' );
+		check_ajax_referer( 'xtremeforms_webhook_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		if ( ! $webhook_id ) {
@@ -1907,7 +1911,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_test(): void {
-		$this->check_ajax_auth( 'xf_webhook_nonce' );
+		check_ajax_referer( 'xtremeforms_webhook_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		if ( ! $webhook_id ) {
@@ -1923,7 +1928,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_log(): void {
-		$this->check_ajax_auth( 'xf_webhook_nonce' );
+		check_ajax_referer( 'xtremeforms_webhook_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		$page       = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
@@ -1942,7 +1948,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_webhook_get(): void {
-		$this->check_ajax_auth( 'xf_webhook_nonce' );
+		check_ajax_referer( 'xtremeforms_webhook_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_webhook_nonce' );
 
 		$webhook_id = isset( $_POST['webhook_id'] ) ? absint( $_POST['webhook_id'] ) : 0;
 		$webhook    = $webhook_id ? XF_Webhooks::get( $webhook_id ) : null;
@@ -1963,7 +1970,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_gdpr_erase(): void {
-		$this->check_ajax_auth( 'xf_gdpr_nonce' );
+		check_ajax_referer( 'xtremeforms_gdpr_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_gdpr_nonce' );
 
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		if ( ! is_email( $email ) ) {
@@ -2017,7 +2025,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_spam_log_get(): void {
-		$this->check_ajax_auth( 'xf_spam_log_nonce' );
+		check_ajax_referer( 'xtremeforms_spam_log_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_spam_log_nonce' );
 
 		$args = array(
 			'page'             => isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1,
@@ -2034,7 +2043,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_spam_log_delete(): void {
-		$this->check_ajax_auth( 'xf_spam_log_nonce' );
+		check_ajax_referer( 'xtremeforms_spam_log_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_spam_log_nonce' );
 
 		$entry_id = isset( $_POST['entry_id'] ) ? absint( $_POST['entry_id'] ) : 0;
 		if ( ! $entry_id ) {
@@ -2054,7 +2064,8 @@ class XF_Ajax {
 	 * Requires manage_options capability.
 	 */
 	public function handle_spam_log_clear(): void {
-		$this->check_ajax_auth( 'xf_spam_log_nonce' );
+		check_ajax_referer( 'xtremeforms_spam_log_nonce', 'nonce' );
+		$this->check_ajax_auth( 'xtremeforms_spam_log_nonce' );
 
 		XF_Spam::clear_log();
 		wp_send_json_success(

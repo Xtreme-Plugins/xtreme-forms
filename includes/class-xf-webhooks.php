@@ -38,7 +38,7 @@ class XF_Webhooks {
 	const REQUEST_TIMEOUT = 10;
 
 	/** Cron hook for retry. */
-	const RETRY_CRON_HOOK = 'xf_webhook_retry';
+	const RETRY_CRON_HOOK = 'xtremeforms_webhook_retry';
 
 	// ─────────────────────────────────────────────────────────────────────────
 	// Pending dispatch queue — fires webhooks synchronously in the current PHP
