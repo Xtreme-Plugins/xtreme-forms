@@ -176,111 +176,26 @@ if ( ! empty( $_GET['updated'] ) ) {
 	</tr>
 </template>
 
-<script>
-(function () {
-	'use strict';
-
-	let ruleCounter = <?php echo count( $rules ); ?>;
-	const tbody = document.getElementById('xf-rules-body');
-	const tpl = document.getElementById('xf-rule-row-tpl');
-	const noRulesRow = document.getElementById('xf-no-rules-row');
-
-	// ── Add rule ────────────────────────────────────────────────────────────
-	document.getElementById('xf-add-rule').addEventListener('click', function () {
-		if (noRulesRow) noRulesRow.remove();
-
-		const html = tpl.innerHTML.replace(/__IDX__/g, ruleCounter);
-		const tmp = document.createElement('tbody');
-		tmp.innerHTML = html;
-		const newRow = tmp.querySelector('tr');
-		tbody.appendChild(newRow);
-
-		initRow(newRow);
-		renumberRows();
-		ruleCounter++;
-	});
-
-	// ── Remove rule ─────────────────────────────────────────────────────────
-	tbody.addEventListener('click', function (e) {
-		if (e.target.classList.contains('xf-remove-rule')) {
-			e.target.closest('tr').remove();
-			renumberRows();
-			if (tbody.querySelectorAll('.xf-rule-row').length === 0) {
-				const row = document.createElement('tr');
-				row.id = 'xf-no-rules-row';
-				row.innerHTML = '<td colspan="8" style="text-align:center;color:#6C757D;padding:24px;"><?php echo esc_js( __( 'No routing rules yet. Click "Add Rule" to create one.', 'xtreme-forms' ) ); ?></td>';
-				tbody.appendChild(row);
-			}
-		}
-	});
-
-	// ── Condition type toggle ───────────────────────────────────────────────
-	function initRow(row) {
-		const sel = row.querySelector('.xf-cond-type-select');
-		if (sel) {
-			sel.addEventListener('change', function () { updateFieldCols(row, sel.value); });
-			updateFieldCols(row, sel.value);
-		}
-	}
-
-	function updateFieldCols(row, condType) {
-		const fieldIdCol = row.querySelector('.xf-field-id-col');
-		const fieldValCol = row.querySelector('.xf-field-val-col');
-		const isFieldVal = condType === 'field_value';
-
-		if (fieldIdCol) { fieldIdCol.style.opacity = isFieldVal ? '1' : '0.3'; fieldIdCol.style.pointerEvents = isFieldVal ? '' : 'none'; }
-		if (fieldValCol) { fieldValCol.style.opacity = isFieldVal ? '1' : '0.3'; fieldValCol.style.pointerEvents = isFieldVal ? '' : 'none'; }
-	}
-
-	// Init existing rows.
-	document.querySelectorAll('.xf-rule-row').forEach(initRow);
-
-	// ── Renumber field names for correct POST order ─────────────────────────
-	function renumberRows() {
-		document.querySelectorAll('#xf-rules-body .xf-rule-row').forEach(function (row, idx) {
-			row.querySelectorAll('[name]').forEach(function (el) {
-				el.name = el.name.replace(/rules\[\d+\]/, 'rules[' + idx + ']');
-			});
-		});
-	}
-
-	// ── Drag-and-drop reorder ───────────────────────────────────────────────
-	let dragRow = null;
-
-	tbody.addEventListener('dragstart', function (e) {
-		dragRow = e.target.closest('.xf-rule-row');
-		if (dragRow) {
-			dragRow.style.opacity = '0.5';
-			e.dataTransfer.effectAllowed = 'move';
-		}
-	});
-
-	tbody.addEventListener('dragover', function (e) {
-		e.preventDefault();
-		const target = e.target.closest('.xf-rule-row');
-		if (target && target !== dragRow) {
-			const rect = target.getBoundingClientRect();
-			const next = (e.clientY - rect.top) > rect.height / 2;
-			tbody.insertBefore(dragRow, next ? target.nextSibling : target);
-		}
-	});
-
-	tbody.addEventListener('dragend', function () {
-		if (dragRow) {
-			dragRow.style.opacity = '';
-			dragRow = null;
-		}
-		renumberRows();
-	});
-
-	// Make rows draggable via drag handle.
-	document.querySelectorAll('.xf-drag-handle').forEach(function (handle) {
-		handle.closest('tr').setAttribute('draggable', 'true');
-	});
-
-	tbody.addEventListener('mouseover', function (e) {
-		const handle = e.target.closest('.xf-drag-handle');
-		if (handle) handle.closest('tr').setAttribute('draggable', 'true');
-	});
-}());
-</script>
+<?php
+wp_enqueue_script(
+	'xtremeforms-routing-rules',
+	XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-routing-rules.js',
+	array( 'xtremeforms-admin' ),
+	XTREMEFORMS_VERSION,
+	true
+);
+wp_localize_script(
+	'xtremeforms-routing-rules',
+	'xtremeFormsRoutingRulesData',
+	array(
+		'ruleCount' => count( $rules ),
+	)
+);
+wp_localize_script(
+	'xtremeforms-routing-rules',
+	'xtremeFormsRoutingRulesI18n',
+	array(
+		'noRulesYet' => __( 'No routing rules yet. Click "Add Rule" to create one.', 'xtreme-forms' ),
+	)
+);
+?>

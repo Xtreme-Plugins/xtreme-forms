@@ -200,41 +200,23 @@ if ( $notice_nonce_ok && ! empty( $_GET['resend_failed'] ) ) {
 	<?php endif; ?>
 </div>
 
-<script>
-(function () {
-	'use strict';
-
-	document.querySelectorAll('.xf-resend-btn').forEach(function (btn) {
-		btn.addEventListener('click', function () {
-			if (!confirm('<?php echo esc_js( __( 'Resend this email to the original recipient?', 'xtreme-forms' ) ); ?>')) {
-				return;
-			}
-
-			btn.disabled = true;
-			btn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
-
-			const fd = new FormData();
-			fd.append('action', 'xtremeforms_resend_email');
-			fd.append('nonce', xtremeFormsAdminData.nonce);
-			fd.append('log_id', btn.dataset.logId);
-
-			fetch(xtremeFormsAdminData.ajaxUrl, { method: 'POST', body: fd })
-				.then(function (r) { return r.json(); })
-				.then(function (res) {
-					if (res.success) {
-						btn.textContent = '<?php echo esc_js( __( 'Sent ✓', 'xtreme-forms' ) ); ?>';
-						btn.style.color = '#28A745';
-					} else {
-						btn.disabled = false;
-						btn.textContent = '<?php echo esc_js( __( 'Resend', 'xtreme-forms' ) ); ?>';
-						alert((res.data && res.data.message) || '<?php echo esc_js( __( 'Resend failed.', 'xtreme-forms' ) ); ?>');
-					}
-				})
-				.catch(function () {
-					btn.disabled = false;
-					btn.textContent = '<?php echo esc_js( __( 'Resend', 'xtreme-forms' ) ); ?>';
-				});
-		});
-	});
-}());
-</script>
+<?php
+wp_enqueue_script(
+	'xtremeforms-email-log',
+	XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-email-log.js',
+	array( 'xtremeforms-admin' ),
+	XTREMEFORMS_VERSION,
+	true
+);
+wp_localize_script(
+	'xtremeforms-email-log',
+	'xtremeFormsEmailLogI18n',
+	array(
+		'confirmResend' => __( 'Resend this email to the original recipient?', 'xtreme-forms' ),
+		'sending'       => __( 'Sending…', 'xtreme-forms' ),
+		'sent'          => __( 'Sent ✓', 'xtreme-forms' ),
+		'resend'        => __( 'Resend', 'xtreme-forms' ),
+		'resendFailed'  => __( 'Resend failed.', 'xtreme-forms' ),
+	)
+);
+?>

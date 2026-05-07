@@ -182,23 +182,25 @@ $forms   = XF_Forms::get_all_forms();
 
 <?php
 // Pass all metrics data to JS for client-side sorting (includes all pages).
-$all_metrics_json = wp_json_encode(
-	array_map(
-		static function ( $m ) {
-			return array(
-				'form_id'                 => $m['form_id'],
-				'form_name'               => $m['form_name'],
-				'views'                   => $m['views'],
-				'submissions'             => $m['submissions'],
-				'conversion_rate'         => $m['conversion_rate'],
-				'conversion_rate_warning' => $m['conversion_rate_warning'] ?? false,
-				'avg_seconds'             => $m['avg_seconds'],
-			);
-		},
-		$metrics
-	)
+$all_metrics_data = array_map(
+	static function ( $m ) {
+		return array(
+			'form_id'                 => $m['form_id'],
+			'form_name'               => $m['form_name'],
+			'views'                   => $m['views'],
+			'submissions'             => $m['submissions'],
+			'conversion_rate'         => $m['conversion_rate'],
+			'conversion_rate_warning' => $m['conversion_rate_warning'] ?? false,
+			'avg_seconds'             => $m['avg_seconds'],
+		);
+	},
+	$metrics
+);
+
+// Attach to the dashboard handle (xtremeforms-dashboard is enqueued for the form-metrics page).
+wp_add_inline_script(
+	'xtremeforms-dashboard',
+	'window.xtremeFormsFormMetricsData = ' . wp_json_encode( $all_metrics_data ) . ';',
+	'before'
 );
 ?>
-<script type="text/javascript">
-window.xtremeFormsFormMetricsData = <?php echo $all_metrics_json; // phpcs:ignore WordPress.Security.EscapeOutput ?>;
-</script>

@@ -391,338 +391,47 @@ if ( $email_warn ) {
 
 </div><!-- .xf-wrap -->
 
-<script>
-(function () {
-	'use strict';
+<?php
+wp_enqueue_script(
+	'xtremeforms-lead-detail',
+	XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-lead-detail.js',
+	array( 'xtremeforms-admin' ),
+	XTREMEFORMS_VERSION,
+	true
+);
+wp_localize_script(
+	'xtremeforms-lead-detail',
+	'xtremeFormsLeadDetailData',
+	array(
+		'leadId'  => absint( $lead_id ),
+		'nonce'   => wp_create_nonce( 'xtremeforms_admin_nonce' ),
+		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+	)
+);
+wp_localize_script(
+	'xtremeforms-lead-detail',
+	'xtremeFormsLeadDetailI18n',
+	array(
+		'saving'                => __( 'Saving…', 'xtreme-forms' ),
+		'saveStatus'            => __( 'Save Status', 'xtreme-forms' ),
+		'errorUpdatingStatus'   => __( 'Error updating status.', 'xtreme-forms' ),
+		'statusUpdated'         => __( 'Status updated.', 'xtreme-forms' ),
+		'statusChanged'         => __( 'Status changed', 'xtreme-forms' ),
+		'saveAssignment'        => __( 'Save Assignment', 'xtreme-forms' ),
+		'errorSavingAssignment' => __( 'Error saving assignment.', 'xtreme-forms' ),
+		'assignmentSaved'       => __( 'Assignment saved.', 'xtreme-forms' ),
+		'assignedTo'            => __( 'Assigned to', 'xtreme-forms' ),
+		'noteContentEmpty'      => __( 'Note content cannot be empty.', 'xtreme-forms' ),
+		'addNote'               => __( 'Add Note', 'xtreme-forms' ),
+		'errorAddingNote'       => __( 'Error adding note.', 'xtreme-forms' ),
+		'noteAdded'             => __( 'Note added.', 'xtreme-forms' ),
+		'removeTag'             => __( 'Remove tag', 'xtreme-forms' ),
+		'errorRemovingTag'      => __( 'Error removing tag.', 'xtreme-forms' ),
+		'tagRemoved'            => __( 'Tag removed.', 'xtreme-forms' ),
+		'noTagsFound'           => __( 'No tags found.', 'xtreme-forms' ),
+		'errorApplyingTag'      => __( 'Error applying tag.', 'xtreme-forms' ),
+		'tagAdded'              => __( 'Tag added.', 'xtreme-forms' ),
+	)
+);
+?>
 
-	var leadId = <?php echo absint( $lead_id ); ?>;
-	var nonce = '<?php echo esc_js( wp_create_nonce( 'xtremeforms_admin_nonce' ) ); ?>';
-	var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
-
-	function post( data, callback ) {
-		var xhr = new XMLHttpRequest();
-		xhr.open( 'POST', ajaxUrl, true );
-		xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
-		xhr.onload = function () {
-			try {
-				var json = JSON.parse( xhr.responseText );
-				callback( null, json );
-			} catch ( e ) {
-				callback( new Error( 'Invalid JSON' ), null );
-			}
-		};
-		xhr.onerror = function () { callback( new Error( 'Network error' ), null ); };
-		var params = Object.keys( data ).map( function ( k ) {
-			return encodeURIComponent( k ) + '=' + encodeURIComponent( data[ k ] );
-		} ).join( '&' );
-		xhr.send( params );
-	}
-
-	function esc( str ) {
-		var d = document.createElement( 'div' );
-		d.appendChild( document.createTextNode( String( str ) ) );
-		return d.innerHTML;
-	}
-
-	function formatDate( utcStr ) {
-		if ( ! utcStr ) return '';
-		// WordPress stores UTC datetimes; display as-is.
-		return utcStr.replace( 'T', ' ' );
-	}
-
-	function showFeedback( el, msg, isError ) {
-		el.textContent = msg;
-		el.style.display = 'block';
-		el.className = 'xf-feedback-msg ' + ( isError ? 'xf-feedback-error' : 'xf-feedback-success' );
-		setTimeout( function () { el.style.display = 'none'; }, 4000 );
-	}
-
-	// ── Status ──────────────────────────────────────────────────────────────
-
-	var statusSelect = document.getElementById( 'xf-status-select' );
-	var saveStatusBtn = document.getElementById( 'xf-save-status' );
-	var statusFeedback = document.querySelector( '.xf-status-feedback' );
-	var statusBadge = document.getElementById( 'xf-detail-status-badge' );
-
-	if ( saveStatusBtn ) {
-		saveStatusBtn.addEventListener( 'click', function () {
-			var newStatus = statusSelect.value;
-			saveStatusBtn.disabled = true;
-			saveStatusBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
-
-			post( {
-				action: 'xtremeforms_update_status',
-				nonce: nonce,
-				lead_id: leadId,
-				status: newStatus
-			}, function ( err, res ) {
-				saveStatusBtn.disabled = false;
-				saveStatusBtn.textContent = '<?php echo esc_js( __( 'Save Status', 'xtreme-forms' ) ); ?>';
-				if ( err || ! res || ! res.success ) {
-					var msg = ( res && res.data && res.data.message ) ? res.data.message : '<?php echo esc_js( __( 'Error updating status.', 'xtreme-forms' ) ); ?>';
-					showFeedback( statusFeedback, msg, true );
-					return;
-				}
-				var d = res.data;
-				showFeedback( statusFeedback, '<?php echo esc_js( __( 'Status updated.', 'xtreme-forms' ) ); ?>', false );
-
-				// Update badge without page reload.
-				if ( statusBadge ) {
-					statusBadge.textContent = d.status_label;
-					statusBadge.className = 'xf-status-badge xf-status-' + esc( d.status );
-				}
-
-				// Append to activity timeline (no page reload needed).
-				appendActivity( '<?php echo esc_js( __( 'Status changed', 'xtreme-forms' ) ); ?>: ' + esc( d.status_label ), 'status_change' );
-			} );
-		} );
-	}
-
-	// ── Assignment ──────────────────────────────────────────────────────────
-
-	var assignSelect = document.getElementById( 'xf-assignee-select' );
-	var saveAssignBtn = document.getElementById( 'xf-save-assignee' );
-	var assignFeedback = document.querySelector( '.xf-assign-feedback' );
-
-	if ( saveAssignBtn ) {
-		saveAssignBtn.addEventListener( 'click', function () {
-			saveAssignBtn.disabled = true;
-			saveAssignBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
-
-			post( {
-				action: 'xtremeforms_assign_lead',
-				nonce: nonce,
-				lead_id: leadId,
-				assigned_to: assignSelect.value
-			}, function ( err, res ) {
-				saveAssignBtn.disabled = false;
-				saveAssignBtn.textContent = '<?php echo esc_js( __( 'Save Assignment', 'xtreme-forms' ) ); ?>';
-				if ( err || ! res || ! res.success ) {
-					var msg = ( res && res.data && res.data.message ) ? res.data.message : '<?php echo esc_js( __( 'Error saving assignment.', 'xtreme-forms' ) ); ?>';
-					showFeedback( assignFeedback, msg, true );
-					return;
-				}
-				var d = res.data;
-				var feedbackMsg = '<?php echo esc_js( __( 'Assignment saved.', 'xtreme-forms' ) ); ?>';
-				if ( d.email_warning ) {
-					feedbackMsg += ' ' + d.email_warning;
-				}
-				showFeedback( assignFeedback, feedbackMsg, !! d.email_warning );
-				// Update activity without page reload.
-				var assignLabel = '<?php echo esc_js( __( 'Assigned to', 'xtreme-forms' ) ); ?>: ' + esc( d.assignee_name );
-				appendActivity( assignLabel, 'assignment' );
-			} );
-		} );
-	}
-
-	// ── Notes ────────────────────────────────────────────────────────────────
-
-	var noteTextarea = document.getElementById( 'xf-note-textarea' );
-	var submitNoteBtn = document.getElementById( 'xf-submit-note' );
-	var noteError = document.querySelector( '.xf-note-error' );
-	var notesList = document.getElementById( 'xf-notes-list' );
-	var notesEmpty = document.getElementById( 'xf-notes-empty' );
-
-	if ( submitNoteBtn ) {
-		submitNoteBtn.addEventListener( 'click', function () {
-			var content = noteTextarea.value;
-
-			if ( ! content.trim() ) {
-				noteError.textContent = '<?php echo esc_js( __( 'Note content cannot be empty.', 'xtreme-forms' ) ); ?>';
-				noteError.style.display = 'block';
-				return;
-			}
-			noteError.style.display = 'none';
-
-			submitNoteBtn.disabled = true;
-			submitNoteBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
-
-			post( {
-				action: 'xtremeforms_add_note',
-				nonce: nonce,
-				lead_id: leadId,
-				note_content: content
-			}, function ( err, res ) {
-				submitNoteBtn.disabled = false;
-				submitNoteBtn.textContent = '<?php echo esc_js( __( 'Add Note', 'xtreme-forms' ) ); ?>';
-
-				if ( err || ! res || ! res.success ) {
-					var msg = ( res && res.data && res.data.message ) ? res.data.message : '<?php echo esc_js( __( 'Error adding note.', 'xtreme-forms' ) ); ?>';
-					noteError.textContent = msg;
-					noteError.style.display = 'block';
-					return;
-				}
-
-				var note = res.data.note;
-				if ( notesEmpty ) {
-					notesEmpty.style.display = 'none';
-				}
-
-				var dateStr = note.created_at ? note.created_at : '';
-				var noteEl = document.createElement( 'div' );
-				noteEl.className = 'xf-note-item';
-				noteEl.innerHTML =
-					'<div class="xf-note-meta">' +
-					'<strong>' + esc( note.author_name ) + '</strong>' +
-					'<time class="xf-note-time">' + esc( dateStr ) + '</time>' +
-					'</div>' +
-					'<div class="xf-note-content">' + esc( note.content ) + '</div>';
-				notesList.appendChild( noteEl );
-
-				noteTextarea.value = '';
-				appendActivity( '<?php echo esc_js( __( 'Note added.', 'xtreme-forms' ) ); ?>', 'note_added' );
-			} );
-		} );
-	}
-
-	// ── Tags ─────────────────────────────────────────────────────────────────
-
-	var tagInput = document.getElementById( 'xf-tag-input' );
-	var tagSuggestions = document.getElementById( 'xf-tag-suggestions' );
-	var tagsList = document.getElementById( 'xf-tags-list' );
-	var tagFeedback = document.querySelector( '.xf-tag-feedback' );
-	var _suggestTimer = null;
-
-	function addTagPill( tag ) {
-		// Prevent duplicate pills.
-		var existing = tagsList.querySelector( '[data-tag-id="' + tag.id + '"]' );
-		if ( existing ) return;
-
-		var pill = document.createElement( 'span' );
-		pill.className = 'xf-tag-pill';
-		pill.setAttribute( 'data-tag-id', tag.id );
-		pill.innerHTML = esc( tag.name ) +
-			'<button type="button" class="xf-tag-remove" data-tag-id="' + esc( tag.id ) + '" aria-label="<?php echo esc_js( __( 'Remove tag', 'xtreme-forms' ) ); ?>: ' + esc( tag.name ) + '">&times;</button>';
-		tagsList.appendChild( pill );
-		bindRemoveTag( pill.querySelector( '.xf-tag-remove' ) );
-	}
-
-	function bindRemoveTag( btn ) {
-		btn.addEventListener( 'click', function () {
-			var tagId = parseInt( btn.getAttribute( 'data-tag-id' ), 10 );
-			post( {
-				action: 'xtremeforms_remove_tag',
-				nonce: nonce,
-				lead_id: leadId,
-				tag_id: tagId
-			}, function ( err, res ) {
-				if ( err || ! res || ! res.success ) {
-					showFeedback( tagFeedback, '<?php echo esc_js( __( 'Error removing tag.', 'xtreme-forms' ) ); ?>', true );
-					return;
-				}
-				var pill = tagsList.querySelector( '[data-tag-id="' + tagId + '"]' );
-				if ( pill ) pill.remove();
-				showFeedback( tagFeedback, '<?php echo esc_js( __( 'Tag removed.', 'xtreme-forms' ) ); ?>', false );
-				appendActivity( '<?php echo esc_js( __( 'Tag removed.', 'xtreme-forms' ) ); ?>', 'tag_removed' );
-			} );
-		} );
-	}
-
-	// Bind existing remove buttons.
-	if ( tagsList ) {
-		tagsList.querySelectorAll( '.xf-tag-remove' ).forEach( bindRemoveTag );
-	}
-
-	if ( tagInput ) {
-		tagInput.addEventListener( 'input', function () {
-			clearTimeout( _suggestTimer );
-			var query = tagInput.value.trim();
-			if ( query.length < 1 ) {
-				tagSuggestions.hidden = true;
-				return;
-			}
-			_suggestTimer = setTimeout( function () {
-				post( {
-					action: 'xtremeforms_search_tags',
-					nonce: nonce,
-					query: query
-				}, function ( err, res ) {
-					if ( err || ! res || ! res.success ) {
-						tagSuggestions.hidden = true;
-						return;
-					}
-					var tags = res.data.tags || [];
-					tagSuggestions.innerHTML = '';
-					if ( ! tags.length ) {
-						var li = document.createElement( 'li' );
-						li.className = 'xf-suggestion-empty';
-						li.textContent = '<?php echo esc_js( __( 'No tags found.', 'xtreme-forms' ) ); ?>';
-						tagSuggestions.appendChild( li );
-					} else {
-						tags.forEach( function ( tag ) {
-							var li = document.createElement( 'li' );
-							li.className = 'xf-suggestion-item';
-							li.setAttribute( 'role', 'option' );
-							li.setAttribute( 'data-tag-id', tag.id );
-							li.textContent = tag.name;
-							li.addEventListener( 'click', function () {
-								applyTag( tag );
-								tagSuggestions.hidden = true;
-								tagInput.value = '';
-							} );
-							tagSuggestions.appendChild( li );
-						} );
-					}
-					tagSuggestions.hidden = false;
-				} );
-			}, 200 );
-		} );
-
-		tagInput.addEventListener( 'keydown', function ( e ) {
-			if ( e.key === 'Escape' ) {
-				tagSuggestions.hidden = true;
-			}
-		} );
-
-		document.addEventListener( 'click', function ( e ) {
-			if ( ! tagInput.contains( e.target ) && ! tagSuggestions.contains( e.target ) ) {
-				tagSuggestions.hidden = true;
-			}
-		} );
-	}
-
-	function applyTag( tag ) {
-		post( {
-			action: 'xtremeforms_apply_tag',
-			nonce: nonce,
-			lead_id: leadId,
-			tag_id: tag.id
-		}, function ( err, res ) {
-			if ( err || ! res || ! res.success ) {
-				showFeedback( tagFeedback, '<?php echo esc_js( __( 'Error applying tag.', 'xtreme-forms' ) ); ?>', true );
-				return;
-			}
-			addTagPill( res.data.tag );
-			showFeedback( tagFeedback, '<?php echo esc_js( __( 'Tag added.', 'xtreme-forms' ) ); ?>', false );
-			appendActivity( '<?php echo esc_js( __( 'Tag added.', 'xtreme-forms' ) ); ?>', 'tag_added' );
-		} );
-	}
-
-	// ── Activity append helper ────────────────────────────────────────────────
-
-	function appendActivity( label, type ) {
-		var list = document.getElementById( 'xf-activity-list' );
-		if ( ! list ) return;
-
-		var emptyMsg = list.querySelector( '.xf-na' );
-		if ( emptyMsg ) emptyMsg.remove();
-
-		var now = new Date();
-		var dateStr = now.getFullYear() + '-' + pad( now.getMonth() + 1 ) + '-' + pad( now.getDate() ) +
-			' ' + pad( now.getHours() ) + ':' + pad( now.getMinutes() ) + ':' + pad( now.getSeconds() );
-
-		var item = document.createElement( 'div' );
-		item.className = 'xf-activity-item xf-activity-' + esc( type );
-		item.innerHTML =
-			'<div class="xf-activity-dot"></div>' +
-			'<div class="xf-activity-body">' +
-			'<div class="xf-activity-label">' + esc( label ) + '</div>' +
-			'<time class="xf-activity-time">' + esc( dateStr ) + '</time>' +
-			'</div>';
-		list.appendChild( item );
-	}
-
-	function pad( n ) { return n < 10 ? '0' + n : String( n ); }
-
-})();
-</script>

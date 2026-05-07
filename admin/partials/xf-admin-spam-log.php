@@ -189,56 +189,32 @@ $pages = $log_data['pages'];
 	<?php endif; ?>
 </div>
 
-<script>
-(function(){
-	var nonce = <?php echo wp_json_encode( $nonce ); ?>;
-	var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
-
-	// Delete single entry.
-	document.querySelectorAll('.xf-spam-delete-entry').forEach(function(btn) {
-		btn.addEventListener('click', function() {
-			if (!confirm('<?php echo esc_js( __( 'Permanently delete this spam log entry?', 'xtreme-forms' ) ); ?>')) return;
-			var id = btn.getAttribute('data-id');
-			var fd = new FormData();
-			fd.append('action', 'xtremeforms_spam_log_delete');
-			fd.append('nonce', nonce);
-			fd.append('entry_id', id);
-			fetch(ajaxUrl, {method:'POST', body:fd})
-				.then(function(r){ return r.json(); })
-				.then(function(resp) {
-					if (resp.success) {
-						var row = document.querySelector('[data-entry-id="'+id+'"]');
-						if (row) row.remove();
-					} else {
-						alert((resp.data && resp.data.message) || '<?php echo esc_js( __( 'Delete failed.', 'xtreme-forms' ) ); ?>');
-					}
-				});
-		});
-	});
-
-	// Clear all.
-	var clearBtn = document.getElementById('xf-spam-clear-all-btn');
-	if (clearBtn) {
-		clearBtn.addEventListener('click', function() {
-			if (!confirm('<?php echo esc_js( __( 'Permanently clear the entire spam log? This cannot be undone.', 'xtreme-forms' ) ); ?>')) return;
-			var msg = document.getElementById('xf-spam-clear-msg');
-			msg.textContent = '<?php echo esc_js( __( 'Clearing…', 'xtreme-forms' ) ); ?>';
-			var fd = new FormData();
-			fd.append('action', 'xtremeforms_spam_log_clear');
-			fd.append('nonce', nonce);
-			fetch(ajaxUrl, {method:'POST', body:fd})
-				.then(function(r){ return r.json(); })
-				.then(function(resp) {
-					if (resp.success) {
-						msg.textContent = '<?php echo esc_js( __( 'Spam log cleared.', 'xtreme-forms' ) ); ?>';
-						msg.style.color = '#28A745';
-						setTimeout(function(){ location.reload(); }, 800);
-					} else {
-						msg.textContent = '<?php echo esc_js( __( 'Clear failed.', 'xtreme-forms' ) ); ?>';
-						msg.style.color = '#DC3545';
-					}
-				});
-		});
-	}
-})();
-</script>
+<?php
+wp_enqueue_script(
+	'xtremeforms-spam-log',
+	XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-spam-log.js',
+	array( 'xtremeforms-admin' ),
+	XTREMEFORMS_VERSION,
+	true
+);
+wp_localize_script(
+	'xtremeforms-spam-log',
+	'xtremeFormsSpamLogData',
+	array(
+		'nonce'   => $nonce,
+		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+	)
+);
+wp_localize_script(
+	'xtremeforms-spam-log',
+	'xtremeFormsSpamLogI18n',
+	array(
+		'confirmDeleteEntry' => __( 'Permanently delete this spam log entry?', 'xtreme-forms' ),
+		'deleteFailed'       => __( 'Delete failed.', 'xtreme-forms' ),
+		'confirmClearAll'    => __( 'Permanently clear the entire spam log? This cannot be undone.', 'xtreme-forms' ),
+		'clearing'           => __( 'Clearing…', 'xtreme-forms' ),
+		'cleared'            => __( 'Spam log cleared.', 'xtreme-forms' ),
+		'clearFailed'        => __( 'Clear failed.', 'xtreme-forms' ),
+	)
+);
+?>

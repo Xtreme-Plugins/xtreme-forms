@@ -251,153 +251,41 @@ $xf_integrations = array(
 </div><!-- .wrap.xf-wrap -->
 
 <?php
-// Pass saved settings and nonce to JS.
+// Pass saved settings, nonce, and i18n strings to JS via wp_localize_script.
 $xf_int_nonce = wp_create_nonce( 'xtremeforms_integrations_nonce' );
-echo '<script>window.xfIntegrationsData = ' . wp_json_encode( $xf_int_saved ) . '; window.xfIntegrationsNonce = ' . wp_json_encode( $xf_int_nonce ) . '; window.xfAdminAjaxUrl = ' . wp_json_encode( admin_url( 'admin-ajax.php' ) ) . ';</script>';
-?>
 
-<script>
-( function () {
-	'use strict';
+wp_enqueue_script(
+	'xtremeforms-integrations',
+	XTREMEFORMS_PLUGIN_URL . 'admin/js/xf-integrations.js',
+	array( 'xtremeforms-admin' ),
+	XTREMEFORMS_VERSION,
+	true
+);
+wp_localize_script(
+	'xtremeforms-integrations',
+	'xtremeFormsIntegrationsData',
+	array(
+		'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+		'nonce'    => $xf_int_nonce,
+		'settings' => $xf_int_saved,
+	)
+);
+wp_localize_script(
+	'xtremeforms-integrations',
+	'xtremeFormsIntegrationsI18n',
+	array(
+		'configure'         => __( 'Configure', 'xtreme-forms' ),
+		'close'             => __( 'Close', 'xtreme-forms' ),
+		'saving'            => __( 'Saving…', 'xtreme-forms' ),
+		'saved'             => __( 'Saved.', 'xtreme-forms' ),
+		'saveFailed'        => __( 'Save failed.', 'xtreme-forms' ),
+		'connected'         => __( 'Connected', 'xtreme-forms' ),
+		'notConnected'      => __( 'Not Connected', 'xtreme-forms' ),
+		'requestFailed'     => __( 'Request failed.', 'xtreme-forms' ),
+		'testing'           => __( 'Testing…', 'xtreme-forms' ),
+		'connectionSuccess' => __( 'Connection successful!', 'xtreme-forms' ),
+		'testFailed'        => __( 'Test failed.', 'xtreme-forms' ),
+	)
+);
 
-	var ajaxUrl = window.xfAdminAjaxUrl || '';
-	var nonce   = window.xfIntegrationsNonce || '';
 
-	// ── Toggle panels ────────────────────────────────────────────────────────
-
-	document.querySelectorAll( '.xf-integration-toggle-btn' ).forEach( function ( btn ) {
-		btn.addEventListener( 'click', function () {
-			var slug  = btn.getAttribute( 'data-integration' );
-			var panel = document.getElementById( 'xf-int-panel-' + slug );
-			if ( ! panel ) return;
-
-			var isOpen = panel.style.display !== 'none';
-			panel.style.display = isOpen ? 'none' : '';
-			btn.setAttribute( 'aria-expanded', isOpen ? 'false' : 'true' );
-			btn.textContent = isOpen
-				? <?php echo wp_json_encode( __( 'Configure', 'xtreme-forms' ) ); ?>
-				: <?php echo wp_json_encode( __( 'Close', 'xtreme-forms' ) ); ?>;
-		} );
-	} );
-
-	// ── Save forms ───────────────────────────────────────────────────────────
-
-	document.querySelectorAll( '.xf-integration-form' ).forEach( function ( form ) {
-		form.addEventListener( 'submit', function ( e ) {
-			e.preventDefault();
-
-			var slug    = form.getAttribute( 'data-integration' );
-			var msgEl   = form.querySelector( '.xf-integration-save-msg' );
-			var saveBtn = form.querySelector( '[type="submit"]' );
-			var origTxt = saveBtn ? saveBtn.textContent : '';
-
-			if ( saveBtn ) {
-				saveBtn.disabled    = true;
-				saveBtn.textContent = <?php echo wp_json_encode( __( 'Saving\u2026', 'xtreme-forms' ) ); ?>;
-			}
-
-			// Collect form field values into a plain object.
-			var data    = {};
-			var enabled = form.querySelector( '[name="enabled"]' );
-			data.enabled = ( enabled && enabled.checked ) ? '1' : '0';
-
-			form.querySelectorAll( 'input:not([name="enabled"]), select' ).forEach( function ( el ) {
-				if ( el.name ) {
-					data[ el.name ] = el.value;
-				}
-			} );
-
-			// Build FormData for the AJAX request.
-			var fd = new FormData();
-			fd.append( 'action',      'xtremeforms_save_integration' );
-			fd.append( 'nonce',       nonce );
-			fd.append( 'integration', slug );
-			Object.keys( data ).forEach( function ( k ) {
-				fd.append( 'data[' + k + ']', data[ k ] );
-			} );
-
-			fetch( ajaxUrl, { method: 'POST', body: fd, credentials: 'same-origin' } )
-				.then( function ( r ) { return r.json(); } )
-				.then( function ( json ) {
-					if ( msgEl ) {
-						msgEl.style.display = '';
-						msgEl.className     = 'xf-integration-save-msg ' + ( json.success ? 'success' : 'error' );
-						msgEl.textContent   = json.success
-							? ( json.data && json.data.message ? json.data.message : <?php echo wp_json_encode( __( 'Saved.', 'xtreme-forms' ) ); ?> )
-							: ( json.data ? json.data : <?php echo wp_json_encode( __( 'Save failed.', 'xtreme-forms' ) ); ?> );
-						setTimeout( function () { msgEl.style.display = 'none'; }, 3500 );
-					}
-					// Update status badge if enabled was toggled.
-					var card   = form.closest( '.xf-integration-card' );
-					var badge  = card ? card.querySelector( '.xf-integration-status' ) : null;
-					if ( badge ) {
-						if ( data.enabled === '1' && json.success ) {
-							badge.textContent = <?php echo wp_json_encode( __( 'Connected', 'xtreme-forms' ) ); ?>;
-							badge.classList.add( 'connected' );
-						} else if ( json.success ) {
-							badge.textContent = <?php echo wp_json_encode( __( 'Not Connected', 'xtreme-forms' ) ); ?>;
-							badge.classList.remove( 'connected' );
-						}
-					}
-				} )
-				.catch( function () {
-					if ( msgEl ) {
-						msgEl.style.display = '';
-						msgEl.className     = 'xf-integration-save-msg error';
-						msgEl.textContent   = <?php echo wp_json_encode( __( 'Request failed.', 'xtreme-forms' ) ); ?>;
-					}
-				} )
-				.finally( function () {
-					if ( saveBtn ) {
-						saveBtn.disabled    = false;
-						saveBtn.textContent = origTxt;
-					}
-				} );
-		} );
-	} );
-
-	// ── Test connection ──────────────────────────────────────────────────────
-
-	document.querySelectorAll( '.xf-integration-test-btn' ).forEach( function ( btn ) {
-		btn.addEventListener( 'click', function () {
-			var slug  = btn.getAttribute( 'data-integration' );
-			var form  = btn.closest( '.xf-integration-form' );
-			var msgEl = form ? form.querySelector( '.xf-integration-save-msg' ) : null;
-
-			var origTxt     = btn.textContent;
-			btn.disabled    = true;
-			btn.textContent = <?php echo wp_json_encode( __( 'Testing\u2026', 'xtreme-forms' ) ); ?>;
-
-			var fd = new FormData();
-			fd.append( 'action',      'xtremeforms_test_integration' );
-			fd.append( 'nonce',       nonce );
-			fd.append( 'integration', slug );
-
-			fetch( ajaxUrl, { method: 'POST', body: fd, credentials: 'same-origin' } )
-				.then( function ( r ) { return r.json(); } )
-				.then( function ( json ) {
-					if ( msgEl ) {
-						msgEl.style.display = '';
-						msgEl.className     = 'xf-integration-save-msg ' + ( json.success ? 'success' : 'error' );
-						msgEl.textContent   = json.success
-							? ( json.data && json.data.message ? json.data.message : <?php echo wp_json_encode( __( 'Connection successful!', 'xtreme-forms' ) ); ?> )
-							: ( json.data ? json.data : <?php echo wp_json_encode( __( 'Test failed.', 'xtreme-forms' ) ); ?> );
-						setTimeout( function () { msgEl.style.display = 'none'; }, 4000 );
-					}
-				} )
-				.catch( function () {
-					if ( msgEl ) {
-						msgEl.style.display = '';
-						msgEl.className     = 'xf-integration-save-msg error';
-						msgEl.textContent   = <?php echo wp_json_encode( __( 'Request failed.', 'xtreme-forms' ) ); ?>;
-					}
-				} )
-				.finally( function () {
-					btn.disabled    = false;
-					btn.textContent = origTxt;
-				} );
-		} );
-	} );
-
-}() );
-</script>

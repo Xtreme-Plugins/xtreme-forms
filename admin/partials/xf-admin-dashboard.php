@@ -371,10 +371,16 @@ $forms_url    = add_query_arg( array( 'page' => 'xtreme-forms-forms' ), admin_ur
 
 </div><!-- .xf-dashboard-wrap -->
 
-<script type="text/javascript">
-/* Dashboard initial data — passed to xf-dashboard.js to avoid redundant AJAX on load */
-window.xtremeFormsDashboardInitialData = {
-	hasLeads: <?php echo $total_leads > 0 ? 'true' : 'false'; ?>,
-	hasForms: <?php echo $has_forms ? 'true' : 'false'; ?>,
-};
-</script>
+<?php
+// Dashboard initial data — passed to xf-dashboard.js to avoid redundant AJAX on load.
+wp_add_inline_script(
+	'xtremeforms-dashboard',
+	'window.xtremeFormsDashboardInitialData = ' . wp_json_encode(
+		array(
+			'hasLeads' => $total_leads > 0,
+			'hasForms' => (bool) $has_forms,
+		)
+	) . ';',
+	'before'
+);
+?>
