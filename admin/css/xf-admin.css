@@ -6,7 +6,11 @@
  * @package Xtreme Forms
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+/*
+ * Web fonts removed to comply with the WordPress.org "no third-party requests
+ * without explicit administrator opt-in" guideline. The font stacks below fall
+ * back to the operating system's native UI font and monospace fonts.
+ */
 
 /* ── CSS Custom Properties ───────────────────────────────────────────────── */
 .xf-wrap {

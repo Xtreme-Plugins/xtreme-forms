@@ -8,12 +8,12 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Integrations
+ * Class Xtremeforms_Integrations
  *
  * Manages CRM/marketing integration settings and dispatches lead data
  * to all enabled integrations whenever a new lead is captured.
  */
-class XF_Integrations {
+class Xtremeforms_Integrations {
 
 	/**
 	 * Allowed integration slugs.
@@ -42,7 +42,7 @@ class XF_Integrations {
 	// ── AJAX: save ────────────────────────────────────────────────────────────
 
 	public function ajax_save(): void {
-		check_ajax_referer( 'xf_integrations_nonce', 'nonce' );
+		check_ajax_referer( 'xtremeforms_integrations_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( 'Unauthorized', 403 );
@@ -79,7 +79,7 @@ class XF_Integrations {
 	// ── AJAX: get ─────────────────────────────────────────────────────────────
 
 	public function ajax_get(): void {
-		check_ajax_referer( 'xf_integrations_nonce', 'nonce' );
+		check_ajax_referer( 'xtremeforms_integrations_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( 'Unauthorized', 403 );
@@ -91,7 +91,7 @@ class XF_Integrations {
 	// ── AJAX: test ────────────────────────────────────────────────────────────
 
 	public function ajax_test(): void {
-		check_ajax_referer( 'xf_integrations_nonce', 'nonce' );
+		check_ajax_referer( 'xtremeforms_integrations_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( 'Unauthorized', 403 );

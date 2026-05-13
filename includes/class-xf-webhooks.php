@@ -8,12 +8,12 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Webhooks
+ * Class Xtremeforms_Webhooks
  *
  * Handles webhook configuration, firing payloads, retry scheduling,
  * and the delivery log.
  */
-class XF_Webhooks {
+class Xtremeforms_Webhooks {
 
 	/** Trigger event constants. */
 	const EVENT_NEW_LEAD      = 'new_lead';
@@ -38,7 +38,7 @@ class XF_Webhooks {
 	const REQUEST_TIMEOUT = 10;
 
 	/** Cron hook for retry. */
-	const RETRY_CRON_HOOK = 'xf_webhook_retry';
+	const RETRY_CRON_HOOK = 'xtremeforms_webhook_retry';
 
 	// ─────────────────────────────────────────────────────────────────────────
 	// Pending dispatch queue — fires webhooks synchronously in the current PHP
@@ -698,4 +698,4 @@ class XF_Webhooks {
 }
 
 // Register the cron callback for retries (60-second minimum delay after initial failure).
-add_action( XF_Webhooks::RETRY_CRON_HOOK, array( 'XF_Webhooks', 'execute_retry' ), 10, 5 );
+add_action( Xtremeforms_Webhooks::RETRY_CRON_HOOK, array( 'Xtremeforms_Webhooks', 'execute_retry' ), 10, 5 );

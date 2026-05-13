@@ -7,14 +7,18 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET filter params are sanitized on read.
 
 $per_page    = 50;
 $paged       = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
 $filter_type = isset( $_GET['action_type'] ) ? sanitize_key( $_GET['action_type'] ) : '';
 $filter_user = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
 
-$result = XF_Audit_Log::get_entries(
+$result = Xtremeforms_Audit_Log::get_entries(
 	array(
 		'action_type' => $filter_type,
 		'user_id'     => $filter_user,
@@ -27,7 +31,7 @@ $entries     = $result['entries'];
 $total       = $result['total'];
 $total_pages = ceil( $total / $per_page );
 
-$action_types = XF_Audit_Log::get_all_action_types();
+$action_types = Xtremeforms_Audit_Log::get_all_action_types();
 
 $base_url = add_query_arg(
 	array(
@@ -54,7 +58,7 @@ $base_url = add_query_arg(
 				<option value=""><?php esc_html_e( '— All Types —', 'xtreme-forms' ); ?></option>
 				<?php foreach ( $action_types as $slug ) : ?>
 					<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $filter_type, $slug ); ?>>
-						<?php echo esc_html( XF_Audit_Log::get_action_label( $slug ) ); ?>
+						<?php echo esc_html( Xtremeforms_Audit_Log::get_action_label( $slug ) ); ?>
 					</option>
 				<?php endforeach; ?>
 			</select>
@@ -122,7 +126,7 @@ $base_url = add_query_arg(
 						<td><?php echo esc_html( $entry->user_display ); ?></td>
 						<td>
 							<span class="xf-audit-action-badge xf-audit-action-<?php echo esc_attr( $entry->action_type ); ?>">
-								<?php echo esc_html( XF_Audit_Log::get_action_label( $entry->action_type ) ); ?>
+								<?php echo esc_html( Xtremeforms_Audit_Log::get_action_label( $entry->action_type ) ); ?>
 							</span>
 							<br><small style="color:#6C757D;font-family:monospace;"><?php echo esc_html( $entry->action_type ); ?></small>
 						</td>

@@ -7,9 +7,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
 
-$template = XF_Email_Templates::get_template();
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params are read-only notice flags.
+
+$template = Xtremeforms_Email_Templates::get_template();
 $notice   = '';
 
 if ( ! empty( $_GET['updated'] ) ) {
@@ -50,8 +54,8 @@ $merge_tags_desc = implode(
 		<!-- ── Editor ────────────────────────────────────────────────────── -->
 		<div class="xf-main-col">
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data" id="xf-template-form">
-				<input type="hidden" name="action" value="xf_save_email_template">
-				<?php wp_nonce_field( 'xf_save_email_template' ); ?>
+				<input type="hidden" name="action" value="xtremeforms_save_email_template">
+				<?php wp_nonce_field( 'xtremeforms_save_email_template' ); ?>
 
 				<div class="xf-settings-card">
 					<h2><?php esc_html_e( 'Template Design', 'xtreme-forms' ); ?></h2>
@@ -61,7 +65,7 @@ $merge_tags_desc = implode(
 							<!-- Logo Upload -->
 							<tr>
 								<th scope="row">
-									<label for="xf_logo_upload"><?php esc_html_e( 'Logo', 'xtreme-forms' ); ?></label>
+									<label for="xtremeforms_logo_upload"><?php esc_html_e( 'Logo', 'xtreme-forms' ); ?></label>
 								</th>
 								<td>
 									<?php if ( $template['logo_url'] ) : ?>
@@ -70,8 +74,8 @@ $merge_tags_desc = implode(
 										</div>
 									<?php endif; ?>
 
-									<input type="file" id="xf_logo_upload" name="xf_logo_file" accept="image/jpeg,image/png,image/gif,image/webp" style="margin-bottom:8px;display:block;">
-									<input type="hidden" name="xf_logo_url" id="xf_logo_url" value="<?php echo esc_attr( $template['logo_url'] ); ?>">
+									<input type="file" id="xtremeforms_logo_upload" name="xtremeforms_logo_file" accept="image/jpeg,image/png,image/gif,image/webp" style="margin-bottom:8px;display:block;">
+									<input type="hidden" name="xtremeforms_logo_url" id="xtremeforms_logo_url" value="<?php echo esc_attr( $template['logo_url'] ); ?>">
 
 									<p class="description">
 										<?php esc_html_e( 'Accepted: JPEG, PNG, GIF, WebP. Maximum size: 2 MB. Leave blank to use no logo.', 'xtreme-forms' ); ?>
@@ -79,7 +83,7 @@ $merge_tags_desc = implode(
 
 									<?php if ( $template['logo_url'] ) : ?>
 										<label class="xf-checkbox-inline" style="margin-top:8px;display:block;">
-											<input type="checkbox" name="xf_remove_logo" value="1">
+											<input type="checkbox" name="xtremeforms_remove_logo" value="1">
 											<?php esc_html_e( 'Remove current logo', 'xtreme-forms' ); ?>
 										</label>
 									<?php endif; ?>
@@ -91,12 +95,12 @@ $merge_tags_desc = implode(
 							<!-- Header Color -->
 							<tr>
 								<th scope="row">
-									<label for="xf_header_color"><?php esc_html_e( 'Header Background Color', 'xtreme-forms' ); ?></label>
+									<label for="xtremeforms_header_color"><?php esc_html_e( 'Header Background Color', 'xtreme-forms' ); ?></label>
 								</th>
 								<td>
 									<div style="display:flex;align-items:center;gap:12px;">
-										<input type="color" id="xf_header_color" name="xf_header_color" value="<?php echo esc_attr( $template['header_color'] ); ?>" style="width:48px;height:36px;padding:2px;border-radius:4px;border:1px solid #DEE2E6;cursor:pointer;">
-										<input type="text" id="xf_header_color_hex" name="xf_header_color_hex_display" value="<?php echo esc_attr( $template['header_color'] ); ?>" maxlength="7" style="width:100px;" placeholder="#1A73E8" pattern="#[0-9A-Fa-f]{6}" title="<?php esc_attr_e( 'Hex color value, e.g. #1A73E8', 'xtreme-forms' ); ?>">
+										<input type="color" id="xtremeforms_header_color" name="xtremeforms_header_color" value="<?php echo esc_attr( $template['header_color'] ); ?>" style="width:48px;height:36px;padding:2px;border-radius:4px;border:1px solid #DEE2E6;cursor:pointer;">
+										<input type="text" id="xtremeforms_header_color_hex" name="xtremeforms_header_color_hex_display" value="<?php echo esc_attr( $template['header_color'] ); ?>" maxlength="7" style="width:100px;" placeholder="#1A73E8" pattern="#[0-9A-Fa-f]{6}" title="<?php esc_attr_e( 'Hex color value, e.g. #1A73E8', 'xtreme-forms' ); ?>">
 									</div>
 									<p class="description"><?php esc_html_e( 'Default: Electric Blue (#1A73E8)', 'xtreme-forms' ); ?></p>
 								</td>
@@ -105,10 +109,10 @@ $merge_tags_desc = implode(
 							<!-- Email Subject -->
 							<tr>
 								<th scope="row">
-									<label for="xf_subject"><?php esc_html_e( 'Email Subject', 'xtreme-forms' ); ?></label>
+									<label for="xtremeforms_subject"><?php esc_html_e( 'Email Subject', 'xtreme-forms' ); ?></label>
 								</th>
 								<td>
-									<input type="text" id="xf_subject" name="xf_subject" value="<?php echo esc_attr( $template['subject'] ); ?>" class="large-text">
+									<input type="text" id="xtremeforms_subject" name="xtremeforms_subject" value="<?php echo esc_attr( $template['subject'] ); ?>" class="large-text">
 									<p class="description"><?php esc_html_e( 'Merge tags supported.', 'xtreme-forms' ); ?></p>
 								</td>
 							</tr>
@@ -116,10 +120,10 @@ $merge_tags_desc = implode(
 							<!-- Body Text -->
 							<tr>
 								<th scope="row">
-									<label for="xf_body_text"><?php esc_html_e( 'Body / Intro Text', 'xtreme-forms' ); ?></label>
+									<label for="xtremeforms_body_text"><?php esc_html_e( 'Body / Intro Text', 'xtreme-forms' ); ?></label>
 								</th>
 								<td>
-									<textarea id="xf_body_text" name="xf_body_text" rows="4" class="large-text"><?php echo esc_textarea( $template['body_text'] ); ?></textarea>
+									<textarea id="xtremeforms_body_text" name="xtremeforms_body_text" rows="4" class="large-text"><?php echo esc_textarea( $template['body_text'] ); ?></textarea>
 									<p class="description"><?php esc_html_e( 'Introduction paragraph shown above the submitted field values. Merge tags supported.', 'xtreme-forms' ); ?></p>
 								</td>
 							</tr>
@@ -127,11 +131,26 @@ $merge_tags_desc = implode(
 							<!-- Footer Text -->
 							<tr>
 								<th scope="row">
-									<label for="xf_footer_text"><?php esc_html_e( 'Footer Text', 'xtreme-forms' ); ?></label>
+									<label for="xtremeforms_footer_text"><?php esc_html_e( 'Footer Text', 'xtreme-forms' ); ?></label>
 								</th>
 								<td>
-									<textarea id="xf_footer_text" name="xf_footer_text" rows="3" class="large-text"><?php echo esc_textarea( $template['footer_text'] ); ?></textarea>
+									<textarea id="xtremeforms_footer_text" name="xtremeforms_footer_text" rows="3" class="large-text"><?php echo esc_textarea( $template['footer_text'] ); ?></textarea>
 									<p class="description"><?php esc_html_e( 'Footer shown at the bottom of all notification emails.', 'xtreme-forms' ); ?></p>
+								</td>
+							</tr>
+
+							<!-- Attribution opt-in -->
+							<tr>
+								<th scope="row">
+									<?php esc_html_e( 'Plugin Attribution', 'xtreme-forms' ); ?>
+								</th>
+								<td>
+									<?php $xf_show_powered_by = (bool) get_option( 'xtremeforms_show_powered_by', false ); ?>
+									<label for="xtremeforms_show_powered_by" style="display:flex;gap:8px;align-items:flex-start;">
+										<input type="checkbox" id="xtremeforms_show_powered_by" name="xtremeforms_show_powered_by" value="1" <?php checked( $xf_show_powered_by ); ?>>
+										<span><?php esc_html_e( 'Show a "Sent by Xtreme Forms" credit link in the footer of outgoing emails.', 'xtreme-forms' ); ?></span>
+									</label>
+									<p class="description"><?php esc_html_e( 'Optional. Off by default. If you enable this, every notification and auto-responder email sent by this plugin will include a small "Sent by Xtreme Forms" link in the footer.', 'xtreme-forms' ); ?></p>
 								</td>
 							</tr>
 						</tbody>
@@ -175,13 +194,15 @@ $merge_tags_desc = implode(
 	</div>
 </div>
 
-<script>
+<?php
+ob_start();
+?>
 (function () {
 	'use strict';
 
 	// ── Color picker sync ──────────────────────────────────────────────────
-	const colorPicker = document.getElementById('xf_header_color');
-	const colorHex = document.getElementById('xf_header_color_hex');
+	const colorPicker = document.getElementById('xtremeforms_header_color');
+	const colorHex = document.getElementById('xtremeforms_header_color_hex');
 
 	if (colorPicker && colorHex) {
 		colorPicker.addEventListener('input', function () {
@@ -192,16 +213,16 @@ $merge_tags_desc = implode(
 			if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
 				colorPicker.value = val;
 				// Update actual hidden input used by form.
-				document.querySelector('[name="xf_header_color"]').value = val;
+				document.querySelector('[name="xtremeforms_header_color"]').value = val;
 			}
 		});
 		// Sync the actual POST field name.
-		colorPicker.name = 'xf_header_color';
-		colorHex.name = 'xf_header_color_hex_display';
+		colorPicker.name = 'xtremeforms_header_color';
+		colorHex.name = 'xtremeforms_header_color_hex_display';
 	}
 
 	// ── Logo file validation ───────────────────────────────────────────────
-	const logoInput = document.getElementById('xf_logo_upload');
+	const logoInput = document.getElementById('xtremeforms_logo_upload');
 	const logoError = document.getElementById('xf-logo-error');
 	const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
@@ -242,17 +263,17 @@ $merge_tags_desc = implode(
 	const testBtn = document.getElementById('xf-send-test-email');
 	const testResult = document.getElementById('xf-test-email-result');
 
-	if (testBtn && typeof xfAdminData !== 'undefined') {
+	if (testBtn && typeof xtremeformsAdminData !== 'undefined') {
 		testBtn.addEventListener('click', function () {
 			testBtn.disabled = true;
 			testResult.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
 			testResult.style.color = '#6C757D';
 
 			const fd = new FormData();
-			fd.append('action', 'xf_send_test_email');
-			fd.append('nonce', xfAdminData.nonce);
+			fd.append('action', 'xtremeforms_send_test_email');
+			fd.append('nonce', xtremeformsAdminData.nonce);
 
-			fetch(xfAdminData.ajaxUrl, { method: 'POST', body: fd })
+			fetch(xtremeformsAdminData.ajaxUrl, { method: 'POST', body: fd })
 				.then(function (r) { return r.json(); })
 				.then(function (res) {
 					testBtn.disabled = false;
@@ -272,4 +293,7 @@ $merge_tags_desc = implode(
 		});
 	}
 }());
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

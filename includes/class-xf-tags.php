@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Tags
+ * Class Xtremeforms_Tags
  */
-class XF_Tags {
+class Xtremeforms_Tags {
 
 	/**
 	 * Create a new tag.

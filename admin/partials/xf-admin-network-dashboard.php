@@ -6,9 +6,14 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only display page; all data rendered server-side via WP functions.
 
-$data        = XF_Multisite::get_aggregated_data();
+if ( ! current_user_can( 'manage_network' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is registered with 'manage_network'. Read-only display page.
+
+$data        = Xtremeforms_Multisite::get_aggregated_data();
 $total_leads = $data['total_leads'];
 $by_site     = $data['by_site'];
 $top_forms   = $data['top_forms'];

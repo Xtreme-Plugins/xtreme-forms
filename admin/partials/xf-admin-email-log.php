@@ -6,25 +6,30 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET filter params are sanitized on read.
 
 $per_page     = 25;
 $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
 
 $filters = array();
-if ( ! empty( $_GET['xf_trigger'] ) ) {
-	$filters['trigger_type'] = sanitize_text_field( wp_unslash( $_GET['xf_trigger'] ) );
+if ( ! empty( $_GET['xtremeforms_trigger'] ) ) {
+	$filters['trigger_type'] = sanitize_text_field( wp_unslash( $_GET['xtremeforms_trigger'] ) );
 }
-if ( ! empty( $_GET['xf_log_status'] ) ) {
-	$filters['status'] = sanitize_text_field( wp_unslash( $_GET['xf_log_status'] ) );
+if ( ! empty( $_GET['xtremeforms_log_status'] ) ) {
+	$filters['status'] = sanitize_text_field( wp_unslash( $_GET['xtremeforms_log_status'] ) );
 }
 
-$result = XF_Email_Log::get_logs( $filters, $current_page, $per_page );
+$result = Xtremeforms_Email_Log::get_logs( $filters, $current_page, $per_page );
 $logs   = $result['logs'];
 $total  = $result['total'];
 $pages  = (int) ceil( $total / $per_page );
 
-$trigger_labels = XF_Email_Log::get_trigger_labels();
+$trigger_labels = Xtremeforms_Email_Log::get_trigger_labels();
 
 $notice = '';
 if ( ! empty( $_GET['resent'] ) ) {
@@ -45,7 +50,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 	<form method="get" class="xf-filter-bar" style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
 		<input type="hidden" name="page" value="xtreme-forms-email-log">
 
-		<select name="xf_trigger" style="height:32px;">
+		<select name="xtremeforms_trigger" style="height:32px;">
 			<option value=""><?php esc_html_e( 'All Trigger Types', 'xtreme-forms' ); ?></option>
 			<?php foreach ( $trigger_labels as $val => $label ) : ?>
 				<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $filters['trigger_type'] ?? '', $val ); ?>>
@@ -54,7 +59,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 			<?php endforeach; ?>
 		</select>
 
-		<select name="xf_log_status" style="height:32px;">
+		<select name="xtremeforms_log_status" style="height:32px;">
 			<option value=""><?php esc_html_e( 'All Statuses', 'xtreme-forms' ); ?></option>
 			<option value="sent" <?php selected( $filters['status'] ?? '', 'sent' ); ?>><?php esc_html_e( 'Sent', 'xtreme-forms' ); ?></option>
 			<option value="failed" <?php selected( $filters['status'] ?? '', 'failed' ); ?>><?php esc_html_e( 'Failed', 'xtreme-forms' ); ?></option>
@@ -161,8 +166,8 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 					array( 'page' => 'xtreme-forms-email-log' ),
 					array_filter(
 						array(
-							'xf_trigger'    => $filters['trigger_type'] ?? '',
-							'xf_log_status' => $filters['status'] ?? '',
+							'xtremeforms_trigger'    => $filters['trigger_type'] ?? '',
+							'xtremeforms_log_status' => $filters['status'] ?? '',
 						)
 					)
 				),
@@ -186,7 +191,9 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 	<?php endif; ?>
 </div>
 
-<script>
+<?php
+ob_start();
+?>
 (function () {
 	'use strict';
 
@@ -200,11 +207,11 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 			btn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
 
 			const fd = new FormData();
-			fd.append('action', 'xf_resend_email');
-			fd.append('nonce', xfAdminData.nonce);
+			fd.append('action', 'xtremeforms_resend_email');
+			fd.append('nonce', xtremeformsAdminData.nonce);
 			fd.append('log_id', btn.dataset.logId);
 
-			fetch(xfAdminData.ajaxUrl, { method: 'POST', body: fd })
+			fetch(xtremeformsAdminData.ajaxUrl, { method: 'POST', body: fd })
 				.then(function (r) { return r.json(); })
 				.then(function (res) {
 					if (res.success) {
@@ -223,4 +230,7 @@ if ( ! empty( $_GET['resend_failed'] ) ) {
 		});
 	});
 }());
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

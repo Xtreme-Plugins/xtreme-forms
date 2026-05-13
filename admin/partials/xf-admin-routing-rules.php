@@ -7,11 +7,15 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
 
-$rules     = XF_Routing_Rules::get_all_rules();
-$all_forms = XF_Forms::get_all_forms();
-$mode      = XF_Routing_Rules::get_mode();
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params are read-only notice flags.
+
+$rules     = Xtremeforms_Routing_Rules::get_all_rules();
+$all_forms = Xtremeforms_Forms::get_all_forms();
+$mode      = Xtremeforms_Routing_Rules::get_mode();
 
 $notice = '';
 if ( ! empty( $_GET['updated'] ) ) {
@@ -32,8 +36,8 @@ if ( ! empty( $_GET['updated'] ) ) {
 	</p>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-routing-rules-form">
-		<input type="hidden" name="action" value="xf_save_routing_rules">
-		<?php wp_nonce_field( 'xf_save_routing_rules' ); ?>
+		<input type="hidden" name="action" value="xtremeforms_save_routing_rules">
+		<?php wp_nonce_field( 'xtremeforms_save_routing_rules' ); ?>
 
 		<!-- Evaluation Mode -->
 		<div class="xf-settings-card" style="margin-bottom:24px;">
@@ -176,7 +180,9 @@ if ( ! empty( $_GET['updated'] ) ) {
 	</tr>
 </template>
 
-<script>
+<?php
+ob_start();
+?>
 (function () {
 	'use strict';
 
@@ -283,4 +289,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		if (handle) handle.closest('tr').setAttribute('draggable', 'true');
 	});
 }());
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

@@ -8,13 +8,13 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Analytics
+ * Class Xtremeforms_Analytics
  *
  * Provides all data-aggregation queries used by the dashboard and
  * form-performance pages. Every query uses $wpdb->prepare() with
  * no user-supplied string interpolation.
  */
-class XF_Analytics {
+class Xtremeforms_Analytics {
 
 	// ── KPI Tile Counts ───────────────────────────────────────────────────────
 
@@ -273,7 +273,7 @@ class XF_Analytics {
 		global $wpdb;
 
 		$table    = $wpdb->prefix . 'xtremeforms_leads';
-		$statuses = XF_Leads::get_statuses();
+		$statuses = Xtremeforms_Leads::get_statuses();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(

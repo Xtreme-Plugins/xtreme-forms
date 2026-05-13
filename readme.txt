@@ -1,8 +1,8 @@
 === Xtreme Forms ===
-Contributors: xtremeplugins
+Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.1.0
+Stable tag: 2.4.0
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -46,6 +46,66 @@ An optional paid add-on from the author is available at https://xtremeplugins.co
 * Webhook retry queue with exponential backoff
 * Advanced analytics: cohort analysis, lead value tracking
 * Priority email support
+
+== External services ==
+
+Xtreme Forms is fully self-hosted by default. It only contacts third-party services when a site administrator explicitly enables and configures the corresponding feature. Each service below is opt-in: nothing is sent until you turn it on and provide credentials.
+
+= Google reCAPTCHA v3 (optional spam protection) =
+
+If you enable reCAPTCHA v3 in **Xtreme Forms → Settings → Spam Protection** and enter your site/secret keys, the public-facing form page loads the reCAPTCHA JavaScript from `https://www.google.com/recaptcha/api.js`, which executes in the visitor's browser to generate a token. On submit, the plugin then sends a server-to-server request from your site to `https://www.google.com/recaptcha/api/siteverify` containing the token, your secret key, and the visitor's IP address so Google can return a spam score.
+
+Service provider: Google LLC.
+Terms of service: https://policies.google.com/terms
+Privacy policy: https://policies.google.com/privacy
+reCAPTCHA-specific terms: https://www.google.com/recaptcha/about/
+
+= Cloudflare Turnstile (optional spam protection) =
+
+If you enable Cloudflare Turnstile in **Xtreme Forms → Settings → Spam Protection** and enter your site/secret keys, the public-facing form page loads the Turnstile widget from `https://challenges.cloudflare.com/turnstile/v0/api.js`. On submit, the plugin sends a server-to-server request from your site to `https://challenges.cloudflare.com/turnstile/v0/siteverify` containing the widget token, your secret key, and the visitor's IP address so Cloudflare can validate the challenge.
+
+Service provider: Cloudflare, Inc.
+Terms of service: https://www.cloudflare.com/website-terms/
+Privacy policy: https://www.cloudflare.com/privacypolicy/
+
+= Zoho CRM (optional integration) =
+
+If you enable the Zoho integration in **Xtreme Forms → Automations → Integrations** and enter your OAuth client ID, client secret, refresh token, and data-center region, then for every new lead capture the plugin makes two server-to-server requests from your site to Zoho:
+
+1. A token exchange request to `https://accounts.zoho.<tld>/oauth/v2/token` (where `<tld>` is `com`, `eu`, `in`, `au`, or `jp` based on the region you select) containing your refresh token, client ID, and client secret.
+2. A lead-create request to `https://www.zohoapis.<tld>/crm/v2/Leads` containing the lead's name, email address, phone number, and company name (only the fields that were submitted in the form).
+
+Service provider: Zoho Corporation Pvt. Ltd.
+Terms of service: https://www.zoho.com/terms.html
+Privacy policy: https://www.zoho.com/privacy.html
+
+= HubSpot CRM (optional integration) =
+
+If you enable the HubSpot integration in **Xtreme Forms → Automations → Integrations** and enter a Private App access token, then for every new lead capture the plugin makes a server-to-server request from your site to `https://api.hubapi.com/crm/v3/objects/contacts` containing the lead's email, first/last name, phone number, and company name (only the fields that were submitted in the form). When you click the **Test** button on the integrations page, the plugin also sends a single `GET` request to the same host to verify the token.
+
+Service provider: HubSpot, Inc.
+Terms of service: https://legal.hubspot.com/terms-of-service
+Privacy policy: https://legal.hubspot.com/privacy-policy
+
+= Salesforce (optional integration) =
+
+If you enable the Salesforce integration in **Xtreme Forms → Automations → Integrations** and enter your consumer key, consumer secret, instance URL, and access token, then for every new lead capture the plugin makes a server-to-server request from your site to `<your_instance_url>/services/data/v57.0/sobjects/Lead/` containing the lead's last name, email, phone number, and company name (only the fields that were submitted in the form).
+
+Service provider: Salesforce, Inc.
+Terms of service: https://www.salesforce.com/company/legal/agreements/
+Privacy policy: https://www.salesforce.com/company/privacy/
+
+= Pipedrive (optional integration) =
+
+If you enable the Pipedrive integration in **Xtreme Forms → Automations → Integrations** and enter an API token, then for every new lead capture the plugin makes two server-to-server requests from your site to `https://api.pipedrive.com/v1/persons` and `https://api.pipedrive.com/v1/leads` containing the lead's name, email, and phone number (only the fields that were submitted in the form). The **Test** button sends one `GET` request to `https://api.pipedrive.com/v1/users/me` to verify the token.
+
+Service provider: Pipedrive OÜ.
+Terms of service: https://www.pipedrive.com/en/terms-of-service
+Privacy policy: https://www.pipedrive.com/en/privacy
+
+= Webhooks (optional, user-defined destination) =
+
+If you create one or more webhooks in **Xtreme Forms → Automations → Webhooks**, the plugin will send the captured lead's data as a JSON `POST` request to the URL(s) you configure for every new lead. These URLs are arbitrary endpoints that you (the site administrator) choose; the plugin itself is not affiliated with any particular webhook destination. Review the terms/privacy policy of whichever service you point your webhooks to.
 
 == Installation ==
 
@@ -97,6 +157,23 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.4.0 =
+* WordPress.org review compliance round 2:
+  * Attribution: removed the hard-coded "Sent by Xtreme Forms" credit link from outgoing emails. The link is now strictly opt-in via a new checkbox under **Xtreme Forms → Email Templates → Plugin Attribution** and defaults to OFF.
+  * Third-party requests: removed the Google Fonts (`fonts.googleapis.com`) `@import` from the admin stylesheet. The admin UI now uses the operating-system native font stack only — no third-party font requests are made.
+  * Naming: renamed the short `xf_` / `xl_` AJAX action prefixes to the unique `xtremeforms_` prefix across all hooks, nonces, and localized data objects (40+ endpoints) to satisfy the 4+ character prefix requirement.
+  * Assets: moved all inline `<script>` and `<style>` blocks out of admin partials and into properly enqueued files registered through `wp_enqueue_script()` / `wp_enqueue_style()` / `wp_add_inline_script()` / `wp_add_inline_style()`.
+  * Security: added explicit nonce verification (`wp_verify_nonce` / `check_ajax_referer`) to every `$_GET` / `$_POST` / `$_REQUEST` read flagged by Plugin Check, in addition to the existing `current_user_can()` capability gates.
+  * Vendor: upgraded the bundled Chart.js library to v4.5.1 (latest stable).
+  * Contributors: added the plugin owner's WordPress.org username (`loanpartnership`) to the readme contributors list.
+
+= 2.3.3 =
+* WordPress.org review: documented all third-party / external services (Google reCAPTCHA, Cloudflare Turnstile, Zoho CRM, HubSpot CRM, Salesforce, Pipedrive, custom webhooks, Google Fonts) under a new "External services" section in readme.txt
+* WordPress.org review: lowered admin menu position — Xtreme Forms now appears at the bottom of the admin menu rather than alongside core items
+* WordPress.org review: added explicit `current_user_can()` capability checks at the top of every admin partial that reads `$_GET` (defence in depth — the page callbacks were already capability-gated, but partials now self-guard)
+* WordPress.org review: renamed the short `XF_` class prefix to `Xtremeforms_` across all 23 classes (`XF_Forms` → `Xtremeforms_Forms`, etc.) to satisfy the 4+ character prefix requirement and prevent collisions with other plugins
+* PHP 8.1+: replaced `null` parent_slug with empty string in the 11 hidden `add_submenu_page()` calls — silences the "Passing null to parameter of type string is deprecated" notices that WP core emits inside `plugin_basename()`
 
 = 2.0.5 =
 * WordPress.org submission prep: resolved Plugin Check findings
@@ -168,6 +245,12 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.4.0 =
+WordPress.org review compliance round 2: opt-in attribution (default off), removal of third-party Google Fonts request, rename of the short xf_/xl_ AJAX prefixes to xtremeforms_, migration of inline admin scripts/styles to wp_enqueue, additional nonce checks, and bundled Chart.js upgrade. No database changes.
+
+= 2.3.3 =
+WordPress.org review compliance: external-service disclosures in readme, lower admin menu position, capability checks on every admin partial, and rename of the short `XF_` class prefix to `Xtremeforms_`. No database changes.
 
 = 2.0.5 =
 WordPress.org submission prep + layout/UX fixes. Safe to upgrade from any 2.x version — no database changes.

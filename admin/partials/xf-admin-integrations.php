@@ -6,10 +6,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are local to this included partial, not global scope.
 
 // Retrieve saved settings and pass to JS.
-$xf_int_saved = XF_Integrations::get_settings();
+$xf_int_saved = Xtremeforms_Integrations::get_settings();
 
 /**
  * Integration definitions.
@@ -252,16 +257,16 @@ $xf_integrations = array(
 
 <?php
 // Pass saved settings and nonce to JS.
-$xf_int_nonce = wp_create_nonce( 'xf_integrations_nonce' );
-echo '<script>window.xfIntegrationsData = ' . wp_json_encode( $xf_int_saved ) . '; window.xfIntegrationsNonce = ' . wp_json_encode( $xf_int_nonce ) . '; window.xfAdminAjaxUrl = ' . wp_json_encode( admin_url( 'admin-ajax.php' ) ) . ';</script>';
+$xf_int_nonce = wp_create_nonce( 'xtremeforms_integrations_nonce' );
+$xtremeforms_inline_js1 = 'window.xtremeformsIntegrationsData = ' . wp_json_encode( $xf_int_saved ) . '; window.xtremeformsIntegrationsNonce = ' . wp_json_encode( $xf_int_nonce ) . '; window.xtremeformsAdminAjaxUrl = ' . wp_json_encode( admin_url( 'admin-ajax.php' ) ) . ';';
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js1, 'before' );
+ob_start();
 ?>
-
-<script>
 ( function () {
 	'use strict';
 
-	var ajaxUrl = window.xfAdminAjaxUrl || '';
-	var nonce   = window.xfIntegrationsNonce || '';
+	var ajaxUrl = window.xtremeformsAdminAjaxUrl || '';
+	var nonce   = window.xtremeformsIntegrationsNonce || '';
 
 	// ── Toggle panels ────────────────────────────────────────────────────────
 
@@ -400,4 +405,7 @@ echo '<script>window.xfIntegrationsData = ' . wp_json_encode( $xf_int_saved ) . 
 	} );
 
 }() );
-</script>
+<?php
+$xtremeforms_inline_js2 = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js2, 'after' );
+?>

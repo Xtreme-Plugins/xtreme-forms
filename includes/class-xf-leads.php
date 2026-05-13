@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Leads
+ * Class Xtremeforms_Leads
  */
-class XF_Leads {
+class Xtremeforms_Leads {
 
 	const STATUS_NEW       = 'new';
 	const STATUS_CONTACTED = 'contacted';

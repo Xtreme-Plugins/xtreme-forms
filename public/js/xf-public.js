@@ -5,11 +5,11 @@
  *
  * @package Xtreme Forms
  */
-/* global xfPublicData */
+/* global xtremeformsPublicData */
 (function () {
 	'use strict';
 
-	var data              = window.xfPublicData || {};
+	var data              = window.xtremeformsPublicData || {};
 	var ajaxUrl           = data.ajaxUrl          || '';
 	var nonce             = data.nonce            || '';
 	var impressionNonce   = data.impressionNonce  || '';
@@ -37,8 +37,8 @@
 		this.form       = form;
 		this.wrap       = form.closest('.xf-form-wrap');
 		this.submitBtn  = form.querySelector('.xf-btn-submit');
-		this.formId     = form.querySelector('[name="xf_form_id"]')
-			? parseInt(form.querySelector('[name="xf_form_id"]').value, 10)
+		this.formId     = form.querySelector('[name="xtremeforms_form_id"]')
+			? parseInt(form.querySelector('[name="xtremeforms_form_id"]').value, 10)
 			: 0;
 		// Record render time for avg-time-to-submit metric.
 		this.renderTime = Date.now();
@@ -148,7 +148,7 @@
 		// Only loaded on pages where reCAPTCHA is enabled for this form.
 		if (recaptchaEnabled && recaptchaSiteKey && window.grecaptcha) {
 			window.grecaptcha.ready(function () {
-				window.grecaptcha.execute(recaptchaSiteKey, { action: 'xf_submit' }).then(function (token) {
+				window.grecaptcha.execute(recaptchaSiteKey, { action: 'xtremeforms_submit' }).then(function (token) {
 					// Inject token into hidden field.
 					var tokenField = self.form.querySelector('#xf-recaptcha-token-' + self.formId);
 					if (tokenField) {
@@ -236,7 +236,7 @@
 			redirectForm.style.display = 'none';
 
 			var redirectFields = {
-				action:            'xf_do_form_redirect',
+				action:            'xtremeforms_do_form_redirect',
 				xf_form_id:        String(responseData.form_id || this.formId),
 				xf_redirect_nonce: responseData.redirect_nonce
 			};
@@ -440,7 +440,7 @@
 				observer.unobserve(wrap);
 
 				// Build the POST body as application/x-www-form-urlencoded.
-				var beaconBody = 'action=xf_track_impression' +
+				var beaconBody = 'action=xtremeforms_track_impression' +
 					'&nonce='   + encodeURIComponent(impressionNonce) +
 					'&form_id=' + encodeURIComponent(String(formId)) +
 					'&post_id=' + encodeURIComponent(String(postId));
@@ -454,7 +454,7 @@
 				} else {
 					// Fallback: fetch with keepalive:true (non-blocking).
 					var fd = new FormData();
-					fd.append('action',  'xf_track_impression');
+					fd.append('action',  'xtremeforms_track_impression');
 					fd.append('nonce',   impressionNonce);
 					fd.append('form_id', String(formId));
 					fd.append('post_id', String(postId));
@@ -560,7 +560,7 @@
 		});
 	}
 
-	function xfPublicInit() {
+	function xtremeformsPublicInit() {
 		initForms();
 		initSliders();
 		initQtyRows();
@@ -569,9 +569,9 @@
 	}
 
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', xfPublicInit);
+		document.addEventListener('DOMContentLoaded', xtremeformsPublicInit);
 	} else {
-		xfPublicInit();
+		xtremeformsPublicInit();
 	}
 
 })();

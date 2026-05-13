@@ -6,9 +6,14 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$all_tags = XF_Tags::get_all_tags();
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params are read-only notice flags.
+
+$all_tags = Xtremeforms_Tags::get_all_tags();
 
 // Admin notices.
 $notice_html = '';
@@ -17,9 +22,9 @@ if ( ! empty( $_GET['tag_created'] ) ) {
 } elseif ( ! empty( $_GET['tag_deleted'] ) ) {
 	$notice_html = '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Tag deleted successfully.', 'xtreme-forms' ) . '</p></div>';
 } elseif ( ! empty( $_GET['tag_error'] ) ) {
-	$error_msg = get_transient( 'xf_tag_error_' . get_current_user_id() );
+	$error_msg = get_transient( 'xtremeforms_tag_error_' . get_current_user_id() );
 	if ( $error_msg ) {
-		delete_transient( 'xf_tag_error_' . get_current_user_id() );
+		delete_transient( 'xtremeforms_tag_error_' . get_current_user_id() );
 		$notice_html = '<div class="notice notice-error is-dismissible"><p>' . esc_html( $error_msg ) . '</p></div>';
 	}
 }
@@ -37,8 +42,8 @@ if ( ! empty( $_GET['tag_created'] ) ) {
 		<div class="xf-settings-card xf-tags-create-card">
 			<h2><?php esc_html_e( 'Add New Tag', 'xtreme-forms' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<input type="hidden" name="action" value="xf_save_tag">
-				<?php wp_nonce_field( 'xf_save_tag' ); ?>
+				<input type="hidden" name="action" value="xtremeforms_save_tag">
+				<?php wp_nonce_field( 'xtremeforms_save_tag' ); ?>
 
 				<div class="xf-field-group">
 					<label class="xf-label" for="tag_name">
@@ -103,12 +108,12 @@ if ( ! empty( $_GET['tag_created'] ) ) {
 											wp_nonce_url(
 												add_query_arg(
 													array(
-														'action' => 'xf_delete_tag',
+														'action' => 'xtremeforms_delete_tag',
 														'tag_id' => $tag->id,
 													),
 													admin_url( 'admin-post.php' )
 												),
-												'xf_delete_tag_' . $tag->id
+												'xtremeforms_delete_tag_' . $tag->id
 											)
 										);
 										?>

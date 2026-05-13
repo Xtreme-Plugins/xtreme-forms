@@ -9,7 +9,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET lead_id is sanitized via absint() on read; this is a read-only detail view.
 
 $lead_id = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
 
@@ -17,23 +21,23 @@ if ( ! $lead_id ) {
 	wp_die( esc_html__( 'Invalid lead ID.', 'xtreme-forms' ) );
 }
 
-$lead = XF_Leads::get_lead( $lead_id );
+$lead = Xtremeforms_Leads::get_lead( $lead_id );
 if ( ! $lead ) {
 	wp_die( esc_html__( 'Lead not found.', 'xtreme-forms' ) );
 }
 
-$form         = XF_Forms::get_form( (int) $lead->form_id );
+$form         = Xtremeforms_Forms::get_form( (int) $lead->form_id );
 $form_name    = $form ? esc_html( $form->name ) : esc_html__( '(deleted form)', 'xtreme-forms' );
-$statuses     = XF_Leads::get_statuses();
+$statuses     = Xtremeforms_Leads::get_statuses();
 $status_key   = $lead->status ?? 'new';
 $status_label = $statuses[ $status_key ] ?? ucfirst( $status_key );
 
 // Field values with labels.
-$field_values       = XF_Leads::decode_field_values( $lead );
+$field_values       = Xtremeforms_Leads::decode_field_values( $lead );
 $fields_with_labels = array();
 
 if ( $form ) {
-	$field_defs = XF_Forms::decode_fields( $form );
+	$field_defs = Xtremeforms_Forms::decode_fields( $form );
 	foreach ( $field_defs as $fd ) {
 		$fid   = $fd['id'] ?? '';
 		$ftype = $fd['type'] ?? 'text';
@@ -69,7 +73,7 @@ if ( $form ) {
 // Also append any field_values keys not already in form definition (e.g. from removed fields).
 if ( $form ) {
 	$covered_fids = array();
-	foreach ( XF_Forms::decode_fields( $form ) as $fd ) {
+	foreach ( Xtremeforms_Forms::decode_fields( $form ) as $fd ) {
 		$covered_fids[] = $fd['id'] ?? '';
 	}
 	foreach ( $field_values as $key => $val ) {
@@ -96,24 +100,24 @@ if ( $assigned_to ) {
 }
 
 // Tags.
-$tags = XF_Tags::get_tags_for_lead( $lead_id );
+$tags = Xtremeforms_Tags::get_tags_for_lead( $lead_id );
 
 // Notes (oldest first).
-$notes = XF_Notes::get_notes_for_lead( $lead_id );
+$notes = Xtremeforms_Notes::get_notes_for_lead( $lead_id );
 
 // Activity (oldest first).
-$activity = XF_Activity::get_activity_for_lead( $lead_id );
+$activity = Xtremeforms_Activity::get_activity_for_lead( $lead_id );
 
 // Eligible users for assignment dropdown.
-$eligible_users = XF_Leads::get_eligible_assignees();
-$all_tags       = XF_Tags::get_all_tags();
+$eligible_users = Xtremeforms_Leads::get_eligible_assignees();
+$all_tags       = Xtremeforms_Tags::get_all_tags();
 
 // Back URL.
 $back_url = add_query_arg( array( 'page' => 'xtreme-forms' ), admin_url( 'admin.php' ) );
 
 // Admin notice for assignment email warning (from session / transient).
 $notice_html    = '';
-$email_warn_key = 'xf_assign_email_warn_' . $lead_id . '_' . get_current_user_id();
+$email_warn_key = 'xtremeforms_assign_email_warn_' . $lead_id . '_' . get_current_user_id();
 $email_warn     = get_transient( $email_warn_key );
 if ( $email_warn ) {
 	delete_transient( $email_warn_key );
@@ -419,12 +423,14 @@ if ( $email_warn ) {
 
 </div><!-- .xf-wrap -->
 
-<script>
+<?php
+ob_start();
+?>
 (function () {
 	'use strict';
 
 	var leadId = <?php echo absint( $lead_id ); ?>;
-	var nonce = '<?php echo esc_js( wp_create_nonce( 'xf_admin_nonce' ) ); ?>';
+	var nonce = '<?php echo esc_js( wp_create_nonce( 'xtremeforms_admin_nonce' ) ); ?>';
 	var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
 
 	function post( data, callback ) {
@@ -479,7 +485,7 @@ if ( $email_warn ) {
 			saveStatusBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_update_status',
+				action: 'xtremeforms_update_status',
 				nonce: nonce,
 				lead_id: leadId,
 				status: newStatus
@@ -518,7 +524,7 @@ if ( $email_warn ) {
 			saveAssignBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_assign_lead',
+				action: 'xtremeforms_assign_lead',
 				nonce: nonce,
 				lead_id: leadId,
 				assigned_to: assignSelect.value
@@ -566,7 +572,7 @@ if ( $email_warn ) {
 			submitNoteBtn.textContent = '<?php echo esc_js( __( 'Saving…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_add_note',
+				action: 'xtremeforms_add_note',
 				nonce: nonce,
 				lead_id: leadId,
 				note_content: content
@@ -629,7 +635,7 @@ if ( $email_warn ) {
 		btn.addEventListener( 'click', function () {
 			var tagId = parseInt( btn.getAttribute( 'data-tag-id' ), 10 );
 			post( {
-				action: 'xf_remove_tag',
+				action: 'xtremeforms_remove_tag',
 				nonce: nonce,
 				lead_id: leadId,
 				tag_id: tagId
@@ -661,7 +667,7 @@ if ( $email_warn ) {
 			}
 			_suggestTimer = setTimeout( function () {
 				post( {
-					action: 'xf_search_tags',
+					action: 'xtremeforms_search_tags',
 					nonce: nonce,
 					query: query
 				}, function ( err, res ) {
@@ -711,7 +717,7 @@ if ( $email_warn ) {
 
 	function applyTag( tag ) {
 		post( {
-			action: 'xf_apply_tag',
+			action: 'xtremeforms_apply_tag',
 			nonce: nonce,
 			lead_id: leadId,
 			tag_id: tag.id
@@ -774,7 +780,7 @@ if ( $email_warn ) {
 			resendBtn.textContent = '<?php echo esc_js( __( 'Sending…', 'xtreme-forms' ) ); ?>';
 
 			post( {
-				action: 'xf_resend_lead_notification',
+				action: 'xtremeforms_resend_lead_notification',
 				nonce: nonce,
 				lead_id: leadId,
 				recipient: recipient
@@ -798,4 +804,7 @@ if ( $email_warn ) {
 	}
 
 })();
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

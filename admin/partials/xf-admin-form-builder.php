@@ -7,21 +7,25 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params on this page are read-only navigation params (form_id, template slug).
 
 $form_id = isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : 0;
 $is_edit = $form_id > 0;
-$form    = $is_edit ? XF_Forms::get_form( $form_id ) : null;
+$form    = $is_edit ? Xtremeforms_Forms::get_form( $form_id ) : null;
 
 if ( $is_edit && ! $form ) {
 	wp_die( esc_html__( 'Form not found.', 'xtreme-forms' ) );
 }
 
-$fields   = $form ? XF_Forms::decode_fields( $form ) : array();
-$settings = $form ? XF_Forms::decode_settings( $form ) : array();
+$fields   = $form ? Xtremeforms_Forms::decode_fields( $form ) : array();
+$settings = $form ? Xtremeforms_Forms::decode_settings( $form ) : array();
 
 // ── Template loading (only for new forms with a template slug in the URL) ──
-$xf_template_slug = ( ! $is_edit && isset( $_GET['xf_template'] ) ) ? sanitize_key( $_GET['xf_template'] ) : '';
+$xf_template_slug = ( ! $is_edit && isset( $_GET['xtremeforms_template'] ) ) ? sanitize_key( $_GET['xtremeforms_template'] ) : '';
 
 if ( $xf_template_slug && ! $is_edit ) {
 	$tpl_data = xtremeforms_get_form_template( $xf_template_slug );
@@ -33,7 +37,7 @@ if ( $xf_template_slug && ! $is_edit ) {
 $xf_template_name = ( $xf_template_slug && ! $is_edit && isset( $tpl_data ) && $tpl_data ) ? $tpl_data['name'] : '';
 
 // Retrieve any validation errors from previous save attempt.
-$transient_key = 'xf_form_errors_' . get_current_user_id();
+$transient_key = 'xtremeforms_form_errors_' . get_current_user_id();
 $save_errors   = get_transient( $transient_key );
 delete_transient( $transient_key );
 
@@ -112,12 +116,12 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 	<?php echo wp_kses_post( $notice_html ); ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-form-builder" novalidate>
-		<input type="hidden" name="action" value="xl_save_form">
+		<input type="hidden" name="action" value="xtremeforms_save_form">
 		<input type="hidden" name="form_id" value="<?php echo esc_attr( $form_id ); ?>">
-		<?php wp_nonce_field( 'xf_save_form' ); ?>
+		<?php wp_nonce_field( 'xtremeforms_save_form' ); ?>
 
 		<!-- Hidden field that JS builder syncs to on every change and before submit -->
-		<input type="hidden" name="xf_fields" id="xf-fields-json" value="<?php echo esc_attr( $fields_json ); ?>">
+		<input type="hidden" name="xtremeforms_fields" id="xf-fields-json" value="<?php echo esc_attr( $fields_json ); ?>">
 
 		<!-- Submit button layout settings (synced by JS) -->
 		<input type="hidden" name="submit_float" id="xf-submit-float" value="<?php echo esc_attr( $settings['submit_float'] ?? '0' ); ?>">
@@ -469,13 +473,17 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 	</form>
 </div><!-- .xf-form-builder-wrap -->
 
-<script>
-var xfBuilderData = {
+<?php
+ob_start();
+?>
+var xtremeformsBuilderData = {
 	fields: <?php echo wp_json_encode( $fields, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT ); ?>,
 };
-</script>
-
-<script>
+<?php
+$xtremeforms_inline_js1 = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-builder', $xtremeforms_inline_js1, 'before' );
+ob_start();
+?>
 (function () {
 	'use strict';
 
@@ -575,9 +583,11 @@ var xfBuilderData = {
 	}
 
 }());
-</script>
-
-<style>
+<?php
+$xtremeforms_inline_js2 = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js2, 'after' );
+ob_start();
+?>
 /* ── Advanced settings section ──────────────────────────────────────────── */
 .xfb-advanced-settings {
 	margin-top: 16px;
@@ -877,4 +887,7 @@ var xfBuilderData = {
 	white-space: nowrap;
 	flex-shrink: 0;
 }
-</style>
+<?php
+$xtremeforms_inline_css = ob_get_clean();
+wp_add_inline_style( 'xtremeforms-admin', $xtremeforms_inline_css );
+?>

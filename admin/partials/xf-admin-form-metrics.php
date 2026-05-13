@@ -6,10 +6,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$metrics = XF_Analytics::form_performance_metrics();
-$forms   = XF_Forms::get_all_forms();
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET pagination param (metrics_page) is sanitized via absint() on read.
+
+$metrics = Xtremeforms_Analytics::form_performance_metrics();
+$forms   = Xtremeforms_Forms::get_all_forms();
 ?>
 <div class="wrap xf-wrap">
 	<div class="xf-page-header">
@@ -29,7 +34,7 @@ $forms   = XF_Forms::get_all_forms();
 					add_query_arg(
 						array(
 							'page'      => 'xtreme-forms-forms',
-							'xf_action' => 'new',
+							'xtremeforms_action' => 'new',
 						),
 						admin_url( 'admin.php' )
 					)
@@ -199,6 +204,11 @@ $all_metrics_json = wp_json_encode(
 	)
 );
 ?>
-<script type="text/javascript">
-window.xlFormMetricsData = <?php echo $all_metrics_json; // phpcs:ignore WordPress.Security.EscapeOutput ?>;
-</script>
+<?php
+ob_start();
+?>
+window.xtremeformsFormMetricsData = <?php echo $all_metrics_json; // phpcs:ignore WordPress.Security.EscapeOutput ?>;
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-dashboard', $xtremeforms_inline_js, 'before' );
+?>

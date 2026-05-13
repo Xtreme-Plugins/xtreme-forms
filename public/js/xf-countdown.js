@@ -12,12 +12,12 @@
  *
  * @package Xtreme Forms
  */
-/* global xlCountdownData */
+/* global xtremeformsCountdownData */
 (function () {
 	'use strict';
 
-	var dataMap = (typeof xlCountdownData !== 'undefined' && typeof xlCountdownData === 'object')
-		? xlCountdownData
+	var dataMap = (typeof xtremeformsCountdownData !== 'undefined' && typeof xtremeformsCountdownData === 'object')
+		? xtremeformsCountdownData
 		: {};
 
 	/**

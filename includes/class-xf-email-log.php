@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Email_Log
+ * Class Xtremeforms_Email_Log
  */
-class XF_Email_Log {
+class Xtremeforms_Email_Log {
 
 	// Trigger type constants.
 	const TRIGGER_NOTIFICATION   = 'notification';

@@ -4,13 +4,13 @@
  *
  * @package Xtreme Forms
  */
-/* global xfAdminData, xfBuilderData */
+/* global xtremeformsAdminData, xtremeformsBuilderData */
 (function () {
 	'use strict';
 
 	// ── Utilities ────────────────────────────────────────────────────────────
 
-	var adminData = window.xfAdminData || {};
+	var adminData = window.xtremeformsAdminData || {};
 	var ajaxUrl   = adminData.ajaxUrl  || '';
 	var nonce     = adminData.nonce    || '';
 	var i18n      = adminData.i18n     || {};
@@ -118,7 +118,7 @@
 					var leadId = parseInt( row.dataset.leadId, 10 );
 					if ( leadId ) {
 						var url = new URL( window.location.href );
-						url.searchParams.set( 'xf_action', 'view' );
+						url.searchParams.set( 'xtremeforms_action', 'view' );
 						url.searchParams.set( 'lead_id', leadId );
 						window.location.href = url.toString();
 					}
@@ -169,7 +169,7 @@
 					var badge     = wrap ? wrap.querySelector( '.xf-inline-status-badge' ) : null;
 
 					post( {
-						action:  'xf_update_status',
+						action:  'xtremeforms_update_status',
 						nonce:   nonce,
 						lead_id: leadId,
 						status:  newStatus
@@ -221,7 +221,7 @@
 					btn.textContent = i18n.sending || 'Sending…';
 
 					post( {
-						action:    'xf_resend_lead_notification',
+						action:    'xtremeforms_resend_lead_notification',
 						nonce:     nonce,
 						lead_id:   leadId,
 						recipient: ''
@@ -277,7 +277,7 @@
 		_counter:    0,
 
 		init: function () {
-			var builderData = window.xfBuilderData;
+			var builderData = window.xtremeformsBuilderData;
 			if ( ! builderData ) return;
 
 			this.canvas    = document.getElementById( 'xf-fields-canvas' );
@@ -541,7 +541,7 @@
 			var logic = cl.logic || 'and';
 			var conditions = Array.isArray( cl.conditions ) ? cl.conditions : [];
 			var i18n = self.i18n;
-			var ops = window.xfBuilderData.condOperators || {};
+			var ops = window.xtremeformsBuilderData.condOperators || {};
 
 			var html = '<div class="xf-cond-logic-section">';
 			html += '<hr style="margin:12px 0;border-color:#DEE2E6;">';
@@ -618,7 +618,7 @@
 		_bindCondLogicEditor: function ( el, field ) {
 			var self = this;
 			var i18n = self.i18n;
-			var ops  = window.xfBuilderData.condOperators || {};
+			var ops  = window.xtremeformsBuilderData.condOperators || {};
 
 			var section     = el.querySelector( '.xf-cond-logic-section' );
 			if ( ! section ) return;

@@ -6,7 +6,12 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are local to this included partial, not global scope.
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. Variables are local to this included partial, not global scope.
 
 /**
  * Template definitions for the picker UI.
@@ -108,8 +113,8 @@ $xf_picker_categories = array(
 				$use_url = add_query_arg(
 					array(
 						'page'        => 'xtreme-forms-forms',
-						'xf_action'  => 'new',
-						'xf_template' => $tpl['slug'],
+						'xtremeforms_action'  => 'new',
+						'xtremeforms_template' => $tpl['slug'],
 					),
 					admin_url( 'admin.php' )
 				);
@@ -143,7 +148,9 @@ $xf_picker_categories = array(
 
 </div><!-- .wrap.xf-wrap -->
 
-<script>
+<?php
+ob_start();
+?>
 ( function () {
 	'use strict';
 
@@ -190,4 +197,7 @@ $xf_picker_categories = array(
 		}
 	} );
 }() );
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

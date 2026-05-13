@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Shortcode
+ * Class Xtremeforms_Shortcode
  */
-class XF_Shortcode {
+class Xtremeforms_Shortcode {
 
 	/**
 	 * Render the [xtremeleads id="X"] shortcode.
@@ -34,14 +34,14 @@ class XF_Shortcode {
 			return '<p class="xf-form-error">' . esc_html__( 'Xtreme Forms: Please specify a valid form ID.', 'xtreme-forms' ) . '</p>';
 		}
 
-		$form = XF_Forms::get_form( $form_id );
+		$form = Xtremeforms_Forms::get_form( $form_id );
 
 		if ( ! $form ) {
 			return '<p class="xf-form-error">' . esc_html__( 'Xtreme Forms: The requested form could not be found.', 'xtreme-forms' ) . '</p>';
 		}
 
-		$fields   = XF_Forms::decode_fields( $form );
-		$settings = XF_Forms::decode_settings( $form );
+		$fields   = Xtremeforms_Forms::decode_fields( $form );
+		$settings = Xtremeforms_Forms::decode_settings( $form );
 
 		// ── Scheduling ────────────────────────────────────────────
 		$scheduling_result = $this->check_scheduling( $form, $form_id, $settings, $fields );
@@ -165,9 +165,9 @@ class XF_Shortcode {
 	 * @param string $activate_at MySQL datetime (site timezone).
 	 */
 	private function enqueue_countdown_js( int $form_id, string $activate_at ): void {
-		if ( ! wp_script_is( 'xf-countdown', 'enqueued' ) ) {
+		if ( ! wp_script_is( 'xtremeforms-countdown', 'enqueued' ) ) {
 			wp_enqueue_script(
-				'xf-countdown',
+				'xtremeforms-countdown',
 				XTREMEFORMS_PLUGIN_URL . 'public/js/xf-countdown.js',
 				array(),
 				XTREMEFORMS_VERSION,
@@ -190,10 +190,10 @@ class XF_Shortcode {
 			return;
 		}
 
-		// Merge into xlCountdownData (multiple forms on same page).
+		// Merge into xtremeformsCountdownData (multiple forms on same page).
 		// We use wp_add_inline_script to accumulate data per form.
-		$inline = 'if(typeof xlCountdownData === "undefined"){window.xlCountdownData={};}' .
-			'xlCountdownData[' . (int) $form_id . ']=' . wp_json_encode(
+		$inline = 'if(typeof xtremeformsCountdownData === "undefined"){window.xtremeformsCountdownData={};}' .
+			'xtremeformsCountdownData[' . (int) $form_id . ']=' . wp_json_encode(
 				array(
 					'activateAt' => $iso,
 					'i18n'       => array(
@@ -205,7 +205,7 @@ class XF_Shortcode {
 				)
 			) . ';';
 
-		wp_add_inline_script( 'xf-countdown', $inline, 'before' );
+		wp_add_inline_script( 'xtremeforms-countdown', $inline, 'before' );
 	}
 
 	/**
@@ -252,9 +252,9 @@ class XF_Shortcode {
 			return;
 		}
 
-		if ( ! wp_script_is( 'xf-conditional', 'enqueued' ) ) {
+		if ( ! wp_script_is( 'xtremeforms-conditional', 'enqueued' ) ) {
 			wp_enqueue_script(
-				'xf-conditional',
+				'xtremeforms-conditional',
 				XTREMEFORMS_PLUGIN_URL . 'public/js/xf-conditional.js',
 				array(),
 				XTREMEFORMS_VERSION,
@@ -262,14 +262,14 @@ class XF_Shortcode {
 			);
 
 			// Initialise data object before the script.
-			wp_add_inline_script( 'xf-conditional', 'window.xlCondLogicData = {rules:[]};', 'before' );
+			wp_add_inline_script( 'xtremeforms-conditional', 'window.xtremeformsCondLogicData = {rules:[]};', 'before' );
 		}
 
 		// Merge rules for this form into the global data object.
-		$inline = 'if(typeof xlCondLogicData !== "undefined"){' .
-			'xlCondLogicData.rules = xlCondLogicData.rules.concat(' . wp_json_encode( $rules ) . ');' .
+		$inline = 'if(typeof xtremeformsCondLogicData !== "undefined"){' .
+			'xtremeformsCondLogicData.rules = xtremeformsCondLogicData.rules.concat(' . wp_json_encode( $rules ) . ');' .
 			'}';
-		wp_add_inline_script( 'xf-conditional', $inline, 'before' );
+		wp_add_inline_script( 'xtremeforms-conditional', $inline, 'before' );
 	}
 
 	/**
@@ -278,16 +278,16 @@ class XF_Shortcode {
 	 * @param array $form_settings Form settings (used for reCAPTCHA detection).
 	 */
 	private function enqueue_assets( array $form_settings = array() ): void {
-		if ( ! wp_script_is( 'xf-public', 'enqueued' ) ) {
+		if ( ! wp_script_is( 'xtremeforms-public', 'enqueued' ) ) {
 			wp_enqueue_style(
-				'xf-public',
+				'xtremeforms-public',
 				XTREMEFORMS_PLUGIN_URL . 'public/css/xf-public.css',
 				array(),
 				XTREMEFORMS_VERSION
 			);
 
 			wp_enqueue_script(
-				'xf-public',
+				'xtremeforms-public',
 				XTREMEFORMS_PLUGIN_URL . 'public/js/xf-public.js',
 				array(),
 				XTREMEFORMS_VERSION,
@@ -295,19 +295,19 @@ class XF_Shortcode {
 			);
 
 			// Determine if reCAPTCHA is enabled for this form.
-			$recaptcha     = class_exists( 'XF_Spam' ) ? XF_Spam::get_recaptcha_settings() : array(
+			$recaptcha     = class_exists( 'Xtremeforms_Spam' ) ? Xtremeforms_Spam::get_recaptcha_settings() : array(
 				'enabled'  => false,
 				'site_key' => '',
 			);
 			$use_recaptcha = $recaptcha['enabled'] && ! empty( $form_settings['recaptcha_enabled'] ) && '1' === (string) $form_settings['recaptcha_enabled'];
 
 			wp_localize_script(
-				'xf-public',
-				'xfPublicData',
+				'xtremeforms-public',
+				'xtremeformsPublicData',
 				array(
 					'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
 					// Nonce for the impression beacon endpoint (xf_track_impression).
-					'impressionNonce'  => wp_create_nonce( 'xf_impression_nonce' ),
+					'impressionNonce'  => wp_create_nonce( 'xtremeforms_impression_nonce' ),
 					// Current post/page ID so the beacon can store post_id accurately.
 					'postId'           => get_the_ID() ? (int) get_the_ID() : 0,
 					'recaptchaEnabled' => $use_recaptcha ? '1' : '0',
@@ -325,8 +325,8 @@ class XF_Shortcode {
 
 		// Enqueue reCAPTCHA v3 JS only on pages with reCAPTCHA-enabled forms.
 		// Only loaded if not already enqueued (multiple forms on same page).
-		if ( class_exists( 'XF_Spam' ) ) {
-			$recaptcha     = XF_Spam::get_recaptcha_settings();
+		if ( class_exists( 'Xtremeforms_Spam' ) ) {
+			$recaptcha     = Xtremeforms_Spam::get_recaptcha_settings();
 			$use_recaptcha = $recaptcha['enabled'] && ! empty( $form_settings['recaptcha_enabled'] ) && '1' === (string) $form_settings['recaptcha_enabled'];
 
 			if ( $use_recaptcha && ! wp_script_is( 'xf-recaptcha', 'enqueued' ) ) {
@@ -341,8 +341,8 @@ class XF_Shortcode {
 		}
 
 		// Enqueue Cloudflare Turnstile script if enabled globally.
-		if ( class_exists( 'XF_Spam' ) ) {
-			$turnstile = XF_Spam::get_turnstile_settings();
+		if ( class_exists( 'Xtremeforms_Spam' ) ) {
+			$turnstile = Xtremeforms_Spam::get_turnstile_settings();
 			if ( $turnstile['enabled'] && ! wp_script_is( 'xf-turnstile', 'enqueued' ) ) {
 				// phpcs:disable PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent -- Cloudflare Turnstile must be served from Cloudflare's CDN; self-hosting is not supported by Cloudflare.
 				wp_enqueue_script(
@@ -380,7 +380,7 @@ class XF_Shortcode {
 			: esc_html__( 'Submit', 'xtreme-forms' );
 
 		$form_id_attr = 'xf-form-' . $form_id;
-		$nonce        = wp_create_nonce( 'xf_form_submit_' . $form_id );
+		$nonce        = wp_create_nonce( 'xtremeforms_form_submit_' . $form_id );
 
 		$fields_html = '';
 		foreach ( $fields as $field ) {
@@ -395,7 +395,7 @@ class XF_Shortcode {
 
 		// Honeypot: a visually hidden text field that humans won't fill but bots will.
 		// Named to look like a real field to attract bots.
-		$honeypot_name = 'xf_website_url';
+		$honeypot_name = 'xtremeforms_website_url';
 
 		// Time-gate: record form render timestamp so server can reject sub-2-second submissions.
 		$form_time = time();
@@ -418,7 +418,7 @@ class XF_Shortcode {
 
 			$consent_html  = '<div class="xf-field-wrap xf-field-consent' . ( $consent_error ? ' xf-field-error' : '' ) . '">';
 			$consent_html .= '<label class="xf-consent-label">';
-			$consent_html .= '<input type="checkbox" name="xf_consent" value="1"' . $consent_checked . ' required aria-required="true" id="xf-consent-' . esc_attr( $form_id ) . '">';
+			$consent_html .= '<input type="checkbox" name="xtremeforms_consent" value="1"' . $consent_checked . ' required aria-required="true" id="xf-consent-' . esc_attr( $form_id ) . '">';
 			$consent_html .= ' ' . $label_html;
 			$consent_html .= '</label>';
 			if ( $consent_error ) {
@@ -447,13 +447,13 @@ class XF_Shortcode {
 		$html .= self::build_form_jsonld( $form_id, $form_name, $source_url );
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
-		$html .= '<input type="hidden" name="action" value="xl_submit_form">';
-		$html .= '<input type="hidden" name="xf_form_id" value="' . esc_attr( $form_id ) . '">';
-		$html .= '<input type="hidden" name="xf_nonce" value="' . esc_attr( $nonce ) . '">';
-		$html .= '<input type="hidden" name="xf_source_url" value="' . $source_url . '">';
-		$html .= '<input type="hidden" name="xf_form_time" value="' . esc_attr( $form_time ) . '">';
+		$html .= '<input type="hidden" name="action" value="xtremeforms_submit_form">';
+		$html .= '<input type="hidden" name="xtremeforms_form_id" value="' . esc_attr( $form_id ) . '">';
+		$html .= '<input type="hidden" name="xtremeforms_nonce" value="' . esc_attr( $nonce ) . '">';
+		$html .= '<input type="hidden" name="xtremeforms_source_url" value="' . $source_url . '">';
+		$html .= '<input type="hidden" name="xtremeforms_form_time" value="' . esc_attr( $form_time ) . '">';
 		// reCAPTCHA token field — populated by JS before submit.
-		$html .= '<input type="hidden" name="xf_recaptcha_token" id="xf-recaptcha-token-' . esc_attr( $form_id ) . '" value="">';
+		$html .= '<input type="hidden" name="xtremeforms_recaptcha_token" id="xf-recaptcha-token-' . esc_attr( $form_id ) . '" value="">';
 		// Honeypot field: visually hidden using CSS (position:absolute, clip, 1px dimensions).
 		// aria-hidden is intentionally NOT used so that screen readers and bots still
 		// encounter the field — only sighted users won't see it (per spec requirement).
@@ -464,13 +464,13 @@ class XF_Shortcode {
 		$html .= $fields_html;
 		$html .= $consent_html;
 		// Cloudflare Turnstile widget — rendered automatically when Turnstile JS loads.
-		if ( class_exists( 'XF_Spam' ) ) {
-			$xf_turnstile = XF_Spam::get_turnstile_settings();
+		if ( class_exists( 'Xtremeforms_Spam' ) ) {
+			$xf_turnstile = Xtremeforms_Spam::get_turnstile_settings();
 			if ( $xf_turnstile['enabled'] ) {
 				$html .= '<div class="xf-turnstile-wrap">';
 				$html .= '<div class="cf-turnstile"';
 				$html .= ' data-sitekey="' . esc_attr( $xf_turnstile['site_key'] ) . '"';
-				$html .= ' data-response-field-name="xf_turnstile_token"';
+				$html .= ' data-response-field-name="xtremeforms_turnstile_token"';
 				$html .= ' data-theme="' . esc_attr( $xf_turnstile['theme'] ) . '"';
 				$html .= ' data-size="' . esc_attr( $xf_turnstile['size'] ) . '"';
 				$html .= '></div>';

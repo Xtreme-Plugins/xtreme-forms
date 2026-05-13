@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Activity
+ * Class Xtremeforms_Activity
  */
-class XF_Activity {
+class Xtremeforms_Activity {
 
 	const TYPE_STATUS_CHANGE = 'status_change';
 	const TYPE_ASSIGNMENT    = 'assignment';

@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Spam
+ * Class Xtremeforms_Spam
  */
-class XF_Spam {
+class Xtremeforms_Spam {
 
 	/** Rejection reason constants. */
 	const REASON_HONEYPOT           = 'honeypot';

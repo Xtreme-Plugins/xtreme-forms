@@ -13,9 +13,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Multisite
+ * Class Xtremeforms_Multisite
  */
-class XF_Multisite {
+class Xtremeforms_Multisite {
 
 	/**
 	 * Network-level option key for global settings that are pushed to subsites.
@@ -38,9 +38,9 @@ class XF_Multisite {
 
 		add_action( 'network_admin_menu', array( static::class, 'register_network_menu' ) );
 		add_action( 'network_admin_notices', array( static::class, 'display_network_notices' ) );
-		add_action( 'admin_post_xl_network_push_settings', array( static::class, 'handle_push_settings' ) );
+		add_action( 'admin_post_xtremeforms_network_push_settings', array( static::class, 'handle_push_settings' ) );
 		// Per-site opt-out toggle (available to site admins).
-		add_action( 'admin_post_xl_toggle_site_disabled', array( static::class, 'handle_toggle_site_disabled' ) );
+		add_action( 'admin_post_xtremeforms_toggle_site_disabled', array( static::class, 'handle_toggle_site_disabled' ) );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class XF_Multisite {
 	 * Allows a site admin to hide/show Xtreme Forms for their subsite.
 	 */
 	public static function handle_toggle_site_disabled(): void {
-		check_admin_referer( 'xf_toggle_site_disabled' );
+		check_admin_referer( 'xtremeforms_toggle_site_disabled' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
@@ -74,8 +74,8 @@ class XF_Multisite {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'xf_site_toggled'  => '1',
-					'xf_site_disabled' => $new_val,
+					'xtremeforms_site_toggled'  => '1',
+					'xtremeforms_site_disabled' => $new_val,
 				),
 				admin_url( 'admin.php?page=xtreme-forms-settings' )
 			)
@@ -94,7 +94,7 @@ class XF_Multisite {
 			'xtreme-forms-network',
 			array( static::class, 'page_network_dashboard' ),
 			'dashicons-email-alt',
-			25
+			null
 		);
 
 		add_submenu_page(
@@ -145,9 +145,9 @@ class XF_Multisite {
 			return;
 		}
 
-		if ( ! empty( $_GET['xf_push_done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$success = absint( $_GET['xf_push_success'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
-			$failed  = absint( $_GET['xf_push_failed'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! empty( $_GET['xtremeforms_push_done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$success = absint( $_GET['xtremeforms_push_success'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
+			$failed  = absint( $_GET['xtremeforms_push_failed'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
 			echo '<div class="notice notice-success is-dismissible"><p>';
 			printf(
 				/* translators: 1: number of sites updated, 2: number of sites failed */
@@ -157,8 +157,8 @@ class XF_Multisite {
 			);
 			echo '</p>';
 
-			if ( $failed > 0 && ! empty( $_GET['xf_push_failed_ids'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				$failed_ids = array_map( 'absint', explode( ',', sanitize_text_field( wp_unslash( $_GET['xf_push_failed_ids'] ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			if ( $failed > 0 && ! empty( $_GET['xtremeforms_push_failed_ids'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				$failed_ids = array_map( 'absint', explode( ',', sanitize_text_field( wp_unslash( $_GET['xtremeforms_push_failed_ids'] ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 				echo '<p>' . esc_html__( 'Failed site IDs:', 'xtreme-forms' ) . ' ';
 				echo esc_html( implode( ', ', $failed_ids ) );
 				echo '</p>';
@@ -171,19 +171,19 @@ class XF_Multisite {
 	 * Handle the "Push Settings to All Sites" admin post action.
 	 */
 	public static function handle_push_settings(): void {
-		check_admin_referer( 'xf_network_push_settings' );
+		check_admin_referer( 'xtremeforms_network_push_settings' );
 
 		if ( ! current_user_can( 'manage_network' ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'xtreme-forms' ) );
 		}
 
 		// Save network-level settings.
-		$email_template     = sanitize_textarea_field( wp_unslash( $_POST['xf_email_template_body'] ?? '' ) );
-		$email_header_color = sanitize_hex_color( wp_unslash( $_POST['xf_email_header_color'] ?? '#1A73E8' ) );
-		$retention_days     = isset( $_POST['xf_retention_days'] ) && '' !== $_POST['xf_retention_days']
-			? absint( $_POST['xf_retention_days'] )
+		$email_template     = sanitize_textarea_field( wp_unslash( $_POST['xtremeforms_email_template_body'] ?? '' ) );
+		$email_header_color = sanitize_hex_color( wp_unslash( $_POST['xtremeforms_email_header_color'] ?? '#1A73E8' ) );
+		$retention_days     = isset( $_POST['xtremeforms_retention_days'] ) && '' !== $_POST['xtremeforms_retention_days']
+			? absint( $_POST['xtremeforms_retention_days'] )
 			: '';
-		$anonymize_ip       = isset( $_POST['xf_anonymize_ip'] ) ? '1' : '0';
+		$anonymize_ip       = isset( $_POST['xtremeforms_anonymize_ip'] ) ? '1' : '0';
 
 		$network_settings = array(
 			'email_template_body' => $email_template,
@@ -238,9 +238,9 @@ class XF_Multisite {
 		}
 
 		// Audit log on current (main) site.
-		if ( class_exists( 'XF_Audit_Log' ) ) {
-			XF_Audit_Log::record(
-				XF_Audit_Log::ACTION_GLOBAL_SETTINGS_UPDATED,
+		if ( class_exists( 'Xtremeforms_Audit_Log' ) ) {
+			Xtremeforms_Audit_Log::record(
+				Xtremeforms_Audit_Log::ACTION_GLOBAL_SETTINGS_UPDATED,
 				0,
 				array(
 					'scope'   => 'network_push',
@@ -254,10 +254,10 @@ class XF_Multisite {
 			add_query_arg(
 				array(
 					'page'               => 'xtreme-forms-network-settings',
-					'xf_push_done'       => '1',
-					'xf_push_success'    => $success,
-					'xf_push_failed'     => $failed,
-					'xf_push_failed_ids' => implode( ',', $failed_ids ),
+					'xtremeforms_push_done'       => '1',
+					'xtremeforms_push_success'    => $success,
+					'xtremeforms_push_failed'     => $failed,
+					'xtremeforms_push_failed_ids' => implode( ',', $failed_ids ),
 				),
 				network_admin_url( 'admin.php' )
 			)

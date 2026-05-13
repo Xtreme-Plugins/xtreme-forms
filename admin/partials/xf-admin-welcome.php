@@ -17,7 +17,9 @@ $upgrade_url = 'https://xtremeplugins.com/plugins/xtreme-forms/pricing';
 $docs_url    = 'https://xtremeplugins.com/docs/xtreme-forms/';
 $video_url   = '#'; // Replace with actual YouTube URL when available.
 ?>
-<style>
+<?php
+ob_start();
+?>
 /* ── Xtreme Forms Welcome Screen styles (scoped to .xf-welcome-wrap) ── */
 .xf-welcome-wrap {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -405,7 +407,10 @@ $video_url   = '#'; // Replace with actual YouTube URL when available.
 	text-decoration: underline;
 	color: #c75700;
 }
-</style>
+<?php
+$xtremeforms_inline_css = ob_get_clean();
+wp_add_inline_style( 'xtremeforms-admin', $xtremeforms_inline_css );
+?>
 
 <div class="xf-welcome-wrap">
 

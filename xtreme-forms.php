@@ -3,7 +3,7 @@
  * Plugin Name: Xtreme Forms
  * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-forms/
  * Description: Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:     2.3.2
+ * Version:     2.4.0
  * Author:      XtremePlugins
  * Author URI:  https://xtremeplugins.com
  * License:     GPL-2.0-or-later
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.3.2' );
+define( 'XTREMEFORMS_VERSION', '2.4.0' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -28,14 +28,14 @@ define( 'XTREMEFORMS_TEXT_DOMAIN', 'xtreme-forms' );
 // Activation / deactivation hooks — load activator early.
 require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-activator.php';
 
-register_activation_hook( __FILE__, array( 'XF_Activator', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'XF_Activator', 'deactivate' ) );
+register_activation_hook( __FILE__, array( 'Xtremeforms_Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'Xtremeforms_Activator', 'deactivate' ) );
 
 // Multisite: provision tables for newly created blogs.
-add_action( 'wp_initialize_site', array( 'XF_Activator', 'on_new_blog' ), 10, 1 );
+add_action( 'wp_initialize_site', array( 'Xtremeforms_Activator', 'on_new_blog' ), 10, 1 );
 
 // Run DB upgrade checks on every request (uses dbDelta idempotency).
-add_action( 'plugins_loaded', array( 'XF_Activator', 'maybe_upgrade' ), 5 );
+add_action( 'plugins_loaded', array( 'Xtremeforms_Activator', 'maybe_upgrade' ), 5 );
 
 /**
  * Bootstrap all plugin components after WordPress has loaded.
@@ -62,29 +62,29 @@ function xtremeforms_init(): void {
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-webhooks.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-gdpr.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-spam.php';
-	XF_GDPR::init();
+	Xtremeforms_GDPR::init();
 	// Audit Log, Multisite, Import/Export.
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-audit-log.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-multisite.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-import-export.php';
-	XF_Multisite::init();
+	Xtremeforms_Multisite::init();
 	// CRM Integrations.
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-integrations.php';
-	new XF_Integrations();
+	new Xtremeforms_Integrations();
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-ajax.php';
 
 	// Admin.
 	if ( is_admin() ) {
 		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/class-xf-admin.php';
-		new XF_Admin();
+		new Xtremeforms_Admin();
 	}
 
 	// Shortcode.
-	$shortcode = new XF_Shortcode();
+	$shortcode = new Xtremeforms_Shortcode();
 	add_shortcode( 'xtreme_forms', array( $shortcode, 'render' ) );
 
 	// AJAX handlers.
-	new XF_Ajax();
+	new Xtremeforms_Ajax();
 
 	// Gutenberg block.
 	add_action( 'init', 'xtremeforms_register_block' );
@@ -108,7 +108,7 @@ function xtremeforms_register_block(): void {
 	// Register the editor-facing script with the block dependencies.
 	// Loaded only inside the block editor — not on the front end.
 	wp_register_script(
-		'xf-form-block',
+		'xtremeforms-form-block',
 		XTREMEFORMS_PLUGIN_URL . 'blocks/xf-form-block.js',
 		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data' ),
 		XTREMEFORMS_VERSION,
@@ -117,12 +117,12 @@ function xtremeforms_register_block(): void {
 
 	// Provide form list (with field definitions) to the block editor.
 	// Data is localized into the editor-script only (requires editor login).
-	if ( class_exists( 'XF_Forms' ) ) {
-		$forms      = XF_Forms::get_all_forms();
+	if ( class_exists( 'Xtremeforms_Forms' ) ) {
+		$forms      = Xtremeforms_Forms::get_all_forms();
 		$forms_data = array_map(
 			static function ( $form ) {
 				// Include field definitions for live preview rendering.
-				$fields = XF_Forms::decode_fields( $form );
+				$fields = Xtremeforms_Forms::decode_fields( $form );
 				// Strip down to just what the editor preview needs.
 				$fields_preview = array_values(
 					array_filter(
@@ -160,8 +160,8 @@ function xtremeforms_register_block(): void {
 	}
 
 	wp_localize_script(
-		'xf-form-block',
-		'xfBlockData',
+		'xtremeforms-form-block',
+		'xtremeformsBlockData',
 		array(
 			'forms'     => $forms_data,
 			'pluginUrl' => esc_url( XTREMEFORMS_PLUGIN_URL ),

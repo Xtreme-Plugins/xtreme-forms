@@ -7,26 +7,30 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Filter parameters on this admin display page are read-only GET params — no nonce required for display-only filtering.
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET filter params are sanitized on read.
 
 // ── Read active filters from URL ─────────────────────────────────────────────
 
-$current_status = isset( $_GET['xf_status'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_status'] ) ) : '';
-$current_form   = isset( $_GET['xf_form'] ) ? absint( $_GET['xf_form'] ) : 0;
-$current_filter = isset( $_GET['xf_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_filter'] ) ) : '';
-$date_from      = isset( $_GET['xf_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_date_from'] ) ) : '';
-$date_to        = isset( $_GET['xf_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['xf_date_to'] ) ) : '';
+$current_status = isset( $_GET['xtremeforms_status'] ) ? sanitize_text_field( wp_unslash( $_GET['xtremeforms_status'] ) ) : '';
+$current_form   = isset( $_GET['xtremeforms_form'] ) ? absint( $_GET['xtremeforms_form'] ) : 0;
+$current_filter = isset( $_GET['xtremeforms_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['xtremeforms_filter'] ) ) : '';
+$date_from      = isset( $_GET['xtremeforms_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['xtremeforms_date_from'] ) ) : '';
+$date_to        = isset( $_GET['xtremeforms_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['xtremeforms_date_to'] ) ) : '';
 
 // Tag filter — multi-value.
 $current_tag_ids = array();
-if ( isset( $_GET['xf_tags'] ) && is_array( $_GET['xf_tags'] ) ) {
-	$current_tag_ids = array_values( array_filter( array_map( 'absint', wp_unslash( $_GET['xf_tags'] ) ) ) );
+if ( isset( $_GET['xtremeforms_tags'] ) && is_array( $_GET['xtremeforms_tags'] ) ) {
+	$current_tag_ids = array_values( array_filter( array_map( 'absint', wp_unslash( $_GET['xtremeforms_tags'] ) ) ) );
 }
 
-// Build $filters array for XF_Leads::get_leads_filtered().
+// Build $filters array for Xtremeforms_Leads::get_leads_filtered().
 $filters = array();
 
-if ( $current_status && array_key_exists( $current_status, XF_Leads::get_statuses() ) ) {
+if ( $current_status && array_key_exists( $current_status, Xtremeforms_Leads::get_statuses() ) ) {
 	$filters['status'] = $current_status;
 }
 if ( $current_form ) {
@@ -49,7 +53,7 @@ if ( 'my_leads' === $current_filter ) {
 $per_page     = 20;
 $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
 
-$result      = XF_Leads::get_leads_filtered( $filters, $current_page, $per_page );
+$result      = Xtremeforms_Leads::get_leads_filtered( $filters, $current_page, $per_page );
 $leads       = $result['leads'];
 $total_leads = $result['total'];
 $total_pages = $total_leads > 0 ? (int) ceil( $total_leads / $per_page ) : 1;
@@ -70,14 +74,14 @@ if ( $current_page > $total_pages && $total_leads > 0 ) {
 
 // Pre-fetch forms and tags for the current page.
 $form_ids    = array_unique( array_map( static fn( $l ) => (int) $l->form_id, $leads ) );
-$forms_cache = XF_Forms::get_forms_by_ids( $form_ids );
+$forms_cache = Xtremeforms_Forms::get_forms_by_ids( $form_ids );
 
 $lead_ids_current = array_map( static fn( $l ) => (int) $l->id, $leads );
-$tags_by_lead     = XF_Tags::get_tags_for_leads( $lead_ids_current );
+$tags_by_lead     = Xtremeforms_Tags::get_tags_for_leads( $lead_ids_current );
 
-$statuses  = XF_Leads::get_statuses();
-$all_tags  = XF_Tags::get_all_tags();
-$all_forms = XF_Forms::get_all_forms();
+$statuses  = Xtremeforms_Leads::get_statuses();
+$all_tags  = Xtremeforms_Tags::get_all_tags();
+$all_forms = Xtremeforms_Forms::get_all_forms();
 
 // ── Helper: extract field value from lead ────────────────────────────────────
 
@@ -93,8 +97,8 @@ if ( ! function_exists( 'xtremeforms_inbox_get_field' ) ) :
 		if ( ! $form ) {
 			return '';
 		}
-		$field_defs   = XF_Forms::decode_fields( $form );
-		$field_values = XF_Leads::decode_field_values( $lead );
+		$field_defs   = Xtremeforms_Forms::decode_fields( $form );
+		$field_values = Xtremeforms_Leads::decode_field_values( $lead );
 
 		// "Name" column: prefer a text field whose label/ID mentions "name", else first text field.
 		if ( 'text' === $field_type ) {
@@ -129,12 +133,12 @@ if ( ! function_exists( 'xtremeforms_inbox_get_field' ) ) :
 
 		// "Email" column: smart detection (handles forms where Email field is type "text").
 		if ( 'email' === $field_type ) {
-			return XF_Leads::detect_email( $field_defs, $field_values );
+			return Xtremeforms_Leads::detect_email( $field_defs, $field_values );
 		}
 
 		// "Phone" column: smart detection.
 		if ( 'phone' === $field_type ) {
-			return XF_Leads::detect_phone( $field_defs, $field_values );
+			return Xtremeforms_Leads::detect_phone( $field_defs, $field_values );
 		}
 
 		// Fallback: strict type match.
@@ -173,29 +177,29 @@ if ( ! empty( $_GET['bulk_deleted'] ) ) {
 // Export nonce URL (used for full export link).
 $export_filters = array( 'page' => 'xtreme-forms' );
 if ( $current_status ) {
-	$export_filters['xf_status'] = $current_status;
+	$export_filters['xtremeforms_status'] = $current_status;
 }
 if ( $current_form ) {
-	$export_filters['xf_form'] = $current_form;
+	$export_filters['xtremeforms_form'] = $current_form;
 }
 if ( $date_from ) {
-	$export_filters['xf_date_from'] = $date_from;
+	$export_filters['xtremeforms_date_from'] = $date_from;
 }
 if ( $date_to ) {
-	$export_filters['xf_date_to'] = $date_to;
+	$export_filters['xtremeforms_date_to'] = $date_to;
 }
 if ( ! empty( $current_tag_ids ) ) {
-	$export_filters['xf_tags'] = $current_tag_ids;
+	$export_filters['xtremeforms_tags'] = $current_tag_ids;
 }
 if ( 'my_leads' === $current_filter ) {
-	$export_filters['xf_filter'] = 'my_leads';
+	$export_filters['xtremeforms_filter'] = 'my_leads';
 }
 $export_url = wp_nonce_url(
 	add_query_arg(
-		array_merge( array( 'action' => 'xf_export_leads' ), $export_filters ),
+		array_merge( array( 'action' => 'xtremeforms_export_leads' ), $export_filters ),
 		admin_url( 'admin-post.php' )
 	),
-	'xf_export_leads'
+	'xtremeforms_export_leads'
 );
 ?>
 <div class="wrap xf-wrap">
@@ -225,7 +229,7 @@ $export_url = wp_nonce_url(
 		</a>
 		<?php foreach ( $statuses as $slug => $label ) : ?>
 			<a
-				href="<?php echo esc_url( xtremeforms_filter_url( array( 'xf_status' => $slug ) ) ); ?>"
+				href="<?php echo esc_url( xtremeforms_filter_url( array( 'xtremeforms_status' => $slug ) ) ); ?>"
 				class="xf-tab <?php echo ( $current_status === $slug ) ? 'xf-tab-active' : ''; ?>"
 				role="tab"
 			>
@@ -233,7 +237,7 @@ $export_url = wp_nonce_url(
 			</a>
 		<?php endforeach; ?>
 		<a
-			href="<?php echo esc_url( xtremeforms_filter_url( array( 'xf_filter' => 'my_leads' ) ) ); ?>"
+			href="<?php echo esc_url( xtremeforms_filter_url( array( 'xtremeforms_filter' => 'my_leads' ) ) ); ?>"
 			class="xf-tab xf-tab-my-leads <?php echo ( 'my_leads' === $current_filter ) ? 'xf-tab-active' : ''; ?>"
 			role="tab"
 		>
@@ -245,10 +249,10 @@ $export_url = wp_nonce_url(
 	<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" class="xf-filter-form" id="xf-filter-form">
 		<input type="hidden" name="page" value="xtreme-forms-leads">
 		<?php if ( $current_status ) : ?>
-			<input type="hidden" name="xf_status" value="<?php echo esc_attr( $current_status ); ?>">
+			<input type="hidden" name="xtremeforms_status" value="<?php echo esc_attr( $current_status ); ?>">
 		<?php endif; ?>
 		<?php if ( 'my_leads' === $current_filter ) : ?>
-			<input type="hidden" name="xf_filter" value="my_leads">
+			<input type="hidden" name="xtremeforms_filter" value="my_leads">
 		<?php endif; ?>
 
 		<div class="xf-filter-bar">
@@ -276,7 +280,7 @@ $export_url = wp_nonce_url(
 			<?php if ( ! empty( $all_forms ) ) : ?>
 				<div class="xf-filter-group">
 					<label class="xf-filter-label" for="xf-form-filter"><?php esc_html_e( 'Form:', 'xtreme-forms' ); ?></label>
-					<select name="xf_form" id="xf-form-filter" class="xf-select-sm">
+					<select name="xtremeforms_form" id="xf-form-filter" class="xf-select-sm">
 						<option value=""><?php esc_html_e( 'All Forms', 'xtreme-forms' ); ?></option>
 						<?php foreach ( $all_forms as $form ) : ?>
 							<option value="<?php echo esc_attr( $form->id ); ?>" <?php selected( $form->id, $current_form ); ?>>
@@ -290,11 +294,11 @@ $export_url = wp_nonce_url(
 			<!-- Date range -->
 			<div class="xf-filter-group">
 				<label class="xf-filter-label"><?php esc_html_e( 'From:', 'xtreme-forms' ); ?></label>
-				<input type="date" name="xf_date_from" class="xf-input" value="<?php echo esc_attr( $date_from ); ?>">
+				<input type="date" name="xtremeforms_date_from" class="xf-input" value="<?php echo esc_attr( $date_from ); ?>">
 			</div>
 			<div class="xf-filter-group">
 				<label class="xf-filter-label"><?php esc_html_e( 'To:', 'xtreme-forms' ); ?></label>
-				<input type="date" name="xf_date_to" class="xf-input" value="<?php echo esc_attr( $date_to ); ?>">
+				<input type="date" name="xtremeforms_date_to" class="xf-input" value="<?php echo esc_attr( $date_to ); ?>">
 			</div>
 
 			<div class="xf-filter-actions">
@@ -324,7 +328,7 @@ $export_url = wp_nonce_url(
 						<?php esc_html_e( 'View Your Forms', 'xtreme-forms' ); ?>
 					</a>
 				<?php else : ?>
-					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary xf-btn-primary">
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xtremeforms_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-primary xf-btn-primary">
 						<?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?>
 					</a>
 				<?php endif; ?>
@@ -334,25 +338,25 @@ $export_url = wp_nonce_url(
 
 		<!-- Bulk action bar + table -->
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-leads-form">
-			<input type="hidden" name="action" value="xf_bulk_leads">
-			<?php wp_nonce_field( 'xf_bulk_leads' ); ?>
+			<input type="hidden" name="action" value="xtremeforms_bulk_leads">
+			<?php wp_nonce_field( 'xtremeforms_bulk_leads' ); ?>
 			<!-- Preserve filter state in bulk form -->
 			<?php
 			if ( $current_status ) :
 				?>
-				<input type="hidden" name="xf_status" value="<?php echo esc_attr( $current_status ); ?>"><?php endif; ?>
+				<input type="hidden" name="xtremeforms_status" value="<?php echo esc_attr( $current_status ); ?>"><?php endif; ?>
 			<?php
 			if ( $current_form ) :
 				?>
-				<input type="hidden" name="xf_form" value="<?php echo esc_attr( $current_form ); ?>"><?php endif; ?>
+				<input type="hidden" name="xtremeforms_form" value="<?php echo esc_attr( $current_form ); ?>"><?php endif; ?>
 			<?php
 			if ( $date_from ) :
 				?>
-				<input type="hidden" name="xf_date_from" value="<?php echo esc_attr( $date_from ); ?>"><?php endif; ?>
+				<input type="hidden" name="xtremeforms_date_from" value="<?php echo esc_attr( $date_from ); ?>"><?php endif; ?>
 			<?php
 			if ( $date_to ) :
 				?>
-				<input type="hidden" name="xf_date_to" value="<?php echo esc_attr( $date_to ); ?>"><?php endif; ?>
+				<input type="hidden" name="xtremeforms_date_to" value="<?php echo esc_attr( $date_to ); ?>"><?php endif; ?>
 			<?php
 			foreach ( $current_tag_ids as $tid ) :
 				?>
@@ -360,7 +364,7 @@ $export_url = wp_nonce_url(
 			<?php
 			if ( 'my_leads' === $current_filter ) :
 				?>
-				<input type="hidden" name="xf_filter" value="my_leads"><?php endif; ?>
+				<input type="hidden" name="xtremeforms_filter" value="my_leads"><?php endif; ?>
 
 			<div class="xf-table-toolbar">
 				<div class="xf-bulk-actions">
@@ -433,7 +437,7 @@ $export_url = wp_nonce_url(
 						$detail_url = add_query_arg(
 							array(
 								'page'      => 'xtreme-forms-leads',
-								'xf_action' => 'view',
+								'xtremeforms_action' => 'view',
 								'lead_id'   => $lead_id,
 							),
 							admin_url( 'admin.php' )
@@ -461,7 +465,7 @@ $export_url = wp_nonce_url(
 													add_query_arg(
 														array(
 															'page' => 'xtreme-forms-leads',
-															'xf_action' => 'view',
+															'xtremeforms_action' => 'view',
 															'lead_id' => $original_lead_id,
 														),
 														admin_url( 'admin.php' )

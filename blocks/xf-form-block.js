@@ -13,7 +13,7 @@
  *
  * @package Xtreme Forms
  */
-/* global wp, xfBlockData */
+/* global wp, xtremeformsBlockData */
 (function (blocks, element, blockEditor, components, i18n) {
 	'use strict';
 
@@ -34,7 +34,7 @@
 	var Notice           = components.Notice;
 	var Placeholder      = components.Placeholder;
 
-	var blockData = window.xfBlockData || {};
+	var blockData = window.xtremeformsBlockData || {};
 	var forms     = blockData.forms    || [];
 
 	// Build options for SelectControl.

@@ -18,9 +18,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Routing_Rules
+ * Class Xtremeforms_Routing_Rules
  */
-class XF_Routing_Rules {
+class Xtremeforms_Routing_Rules {
 
 	/** Condition type constants. */
 	const CONDITION_FORM        = 'form';

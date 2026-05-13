@@ -4,7 +4,7 @@
  * Evaluates per-field visibility rules in real time.
  * Runs with `defer` (no blocking). Zero jQuery dependency.
  *
- * Rule schema (stored in form field JSON, passed via xlCondLogicData):
+ * Rule schema (stored in form field JSON, passed via xtremeformsCondLogicData):
  * {
  *   fieldId: "field_abc",          // target field to show/hide
  *   logic:   "and"|"or",
@@ -16,12 +16,12 @@
  *
  * @package Xtreme Forms
  */
-/* global xlCondLogicData */
+/* global xtremeformsCondLogicData */
 (function () {
 	'use strict';
 
-	var rules = (typeof xlCondLogicData !== 'undefined' && Array.isArray(xlCondLogicData.rules))
-		? xlCondLogicData.rules
+	var rules = (typeof xtremeformsCondLogicData !== 'undefined' && Array.isArray(xtremeformsCondLogicData.rules))
+		? xtremeformsCondLogicData.rules
 		: [];
 
 	if (!rules.length) {
@@ -117,7 +117,7 @@
 			targetWrap.querySelectorAll('input, textarea, select').forEach(function (el) {
 				el.disabled = false;
 				// Restore required if it was originally required.
-				if (el.dataset.xlWasRequired === '1') {
+				if (el.dataset.xtremeformsWasRequired === '1') {
 					el.required = true;
 					el.setAttribute('aria-required', 'true');
 				}
@@ -129,7 +129,7 @@
 			targetWrap.querySelectorAll('input, textarea, select').forEach(function (el) {
 				// Save required state before removing it.
 				if (el.required) {
-					el.dataset.xlWasRequired = '1';
+					el.dataset.xtremeformsWasRequired = '1';
 				}
 				el.required  = false;
 				el.disabled  = true;

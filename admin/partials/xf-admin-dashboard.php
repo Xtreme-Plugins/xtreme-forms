@@ -9,24 +9,29 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only display page; all data rendered server-side via WP functions.
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. Read-only display page.
 
 // Fetch initial KPI data server-side for instant render (no FOUC).
-$kpi_all_time   = XF_Analytics::count_leads_all_time();
-$kpi_this_month = XF_Analytics::count_leads_this_month();
-$kpi_this_week  = XF_Analytics::count_leads_this_week();
-$funnel_data    = XF_Analytics::leads_by_status();
-$top_pages      = XF_Analytics::top_source_pages( 10 );
-$top_forms      = XF_Analytics::top_forms( 5 );
-$utm_data       = XF_Analytics::utm_breakdown();
+$kpi_all_time   = Xtremeforms_Analytics::count_leads_all_time();
+$kpi_this_month = Xtremeforms_Analytics::count_leads_this_month();
+$kpi_this_week  = Xtremeforms_Analytics::count_leads_this_week();
+$funnel_data    = Xtremeforms_Analytics::leads_by_status();
+$top_pages      = Xtremeforms_Analytics::top_source_pages( 10 );
+$top_forms      = Xtremeforms_Analytics::top_forms( 5 );
+$utm_data       = Xtremeforms_Analytics::utm_breakdown();
 
 $total_leads = $kpi_all_time;
-$has_forms   = ! empty( XF_Forms::get_all_forms() );
+$has_forms   = ! empty( Xtremeforms_Forms::get_all_forms() );
 
 $add_form_url = add_query_arg(
 	array(
 		'page'      => 'xtreme-forms-forms',
-		'xf_action' => 'new',
+		'xtremeforms_action' => 'new',
 	),
 	admin_url( 'admin.php' )
 );
@@ -45,16 +50,16 @@ $kpi_all_time_url   = $leads_url;
 $kpi_this_month_url = add_query_arg(
 	array(
 		'page'         => 'xtreme-forms-leads',
-		'xf_date_from' => $first_of_month,
-		'xf_date_to'   => $last_of_month,
+		'xtremeforms_date_from' => $first_of_month,
+		'xtremeforms_date_to'   => $last_of_month,
 	),
 	admin_url( 'admin.php' )
 );
 $kpi_this_week_url = add_query_arg(
 	array(
 		'page'         => 'xtreme-forms-leads',
-		'xf_date_from' => $monday_this_week,
-		'xf_date_to'   => $today_str,
+		'xtremeforms_date_from' => $monday_this_week,
+		'xtremeforms_date_to'   => $today_str,
 	),
 	admin_url( 'admin.php' )
 );
@@ -239,7 +244,7 @@ $kpi_this_week_url = add_query_arg(
 								$status_url = add_query_arg(
 									array(
 										'page'      => 'xtreme-forms-leads',
-										'xf_status' => $item['status'],
+										'xtremeforms_status' => $item['status'],
 									),
 									admin_url( 'admin.php' )
 								);
@@ -356,7 +361,7 @@ $kpi_this_week_url = add_query_arg(
 							$form_filter_url = add_query_arg(
 								array(
 									'page'    => 'xtreme-forms-leads',
-									'xf_form' => (int) $form_item['form_id'],
+									'xtremeforms_form' => (int) $form_item['form_id'],
 								),
 								admin_url( 'admin.php' )
 							);
@@ -502,10 +507,15 @@ $kpi_this_week_url = add_query_arg(
 
 </div><!-- .xf-dashboard-wrap -->
 
-<script type="text/javascript">
+<?php
+ob_start();
+?>
 /* Dashboard initial data — passed to xf-dashboard.js to avoid redundant AJAX on load */
-window.xlDashboardInitialData = {
+window.xtremeformsDashboardInitialData = {
 	hasLeads: <?php echo $total_leads > 0 ? 'true' : 'false'; ?>,
 	hasForms: <?php echo $has_forms ? 'true' : 'false'; ?>,
 };
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-dashboard', $xtremeforms_inline_js, 'before' );
+?>

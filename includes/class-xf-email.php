@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Email
+ * Class Xtremeforms_Email
  */
-class XF_Email {
+class Xtremeforms_Email {
 
 	// ── Main notification entry-point ─────────────────────────────────────────
 
@@ -51,7 +51,7 @@ class XF_Email {
 		}
 
 		// Build email context from lead data.
-		$context = XF_Email_Templates::build_context_from_lead(
+		$context = Xtremeforms_Email_Templates::build_context_from_lead(
 			$lead_obj,
 			$field_defs,
 			$field_values,
@@ -61,7 +61,7 @@ class XF_Email {
 		$admin_link = admin_url( 'admin.php?page=xtreme-forms-leads&xf_action=view&lead_id=' . $lead_id );
 
 		// Build the email body from the template.
-		$email_data = XF_Email_Templates::build_email(
+		$email_data = Xtremeforms_Email_Templates::build_email(
 			$context,
 			$field_defs,
 			$field_values,
@@ -75,11 +75,11 @@ class XF_Email {
 		// Per-form custom subject override (with merge-tag processing).
 		$custom_subject = trim( (string) ( $form_settings['email_subject'] ?? '' ) );
 		if ( '' !== $custom_subject ) {
-			$subject = XF_Email_Templates::process_merge_tags( $custom_subject, $context, false );
+			$subject = Xtremeforms_Email_Templates::process_merge_tags( $custom_subject, $context, false );
 		}
 
 		// Determine notification recipients via routing rules.
-		$routing_recipients = XF_Routing_Rules::get_matching_recipients( $form_id, $field_values );
+		$routing_recipients = Xtremeforms_Routing_Rules::get_matching_recipients( $form_id, $field_values );
 
 		$any_sent     = false;
 		$used_routing = false;
@@ -92,27 +92,27 @@ class XF_Email {
 				$headers = self::build_headers( $settings );
 				$sent    = wp_mail( $recipient, $subject, $body, $headers );
 
-				$log_id = XF_Email_Log::insert(
+				$log_id = Xtremeforms_Email_Log::insert(
 					array(
 						'lead_id'        => $lead_id,
 						'recipient'      => $recipient,
 						'subject'        => $subject,
 						'body'           => $body,
 						'headers'        => $headers,
-						'trigger_type'   => XF_Email_Log::TRIGGER_ROUTING,
-						'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+						'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_ROUTING,
+						'status'         => $sent ? Xtremeforms_Email_Log::STATUS_SENT : Xtremeforms_Email_Log::STATUS_FAILED,
 						'failure_reason' => $sent ? '' : 'wp_mail() returned false',
 					)
 				);
 
 				// Audit log for sent emails.
-				if ( $sent && class_exists( 'XF_Audit_Log' ) ) {
-					XF_Audit_Log::record(
-						XF_Audit_Log::ACTION_EMAIL_SENT,
+				if ( $sent && class_exists( 'Xtremeforms_Audit_Log' ) ) {
+					Xtremeforms_Audit_Log::record(
+						Xtremeforms_Audit_Log::ACTION_EMAIL_SENT,
 						$lead_id,
 						array(
 							'recipient'    => $recipient,
-							'trigger_type' => XF_Email_Log::TRIGGER_ROUTING,
+							'trigger_type' => Xtremeforms_Email_Log::TRIGGER_ROUTING,
 							'log_id'       => (int) $log_id,
 						)
 					);
@@ -139,27 +139,27 @@ class XF_Email {
 					$headers = self::build_headers( $settings );
 					$sent    = wp_mail( $recipient, $subject, $body, $headers );
 
-					$log_id = XF_Email_Log::insert(
+					$log_id = Xtremeforms_Email_Log::insert(
 						array(
 							'lead_id'        => $lead_id,
 							'recipient'      => $recipient,
 							'subject'        => $subject,
 							'body'           => $body,
 							'headers'        => $headers,
-							'trigger_type'   => XF_Email_Log::TRIGGER_NOTIFICATION,
-							'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+							'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_NOTIFICATION,
+							'status'         => $sent ? Xtremeforms_Email_Log::STATUS_SENT : Xtremeforms_Email_Log::STATUS_FAILED,
 							'failure_reason' => $sent ? '' : 'wp_mail() returned false',
 						)
 					);
 
 					// Audit log for sent emails.
-					if ( $sent && class_exists( 'XF_Audit_Log' ) ) {
-						XF_Audit_Log::record(
-							XF_Audit_Log::ACTION_EMAIL_SENT,
+					if ( $sent && class_exists( 'Xtremeforms_Audit_Log' ) ) {
+						Xtremeforms_Audit_Log::record(
+							Xtremeforms_Audit_Log::ACTION_EMAIL_SENT,
 							$lead_id,
 							array(
 								'recipient'    => $recipient,
-								'trigger_type' => XF_Email_Log::TRIGGER_NOTIFICATION,
+								'trigger_type' => Xtremeforms_Email_Log::TRIGGER_NOTIFICATION,
 								'log_id'       => (int) $log_id,
 							)
 						);
@@ -218,15 +218,15 @@ class XF_Email {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Xtreme Forms: Auto-responder skipped for lead #' . $lead_id . ' — missing or invalid email: "' . $lead_email . '"' );
 
-			XF_Email_Log::insert(
+			Xtremeforms_Email_Log::insert(
 				array(
 					'lead_id'        => $lead_id,
 					'recipient'      => $lead_email,
 					'subject'        => '',
 					'body'           => '',
 					'headers'        => '',
-					'trigger_type'   => XF_Email_Log::TRIGGER_AUTO_RESPONDER,
-					'status'         => XF_Email_Log::STATUS_SKIPPED,
+					'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_AUTO_RESPONDER,
+					'status'         => Xtremeforms_Email_Log::STATUS_SKIPPED,
 					'failure_reason' => 'Missing or invalid lead email address: "' . $lead_email . '"',
 				)
 			);
@@ -251,16 +251,16 @@ class XF_Email {
 		}
 
 		// Process merge tags in auto-responder content.
-		$ar_subject = XF_Email_Templates::process_merge_tags( $ar_subject, $context, false );
-		$ar_body    = XF_Email_Templates::process_merge_tags( $ar_body, $context, false );
+		$ar_subject = Xtremeforms_Email_Templates::process_merge_tags( $ar_subject, $context, false );
+		$ar_body    = Xtremeforms_Email_Templates::process_merge_tags( $ar_body, $context, false );
 
 		// Build full HTML using template (no field table for auto-responder).
-		$template     = XF_Email_Templates::get_template();
+		$template     = Xtremeforms_Email_Templates::get_template();
 		$header_color = esc_attr( $template['header_color'] );
 		$logo_url     = esc_url( $template['logo_url'] );
 		$site_name    = esc_html( get_bloginfo( 'name' ) );
 		$dark_color   = '#0D1B2A';
-		$footer_text  = esc_html( XF_Email_Templates::process_merge_tags( $template['footer_text'], $context, false ) );
+		$footer_text  = esc_html( Xtremeforms_Email_Templates::process_merge_tags( $template['footer_text'], $context, false ) );
 
 		$logo_html = '';
 		if ( '' !== $logo_url ) {
@@ -316,27 +316,27 @@ class XF_Email {
 
 		$sent = wp_mail( $lead_email, $ar_subject, $html_body, $headers );
 
-		$log_id = XF_Email_Log::insert(
+		$log_id = Xtremeforms_Email_Log::insert(
 			array(
 				'lead_id'        => $lead_id,
 				'recipient'      => $lead_email,
 				'subject'        => $ar_subject,
 				'body'           => $html_body,
 				'headers'        => $headers,
-				'trigger_type'   => XF_Email_Log::TRIGGER_AUTO_RESPONDER,
-				'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+				'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_AUTO_RESPONDER,
+				'status'         => $sent ? Xtremeforms_Email_Log::STATUS_SENT : Xtremeforms_Email_Log::STATUS_FAILED,
 				'failure_reason' => $sent ? '' : 'wp_mail() returned false',
 			)
 		);
 
 		// Audit log for auto-responder emails.
-		if ( $sent && class_exists( 'XF_Audit_Log' ) ) {
-			XF_Audit_Log::record(
-				XF_Audit_Log::ACTION_EMAIL_SENT,
+		if ( $sent && class_exists( 'Xtremeforms_Audit_Log' ) ) {
+			Xtremeforms_Audit_Log::record(
+				Xtremeforms_Audit_Log::ACTION_EMAIL_SENT,
 				$lead_id,
 				array(
 					'recipient'    => $lead_email,
-					'trigger_type' => XF_Email_Log::TRIGGER_AUTO_RESPONDER,
+					'trigger_type' => Xtremeforms_Email_Log::TRIGGER_AUTO_RESPONDER,
 					'log_id'       => (int) $log_id,
 				)
 			);
@@ -411,7 +411,7 @@ class XF_Email {
 
 		$admin_link = admin_url( 'admin.php?page=xtremeleads' );
 
-		$email_data = XF_Email_Templates::build_email(
+		$email_data = Xtremeforms_Email_Templates::build_email(
 			$test_context,
 			$test_field_defs,
 			$test_field_values,
@@ -427,15 +427,15 @@ class XF_Email {
 
 		$sent = wp_mail( $recipient, $subject, $body, $headers );
 
-		$log_id = XF_Email_Log::insert(
+		$log_id = Xtremeforms_Email_Log::insert(
 			array(
 				'lead_id'        => 0,
 				'recipient'      => $recipient,
 				'subject'        => $subject,
 				'body'           => $body,
 				'headers'        => $headers,
-				'trigger_type'   => XF_Email_Log::TRIGGER_TEST,
-				'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+				'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_TEST,
+				'status'         => $sent ? Xtremeforms_Email_Log::STATUS_SENT : Xtremeforms_Email_Log::STATUS_FAILED,
 				'failure_reason' => $sent ? '' : 'wp_mail() returned false',
 			)
 		);
@@ -475,7 +475,7 @@ class XF_Email {
 	 * @return array{ success: bool, message: string, sent_count: int, failed_count: int }
 	 */
 	public static function resend_lead_notification( int $lead_id, string $override_recipient = '' ): array {
-		$lead = XF_Leads::get_lead( $lead_id );
+		$lead = Xtremeforms_Leads::get_lead( $lead_id );
 		if ( ! $lead ) {
 			return array(
 				'success'      => false,
@@ -485,16 +485,16 @@ class XF_Email {
 			);
 		}
 
-		$form         = XF_Forms::get_form( (int) $lead->form_id );
-		$field_values = XF_Leads::decode_field_values( $lead );
-		$field_defs   = $form ? XF_Forms::decode_fields( $form ) : array();
+		$form         = Xtremeforms_Forms::get_form( (int) $lead->form_id );
+		$field_values = Xtremeforms_Leads::decode_field_values( $lead );
+		$field_defs   = $form ? Xtremeforms_Forms::decode_fields( $form ) : array();
 		$form_name    = $form ? (string) $form->name : '';
 
-		$form_settings              = $form ? XF_Forms::decode_settings( $form ) : array();
+		$form_settings              = $form ? Xtremeforms_Forms::decode_settings( $form ) : array();
 		$form_settings['_form_id']   = $form ? (int) $form->id : 0;
 		$form_settings['_form_name'] = $form_name;
 
-		$context = XF_Email_Templates::build_context_from_lead(
+		$context = Xtremeforms_Email_Templates::build_context_from_lead(
 			$lead,
 			$field_defs,
 			$field_values,
@@ -503,7 +503,7 @@ class XF_Email {
 
 		$admin_link = admin_url( 'admin.php?page=xtreme-forms-leads&xf_action=view&lead_id=' . $lead_id );
 
-		$email_data = XF_Email_Templates::build_email(
+		$email_data = Xtremeforms_Email_Templates::build_email(
 			$context,
 			$field_defs,
 			$field_values,
@@ -517,7 +517,7 @@ class XF_Email {
 		// Per-form custom subject override (with merge-tag processing).
 		$custom_subject = trim( (string) ( $form_settings['email_subject'] ?? '' ) );
 		if ( '' !== $custom_subject ) {
-			$subject = XF_Email_Templates::process_merge_tags( $custom_subject, $context, false );
+			$subject = Xtremeforms_Email_Templates::process_merge_tags( $custom_subject, $context, false );
 		}
 
 		// Resolve recipients.
@@ -533,7 +533,7 @@ class XF_Email {
 			}
 			$recipients = array( sanitize_email( $override_recipient ) );
 		} else {
-			$routing = XF_Routing_Rules::get_matching_recipients(
+			$routing = Xtremeforms_Routing_Rules::get_matching_recipients(
 				(int) $form_settings['_form_id'],
 				$field_values
 			);
@@ -563,26 +563,26 @@ class XF_Email {
 			$headers = self::build_headers( $global_settings );
 			$sent    = wp_mail( $recipient, $subject, $body, $headers );
 
-			$log_id = XF_Email_Log::insert(
+			$log_id = Xtremeforms_Email_Log::insert(
 				array(
 					'lead_id'        => $lead_id,
 					'recipient'      => $recipient,
 					'subject'        => $subject,
 					'body'           => $body,
 					'headers'        => $headers,
-					'trigger_type'   => XF_Email_Log::TRIGGER_RESEND,
-					'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+					'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_RESEND,
+					'status'         => $sent ? Xtremeforms_Email_Log::STATUS_SENT : Xtremeforms_Email_Log::STATUS_FAILED,
 					'failure_reason' => $sent ? '' : 'wp_mail() returned false on lead resend',
 				)
 			);
 
-			if ( $sent && class_exists( 'XF_Audit_Log' ) ) {
-				XF_Audit_Log::record(
-					XF_Audit_Log::ACTION_EMAIL_SENT,
+			if ( $sent && class_exists( 'Xtremeforms_Audit_Log' ) ) {
+				Xtremeforms_Audit_Log::record(
+					Xtremeforms_Audit_Log::ACTION_EMAIL_SENT,
 					$lead_id,
 					array(
 						'recipient'    => $recipient,
-						'trigger_type' => XF_Email_Log::TRIGGER_RESEND,
+						'trigger_type' => Xtremeforms_Email_Log::TRIGGER_RESEND,
 						'log_id'       => (int) $log_id,
 					)
 				);
@@ -632,7 +632,7 @@ class XF_Email {
 	 * @return array{ success: bool, message: string, new_log_id: int }
 	 */
 	public static function resend_from_log( int $log_id ): array {
-		$entry = XF_Email_Log::get_log( $log_id );
+		$entry = Xtremeforms_Email_Log::get_log( $log_id );
 
 		if ( ! $entry ) {
 			return array(
@@ -657,15 +657,15 @@ class XF_Email {
 
 		$sent = wp_mail( $recipient, $entry->subject, $entry->body, $headers );
 
-		$new_log_id = XF_Email_Log::insert(
+		$new_log_id = Xtremeforms_Email_Log::insert(
 			array(
 				'lead_id'        => (int) $entry->lead_id,
 				'recipient'      => $recipient,
 				'subject'        => $entry->subject,
 				'body'           => $entry->body,
 				'headers'        => $headers,
-				'trigger_type'   => XF_Email_Log::TRIGGER_RESEND,
-				'status'         => $sent ? XF_Email_Log::STATUS_SENT : XF_Email_Log::STATUS_FAILED,
+				'trigger_type'   => Xtremeforms_Email_Log::TRIGGER_RESEND,
+				'status'         => $sent ? Xtremeforms_Email_Log::STATUS_SENT : Xtremeforms_Email_Log::STATUS_FAILED,
 				'failure_reason' => $sent ? '' : 'wp_mail() returned false on resend',
 			)
 		);

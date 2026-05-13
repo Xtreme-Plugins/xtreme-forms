@@ -6,18 +6,23 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$nonce     = wp_create_nonce( 'xf_spam_log_nonce' );
-$all_forms = XF_Forms::get_all_forms();
-$reasons   = XF_Spam::get_reason_labels();
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET filter params are sanitized on read; AJAX actions are protected with the nonce created below.
+
+$nonce     = wp_create_nonce( 'xtremeforms_spam_log_nonce' );
+$all_forms = Xtremeforms_Forms::get_all_forms();
+$reasons   = Xtremeforms_Spam::get_reason_labels();
 
 // Current filter state from GET.
 $filter_reason = isset( $_GET['rejection_reason'] ) ? sanitize_key( wp_unslash( $_GET['rejection_reason'] ) ) : '';
 $filter_form   = isset( $_GET['filter_form'] ) ? absint( $_GET['filter_form'] ) : 0;
 $current_page  = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
 
-$log_data = XF_Spam::get_log(
+$log_data = Xtremeforms_Spam::get_log(
 	array(
 		'page'             => $current_page,
 		'rejection_reason' => $filter_reason,
@@ -175,7 +180,9 @@ $pages = $log_data['pages'];
 	<?php endif; ?>
 </div>
 
-<script>
+<?php
+ob_start();
+?>
 (function(){
 	var nonce = <?php echo wp_json_encode( $nonce ); ?>;
 	var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
@@ -186,7 +193,7 @@ $pages = $log_data['pages'];
 			if (!confirm('<?php echo esc_js( __( 'Permanently delete this spam log entry?', 'xtreme-forms' ) ); ?>')) return;
 			var id = btn.getAttribute('data-id');
 			var fd = new FormData();
-			fd.append('action', 'xf_spam_log_delete');
+			fd.append('action', 'xtremeforms_spam_log_delete');
 			fd.append('nonce', nonce);
 			fd.append('entry_id', id);
 			fetch(ajaxUrl, {method:'POST', body:fd})
@@ -210,7 +217,7 @@ $pages = $log_data['pages'];
 			var msg = document.getElementById('xf-spam-clear-msg');
 			msg.textContent = '<?php echo esc_js( __( 'Clearing…', 'xtreme-forms' ) ); ?>';
 			var fd = new FormData();
-			fd.append('action', 'xf_spam_log_clear');
+			fd.append('action', 'xtremeforms_spam_log_clear');
 			fd.append('nonce', nonce);
 			fetch(ajaxUrl, {method:'POST', body:fd})
 				.then(function(r){ return r.json(); })
@@ -227,4 +234,7 @@ $pages = $log_data['pages'];
 		});
 	}
 })();
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

@@ -14,9 +14,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Audit_Log
+ * Class Xtremeforms_Audit_Log
  */
-class XF_Audit_Log {
+class Xtremeforms_Audit_Log {
 
 	// ── Action type constants ──────────────────────────────────────────────
 	const ACTION_LEAD_STATUS_CHANGED     = 'lead_status_changed';

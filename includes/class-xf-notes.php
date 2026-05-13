@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Notes
+ * Class Xtremeforms_Notes
  */
-class XF_Notes {
+class Xtremeforms_Notes {
 
 	/**
 	 * Insert a new note for a lead.

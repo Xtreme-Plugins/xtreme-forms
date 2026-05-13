@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Duplicates
+ * Class Xtremeforms_Duplicates
  *
  * Checks every new submission for an existing lead with the same email address
  * (case-insensitive).
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  * leads for the same email within the same second, which is an acceptable
  * degradation.
  */
-class XF_Duplicates {
+class Xtremeforms_Duplicates {
 
 	const BEHAVIOR_SILENT_FLAG = 'silent_flag';
 	const BEHAVIOR_BLOCK       = 'block';
@@ -180,7 +180,7 @@ class XF_Duplicates {
 		global $wpdb;
 
 		// Lock key: deterministic 64-char key from email hash.
-		$lock_key = 'xf_dup_' . md5( strtolower( trim( $email ) ) );
+		$lock_key = 'xtremeforms_dup_' . md5( strtolower( trim( $email ) ) );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$result = $wpdb->get_var(
@@ -200,7 +200,7 @@ class XF_Duplicates {
 	public static function release_lock( string $email ): void {
 		global $wpdb;
 
-		$lock_key = 'xf_dup_' . md5( strtolower( trim( $email ) ) );
+		$lock_key = 'xtremeforms_dup_' . md5( strtolower( trim( $email ) ) );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->get_var(

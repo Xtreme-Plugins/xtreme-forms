@@ -6,11 +6,16 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$webhooks  = XF_Webhooks::get_all();
-$all_forms = XF_Forms::get_all_forms();
-$nonce     = wp_create_nonce( 'xf_webhook_nonce' );
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params are read-only notice flags; AJAX actions are protected with the nonce created below.
+
+$webhooks  = Xtremeforms_Webhooks::get_all();
+$all_forms = Xtremeforms_Forms::get_all_forms();
+$nonce     = wp_create_nonce( 'xtremeforms_webhook_nonce' );
 
 $notice_html = '';
 if ( ! empty( $_GET['updated'] ) ) {
@@ -200,13 +205,17 @@ if ( ! empty( $_GET['updated'] ) ) {
 
 </div><!-- .xf-wrap -->
 
-<style>
+<?php
+ob_start();
+?>
 .xf-header-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
 .xf-header-row input { flex:1; }
 .xf-header-row .xf-remove-header { color:#DC3545; cursor:pointer; background:none; border:none; font-size:18px; line-height:1; }
-</style>
-
-<script>
+<?php
+$xtremeforms_inline_css = ob_get_clean();
+wp_add_inline_style( 'xtremeforms-admin', $xtremeforms_inline_css );
+ob_start();
+?>
 (function() {
 	var nonce = <?php echo wp_json_encode( $nonce ); ?>;
 	var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
@@ -309,7 +318,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		});
 
 		var data = new FormData();
-		data.append('action', 'xf_webhook_save');
+		data.append('action', 'xtremeforms_webhook_save');
 		data.append('nonce', nonce);
 		data.append('webhook[id]', document.getElementById('xf-webhook-id').value);
 		data.append('webhook[name]', document.getElementById('xf-wh-name').value);
@@ -342,7 +351,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		btn.addEventListener('click', function() {
 			var id = btn.getAttribute('data-id');
 			var fd = new FormData();
-			fd.append('action', 'xf_webhook_get');
+			fd.append('action', 'xtremeforms_webhook_get');
 			fd.append('nonce', nonce);
 			fd.append('webhook_id', id);
 			fetch(ajaxUrl, {method:'POST', body:fd}).then(function(r){ return r.json(); }).then(function(resp) {
@@ -359,7 +368,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 			if (!confirm('<?php echo esc_js( __( 'Delete this webhook and its delivery log? This cannot be undone.', 'xtreme-forms' ) ); ?>')) return;
 			var id = btn.getAttribute('data-id');
 			var fd = new FormData();
-			fd.append('action', 'xf_webhook_delete');
+			fd.append('action', 'xtremeforms_webhook_delete');
 			fd.append('nonce', nonce);
 			fd.append('webhook_id', id);
 			fetch(ajaxUrl, {method:'POST', body:fd}).then(function(r){ return r.json(); }).then(function(resp) {
@@ -382,7 +391,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 			btn.disabled = true;
 
 			var fd = new FormData();
-			fd.append('action', 'xf_webhook_test');
+			fd.append('action', 'xtremeforms_webhook_test');
 			fd.append('nonce', nonce);
 			fd.append('webhook_id', id);
 
@@ -443,7 +452,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		logPager.innerHTML = '';
 
 		var fd = new FormData();
-		fd.append('action', 'xf_webhook_log');
+		fd.append('action', 'xtremeforms_webhook_log');
 		fd.append('nonce', nonce);
 		fd.append('webhook_id', webhookId);
 		fd.append('page', page);
@@ -510,4 +519,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 		return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 	}
 })();
-</script>
+<?php
+$xtremeforms_inline_js = ob_get_clean();
+wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js, 'after' );
+?>

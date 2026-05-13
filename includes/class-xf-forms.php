@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Forms
+ * Class Xtremeforms_Forms
  */
-class XF_Forms {
+class Xtremeforms_Forms {
 
 	/**
 	 * Get all forms ordered by name.

@@ -6,9 +6,14 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
 
-$forms = XF_Forms::get_all_forms();
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params are read-only notice flags.
+
+$forms = Xtremeforms_Forms::get_all_forms();
 
 $notice_html = '';
 if ( ! empty( $_GET['updated'] ) ) {
@@ -24,7 +29,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-form-metrics' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-secondary">
 				<?php esc_html_e( 'View Metrics', 'xtreme-forms' ); ?>
 			</a>
-			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xf_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-primary">
+			<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'xtreme-forms-forms', 'xtremeforms_action' => 'new' ), admin_url( 'admin.php' ) ) ); ?>" class="xf-btn xf-btn-primary">
 				<?php esc_html_e( 'Add New Form', 'xtreme-forms' ); ?>
 			</a>
 		</div>
@@ -43,7 +48,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 				add_query_arg(
 					array(
 						'page'      => 'xtreme-forms-forms',
-						'xf_action' => 'new',
+						'xtremeforms_action' => 'new',
 					),
 					admin_url( 'admin.php' )
 				)
@@ -86,7 +91,7 @@ if ( ! empty( $_GET['updated'] ) ) {
 								add_query_arg(
 									array(
 										'page'      => 'xtreme-forms-forms',
-										'xf_action' => 'edit',
+										'xtremeforms_action' => 'edit',
 										'form_id'   => $form->id,
 									),
 									admin_url( 'admin.php' )
@@ -102,12 +107,12 @@ if ( ! empty( $_GET['updated'] ) ) {
 								wp_nonce_url(
 									add_query_arg(
 										array(
-											'action'  => 'xf_delete_form',
+											'action'  => 'xtremeforms_delete_form',
 											'form_id' => $form->id,
 										),
 										admin_url( 'admin-post.php' )
 									),
-									'xf_delete_form_' . $form->id
+									'xtremeforms_delete_form_' . $form->id
 								)
 							);
 							?>

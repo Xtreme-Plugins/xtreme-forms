@@ -6,7 +6,12 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. GET params on this page are read-only tab routing / notice flags (all sanitized on read).
 
 $xf_settings_tab  = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
 $xf_settings_tabs = array(
@@ -56,18 +61,18 @@ $behavior_options  = array(
 
 // Retention.
 $retention_days  = isset( $settings['retention_days'] ) ? (int) $settings['retention_days'] : '';
-$next_purge_time = XF_GDPR::get_next_purge_time();
+$next_purge_time = Xtremeforms_GDPR::get_next_purge_time();
 
 // GDPR nonce for erasure AJAX.
-$gdpr_nonce = wp_create_nonce( 'xf_gdpr_nonce' );
+$gdpr_nonce = wp_create_nonce( 'xtremeforms_gdpr_nonce' );
 
 // Notices.
 $notice_html = '';
 if ( ! empty( $_GET['updated'] ) ) {
 	$notice_html = '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Settings saved.', 'xtreme-forms' ) . '</p></div>';
 }
-if ( ! empty( $_GET['xf_site_toggled'] ) && is_multisite() ) {
-	$disabled_now = '1' === sanitize_text_field( wp_unslash( $_GET['xf_site_disabled'] ?? '0' ) );
+if ( ! empty( $_GET['xtremeforms_site_toggled'] ) && is_multisite() ) {
+	$disabled_now = '1' === sanitize_text_field( wp_unslash( $_GET['xtremeforms_site_disabled'] ?? '0' ) );
 	if ( $disabled_now ) {
 		$notice_html .= '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'Xtreme Forms has been disabled for this site.', 'xtreme-forms' ) . '</p></div>';
 	} else {
@@ -130,8 +135,8 @@ if ( $rc_enabled ) {
 <?php if ( 'general' === $xf_settings_tab ) : ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="xf-settings-form">
-		<input type="hidden" name="action" value="xf_save_settings">
-		<?php wp_nonce_field( 'xf_save_settings' ); ?>
+		<input type="hidden" name="action" value="xtremeforms_save_settings">
+		<?php wp_nonce_field( 'xtremeforms_save_settings' ); ?>
 
 		<!-- ── Email Notifications ───────────────────────────────────────────── -->
 		<div class="xf-settings-card">
@@ -340,7 +345,9 @@ if ( $rc_enabled ) {
 				</table>
 			</div>
 
-			<script>
+			<?php
+			ob_start();
+			?>
 			(function() {
 				var tabs = document.querySelectorAll('#xf-bot-tabs .xf-bot-tab');
 				tabs.forEach(function(btn) {
@@ -361,7 +368,10 @@ if ( $rc_enabled ) {
 					});
 				});
 			})();
-			</script>
+			<?php
+			$xtremeforms_inline_js1 = ob_get_clean();
+			wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js1, 'after' );
+			?>
 		</div>
 
 		<!-- ── Spam Blocklists ───────────────────────────────────────────────── -->
@@ -409,7 +419,7 @@ if ( $rc_enabled ) {
 							<label for="duplicate_behavior"><?php esc_html_e( 'Duplicate Behavior', 'xtreme-forms' ); ?></label>
 						</th>
 						<td>
-							<select id="duplicate_behavior" name="duplicate_behavior" class="regular-text" onchange="xlToggleDupMessage(this.value)">
+							<select id="duplicate_behavior" name="duplicate_behavior" class="regular-text" onchange="xtremeformsToggleDupMessage(this.value)">
 								<?php foreach ( $behavior_options as $val => $label ) : ?>
 									<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $dup_behavior, $val ); ?>>
 										<?php echo esc_html( $label ); ?>
@@ -493,19 +503,24 @@ if ( $rc_enabled ) {
 
 		<!-- Single save button -->
 		<div class="xf-settings-save-bar">
-			<?php submit_button( __( 'Save Settings', 'xtreme-forms' ), 'primary xf-btn-primary', 'xf_save_all_settings', false ); ?>
+			<?php submit_button( __( 'Save Settings', 'xtreme-forms' ), 'primary xf-btn-primary', 'xtremeforms_save_all_settings', false ); ?>
 		</div>
 
 	</form>
 
-	<script>
-	function xlToggleDupMessage( val ) {
+	<?php
+	ob_start();
+	?>
+	function xtremeformsToggleDupMessage( val ) {
 		var row = document.getElementById( 'xf-dup-block-message-row' );
 		if ( row ) {
 			row.style.display = ( 'block' === val ) ? '' : 'none';
 		}
 	}
-	</script>
+	<?php
+	$xtremeforms_inline_js2 = ob_get_clean();
+	wp_add_inline_script( 'xtremeforms-admin', $xtremeforms_inline_js2, 'after' );
+	?>
 
 <?php elseif ( 'tags' === $xf_settings_tab ) : ?>
 	<div class="xf-hub-tab-content">

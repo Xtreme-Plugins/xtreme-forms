@@ -6,10 +6,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- GET parameters on this admin display page are read-only filter params.
+
+if ( ! current_user_can( 'manage_options' ) ) {
+	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
+}
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. Notice flags are read from a transient that is keyed to the current user ID.
 
 $notice_html   = '';
-$transient_key = 'xf_import_result_' . get_current_user_id();
+$transient_key = 'xtremeforms_import_result_' . get_current_user_id();
 $import_result = get_transient( $transient_key );
 if ( false !== $import_result ) {
 	delete_transient( $transient_key );
@@ -38,12 +43,12 @@ if ( false !== $import_result ) {
 		$notice_html .= '</div>';
 	}
 }
-if ( ! empty( $_GET['xf_export_error'] ) ) {
+if ( ! empty( $_GET['xtremeforms_export_error'] ) ) {
 	$notice_html .= '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Export failed. Please try again.', 'xtreme-forms' ) . '</p></div>';
 }
 
 // Build forms list for per-form export.
-$all_forms = XF_Forms::get_all_forms();
+$all_forms = Xtremeforms_Forms::get_all_forms();
 ?>
 <div class="wrap xf-wrap">
 	<div class="xf-page-header">
@@ -61,9 +66,9 @@ $all_forms = XF_Forms::get_all_forms();
 
 		<!-- Full export -->
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom:16px;">
-			<input type="hidden" name="action" value="xf_export_data">
+			<input type="hidden" name="action" value="xtremeforms_export_data">
 			<input type="hidden" name="export_type" value="full">
-			<?php wp_nonce_field( 'xf_export_data' ); ?>
+			<?php wp_nonce_field( 'xtremeforms_export_data' ); ?>
 			<button type="submit" class="button button-primary">
 				<?php esc_html_e( 'Export All Settings & Forms', 'xtreme-forms' ); ?>
 			</button>
@@ -75,9 +80,9 @@ $all_forms = XF_Forms::get_all_forms();
 		<!-- Per-form export -->
 		<?php if ( ! empty( $all_forms ) ) : ?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<input type="hidden" name="action" value="xf_export_data">
+			<input type="hidden" name="action" value="xtremeforms_export_data">
 			<input type="hidden" name="export_type" value="form">
-			<?php wp_nonce_field( 'xf_export_data' ); ?>
+			<?php wp_nonce_field( 'xtremeforms_export_data' ); ?>
 			<label for="xf-export-form-id" style="font-weight:600;"><?php esc_html_e( 'Export Single Form:', 'xtreme-forms' ); ?></label>
 			<select id="xf-export-form-id" name="form_id" style="margin:0 8px;">
 				<option value=""><?php esc_html_e( '— Select a form —', 'xtreme-forms' ); ?></option>
@@ -102,8 +107,8 @@ $all_forms = XF_Forms::get_all_forms();
 		</p>
 
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
-			<input type="hidden" name="action" value="xf_import_data">
-			<?php wp_nonce_field( 'xf_import_data' ); ?>
+			<input type="hidden" name="action" value="xtremeforms_import_data">
+			<?php wp_nonce_field( 'xtremeforms_import_data' ); ?>
 
 			<table class="form-table" role="presentation">
 				<tr>
@@ -111,7 +116,7 @@ $all_forms = XF_Forms::get_all_forms();
 						<label for="xf-import-file"><?php esc_html_e( 'Import File (.json)', 'xtreme-forms' ); ?></label>
 					</th>
 					<td>
-						<input type="file" id="xf-import-file" name="xf_import_file" accept=".json,application/json" required>
+						<input type="file" id="xf-import-file" name="xtremeforms_import_file" accept=".json,application/json" required>
 						<p class="description"><?php esc_html_e( 'Select a JSON file exported by Xtreme Forms. Maximum file size: 2 MB.', 'xtreme-forms' ); ?></p>
 					</td>
 				</tr>

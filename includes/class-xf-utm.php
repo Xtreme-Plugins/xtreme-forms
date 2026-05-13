@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_UTM
+ * Class Xtremeforms_UTM
  *
  * Extracts and sanitizes UTM parameters from a URL.
  * Provides a fallback to cookie-supplied values when URL params are absent.
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * - Absent param → stored as NULL (not empty string).
  * - Overlong value → truncated to 255 chars without error.
  */
-class XF_UTM {
+class Xtremeforms_UTM {
 
 	/**
 	 * The five standard UTM parameter names.

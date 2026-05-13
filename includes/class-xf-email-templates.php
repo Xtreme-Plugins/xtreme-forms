@@ -12,9 +12,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class XF_Email_Templates
+ * Class Xtremeforms_Email_Templates
  */
-class XF_Email_Templates {
+class Xtremeforms_Email_Templates {
 
 	/** Option key where the global template settings are stored. */
 	const OPTION_KEY = 'xtremeforms_email_template';
@@ -316,8 +316,15 @@ class XF_Email_Templates {
 			</tr>';
 		}
 
-		// Powered-by footer line.
-		$powered_by = 'Sent by <a href="https://xtremeplugins.com/plugins/xtreme-forms" style="color:#6b7280;text-decoration:underline;">Xtreme Forms</a>';
+		// Powered-by footer line — only shown if the site administrator has
+		// explicitly opted in via Settings → Email → "Show 'Sent by Xtreme Forms'
+		// credit in outgoing emails". Default is OFF to comply with the
+		// WordPress.org plugin directory guidelines on attribution.
+		$powered_by_enabled = (bool) get_option( 'xtremeforms_show_powered_by', false );
+		$powered_by         = '';
+		if ( $powered_by_enabled ) {
+			$powered_by = 'Sent by <a href="https://xtremeplugins.com/plugins/xtreme-forms" style="color:#6b7280;text-decoration:underline;">Xtreme Forms</a>';
+		}
 
 		$body = '<!DOCTYPE html>
 <html lang="en">
@@ -392,7 +399,7 @@ class XF_Email_Templates {
     <!-- Footer -->
     <tr>
       <td style="padding:18px 8px 0;text-align:center;">
-        <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.5;">' . $powered_by . ' &middot; ' . $footer_text . '</p>
+        <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.5;">' . ( '' !== $powered_by ? $powered_by . ' &middot; ' : '' ) . $footer_text . '</p>
       </td>
     </tr>
 
@@ -425,8 +432,8 @@ class XF_Email_Templates {
 	): array {
 		// Smart detection for email/phone — handles forms where the field type was
 		// set to "text" instead of "email"/"phone" (common in user-built forms).
-		$lead_email = XF_Leads::detect_email( $field_defs, $field_values );
-		$lead_phone = XF_Leads::detect_phone( $field_defs, $field_values );
+		$lead_email = Xtremeforms_Leads::detect_email( $field_defs, $field_values );
+		$lead_phone = Xtremeforms_Leads::detect_phone( $field_defs, $field_values );
 
 		// Auto-detect name field (id or label contains "name", excluding email-named fields).
 		$lead_name = '';
