@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.1] - 2026-05-19
+
+### Fixed
+- **Form submission validation false-positive — required Name / Email / Phone / etc. rejected even when filled.** The public form HTML renders inputs as `name="xf_field[ID]"` but the AJAX submit handler was reading `$_POST['xtremeforms_field']`. The two keys never matched, so `$raw_fields` was always an empty array, every required field tripped the "X is required" branch, and the inline error banner ("Please correct the errors below") was returned on every submit. Reported on patriot-moving.com → *Moving Inventory Checklist* form: filling Name, Email, Cell Phone, both ZIP codes still showed "Name is required / Email is required / Cell Phone is required." Server now reads `$_POST['xf_field']`, matching the rendered form names. Affects every form, every field type (text, email, phone, textarea, date, zipcode, slider, dropdown, checkbox, radio) — not just the moving inventory form.
+- **UTM cookie fallback never captured.** Server read `$_POST['xtremeforms_utm_cookie']` while JS sent `xf_utm_cookie` — leads submitted from a page without UTM query params lost the first-party cookie fallback. Aligned to `xf_utm_cookie`.
+- **`submit_duration` (time-to-submit) silently null on every lead.** Server read `$_POST['xtremeforms_submit_duration']` while JS sent `xf_submit_duration`. Aligned to `xf_submit_duration` — analytics avg-time-to-submit will populate again.
+- **Server-side redirect after successful submit broken on forms with a configured Redirect URL.** Handler read `$_POST['xtremeforms_form_id']` / `xtremeforms_redirect_nonce`, JS sent `xf_form_id` / `xf_redirect_nonce` → resulted in "Invalid form" or "Security check failed" instead of the configured redirect. Aligned to `xf_form_id` / `xf_redirect_nonce`.
+
+### Notes
+- All five fixes are server-side only (`includes/class-xf-ajax.php`). The rendered form HTML, public JS, and admin form builder were already consistent; only the backend was reading the wrong POST keys.
+- Each `xtremeforms_*` POST read the handler still uses (`xtremeforms_form_id`, `xtremeforms_nonce`, `xtremeforms_source_url`, `xtremeforms_form_time`, `xtremeforms_recaptcha_token`, `xtremeforms_turnstile_token`, `xtremeforms_consent`, `xtremeforms_website_url` honeypot) was verified against the matching `name="xtremeforms_*"` hidden input in `class-xf-shortcode.php::render_form()` — these were correct and untouched.
+
 ## [2.1.0] - 2026-05-01
 
 ### Added

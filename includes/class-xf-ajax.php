@@ -231,8 +231,8 @@ class Xtremeforms_Ajax {
 		$ua_early         = isset( $_SERVER['HTTP_USER_AGENT'] )
 			? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 500 )
 			: '';
-		$email_early      = isset( $_POST['xtremeforms_field']['email'] )
-			? sanitize_email( wp_unslash( $_POST['xtremeforms_field']['email'] ) )
+		$email_early      = isset( $_POST['xf_field']['email'] )
+			? sanitize_email( wp_unslash( $_POST['xf_field']['email'] ) )
 			: '';
 
 		// ── Spam protection ────────────────────────────────────────────────────
@@ -357,8 +357,8 @@ class Xtremeforms_Ajax {
 
 		// Retrieve raw submitted values.
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$raw_fields = isset( $_POST['xtremeforms_field'] ) && is_array( $_POST['xtremeforms_field'] )
-			? wp_unslash( $_POST['xtremeforms_field'] )
+		$raw_fields = isset( $_POST['xf_field'] ) && is_array( $_POST['xf_field'] )
+			? wp_unslash( $_POST['xf_field'] )
 			: array();
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
@@ -552,8 +552,8 @@ class Xtremeforms_Ajax {
 		$utm_from_url = Xtremeforms_UTM::extract_from_url( $source_url );
 
 		// Cookie fallback: the front-end sets an xf_utm cookie with UTM data.
-		$utm_cookie_json = isset( $_POST['xtremeforms_utm_cookie'] )
-			? sanitize_text_field( wp_unslash( $_POST['xtremeforms_utm_cookie'] ) )
+		$utm_cookie_json = isset( $_POST['xf_utm_cookie'] )
+			? sanitize_text_field( wp_unslash( $_POST['xf_utm_cookie'] ) )
 			: '';
 		$utm_from_cookie = Xtremeforms_UTM::extract_from_cookie( $utm_cookie_json );
 
@@ -561,8 +561,8 @@ class Xtremeforms_Ajax {
 		$utm_data = Xtremeforms_UTM::merge_with_fallback( $utm_from_url, $utm_from_cookie );
 
 		// ── Submit duration (time-to-submit in seconds) ─────────────
-		$submit_duration = isset( $_POST['xtremeforms_submit_duration'] )
-			? absint( $_POST['xtremeforms_submit_duration'] )
+		$submit_duration = isset( $_POST['xf_submit_duration'] )
+			? absint( $_POST['xf_submit_duration'] )
 			: null;
 		if ( 0 === $submit_duration ) {
 			$submit_duration = null; // 0 is not a valid duration.
@@ -781,14 +781,14 @@ class Xtremeforms_Ajax {
 	 * Perform a server-side wp_safe_redirect() after a successful form submission.
 	 */
 	public function handle_do_form_redirect(): void {
-		$form_id = isset( $_POST['xtremeforms_form_id'] ) ? absint( $_POST['xtremeforms_form_id'] ) : 0;
+		$form_id = isset( $_POST['xf_form_id'] ) ? absint( $_POST['xf_form_id'] ) : 0;
 
 		if ( ! $form_id ) {
 			wp_die( esc_html__( 'Invalid form.', 'xtreme-forms' ) );
 		}
 
-		$nonce = isset( $_POST['xtremeforms_redirect_nonce'] )
-			? sanitize_text_field( wp_unslash( $_POST['xtremeforms_redirect_nonce'] ) )
+		$nonce = isset( $_POST['xf_redirect_nonce'] )
+			? sanitize_text_field( wp_unslash( $_POST['xf_redirect_nonce'] ) )
 			: '';
 
 		if ( ! wp_verify_nonce( $nonce, 'xtremeforms_form_redirect_' . $form_id ) ) {
