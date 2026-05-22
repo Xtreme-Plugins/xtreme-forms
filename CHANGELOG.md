@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.4.3] - 2026-05-22
+
+### Changed
+- Bumped `Tested up to:` header in `readme.txt` from `6.9` to `7.0`. WordPress.org's automated submission scan flagged the previous value as out-of-date (`outdated_tested_upto_header: Tested up to: 6.9 < 7.0`), which prevents the plugin from being listed in directory search results. No code changes.
+
 ## [2.4.2] - 2026-05-22
 
 ### Fixed

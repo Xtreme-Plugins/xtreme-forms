@@ -1,8 +1,8 @@
 === Xtreme Forms ===
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
-Tested up to: 6.9
-Stable tag: 2.4.2
+Tested up to: 7.0
+Stable tag: 2.4.3
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -158,6 +158,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.4.3 =
+* WordPress.org automated scan: bumped the `Tested up to:` header from `6.9` to `7.0` to match the current WordPress release. No code changes.
+
 = 2.4.2 =
 * WordPress.org review round 3 — activation / DB migration fixes (`includes/class-xf-activator.php`).
 * **No more raw `ALTER TABLE` queries.** The four columns previously added by conditional `ALTER TABLE ADD COLUMN` statements after `dbDelta()` (`activate_at`, `expire_at`, `closed_message` on the forms table; `consent_given` on the leads table) are now declared inline in the `CREATE TABLE` strings. All schema mutation flows through `dbDelta()`, which is idempotent. Resolves the reviewer report that the plugin "repeatedly tries to create existing tables/columns" during activation and update checks, reproducible on WordPress Playground.
@@ -258,6 +261,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.4.3 =
+Bumps the `Tested up to` header to WordPress 7.0 to satisfy the WordPress.org automated submission scan. No code changes.
 
 = 2.4.2 =
 Fixes the activation / DB migration warnings flagged by the WordPress.org reviewers in round 3. All schema changes now flow through `dbDelta()` (no more raw `ALTER TABLE` queries) and the upgrade check is a single option read on a fully-migrated site. Safe to upgrade — no destructive schema changes.
