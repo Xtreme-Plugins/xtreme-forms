@@ -2,7 +2,7 @@
 Contributors: loanpartnership
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -145,6 +145,13 @@ If a site administrator configures one or more webhook URLs in **Xtreme Forms �
 
 == Changelog ==
 
+= 2.2.1 =
+* WordPress.org review round 3 — activation / DB migration fixes.
+* **No more raw `ALTER TABLE` queries** (`includes/class-xf-activator.php`) — the four columns previously added by conditional `ALTER TABLE ADD COLUMN` statements (`activate_at`, `expire_at`, `closed_message` on the forms table; `consent_given` on the leads table) are now declared inline in the `CREATE TABLE` strings, so all schema changes flow through `dbDelta()`. On existing installs `dbDelta` emits the same ALTER itself, idempotently. Resolves "plugin repeatedly tries to create existing tables/columns" reported by reviewers.
+* **`maybe_upgrade()` is now an option-read fast path** — on a fully-migrated site it returns after a single `get_option()` + `version_compare()`, with no schema queries at all. Adds a per-request re-entrancy guard so `plugins_loaded` firing more than once cannot double-fire `dbDelta`.
+* **`PRIMARY KEY` uses two spaces** in every `CREATE TABLE` string (per `dbDelta` documentation) — eliminates dbDelta misparses that could re-emit `ADD PRIMARY KEY` on each run.
+* **wpdb errors are silenced around `dbDelta`** with `hide_errors()` + `suppress_errors()`, restored on exit — activation/upgrade never prints DB notices to the admin even if a host returns a benign warning.
+
 = 2.2.0 =
 * WordPress.org review round 2 — full compliance pass.
 * **Trialware (Guideline 5)** — removed every "Pro Add-On" / "Upgrade to Pro" upsell from `readme.txt`, the in-admin Welcome page, and `README.md`. The features that were advertised as Pro (CRM integrations, webhook retry queue, delivery log) are already implemented in this codebase, so advertising them as locked was non-compliant. The plugin is now declared free and fully functional everywhere.
@@ -225,6 +232,9 @@ If a site administrator configures one or more webhook URLs in **Xtreme Forms �
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.2.1 =
+Fixes the activation / DB migration warnings reported in the WordPress.org review round 3. All schema changes now flow through `dbDelta()` (no more raw `ALTER TABLE` queries), and the upgrade check is a single option read on a fully-migrated site. Safe to upgrade — no destructive schema changes.
 
 = 2.2.0 =
 WordPress.org review round 2 — full compliance pass. Removed all Pro upsells (the plugin is now fully free), added Salesforce to External Services, added explicit nonces, renamed 2-character `xl_` and `xf_` prefixes to `xtremeforms_`, and hardened two SQL queries. Safe to upgrade — no database schema changes.
