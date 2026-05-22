@@ -61,17 +61,30 @@ class Xtremeforms_Activator {
 	}
 
 	/**
-	 * Run on plugins_loaded to apply any DB schema upgrades without re-activation.
-	 * Safe to call on every request (uses dbDelta idempotency).
+	 * Apply any pending DB schema upgrades.
+	 *
+	 * Hooked on plugins_loaded. Runs only when the stored DB version is older
+	 * than the current plugin version, so on a fully-migrated site this is a
+	 * single option read and a string compare — no schema queries are issued.
 	 */
 	public static function maybe_upgrade(): void {
-		$current_db_version = get_option( 'xtremeforms_db_version', '' );
+		$current_db_version = (string) get_option( 'xtremeforms_db_version', '' );
 
-		// If DB version doesn't match plugin version, run create_tables() to apply any new tables.
-		if ( version_compare( $current_db_version, XTREMEFORMS_VERSION, '<' ) ) {
-			self::create_tables();
-			self::set_default_options();
+		// Fast path: already on this version → no migration work.
+		if ( '' !== $current_db_version
+			&& version_compare( $current_db_version, XTREMEFORMS_VERSION, '>=' ) ) {
+			return;
 		}
+
+		// Re-entrancy guard for the same request (e.g. plugins_loaded firing twice).
+		static $ran_this_request = false;
+		if ( $ran_this_request ) {
+			return;
+		}
+		$ran_this_request = true;
+
+		self::create_tables();
+		self::set_default_options();
 	}
 
 	/**
@@ -82,7 +95,19 @@ class Xtremeforms_Activator {
 	}
 
 	/**
-	 * Create (or upgrade) all required database tables using dbDelta().
+	 * Create (or upgrade) all required database tables via dbDelta().
+	 *
+	 * dbDelta is idempotent: on a fully-provisioned site it compares the
+	 * declared schema to SHOW CREATE TABLE output and issues no queries.
+	 * On a partially-migrated site it emits the minimal set of ALTER TABLE
+	 * statements needed to bring each table in line with the declarations
+	 * below — so all schema changes flow through this single function.
+	 *
+	 * Notes for editors:
+	 *   - PRIMARY KEY uses TWO spaces before the paren (dbDelta requirement —
+	 *     see https://developer.wordpress.org/reference/functions/dbdelta/).
+	 *   - Do NOT add raw ALTER TABLE queries here. Add the column to the
+	 *     CREATE TABLE statement below and let dbDelta apply it.
 	 */
 	public static function create_tables(): void {
 		global $wpdb;
@@ -97,9 +122,12 @@ class Xtremeforms_Activator {
  fields longtext NOT NULL,
  settings longtext NOT NULL,
  status varchar(20) NOT NULL DEFAULT 'active',
+ activate_at datetime DEFAULT NULL,
+ expire_at datetime DEFAULT NULL,
+ closed_message text,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
  updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY status (status)
 ) {$charset_collate};";
 
@@ -124,9 +152,10 @@ class Xtremeforms_Activator {
  duplicate_status varchar(50) NOT NULL DEFAULT '',
  original_lead_id bigint(20) unsigned DEFAULT NULL,
  submit_duration_seconds int(10) unsigned DEFAULT NULL,
+ consent_given tinyint(1) NOT NULL DEFAULT 0,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
  updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY form_id (form_id),
  KEY status (status),
  KEY assigned_to (assigned_to),
@@ -144,7 +173,7 @@ class Xtremeforms_Activator {
  author_id bigint(20) unsigned NOT NULL DEFAULT 0,
  note_content text NOT NULL,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY lead_id (lead_id),
  KEY created_at (created_at)
 ) {$charset_collate};";
@@ -158,7 +187,7 @@ class Xtremeforms_Activator {
  action_type varchar(50) NOT NULL DEFAULT '',
  action_data longtext NOT NULL,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY lead_id (lead_id),
  KEY created_at (created_at)
 ) {$charset_collate};";
@@ -170,7 +199,7 @@ class Xtremeforms_Activator {
  name varchar(100) NOT NULL DEFAULT '',
  slug varchar(100) NOT NULL DEFAULT '',
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  UNIQUE KEY slug (slug)
 ) {$charset_collate};";
 
@@ -179,7 +208,7 @@ class Xtremeforms_Activator {
 		$sql_lead_tags   = "CREATE TABLE {$lead_tags_table} (
  lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
  tag_id bigint(20) unsigned NOT NULL DEFAULT 0,
- PRIMARY KEY (lead_id,tag_id),
+ PRIMARY KEY  (lead_id,tag_id),
  KEY tag_id (tag_id)
 ) {$charset_collate};";
 
@@ -196,7 +225,7 @@ class Xtremeforms_Activator {
  status varchar(20) NOT NULL DEFAULT 'sent',
  failure_reason text NOT NULL,
  sent_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY lead_id (lead_id),
  KEY trigger_type (trigger_type),
  KEY status (status),
@@ -216,7 +245,7 @@ class Xtremeforms_Activator {
  is_active tinyint(1) NOT NULL DEFAULT 1,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
  updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY rule_order (rule_order),
  KEY is_active (is_active)
 ) {$charset_collate};";
@@ -229,7 +258,7 @@ class Xtremeforms_Activator {
  post_id bigint(20) unsigned NOT NULL DEFAULT 0,
  session_hash varchar(64) NOT NULL DEFAULT '',
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY form_id (form_id),
  KEY post_id (post_id),
  KEY created_at (created_at)
@@ -247,7 +276,7 @@ class Xtremeforms_Activator {
  is_active tinyint(1) NOT NULL DEFAULT 1,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
  updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY is_active (is_active)
 ) {$charset_collate};";
 
@@ -265,7 +294,7 @@ class Xtremeforms_Activator {
  is_retry tinyint(1) NOT NULL DEFAULT 0,
  original_attempt_id bigint(20) unsigned DEFAULT NULL,
  delivered_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY webhook_id (webhook_id),
  KEY lead_id (lead_id),
  KEY status (status),
@@ -283,7 +312,7 @@ class Xtremeforms_Activator {
  user_agent text NOT NULL,
  ip_address varchar(100) NOT NULL DEFAULT '',
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY form_id (form_id),
  KEY rejection_reason (rejection_reason),
  KEY created_at (created_at)
@@ -299,7 +328,7 @@ class Xtremeforms_Activator {
  record_id bigint(20) unsigned NOT NULL DEFAULT 0,
  context longtext NOT NULL,
  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- PRIMARY KEY (id),
+ PRIMARY KEY  (id),
  KEY action_type (action_type),
  KEY record_id (record_id),
  KEY user_id (user_id),
@@ -307,6 +336,14 @@ class Xtremeforms_Activator {
 ) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		// Silence wpdb error display during migration. dbDelta's internal
+		// ALTER queries on partially-migrated schemas can produce notices
+		// (e.g. "column X already exists") that bubble up as PHP output —
+		// hide them so activation never prints DB warnings to the admin.
+		$prev_show_errors = $wpdb->hide_errors();
+		$prev_suppress    = $wpdb->suppress_errors( true );
+
 		dbDelta( $sql_forms );
 		dbDelta( $sql_leads );
 		dbDelta( $sql_notes );
@@ -321,50 +358,9 @@ class Xtremeforms_Activator {
 		dbDelta( $sql_spam_log );
 		dbDelta( $sql_audit_log );
 
-		// Add scheduling columns to forms table if they don't exist.
-		$forms_table_check = $wpdb->prefix . 'xtremeforms_forms';
-		foreach ( array( 'activate_at', 'expire_at' ) as $col_name ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$col_exists = $wpdb->get_results(
-				$wpdb->prepare(
-					'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s',
-					DB_NAME,
-					$forms_table_check,
-					$col_name
-				)
-			);
-			if ( empty( $col_exists ) ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-				$wpdb->query( "ALTER TABLE {$forms_table_check} ADD COLUMN {$col_name} datetime DEFAULT NULL" );
-			}
-		}
-
-		// Add context (for per-blog scheduling) column to forms table if needed.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$closed_col_exists = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'closed_message'",
-				DB_NAME,
-				$forms_table_check
-			)
-		);
-		if ( empty( $closed_col_exists ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-			$wpdb->query( "ALTER TABLE {$forms_table_check} ADD COLUMN closed_message text DEFAULT NULL" );
-		}
-
-		// Add consent_given column to leads table if it doesn't exist.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$col_exists = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'consent_given'",
-				DB_NAME,
-				$wpdb->prefix . 'xtremeforms_leads'
-			)
-		);
-		if ( empty( $col_exists ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-			$wpdb->query( "ALTER TABLE {$wpdb->prefix}xtremeforms_leads ADD COLUMN consent_given tinyint(1) NOT NULL DEFAULT 0" );
+		$wpdb->suppress_errors( $prev_suppress );
+		if ( $prev_show_errors ) {
+			$wpdb->show_errors();
 		}
 
 		update_option( 'xtremeforms_db_version', XTREMEFORMS_VERSION );

@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 6.9
-Stable tag: 2.4.1
+Stable tag: 2.4.2
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -158,6 +158,19 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.4.2 =
+* WordPress.org review round 3 — activation / DB migration fixes (`includes/class-xf-activator.php`).
+* **No more raw `ALTER TABLE` queries.** The four columns previously added by conditional `ALTER TABLE ADD COLUMN` statements after `dbDelta()` (`activate_at`, `expire_at`, `closed_message` on the forms table; `consent_given` on the leads table) are now declared inline in the `CREATE TABLE` strings. All schema mutation flows through `dbDelta()`, which is idempotent. Resolves the reviewer report that the plugin "repeatedly tries to create existing tables/columns" during activation and update checks, reproducible on WordPress Playground.
+* **`maybe_upgrade()` is now an option-read fast path.** On a fully-migrated site it returns after a single `get_option()` + `version_compare()` — no schema queries at all. Adds a per-request static guard so `plugins_loaded` firing more than once cannot double-invoke `dbDelta()`.
+* **`PRIMARY KEY` uses two spaces** in every `CREATE TABLE` string (per the `dbDelta()` docs), eliminating a known dbDelta parsing quirk that can re-emit `ADD PRIMARY KEY` on each run.
+* **wpdb errors silenced around the `dbDelta` block** with `hide_errors()` + `suppress_errors()`, restored on exit — activation never prints DB notices to the admin even if a host returns a benign warning.
+
+= 2.4.1 =
+* Fixed form submission validation false-positive — required Name / Email / Phone / etc. were rejected even when filled because the public form rendered inputs as `name="xf_field[ID]"` while the AJAX handler read `$_POST['xtremeforms_field']`. Server now reads `$_POST['xf_field']`, matching the rendered names. Affects every form / every field type.
+* Fixed UTM cookie fallback never captured (server `xtremeforms_utm_cookie` vs JS `xf_utm_cookie`).
+* Fixed `submit_duration` always null (server `xtremeforms_submit_duration` vs JS `xf_submit_duration`).
+* Fixed server-side redirect-after-submit broken on forms with a configured Redirect URL.
+
 = 2.4.0 =
 * WordPress.org review compliance round 2:
   * Attribution: removed the hard-coded "Sent by Xtreme Forms" credit link from outgoing emails. The link is now strictly opt-in via a new checkbox under **Xtreme Forms → Email Templates → Plugin Attribution** and defaults to OFF.
@@ -245,6 +258,12 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.4.2 =
+Fixes the activation / DB migration warnings flagged by the WordPress.org reviewers in round 3. All schema changes now flow through `dbDelta()` (no more raw `ALTER TABLE` queries) and the upgrade check is a single option read on a fully-migrated site. Safe to upgrade — no destructive schema changes.
+
+= 2.4.1 =
+Critical bug-fix release: required-field validation was rejecting filled fields on every submission due to a server/JS field-name mismatch. UTM cookie fallback, submit-duration timing, and post-submit redirects were affected by the same mismatch. Upgrade immediately if you ship forms on live sites.
 
 = 2.4.0 =
 WordPress.org review compliance round 2: opt-in attribution (default off), removal of third-party Google Fonts request, rename of the short xf_/xl_ AJAX prefixes to xtremeforms_, migration of inline admin scripts/styles to wp_enqueue, additional nonce checks, and bundled Chart.js upgrade. No database changes.

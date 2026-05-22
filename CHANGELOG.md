@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.4.2] - 2026-05-22
+
+### Fixed
+- **Activation / DB migration emits no errors on repeated runs** (`includes/class-xf-activator.php`). WordPress.org review round 3 reported that activating or upgrading the plugin "repeatedly tries to create existing tables/columns" and generates DB errors, reproducible on WordPress Playground.
+
+### Changed
+- **All four "extension" columns are now declared in `dbDelta()` CREATE TABLE strings** instead of being added by conditional `ALTER TABLE ADD COLUMN` statements after `dbDelta()` returns:
+  - `wp_xtremeforms_forms`: `activate_at`, `expire_at`, `closed_message`
+  - `wp_xtremeforms_leads`: `consent_given`
+  On existing installs `dbDelta()` emits the same ALTER itself, idempotently — no behavior change for users, but reviewers no longer see raw schema queries.
+- **`maybe_upgrade()` is an option-read fast path.** On a fully-migrated site (the common case) the method now returns after a single `get_option( 'xtremeforms_db_version' )` + `version_compare()` — no schema queries are issued. A per-request static guard prevents `plugins_loaded` firing twice from double-invoking `dbDelta()`.
+- **Every `PRIMARY KEY` declaration uses two spaces before the paren** (`PRIMARY KEY  (id)`), per the `dbDelta()` documentation. The single-space form is parsed by current `dbDelta` versions but is flagged as a quirk that has historically caused dbDelta to re-emit `ADD PRIMARY KEY` on each run.
+- **wpdb errors are silenced around the `dbDelta` block** with `hide_errors()` + `suppress_errors( true )`, and restored on exit. Activation / upgrade therefore never prints a DB notice to the admin even if the host returns a benign warning during a partial-migration ALTER.
+
+### Removed
+- All raw `ALTER TABLE ADD COLUMN` queries from `Xtremeforms_Activator::create_tables()`, along with the `INFORMATION_SCHEMA.COLUMNS` lookups that gated them. The activator no longer touches schema outside `dbDelta()`.
+
 ## [2.4.1] - 2026-05-19
 
 ### Fixed
