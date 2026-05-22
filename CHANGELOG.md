@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.0] - 2026-05-22
+
+### Added
+- **License tab for the optional Pro add-on** (`admin/partials/xf-admin-license.php`). Under **Xtreme Forms → Settings → License** admins can paste a Pro license key, click Activate, and see the live status / plan / expiry. A Deactivate button releases the seat against the licensing server and clears the local record. When no license is active, the panel shows an "View Pricing →" CTA linking to `https://xtremeplugins.com/plugins/xtreme-forms`. **No core free-plugin feature is gated by license status** — every feature documented on the WordPress.org listing remains unrestricted (WP.org guideline 5, trialware compliance).
+- **`Xtremeforms_License` storage + activation class** (`includes/class-xf-license.php`). Stores `{ key, status, plan, expires_at, last_checked, last_message }` in the `xtremeforms_license` option. Talks to the licensing API at `https://xtremeplugins.com/api/v1/license/{activate,deactivate}`, overridable via the `xtremeforms_license_activate_url` / `xtremeforms_license_deactivate_url` filters for self-hosted licensing servers or staging environments. Always clears local state on deactivation even if the remote call fails (so the seat can be re-claimed later by re-activating).
+- **Public license API for the Pro add-on.** `Xtremeforms_License::is_active(): bool`, `::get_plan(): string`, and `::get_data(): array` for the optional Pro add-on (sold from xtremeplugins.com, not on .org) to read and decide whether to enable its own features.
+- **Two new AJAX handlers** in `Xtremeforms_Ajax`: `handle_activate_license` and `handle_deactivate_license`. Both require `manage_options` capability + `xtremeforms_admin_nonce`. Wired through `wp_ajax_xtremeforms_activate_license` / `wp_ajax_xtremeforms_deactivate_license`.
+
+### Notes
+- License-tab JS is registered through `wp_add_inline_script( 'xtremeforms-admin', $code, 'after' )` (matching the 2.4.0 review-mandated pattern for keeping admin partials free of inline `<script>` blocks).
+
 ## [2.4.4] - 2026-05-22
 
 ### Fixed

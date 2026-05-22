@@ -21,6 +21,7 @@ $xf_settings_tabs = array(
 	'spam-log'      => array( 'label' => __( 'Spam Log', 'xtreme-forms' ), 'icon' => 'dashicons-shield-alt' ),
 	'import-export' => array( 'label' => __( 'Import / Export', 'xtreme-forms' ), 'icon' => 'dashicons-database-import' ),
 	'audit-log'     => array( 'label' => __( 'Audit Log', 'xtreme-forms' ), 'icon' => 'dashicons-list-view' ),
+	'license'       => array( 'label' => __( 'License', 'xtreme-forms' ), 'icon' => 'dashicons-admin-network' ),
 );
 if ( ! array_key_exists( $xf_settings_tab, $xf_settings_tabs ) ) {
 	$xf_settings_tab = 'general';
@@ -541,6 +542,10 @@ if ( $rc_enabled ) {
 <?php elseif ( 'audit-log' === $xf_settings_tab ) : ?>
 	<div class="xf-hub-tab-content">
 		<?php require XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-audit-log.php'; ?>
+	</div>
+<?php elseif ( 'license' === $xf_settings_tab ) : ?>
+	<div class="xf-hub-tab-content">
+		<?php require XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-license.php'; ?>
 	</div>
 <?php endif; ?>
 

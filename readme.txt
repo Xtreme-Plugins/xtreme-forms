@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.4.4
+Stable tag: 2.5.0
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -158,6 +158,12 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.0 =
+* **License tab for the optional Pro add-on.** New "License" tab under **Xtreme Forms → Settings** lets administrators paste their Pro license key, click Activate, and see status / plan / expiry. Deactivation releases the seat. Free plugin functionality is unchanged — no feature is gated by license status (per WP.org guideline 5, trialware compliance). The Pro add-on (sold separately at https://xtremeplugins.com/plugins/xtreme-forms) reads the activated license via the new `Xtremeforms_License::is_active()` / `get_plan()` public API to decide whether to enable its own features.
+* New `includes/class-xf-license.php` — license storage, activation/deactivation against the xtremeplugins.com licensing API (`https://xtremeplugins.com/api/v1/license/*`, overridable via the `xtremeforms_license_activate_url` / `xtremeforms_license_deactivate_url` filters).
+* New `admin/partials/xf-admin-license.php` — License tab UI with masked key display, status pill, plan code, expiry date (when returned), and an "View Pricing →" CTA linking to xtremeplugins.com when no license is active. Inline JS is registered through `wp_add_inline_script( 'xtremeforms-admin', ... )` (consistent with the 2.4.0 review fix).
+* Two new AJAX handlers: `xtremeforms_activate_license` and `xtremeforms_deactivate_license` (both require `manage_options` + nonce).
+
 = 2.4.4 =
 * Fix duplicated "Assignment saved" text in the lead-assign feedback banner. When the assigned WordPress user has no email on file, the inline feedback used to read *"Assignment saved. Assignment saved, but the notification email could not be sent..."* — the JS already prepends "Assignment saved." so the server-side warning is now just *"Notification email could not be sent — the assigned user has no email address on file."* Result: *"Assignment saved. Notification email could not be sent — the assigned user has no email address on file."*
 
@@ -264,6 +270,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.0 =
+Adds a "License" tab under Settings for activating the optional Xtreme Forms Pro add-on. The free plugin remains fully functional with no caps — only the Pro add-on (sold separately at xtremeplugins.com) consumes the license. Safe drop-in upgrade.
 
 = 2.4.4 =
 Cosmetic fix: the lead-assignment feedback no longer duplicates "Assignment saved" when the assigned user has no email on file. No code-path changes.

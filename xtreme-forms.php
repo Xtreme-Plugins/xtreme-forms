@@ -3,7 +3,7 @@
  * Plugin Name: Xtreme Forms
  * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-forms/
  * Description: Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:     2.4.4
+ * Version:     2.5.0
  * Author:      XtremePlugins
  * Author URI:  https://xtremeplugins.com
  * License:     GPL-2.0-or-later
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.4.4' );
+define( 'XTREMEFORMS_VERSION', '2.5.0' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -71,6 +71,8 @@ function xtremeforms_init(): void {
 	// CRM Integrations.
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-integrations.php';
 	new Xtremeforms_Integrations();
+	// License for optional Pro add-on.
+	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-license.php';
 	require_once XTREMEFORMS_PLUGIN_DIR . 'includes/class-xf-ajax.php';
 
 	// Admin.

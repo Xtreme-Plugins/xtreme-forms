@@ -49,6 +49,10 @@ class Xtremeforms_Ajax {
 		add_action( 'wp_ajax_xtremeforms_assign_lead', array( $this, 'handle_assign_lead' ) );
 		add_action( 'wp_ajax_xtremeforms_get_eligible_users', array( $this, 'handle_get_eligible_users' ) );
 
+		// License (Pro add-on activation).
+		add_action( 'wp_ajax_xtremeforms_activate_license', array( $this, 'handle_activate_license' ) );
+		add_action( 'wp_ajax_xtremeforms_deactivate_license', array( $this, 'handle_deactivate_license' ) );
+
 		// Email templates / log.
 		add_action( 'wp_ajax_xtremeforms_send_test_email', array( $this, 'handle_send_test_email' ) );
 		add_action( 'wp_ajax_xtremeforms_resend_email', array( $this, 'handle_resend_email' ) );
@@ -2160,6 +2164,61 @@ class Xtremeforms_Ajax {
 			array(
 				'cleared' => true,
 				'message' => __( 'Spam log cleared.', 'xtreme-forms' ),
+			)
+		);
+	}
+
+	/**
+	 * Activate a Pro license key against the xtremeplugins.com licensing API.
+	 *
+	 * The activated record (key, status, plan, expiry) is stored in
+	 * wp_options for the Pro add-on (when installed) to read. Activation
+	 * does NOT unlock any feature in the free plugin — WP.org guideline 5
+	 * (trialware) compliance.
+	 */
+	public function handle_activate_license(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce', false );
+		$this->check_admin_ajax();
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'xtreme-forms' ) ), 403 );
+		}
+
+		$key = isset( $_POST['license_key'] )
+			? sanitize_text_field( wp_unslash( $_POST['license_key'] ) )
+			: '';
+
+		$result = Xtremeforms_License::activate( $key );
+
+		if ( ! $result['success'] ) {
+			wp_send_json_error( array( 'message' => $result['message'] ) );
+		}
+
+		wp_send_json_success(
+			array(
+				'message' => $result['message'],
+				'data'    => Xtremeforms_License::get_data(),
+			)
+		);
+	}
+
+	/**
+	 * Deactivate the locally-stored Pro license and release the site seat.
+	 */
+	public function handle_deactivate_license(): void {
+		check_ajax_referer( 'xtremeforms_admin_nonce', 'nonce', false );
+		$this->check_admin_ajax();
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'xtreme-forms' ) ), 403 );
+		}
+
+		$result = Xtremeforms_License::deactivate();
+
+		wp_send_json_success(
+			array(
+				'message' => $result['message'],
+				'data'    => Xtremeforms_License::get_data(),
 			)
 		);
 	}
