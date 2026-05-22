@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.4.4] - 2026-05-22
+
+### Fixed
+- Duplicated "Assignment saved" text in the lead-detail assign-feedback banner (`includes/class-xf-ajax.php:1409`). When the newly assigned WordPress user had no email address on file, the inline feedback used to read *"Assignment saved. Assignment saved, but the notification email could not be sent (the user may not have an email address)."* The JS in `admin/partials/xf-admin-lead-detail.php:540` already prepends `"Assignment saved."` before concatenating the server-side warning, so the warning string itself no longer repeats that prefix. New copy: *"Notification email could not be sent — the assigned user has no email address on file."* Reproduced on mr-roof.yobooth.com lead #1.
+
 ## [2.4.3] - 2026-05-22
 
 ### Changed

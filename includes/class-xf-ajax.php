@@ -1406,7 +1406,7 @@ class Xtremeforms_Ajax {
 		if ( $assigned_to && $new_user ) {
 			$email_sent = $this->send_assignment_email( $lead_id, $lead, $new_user, $actor_id );
 			if ( ! $email_sent ) {
-				$email_warning = __( 'Assignment saved, but the notification email could not be sent (the user may not have an email address).', 'xtreme-forms' );
+				$email_warning = __( 'Notification email could not be sent — the assigned user has no email address on file.', 'xtreme-forms' );
 			}
 		}
 

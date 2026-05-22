@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.4.3
+Stable tag: 2.4.4
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -158,6 +158,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.4.4 =
+* Fix duplicated "Assignment saved" text in the lead-assign feedback banner. When the assigned WordPress user has no email on file, the inline feedback used to read *"Assignment saved. Assignment saved, but the notification email could not be sent..."* — the JS already prepends "Assignment saved." so the server-side warning is now just *"Notification email could not be sent — the assigned user has no email address on file."* Result: *"Assignment saved. Notification email could not be sent — the assigned user has no email address on file."*
+
 = 2.4.3 =
 * WordPress.org automated scan: bumped the `Tested up to:` header from `6.9` to `7.0` to match the current WordPress release. No code changes.
 
@@ -261,6 +264,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.4.4 =
+Cosmetic fix: the lead-assignment feedback no longer duplicates "Assignment saved" when the assigned user has no email on file. No code-path changes.
 
 = 2.4.3 =
 Bumps the `Tested up to` header to WordPress 7.0 to satisfy the WordPress.org automated submission scan. No code changes.
