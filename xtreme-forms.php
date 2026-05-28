@@ -1,25 +1,23 @@
 <?php
-/**
- * Plugin Name: Xtreme Forms
- * Plugin URI:  https://xtremeplugins.com/plugins/xtreme-forms/
- * Description: Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:     2.5.0
- * Author:      XtremePlugins
- * Author URI:  https://xtremeplugins.com
- * License:     GPL-2.0-or-later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Requires PHP: 8.1
+/*
+ * Plugin Name:       Xtreme Forms
+ * Plugin URI:        https://xtremeplugins.com/plugins/xtreme-forms/
+ * Description:       Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
+ * Version:           2.5.1
  * Requires at least: 6.0
- * Text Domain: xtreme-forms
- * Domain Path: /languages
- *
- * @package Xtreme Forms
+ * Requires PHP:      8.1
+ * Author:            XtremePlugins
+ * Author URI:        https://xtremeplugins.com
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       xtreme-forms
+ * Domain Path:       /languages
  */
 
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.5.0' );
+define( 'XTREMEFORMS_VERSION', '2.5.1' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

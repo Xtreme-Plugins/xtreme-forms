@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.1] - 2026-05-28
+
+### Changed
+- **WordPress.org review round 4 — readme-only fix.** Added a new "Xtreme Plugins licensing API (optional, only for the paid Pro add-on)" entry under the `== External services ==` section of `readme.txt`, disclosing that the License tab's **Activate** / **Deactivate** buttons make server-to-server `POST` calls to `https://xtremeplugins.com/api/v1/license/activate` and `https://xtremeplugins.com/api/v1/license/deactivate` (license key + `home_url()` only, on explicit button click only — never on form submission, page load, or in the background). Includes the xtremeplugins.com terms-of-service (`/terms`) and privacy-policy (`/privacy`) URLs, mentions the `xtremeforms_license_activate_url` / `xtremeforms_license_deactivate_url` filter overrides, and clarifies the free plugin never contacts the API unless an administrator chooses to activate a Pro license. No code changes.
+
 ## [2.5.0] - 2026-05-22
 
 ### Added

@@ -15,23 +15,23 @@ if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( esc_html__( 'You do not have permission to access this page.', 'xtreme-forms' ) );
 }
 
-$license_data    = Xtremeforms_License::get_data();
-$license_active  = Xtremeforms_License::is_active();
-$license_key     = (string) $license_data['key'];
-$license_status  = (string) $license_data['status'];
-$license_plan    = (string) $license_data['plan'];
-$license_expires = $license_data['expires_at'] ?? null;
-$masked_key      = '' !== $license_key ? Xtremeforms_License::mask( $license_key ) : '';
+$xf_license_data    = Xtremeforms_License::get_data();
+$xf_license_active  = Xtremeforms_License::is_active();
+$xf_license_key     = (string) $xf_license_data['key'];
+$xf_license_status  = (string) $xf_license_data['status'];
+$xf_license_plan    = (string) $xf_license_data['plan'];
+$xf_license_expires = $xf_license_data['expires_at'] ?? null;
+$xf_masked_key      = '' !== $xf_license_key ? Xtremeforms_License::mask( $xf_license_key ) : '';
 
-$status_label = $license_active
+$xf_status_label = $xf_license_active
 	? __( 'Active', 'xtreme-forms' )
-	: ( 'expired' === $license_status
+	: ( 'expired' === $xf_license_status
 		? __( 'Expired', 'xtreme-forms' )
-		: ( 'invalid' === $license_status
+		: ( 'invalid' === $xf_license_status
 			? __( 'Invalid', 'xtreme-forms' )
 			: __( 'Not activated', 'xtreme-forms' ) ) );
 
-$status_color = $license_active ? '#16a34a' : ( 'inactive' === $license_status ? '#6b7280' : '#dc2626' );
+$xf_status_color = $xf_license_active ? '#16a34a' : ( 'inactive' === $xf_license_status ? '#6b7280' : '#dc2626' );
 ?>
 <div class="xf-settings-card">
 	<h2>
@@ -50,8 +50,8 @@ $status_color = $license_active ? '#16a34a' : ( 'inactive' === $license_status ?
 					<label for="xf-license-key"><?php esc_html_e( 'License Key', 'xtreme-forms' ); ?></label>
 				</th>
 				<td>
-					<?php if ( $license_active ) : ?>
-						<input type="text" id="xf-license-key" class="regular-text code" value="<?php echo esc_attr( $masked_key ); ?>" readonly>
+					<?php if ( $xf_license_active ) : ?>
+						<input type="text" id="xf-license-key" class="regular-text code" value="<?php echo esc_attr( $xf_masked_key ); ?>" readonly>
 						<button type="button" id="xf-license-deactivate" class="button button-secondary"><?php esc_html_e( 'Deactivate', 'xtreme-forms' ); ?></button>
 					<?php else : ?>
 						<input type="text" id="xf-license-key" class="regular-text code" value="" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
@@ -63,29 +63,29 @@ $status_color = $license_active ? '#16a34a' : ( 'inactive' === $license_status ?
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Status', 'xtreme-forms' ); ?></th>
 				<td>
-					<span id="xf-license-status" style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12px;color:#fff;background:<?php echo esc_attr( $status_color ); ?>;">
-						<?php echo esc_html( $status_label ); ?>
+					<span id="xf-license-status" style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12px;color:#fff;background:<?php echo esc_attr( $xf_status_color ); ?>;">
+						<?php echo esc_html( $xf_status_label ); ?>
 					</span>
 				</td>
 			</tr>
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Plan', 'xtreme-forms' ); ?></th>
 				<td>
-					<code id="xf-license-plan" style="font-size:13px;"><?php echo esc_html( $license_plan ); ?></code>
+					<code id="xf-license-plan" style="font-size:13px;"><?php echo esc_html( $xf_license_plan ); ?></code>
 				</td>
 			</tr>
-			<?php if ( ! empty( $license_expires ) ) : ?>
+			<?php if ( ! empty( $xf_license_expires ) ) : ?>
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Renews / Expires', 'xtreme-forms' ); ?></th>
 				<td>
-					<code style="font-size:13px;"><?php echo esc_html( $license_expires ); ?></code>
+					<code style="font-size:13px;"><?php echo esc_html( $xf_license_expires ); ?></code>
 				</td>
 			</tr>
 			<?php endif; ?>
 		</tbody>
 	</table>
 
-	<?php if ( ! $license_active ) : ?>
+	<?php if ( ! $xf_license_active ) : ?>
 		<div style="margin-top:20px;padding:20px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;">
 			<h3 style="margin:0 0 8px;font-size:15px;color:#111827;">
 				<?php esc_html_e( "Don't have a Pro license yet?", 'xtreme-forms' ); ?>

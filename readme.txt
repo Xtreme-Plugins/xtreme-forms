@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -107,6 +107,21 @@ Privacy policy: https://www.pipedrive.com/en/privacy
 
 If you create one or more webhooks in **Xtreme Forms → Automations → Webhooks**, the plugin will send the captured lead's data as a JSON `POST` request to the URL(s) you configure for every new lead. These URLs are arbitrary endpoints that you (the site administrator) choose; the plugin itself is not affiliated with any particular webhook destination. Review the terms/privacy policy of whichever service you point your webhooks to.
 
+= Xtreme Plugins licensing API (optional, only for the paid Pro add-on) =
+
+The free Xtreme Forms plugin on WordPress.org is fully functional with no license required. A separately-sold Pro add-on is available from xtremeplugins.com; if (and only if) a site administrator chooses to buy it, the free plugin includes a "License" tab under **Xtreme Forms → Settings → License** that activates the Pro key.
+
+The licensing API is **only contacted when the administrator actively clicks a button on that tab**:
+
+1. Clicking **Activate** sends a server-to-server `POST` from your site to `https://xtremeplugins.com/api/v1/license/activate` containing the license key the admin entered and your site URL (`home_url()`), so the licensing server can validate the key and bind a seat to this site.
+2. Clicking **Deactivate** sends a server-to-server `POST` from your site to `https://xtremeplugins.com/api/v1/license/deactivate` containing the same two values, so the licensing server can release the seat.
+
+No request is ever made on form submissions, page loads, or in the background — the endpoints are only hit on the two explicit button clicks above, and only after an administrator has typed in a license key. If you never use the License tab, the plugin never contacts xtremeplugins.com. The endpoint URLs can be overridden (for example to point at a self-hosted licensing server or a staging environment) via the `xtremeforms_license_activate_url` and `xtremeforms_license_deactivate_url` filters.
+
+Service provider: XtremePlugins (xtremeplugins.com).
+Terms of service: https://xtremeplugins.com/terms
+Privacy policy: https://xtremeplugins.com/privacy
+
 == Installation ==
 
 1. Download `xtreme-forms.zip`
@@ -157,6 +172,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.5.1 =
+* WordPress.org review round 4 — readme-only fix. Added the Xtreme Plugins licensing API to the **External services** section to disclose that the License tab's Activate / Deactivate buttons make server-to-server calls to `https://xtremeplugins.com/api/v1/license/{activate,deactivate}` (license key + site URL only, on button click only). Includes terms-of-service and privacy-policy links for xtremeplugins.com. No code changes.
 
 = 2.5.0 =
 * **License tab for the optional Pro add-on.** New "License" tab under **Xtreme Forms → Settings** lets administrators paste their Pro license key, click Activate, and see status / plan / expiry. Deactivation releases the seat. Free plugin functionality is unchanged — no feature is gated by license status (per WP.org guideline 5, trialware compliance). The Pro add-on (sold separately at https://xtremeplugins.com/plugins/xtreme-forms) reads the activated license via the new `Xtremeforms_License::is_active()` / `get_plan()` public API to decide whether to enable its own features.
@@ -271,6 +289,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Upgrade Notice ==
 
+= 2.5.1 =
+WordPress.org review round 4 — readme-only fix that adds the Xtreme Plugins licensing API to the External services disclosure (Activate / Deactivate buttons on the License tab). No code changes; safe to upgrade.
+
 = 2.5.0 =
 Adds a "License" tab under Settings for activating the optional Xtreme Forms Pro add-on. The free plugin remains fully functional with no caps — only the Pro add-on (sold separately at xtremeplugins.com) consumes the license. Safe drop-in upgrade.
 
@@ -281,13 +302,13 @@ Cosmetic fix: the lead-assignment feedback no longer duplicates "Assignment save
 Bumps the `Tested up to` header to WordPress 7.0 to satisfy the WordPress.org automated submission scan. No code changes.
 
 = 2.4.2 =
-Fixes the activation / DB migration warnings flagged by the WordPress.org reviewers in round 3. All schema changes now flow through `dbDelta()` (no more raw `ALTER TABLE` queries) and the upgrade check is a single option read on a fully-migrated site. Safe to upgrade — no destructive schema changes.
+Fixes the activation / DB migration warnings from WordPress.org review round 3. All schema changes now go through `dbDelta()` (no raw `ALTER TABLE`) and the upgrade check is a single option read on a fully-migrated site. Safe to upgrade — no destructive schema changes.
 
 = 2.4.1 =
 Critical bug-fix release: required-field validation was rejecting filled fields on every submission due to a server/JS field-name mismatch. UTM cookie fallback, submit-duration timing, and post-submit redirects were affected by the same mismatch. Upgrade immediately if you ship forms on live sites.
 
 = 2.4.0 =
-WordPress.org review compliance round 2: opt-in attribution (default off), removal of third-party Google Fonts request, rename of the short xf_/xl_ AJAX prefixes to xtremeforms_, migration of inline admin scripts/styles to wp_enqueue, additional nonce checks, and bundled Chart.js upgrade. No database changes.
+WordPress.org review compliance round 2: opt-in attribution (default off), removal of third-party Google Fonts, rename of `xf_`/`xl_` AJAX prefixes to `xtremeforms_`, inline admin assets moved to `wp_enqueue`, extra nonce checks, Chart.js bundle update. No database changes.
 
 = 2.3.3 =
 WordPress.org review compliance: external-service disclosures in readme, lower admin menu position, capability checks on every admin partial, and rename of the short `XF_` class prefix to `Xtremeforms_`. No database changes.
