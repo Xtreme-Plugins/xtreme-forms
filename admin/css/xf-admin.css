@@ -38,6 +38,8 @@
   --xf-blue-10:        rgba(59,130,246,0.10);
   --xf-green:          #22c55e;
   --xf-green-10:       rgba(34,197,94,0.10);
+  --xf-orange:         #FF6B35;
+  --xf-orange-10:      rgba(255,107,53,0.10);
 
   --xf-text-primary:   #1e2533;
   --xf-text-secondary: #4b5768;
@@ -1242,6 +1244,12 @@
   flex-shrink: 0;
 }
 
+/* Per-tile icon color variants (teal is the default; the others override) */
+.xf-kpi-icon-teal   { background: var(--xf-teal-10);   color: var(--xf-teal); }
+.xf-kpi-icon-blue   { background: var(--xf-blue-10);   color: var(--xf-blue); }
+.xf-kpi-icon-purple { background: var(--xf-purple-10); color: var(--xf-purple); }
+.xf-kpi-icon-orange { background: var(--xf-orange-10); color: var(--xf-orange); }
+
 .xf-kpi-body {
   display: flex;
   flex-direction: column;
@@ -1618,6 +1626,129 @@
   color: var(--xf-text-muted);
   padding: 24px;
   text-align: center;
+}
+
+/* ── Leads by Form — donut + side legend ───────────────────────────────── */
+.xf-leads-donut-body {
+  height: 280px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 8px 8px 8px;
+}
+
+/* The donut layout overrides the .xf-chart-body absolute-canvas rule above so
+   the Chart.js canvas can take its declared 200×200 pixel size. */
+.xf-leads-donut-body canvas {
+  position: static !important;
+  width: 200px !important;
+  height: 200px !important;
+}
+
+.xf-leads-donut-wrap {
+  position: relative;
+  flex: 0 0 200px;
+  width: 200px;
+  height: 200px;
+}
+
+.xf-leads-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+}
+
+.xf-leads-donut-total {
+  font-family: var(--xf-mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--xf-text-primary);
+  line-height: 1;
+}
+
+.xf-leads-donut-sublabel {
+  font-size: 11px;
+  color: var(--xf-text-muted);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+.xf-leads-donut-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.xf-leads-donut-legend-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: default;
+  transition: background 0.12s;
+}
+
+.xf-leads-donut-legend-row:hover {
+  background: var(--xf-surface-2, #f5f7fb);
+}
+
+.xf-leads-donut-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.xf-leads-donut-legend-label {
+  font-size: 13px;
+  color: var(--xf-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xf-leads-donut-legend-count {
+  font-size: 13px;
+  color: var(--xf-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.xf-leads-donut-legend-pct {
+  color: var(--xf-text-muted);
+}
+
+.xf-leads-donut-legend-empty {
+  font-size: 13px;
+  color: var(--xf-text-muted);
+  padding: 8px 6px;
+}
+
+/* Stack donut + legend on narrow viewports */
+@media (max-width: 720px) {
+  .xf-leads-donut-body {
+    flex-direction: column;
+    height: auto;
+    padding: 16px 8px;
+  }
+  .xf-leads-donut-legend {
+    width: 100%;
+    max-height: none;
+  }
 }
 
 /* ── Dashboard — Bottom Row ─────────────────────────────────────────────── */

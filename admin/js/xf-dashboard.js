@@ -275,6 +275,7 @@
 		const canvas  = document.getElementById( 'xf-bar-chart' );
 		const errEl   = document.getElementById( 'xf-bar-chart-error' );
 		const emptyEl = document.getElementById( 'xf-bar-chart-empty' );
+		const legend  = document.getElementById( 'xf-leads-donut-legend' );
 
 		if ( ! canvas ) return;
 
@@ -291,10 +292,11 @@
 			if ( emptyEl ) emptyEl.style.display = 'none';
 			canvas.style.display = 'block';
 
-			renderBarChart( canvas, data.labels || [], data.values || [] );
+			renderBarChart( canvas, data.labels || [], data.values || [], legend );
 
 		} catch ( err ) {
 			canvas.style.display = 'none';
+			if ( legend ) legend.innerHTML = '';
 			if ( errEl ) {
 				const msgEl = errEl.querySelector( '.xf-chart-error-msg' );
 				if ( msgEl ) msgEl.textContent = i18n.error;
@@ -303,37 +305,117 @@
 		}
 	}
 
-	function renderBarChart( canvas, labels, values ) {
-		if ( barChart ) {
-			barChart.destroy();
-		}
+	// Vibrant palette for the Leads-by-Form donut, in the order forms arrive
+	// (most leads → least). Mirrors AUDIENCE_PALETTE so the dashboard reads
+	// consistently across the donut charts.
+	const LEADS_BY_FORM_PALETTE = [
+		'#0ABAB5', // teal
+		'#FF6B35', // orange
+		'#3b82f6', // blue
+		'#a855f7', // purple
+		'#22c55e', // green
+		'#ec4899', // pink
+		'#eab308', // amber
+		'#64748b', // slate
+	];
 
-		barChart = new Chart( canvas, {
-			type: 'bar',
-			data: {
-				labels,
-				datasets: [ {
-					label: i18n.leadsByForm || 'Leads',
-					data: values,
-					backgroundColor: COLOR_ACCENT + 'cc',
-					borderColor: COLOR_ACCENT,
-					borderWidth: 1,
-					borderRadius: 4,
-				} ],
-			},
-			options: {
-				...CHART_DEFAULTS,
-				scales: {
-					y: {
-						beginAtZero: true,
-						ticks: { stepSize: 1, precision: 0 },
-					},
-					x: {
-						ticks: { maxRotation: 45 },
+	function renderBarChart( canvas, labels, values, legend ) {
+		const total    = values.reduce( function ( a, b ) { return a + ( +b || 0 ); }, 0 );
+		const totalEl  = document.getElementById( 'xf-leads-donut-total' );
+		if ( totalEl ) totalEl.textContent = total.toLocaleString();
+
+		const colors = labels.map( function ( _l, i ) {
+			return LEADS_BY_FORM_PALETTE[ i % LEADS_BY_FORM_PALETTE.length ];
+		} );
+
+		if ( barChart ) {
+			barChart.data.labels                     = labels;
+			barChart.data.datasets[ 0 ].data         = values;
+			barChart.data.datasets[ 0 ].backgroundColor = colors;
+			barChart.update();
+		} else {
+			barChart = new Chart( canvas, {
+				type: 'doughnut',
+				data: {
+					labels,
+					datasets: [ {
+						data: values,
+						backgroundColor: colors,
+						borderColor: '#ffffff',
+						borderWidth: 2,
+						hoverOffset: 6,
+					} ],
+				},
+				options: {
+					responsive: false, // fixed pixel sizing — guaranteed render
+					maintainAspectRatio: false,
+					cutout: '70%',
+					animation: { animateRotate: true, duration: 600, easing: 'easeOutCubic' },
+					plugins: {
+						legend: { display: false },
+						tooltip: {
+							backgroundColor: '#0f172a',
+							titleColor: '#fff',
+							bodyColor: '#cbd5e1',
+							padding: 10,
+							cornerRadius: 6,
+							displayColors: false,
+							callbacks: {
+								label: function ( ctx ) {
+									const t = total || 1;
+									const p = ( ( ctx.parsed / t ) * 100 ).toFixed( 1 );
+									return ctx.label + ': ' + ctx.parsed.toLocaleString() + ' (' + p + '%)';
+								},
+							},
+						},
 					},
 				},
-			},
-		} );
+			} );
+		}
+
+		// Side legend: colored dot + form name on the left, count (pct%) on the right.
+		if ( legend ) {
+			if ( ! labels.length ) {
+				legend.innerHTML =
+					'<li class="xf-leads-donut-legend-empty">' +
+						escHtml( i18n.noLeadsByForm || 'No submissions yet.' ) +
+					'</li>';
+			} else {
+				let html = '';
+				labels.forEach( function ( label, i ) {
+					const count = +values[ i ] || 0;
+					const pct   = total > 0 ? ( count / total * 100 ) : 0;
+					const pctTxt = pct.toFixed( pct >= 10 ? 1 : 1 );
+					html +=
+						'<li class="xf-leads-donut-legend-row" data-idx="' + i + '">' +
+							'<span class="xf-leads-donut-swatch" style="background:' + colors[ i ] + '"></span>' +
+							'<span class="xf-leads-donut-legend-label">' + escHtml( label ) + '</span>' +
+							'<span class="xf-leads-donut-legend-count">' +
+								count.toLocaleString() +
+								' <span class="xf-leads-donut-legend-pct">(' + pctTxt + '%)</span>' +
+							'</span>' +
+						'</li>';
+				} );
+				legend.innerHTML = html;
+
+				// Hover legend row → highlight wedge (mirrors audience-mini behaviour).
+				legend.querySelectorAll( '.xf-leads-donut-legend-row' ).forEach( function ( row ) {
+					const idx = parseInt( row.dataset.idx, 10 );
+					row.addEventListener( 'mouseenter', function () {
+						if ( ! barChart ) return;
+						barChart.setActiveElements( [ { datasetIndex: 0, index: idx } ] );
+						if ( barChart.tooltip ) barChart.tooltip.setActiveElements( [ { datasetIndex: 0, index: idx } ], { x: 0, y: 0 } );
+						barChart.update();
+					} );
+					row.addEventListener( 'mouseleave', function () {
+						if ( ! barChart ) return;
+						barChart.setActiveElements( [] );
+						if ( barChart.tooltip ) barChart.tooltip.setActiveElements( [], { x: 0, y: 0 } );
+						barChart.update();
+					} );
+				} );
+			}
+		}
 	}
 
 	// ── Form Comparison Table (client-side sort + pagination) ─────────────────

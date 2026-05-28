@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.5.2
+Stable tag: 2.5.3
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -173,6 +173,10 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.3 =
+* **Dashboard:** added a fourth **Total Forms** KPI tile to the top row, linking to the Forms list and showing how many forms are currently active. The four KPI icons now use distinct colors (teal / blue / purple / orange) so the eye can pick out a tile by color.
+* **Dashboard:** the **Leads by Form** chart is now a doughnut with a side legend instead of a bar chart. The center of the doughnut shows the total leads in the selected range; the legend lists each form with its lead count and percentage share. Hovering a legend row highlights the corresponding doughnut slice.
+
 = 2.5.2 =
 * **Fixed:** five built-in form templates (`Quote Request`, `Newsletter`, `Integrations`) shipped placeholder / option strings containing the literal characters `…`, `–`, and `—` instead of the intended ellipsis / en-dash / em-dash. They were typed inside single-quoted PHP strings where PHP does not interpret unicode escapes, so end users saw raw `…` in the *Project Description* placeholder of the Quote Request form, in the Budget Range dropdown options, and in two "Saving…" / "Testing…" admin labels. Replaced with the actual UTF-8 characters.
 * **Improved:** the form-builder canvas no longer renders a permanent "Click to edit button" hint next to the Submit button. The affordance is now a CSS `::after` label that fades in only on hover or when the submit card is selected, so the default canvas view stays clean.
@@ -292,6 +296,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.3 =
+Dashboard refresh: adds a Total Forms KPI tile and converts Leads by Form to a doughnut chart with a side legend. No database changes; safe to upgrade.
 
 = 2.5.2 =
 Fixes the raw `…` / `–` / `—` text shipped in the Quote Request placeholder and Budget Range options of the built-in form templates, and cleans up the Submit button preview on the form-builder canvas. Safe to upgrade.

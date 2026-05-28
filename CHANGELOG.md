@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5.3] - 2026-05-28
+
+### Added
+- **Dashboard: "Total Forms" KPI tile (`admin/partials/xf-admin-dashboard.php`).** New fourth tile to the right of the existing All Time / This Month / This Week tiles, showing the count of forms with `status = 'active'` and linking to the Forms list page. Backed by a new `Xtremeforms_Analytics::count_active_forms()` helper (`includes/class-xf-analytics.php`).
+- **Per-tile KPI icon colors.** Added a `--xf-orange` / `--xf-orange-10` CSS variable pair and four `.xf-kpi-icon-{teal,blue,purple,orange}` modifier classes (`admin/css/xf-admin.css`) so the four icons read at a glance (envelope = teal, calendar = blue, clock = purple, forms = orange).
+
+### Changed
+- **Dashboard: "Leads by Form" chart converted from bar to doughnut + side legend.** Mirrors the existing Audience-Insights donut pattern. The center of the doughnut shows the live total leads for the selected range; the right-hand legend lists each form with its lead count and percentage share. Hovering a legend row highlights the matching wedge and shows the tooltip. The all-time / 30-day / 90-day / custom range tabs are unchanged.
+- **`renderBarChart()` rewritten in `admin/js/xf-dashboard.js`** to render a Chart.js `doughnut` (instead of `bar`), drive the new `#xf-leads-donut-total` center text from the summed values, and populate the `#xf-leads-donut-legend` `<ul>`. New `LEADS_BY_FORM_PALETTE` color array (teal/orange/blue/purple/green/pink/amber/slate) is used in arrival order so the largest form always gets teal.
+
 ## [2.5.2] - 2026-05-28
 
 ### Fixed

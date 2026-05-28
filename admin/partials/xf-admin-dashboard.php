@@ -17,9 +17,10 @@ if ( ! current_user_can( 'manage_options' ) ) {
 // phpcs:disable WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Capability check enforced above; page callback is also registered with 'manage_options'. Read-only display page.
 
 // Fetch initial KPI data server-side for instant render (no FOUC).
-$kpi_all_time   = Xtremeforms_Analytics::count_leads_all_time();
-$kpi_this_month = Xtremeforms_Analytics::count_leads_this_month();
-$kpi_this_week  = Xtremeforms_Analytics::count_leads_this_week();
+$kpi_all_time      = Xtremeforms_Analytics::count_leads_all_time();
+$kpi_this_month    = Xtremeforms_Analytics::count_leads_this_month();
+$kpi_this_week     = Xtremeforms_Analytics::count_leads_this_week();
+$kpi_total_forms   = Xtremeforms_Analytics::count_active_forms();
 $funnel_data    = Xtremeforms_Analytics::leads_by_status();
 $top_pages      = Xtremeforms_Analytics::top_source_pages( 10 );
 $top_forms      = Xtremeforms_Analytics::top_forms( 5 );
@@ -84,7 +85,7 @@ $kpi_this_week_url = add_query_arg(
 		<a class="xf-kpi-tile xf-kpi-tile-link"
 			href="<?php echo esc_url( $kpi_all_time_url ); ?>"
 			title="<?php esc_attr_e( 'View all leads', 'xtreme-forms' ); ?>">
-			<div class="xf-kpi-icon"><span class="dashicons dashicons-email-alt"></span></div>
+			<div class="xf-kpi-icon xf-kpi-icon-teal"><span class="dashicons dashicons-email-alt"></span></div>
 			<div class="xf-kpi-body">
 				<span class="xf-kpi-label"><?php esc_html_e( 'All Time', 'xtreme-forms' ); ?></span>
 				<span class="xf-kpi-value xf-countup"
@@ -97,7 +98,7 @@ $kpi_this_week_url = add_query_arg(
 		<a class="xf-kpi-tile xf-kpi-tile-link"
 			href="<?php echo esc_url( $kpi_this_month_url ); ?>"
 			title="<?php esc_attr_e( 'View this month\'s leads', 'xtreme-forms' ); ?>">
-			<div class="xf-kpi-icon"><span class="dashicons dashicons-calendar-alt"></span></div>
+			<div class="xf-kpi-icon xf-kpi-icon-blue"><span class="dashicons dashicons-calendar-alt"></span></div>
 			<div class="xf-kpi-body">
 				<span class="xf-kpi-label"><?php esc_html_e( 'This Month', 'xtreme-forms' ); ?></span>
 				<span class="xf-kpi-value xf-countup"
@@ -110,13 +111,26 @@ $kpi_this_week_url = add_query_arg(
 		<a class="xf-kpi-tile xf-kpi-tile-link"
 			href="<?php echo esc_url( $kpi_this_week_url ); ?>"
 			title="<?php esc_attr_e( 'View this week\'s leads', 'xtreme-forms' ); ?>">
-			<div class="xf-kpi-icon"><span class="dashicons dashicons-clock"></span></div>
+			<div class="xf-kpi-icon xf-kpi-icon-purple"><span class="dashicons dashicons-clock"></span></div>
 			<div class="xf-kpi-body">
 				<span class="xf-kpi-label"><?php esc_html_e( 'This Week', 'xtreme-forms' ); ?></span>
 				<span class="xf-kpi-value xf-countup"
 					id="xf-kpi-this-week"
 					data-target="<?php echo esc_attr( $kpi_this_week ); ?>"><?php echo esc_html( number_format_i18n( $kpi_this_week ) ); ?></span>
 				<span class="xf-kpi-sublabel"><?php esc_html_e( 'Since Monday', 'xtreme-forms' ); ?></span>
+			</div>
+			<span class="xf-kpi-arrow dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+		</a>
+		<a class="xf-kpi-tile xf-kpi-tile-link"
+			href="<?php echo esc_url( $forms_url ); ?>"
+			title="<?php esc_attr_e( 'Manage forms', 'xtreme-forms' ); ?>">
+			<div class="xf-kpi-icon xf-kpi-icon-orange"><span class="dashicons dashicons-feedback"></span></div>
+			<div class="xf-kpi-body">
+				<span class="xf-kpi-label"><?php esc_html_e( 'Total Forms', 'xtreme-forms' ); ?></span>
+				<span class="xf-kpi-value xf-countup"
+					id="xf-kpi-total-forms"
+					data-target="<?php echo esc_attr( $kpi_total_forms ); ?>"><?php echo esc_html( number_format_i18n( $kpi_total_forms ) ); ?></span>
+				<span class="xf-kpi-sublabel"><?php esc_html_e( 'Active', 'xtreme-forms' ); ?></span>
 			</div>
 			<span class="xf-kpi-arrow dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
 		</a>
@@ -198,21 +212,31 @@ $kpi_this_week_url = add_query_arg(
 					</div>
 				</div>
 			</div>
-			<div class="xf-chart-body" id="xf-bar-chart-body">
+			<div class="xf-chart-body xf-leads-donut-body" id="xf-bar-chart-body">
 				<?php if ( $has_forms ) : ?>
-					<canvas id="xf-bar-chart" aria-label="<?php esc_attr_e( 'Leads by form bar chart', 'xtreme-forms' ); ?>" role="img"></canvas>
+					<div class="xf-leads-donut-wrap">
+						<canvas id="xf-bar-chart"
+							width="200" height="200"
+							aria-label="<?php esc_attr_e( 'Leads by form doughnut chart', 'xtreme-forms' ); ?>"
+							role="img"></canvas>
+						<div class="xf-leads-donut-center">
+							<div class="xf-leads-donut-total" id="xf-leads-donut-total">0</div>
+							<div class="xf-leads-donut-sublabel"><?php esc_html_e( 'Total Leads', 'xtreme-forms' ); ?></div>
+						</div>
+					</div>
+					<ul class="xf-leads-donut-legend" id="xf-leads-donut-legend" aria-live="polite"></ul>
 					<div class="xf-chart-error" id="xf-bar-chart-error" style="display:none;">
 						<span class="dashicons dashicons-warning"></span>
 						<span class="xf-chart-error-msg"><?php esc_html_e( 'Failed to load chart data. Please try again.', 'xtreme-forms' ); ?></span>
 					</div>
 				<?php else : ?>
 					<div class="xf-empty-state" id="xf-bar-chart-empty">
-						<span class="dashicons dashicons-chart-bar xf-empty-icon"></span>
+						<span class="dashicons dashicons-chart-pie xf-empty-icon"></span>
 						<p><?php esc_html_e( 'No active forms yet — your leads-by-form chart will appear here.', 'xtreme-forms' ); ?></p>
 						<a href="<?php echo esc_url( $add_form_url ); ?>" class="button xf-btn-primary"><?php esc_html_e( 'Create Your First Form', 'xtreme-forms' ); ?></a>
 					</div>
 					<!-- Hidden canvas -->
-					<canvas id="xf-bar-chart" style="display:none;" aria-label="<?php esc_attr_e( 'Leads by form bar chart', 'xtreme-forms' ); ?>" role="img"></canvas>
+					<canvas id="xf-bar-chart" style="display:none;" width="200" height="200" aria-label="<?php esc_attr_e( 'Leads by form doughnut chart', 'xtreme-forms' ); ?>" role="img"></canvas>
 					<div class="xf-chart-error" id="xf-bar-chart-error" style="display:none;"></div>
 				<?php endif; ?>
 			</div>
