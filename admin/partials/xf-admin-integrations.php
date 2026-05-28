@@ -298,7 +298,7 @@ ob_start();
 
 			if ( saveBtn ) {
 				saveBtn.disabled    = true;
-				saveBtn.textContent = <?php echo wp_json_encode( __( 'Saving\u2026', 'xtreme-forms' ) ); ?>;
+				saveBtn.textContent = <?php echo wp_json_encode( __( 'Saving…', 'xtreme-forms' ) ); ?>;
 			}
 
 			// Collect form field values into a plain object.
@@ -371,7 +371,7 @@ ob_start();
 
 			var origTxt     = btn.textContent;
 			btn.disabled    = true;
-			btn.textContent = <?php echo wp_json_encode( __( 'Testing\u2026', 'xtreme-forms' ) ); ?>;
+			btn.textContent = <?php echo wp_json_encode( __( 'Testing…', 'xtreme-forms' ) ); ?>;
 
 			var fd = new FormData();
 			fd.append( 'action',      'xtremeforms_test_integration' );

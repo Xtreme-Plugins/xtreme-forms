@@ -416,7 +416,7 @@ class Xtremeforms_Integrations {
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'body'    => wp_json_encode(
 					array(
-						'title'     => ( $lead_data['name'] ?? 'Lead' ) . ' \u2014 Xtreme Forms',
+						'title'     => ( $lead_data['name'] ?? 'Lead' ) . ' — Xtreme Forms',
 						'person_id' => $person_id,
 					)
 				),

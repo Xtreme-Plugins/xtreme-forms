@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.2] - 2026-05-28
+
+### Fixed
+- **Literal `…` / `–` / `—` escape sequences leaking into rendered text.** Five strings across three files (`includes/class-xf-form-templates.php:203` and `:215`, `includes/class-xf-integrations.php:419`, `admin/partials/xf-admin-integrations.php:301` and `:374`) had unicode escapes typed inside single-quoted PHP strings. Single-quoted PHP does not interpret `\uXXXX`, so the raw 6-character escape was being stored in form templates (e.g. the *Quote Request* template's Project Description placeholder showed `Tell us about your project…` and the Budget Range dropdown listed `$1,000 – $5,000`) and shown in two admin button labels ("Saving…" / "Testing…"). Replaced with real UTF-8 characters (`…`, `–`, `—`). Note: existing forms that were created from the affected template before this fix will still have the literal escape stored in their field metadata — open the form, edit the affected field's placeholder / options, and save to refresh.
+
+### Changed
+- **Form-builder canvas: removed the always-on "Click to edit button" hint** next to the Submit-button preview (`admin/js/xf-builder.js:512-515`). The dashed border, hover highlight, and selection state already telegraph that the card is interactive; the extra inline label cluttered the canvas and overlapped the button at narrower canvas widths. The affordance is now a CSS `::after` pseudo-element on `.xfb-submit-preview` (`admin/partials/xf-admin-form-builder.php`) that reads "Click to edit", positioned absolute to the far right, and fades in only on hover or when the submit card is `.selected`. Hidden entirely when the Submit button is in floated layout (1/2, 1/3, 1/4 widths), matching the existing behaviour from 2.0.5.
+
 ## [2.5.1] - 2026-05-28
 
 ### Changed
