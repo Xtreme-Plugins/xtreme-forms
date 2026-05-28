@@ -2984,6 +2984,64 @@
   flex-shrink: 0;
 }
 
+/* ── Top Performing Forms: name link + copy-shortcode + count ─────────── */
+/* The forms list keeps the row's own padding, so override the link-padding
+   override that .xf-top-list-item-link uses for the pages list. */
+.xf-top-list-forms .xf-top-list-item { padding: 4px 0; }
+
+.xf-top-list-link-name {
+  /* Name link no longer fills the whole row; it shares space with the copy
+     button + count badge laid out by the flex parent .xf-top-list-item. */
+  flex: 1 1 auto;
+  width: auto !important;
+  min-width: 0;
+  padding: 6px 8px;
+}
+
+.xf-shortcode-copy {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--xf-radius-sm);
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--xf-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: var(--xf-transition);
+}
+
+.xf-shortcode-copy:hover {
+  background: var(--xf-teal-10);
+  color: var(--xf-teal);
+  border-color: var(--xf-teal-10);
+}
+
+.xf-shortcode-copy:focus-visible {
+  outline: 2px solid var(--xf-teal);
+  outline-offset: 1px;
+}
+
+.xf-shortcode-copy .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.xf-shortcode-copy-ok {
+  background: var(--xf-green-10) !important;
+  color: var(--xf-green) !important;
+  border-color: var(--xf-green-10) !important;
+}
+
+.xf-shortcode-copy-err {
+  background: rgba(220,38,38,0.10) !important;
+  color: #dc2626 !important;
+  border-color: rgba(220,38,38,0.10) !important;
+}
+
 /* ── Inbox: row Resend button ─────────────────────────────────────────── */
 .xf-col-actions {
   width: 110px;

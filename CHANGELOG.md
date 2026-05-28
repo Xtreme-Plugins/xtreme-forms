@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.4] - 2026-05-28
+
+### Added
+- **Dashboard: one-click Copy shortcode button** next to each form in the *Top Performing Forms* card (`admin/partials/xf-admin-dashboard.php`). Renders a small `dashicons-admin-page` button between the form name and the lead-count badge with `data-shortcode="[xtreme_forms id=\"X\"]"`; click and the shortcode lands on your clipboard. Saves an entire round-trip to the form's edit screen for the common "embed this form on a page" workflow.
+- **`initShortcodeCopy()` in `admin/js/xf-dashboard.js`** wires up the buttons. Uses the async Clipboard API when available (`navigator.clipboard.writeText`) and falls back to the classic hidden-textarea + `document.execCommand('copy')` trick for older browsers and for admin pages served over plain HTTP (where the Clipboard API refuses to run because of the secure-context requirement). On success the icon briefly swaps to `dashicons-yes` on a green background; on failure it swaps to `dashicons-no` on a red background. The state auto-reverts after 1.4 s.
+
+### Changed
+- **Restructured the Top Performing Forms list rows.** Previously each row was wrapped in a single `<a>` that covered both the form name and the lead-count badge. To make room for the new copy button without nesting interactive elements (`<button>` inside `<a>` is invalid HTML), the row now lays out three flex siblings: `<a class="xf-top-list-link-name">` for the name, `<button class="xf-shortcode-copy">` for the copy action, and the existing count badge. Visual styling is unchanged at first glance — the row counter, the row's bottom border, and the hover-slide on the form name all behave the same. New CSS for `.xf-shortcode-copy` (idle / hover / focus / success / error) added in `admin/css/xf-admin.css`.
+
 ## [2.5.3] - 2026-05-28
 
 ### Added

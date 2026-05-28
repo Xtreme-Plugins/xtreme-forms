@@ -379,7 +379,7 @@ $kpi_this_week_url = add_query_arg(
 			</div>
 			<div class="xf-card-body">
 				<?php if ( ! empty( $top_forms ) ) : ?>
-					<ol class="xf-top-list">
+					<ol class="xf-top-list xf-top-list-forms">
 						<?php foreach ( $top_forms as $form_item ) : ?>
 							<?php
 							$form_filter_url = add_query_arg(
@@ -389,14 +389,23 @@ $kpi_this_week_url = add_query_arg(
 								),
 								admin_url( 'admin.php' )
 							);
+							$xf_shortcode = sprintf( '[xtreme_forms id="%d"]', (int) $form_item['form_id'] );
 							?>
-							<li class="xf-top-list-item xf-top-list-item-link">
+							<li class="xf-top-list-item">
 								<a href="<?php echo esc_url( $form_filter_url ); ?>"
-									class="xf-top-list-link"
+									class="xf-top-list-link xf-top-list-link-name"
 									title="<?php /* translators: %s: form name */ echo esc_attr( sprintf( __( 'View leads from %s', 'xtreme-forms' ), $form_item['form_name'] ) ); ?>">
 									<span class="xf-top-list-name"><?php echo esc_html( $form_item['form_name'] ); ?></span>
-									<span class="xf-badge xf-badge-count"><?php echo esc_html( number_format_i18n( $form_item['count'] ) ); ?></span>
 								</a>
+								<button type="button"
+									class="xf-shortcode-copy"
+									data-shortcode="<?php echo esc_attr( $xf_shortcode ); ?>"
+									aria-label="<?php /* translators: %s: form name */ echo esc_attr( sprintf( __( 'Copy shortcode for %s', 'xtreme-forms' ), $form_item['form_name'] ) ); ?>"
+									title="<?php echo esc_attr( sprintf( /* translators: %s: shortcode */ __( 'Copy %s', 'xtreme-forms' ), $xf_shortcode ) ); ?>">
+									<span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
+									<span class="screen-reader-text"><?php esc_html_e( 'Copy shortcode', 'xtreme-forms' ); ?></span>
+								</button>
+								<span class="xf-badge xf-badge-count" title="<?php /* translators: %d: lead count */ echo esc_attr( sprintf( _n( '%d lead', '%d leads', (int) $form_item['count'], 'xtreme-forms' ), (int) $form_item['count'] ) ); ?>"><?php echo esc_html( number_format_i18n( $form_item['count'] ) ); ?></span>
 							</li>
 						<?php endforeach; ?>
 					</ol>

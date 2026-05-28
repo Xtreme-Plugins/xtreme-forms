@@ -877,6 +877,82 @@
 		}
 	}
 
+	// ── Copy-shortcode buttons (Top Performing Forms list) ────────────────────
+
+	function initShortcodeCopy() {
+		const buttons = document.querySelectorAll( '.xf-shortcode-copy' );
+		if ( ! buttons.length ) return;
+
+		buttons.forEach( function ( btn ) {
+			btn.addEventListener( 'click', function ( ev ) {
+				ev.preventDefault();
+				ev.stopPropagation();
+
+				const code = btn.dataset.shortcode || '';
+				if ( ! code ) return;
+
+				copyToClipboard( code ).then( function ( ok ) {
+					flashCopyState( btn, ok );
+				} );
+			} );
+		} );
+	}
+
+	/**
+	 * Copy a string to the clipboard. Uses the async Clipboard API when
+	 * available; falls back to a hidden textarea + document.execCommand for
+	 * older browsers and for admin pages served over plain HTTP (the
+	 * Clipboard API requires a secure context).
+	 *
+	 * @param {string} text
+	 * @returns {Promise<boolean>} resolves with true on success.
+	 */
+	function copyToClipboard( text ) {
+		if ( navigator.clipboard && window.isSecureContext ) {
+			return navigator.clipboard.writeText( text ).then(
+				function () { return true; },
+				function () { return fallbackCopy( text ); }
+			);
+		}
+		return Promise.resolve( fallbackCopy( text ) );
+	}
+
+	function fallbackCopy( text ) {
+		const ta = document.createElement( 'textarea' );
+		ta.value      = text;
+		ta.setAttribute( 'readonly', '' );
+		ta.style.position = 'fixed';
+		ta.style.top  = '-1000px';
+		ta.style.left = '-1000px';
+		document.body.appendChild( ta );
+		ta.select();
+		let ok = false;
+		try {
+			ok = document.execCommand( 'copy' );
+		} catch ( _e ) {
+			ok = false;
+		}
+		document.body.removeChild( ta );
+		return ok;
+	}
+
+	/**
+	 * Briefly swap the clipboard icon for a check / cross to confirm the copy.
+	 */
+	function flashCopyState( btn, ok ) {
+		const icon = btn.querySelector( '.dashicons' );
+		if ( ! icon ) return;
+
+		const original = icon.className;
+		btn.classList.add( ok ? 'xf-shortcode-copy-ok' : 'xf-shortcode-copy-err' );
+		icon.className = 'dashicons ' + ( ok ? 'dashicons-yes' : 'dashicons-no' );
+
+		window.setTimeout( function () {
+			icon.className = original;
+			btn.classList.remove( 'xf-shortcode-copy-ok', 'xf-shortcode-copy-err' );
+		}, 1400 );
+	}
+
 	// ── Init ──────────────────────────────────────────────────────────────────
 
 	document.addEventListener( 'DOMContentLoaded', function () {
@@ -887,6 +963,7 @@
 				initBarChart();
 				initAudienceChart();
 			}
+			initShortcodeCopy();
 		} else {
 			// Form metrics page.
 			initMetricsTable();

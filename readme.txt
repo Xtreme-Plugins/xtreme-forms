@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.5.3
+Stable tag: 2.5.4
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -173,6 +173,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.4 =
+* **Dashboard:** added a one-click "Copy shortcode" button next to each form in the **Top Performing Forms** card. Click the clipboard icon and the shortcode (`[xtreme_forms id="X"]`) lands on your clipboard — no need to open the form's edit screen first. The icon briefly turns green ✓ on success.
+
 = 2.5.3 =
 * **Dashboard:** added a fourth **Total Forms** KPI tile to the top row, linking to the Forms list and showing how many forms are currently active. The four KPI icons now use distinct colors (teal / blue / purple / orange) so the eye can pick out a tile by color.
 * **Dashboard:** the **Leads by Form** chart is now a doughnut with a side legend instead of a bar chart. The center of the doughnut shows the total leads in the selected range; the legend lists each form with its lead count and percentage share. Hovering a legend row highlights the corresponding doughnut slice.
@@ -296,6 +299,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.4 =
+Adds a one-click Copy shortcode button next to each form in the Top Performing Forms list on the dashboard. Safe drop-in upgrade.
 
 = 2.5.3 =
 Dashboard refresh: adds a Total Forms KPI tile and converts Leads by Form to a doughnut chart with a side legend. No database changes; safe to upgrade.
