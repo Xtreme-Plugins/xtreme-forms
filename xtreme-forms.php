@@ -3,7 +3,7 @@
  * Plugin Name:       Xtreme Forms
  * Plugin URI:        https://xtremeplugins.com/plugins/xtreme-forms/
  * Description:       Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:           2.5.7
+ * Version:           2.5.8
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            XtremePlugins
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.5.7' );
+define( 'XTREMEFORMS_VERSION', '2.5.8' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

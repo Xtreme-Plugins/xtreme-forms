@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.5.7
+Stable tag: 2.5.8
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -173,6 +173,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.8 =
+* **Public form now renders in Manrope** (same as the admin since 2.5.5). The font was previously "Fira Sans" with a system fallback chain. The `@font-face` declarations point at the same `assets/fonts/manrope/` bundle the admin uses, so no second copy of the font files is shipped and no request is made to `fonts.googleapis.com` or `fonts.gstatic.com`. All hardcoded `font-family: "Fira Sans"` declarations in `public/css/xf-public.css` (5 of them) were swapped to `var(--xf-font)` so they inherit the Manrope-first stack.
+
 = 2.5.7 =
 * **Public form — phone fields auto-format as `(555) 123-4567`.** As the visitor types digits into a phone field the value live-formats US-style. International numbers (anything beginning with `+`) are left alone, so a `+44 7700 900123` still goes through unchanged. The field placeholder defaults to `(555) 123-4567` only when the form admin hasn't configured a different one.
 * **Public form — date fields open the picker on a single click anywhere in the field.** Previously the browser's date picker only opened when the visitor clicked the small calendar icon at the far right of the input. Now clicking anywhere on the field (or pressing Enter/Space when focused) calls `input.showPicker()`. The cursor turns into a pointer and the calendar icon is enlarged + brighter on hover so it actually reads as a target.
@@ -312,6 +315,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.8 =
+Public form now renders in Manrope (same font as the admin, served from the bundled `assets/fonts/manrope/` files — no external request). Safe drop-in upgrade.
 
 = 2.5.7 =
 Public form: phone fields auto-format as (555) 123-4567 while the visitor types, and date fields now open the browser picker on a single click anywhere in the field. Safe drop-in upgrade.

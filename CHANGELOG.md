@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.8] - 2026-05-29
+
+### Changed
+- **Public form font is now Manrope** (`public/css/xf-public.css`), matching the admin UI (which got Manrope back in 2.5.5). Inlined the same 30-block `@font-face` set at the top of the public stylesheet pointing at `../../assets/fonts/manrope/<hash>.woff2` — the same six woff2 files the admin uses, no second copy of the font shipped, no request to `fonts.googleapis.com`/`fonts.gstatic.com`. Updated the `--xf-font` custom property from `'Fira Sans', -apple-system, ...` to `'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", "Fira Sans", sans-serif` so the fallback chain is preserved if Manrope ever fails to load. Replaced the five remaining hardcoded `font-family: "Fira Sans", sans-serif;` declarations (in the input, select, textarea, slider-value, and slider-edges rules) with `font-family: var(--xf-font);` so everything inherits the cascade.
+
 ## [2.5.7] - 2026-05-29
 
 ### Added
