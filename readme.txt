@@ -1,6 +1,6 @@
 === Xtreme Forms ===
 Contributors: loanpartnership, xtremeplugins
-Tags: lead capture, contact form, leads, webhooks, analytics
+Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
 Stable tag: 2.5.8
 Requires at least: 6.0
@@ -8,13 +8,35 @@ Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lead capture forms with email routing, webhooks, analytics, spam protection, and GDPR tools.
+Drag-and-drop contact form & lead capture plugin. Email routing, webhooks, analytics, spam protection, GDPR. Fast, free, no upsells.
 
 == Description ==
 
-Xtreme Forms is a WordPress lead capture and management plugin. Build custom forms, capture leads into your own database, route notifications to the right team members, track analytics, and use the included GDPR tools (consent checkbox, right-to-erasure, data retention) to help support your own privacy workflows — all from a clean, fast admin interface.
+**Xtreme Forms** is a modern, drag-and-drop **contact form and lead capture plugin** for WordPress. Build any form you need — contact forms, quote requests, event registrations, newsletter signups, multi-step lead qualification — then capture every submission into a built-in lead inbox, route email notifications to the right person, fire webhooks to your CRM, and track conversions on a clean analytics dashboard.
 
-All features listed below work in the plugin you are downloading. The optional Pro add-on offered by the author adds advanced routing, webhook retries, and extended analytics, but is not required for any of the features below.
+**No upsells. No "Pro-only" features hidden inside the free download.** Every feature listed below ships in the free plugin and is fully functional out of the box. The optional Pro add-on (sold separately at xtremeplugins.com) only adds advanced routing rules, retry queues, and extended analytics — it never gates or limits any feature you see on this page.
+
+= Why Xtreme Forms? =
+
+If you've used the other popular form plugins (WPForms, Contact Form 7, Gravity Forms, Ninja Forms, Formidable Forms) you already know the trade-offs: free versions lock the features you actually need behind a Pro upgrade, the lighter ones don't manage your leads after the email is sent, and the heavier ones drag down page speed with bloated assets. Xtreme Forms is built differently:
+
+* **Real lead management, not just form-to-email.** Every submission lands in a searchable, filterable inbox with a full status workflow (new → read → contacted → converted), per-lead notes, tags, assignment to team members, and an append-only audit log. Treat your leads like a pipeline, not like inbox clutter.
+* **Everything in the free download is actually free.** Drag-and-drop builder, conditional logic, webhooks, analytics, GDPR tools, multisite, audit log, JSON import/export — no popup nag screens, no "upgrade to Pro" overlay on settings pages.
+* **Lightweight on the page.** No jQuery dependency on the frontend, no third-party font request, no external service call unless you explicitly enable and configure one.
+* **Modern WordPress stack.** Tested up to WordPress 7.0, requires PHP 8.1+, ships a native Gutenberg block alongside the classic shortcode, and works inside any block-theme template / Elementor / Bricks / Beaver Builder widget that accepts shortcodes.
+* **WordPress.org-compliant.** Fully GPL, no obfuscated code, no telemetry, no auto-update side-channels, and every external-service touchpoint is disclosed below.
+
+A solid free alternative to **WPForms** for site owners who want lead management built in, not an afterthought.
+
+= Built-in Form Templates =
+
+Skip the blank canvas. Xtreme Forms ships ready-to-go templates for the forms you actually need:
+
+* **Simple Contact Form** — name, email, message
+* **Quote Request** — name, email, phone, project description, budget range
+* **Event Registration** — full name, email, phone, company, attendee count, date picker
+* **Newsletter Signup** — name, email, GDPR consent
+* **Multi-step lead qualification** — built using the conditional-logic engine
 
 = Core Features (Free) =
 
