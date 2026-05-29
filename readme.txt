@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.13
+Stable tag: 2.5.14
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -209,6 +209,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.14 =
+* **Fixed: welcome screen rendered as a giant unscaled SVG icon filling the entire viewport.** Two-part fix: (1) the hero envelope SVG was declared without `width`/`height` attributes — browsers fall back to 300×150 or fill the parent if there's no CSS sizing. Added explicit `width="38" height="38"` so it can never grow unbounded again. (2) The welcome-page CSS lived in an `ob_start`/`ob_get_clean`/`wp_add_inline_style` block at the top of the partial; on hosts where late-attached inline styles get dropped, the entire welcome-screen stylesheet vanished and the SVG defaulted to the browser's enormous fallback. Moved the ~380 lines of welcome CSS into the properly-enqueued `admin/css/xf-admin.css` so it loads reliably (same pattern as the 2.5.6 form-builder fix).
+
 = 2.5.13 =
 * **Fixed: "Sorry, you are not allowed to access this page" right after plugin activation.** The submenu slug for the welcome screen was registered as `xtremeforms-welcome` in `admin/class-xf-admin.php:103`, but the post-activation redirect was sending users to `admin.php?page=xf-welcome` (legacy slug, line 394). WordPress couldn't find the page → fell through to the standard not-allowed error before the user could see the welcome screen on a fresh install. One-character fix to the redirect target. Existing installs are unaffected — the redirect only fires on first activation.
 
@@ -368,6 +371,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.14 =
+Fixes the welcome screen rendering as a giant unscaled SVG icon on first activation. Safe drop-in upgrade.
 
 = 2.5.13 =
 Fixes a "Sorry, you are not allowed to access this page" error that appeared right after first activation on new installs. Slug mismatch between the welcome page registration and the activation redirect. Safe drop-in upgrade.

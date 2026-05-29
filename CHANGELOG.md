@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.14] - 2026-05-29
+
+### Fixed
+- **Welcome screen rendered as a giant unscaled SVG envelope icon** (`admin/partials/xf-admin-welcome.php`). Two compounding bugs:
+  1. The hero `<svg viewBox="0 0 40 40">` at line 421 had no `width` / `height` HTML attributes. Without intrinsic dimensions, browsers either default to 300 × 150 px or — inside a flex/grid container with no constraints — let the SVG grow to fill the available space. So the icon filled the viewport.
+  2. The CSS that *would* have sized it (`.xf-welcome-logo svg { width: 38px; height: 38px }` plus the rest of the welcome-page rules — ~380 lines total) lived inside an `ob_start()` / `ob_get_clean()` / `wp_add_inline_style( 'xtremeforms-admin', … )` block at the top of the partial. That block ran *after* the page `<head>` had been emitted, so on hosts that don't re-emit late-attached inline styles in the footer the entire welcome-screen stylesheet was dropped — exactly the same pattern that broke the form-builder Submit-card styling and got fixed in 2.5.6.
+  
+  Fix: added explicit `width="38" height="38"` to the hero SVG (so even if no CSS loads, the icon can never grow unbounded again), then moved the full ~380-line welcome CSS block out of the partial and into the properly-enqueued `admin/css/xf-admin.css`. Removed the `ob_start`/`ob_get_clean`/`wp_add_inline_style` plumbing from the partial entirely.
+
 ## [2.5.13] - 2026-05-29
 
 ### Fixed
