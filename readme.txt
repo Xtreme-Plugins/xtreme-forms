@@ -1,14 +1,14 @@
-=== Xtreme Forms ===
+=== Xtreme Forms – WP Contact Form Builder, Lead Capture, Form to Email & Webhooks ===
 Contributors: loanpartnership, xtremeplugins
-Tags: contact form, form builder, lead generation, forms, webhooks
+Tags: contact form, form builder, lead capture, wp form, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.15
+Stable tag: 2.5.16
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Drag-and-drop contact form & lead capture plugin. Email routing, webhooks, analytics, spam protection, GDPR. Fast, free, no upsells.
+Free WP contact form plugin with drag-and-drop form builder, lead inbox, email routing, webhooks & analytics. Lightweight WPForms alternative.
 
 == Description ==
 
@@ -40,11 +40,35 @@ A solid free alternative to **WPForms** for site owners who want lead management
 
 Skip the blank canvas. Xtreme Forms ships ready-to-go templates for the forms you actually need:
 
-* **Simple Contact Form** — name, email, message
-* **Quote Request** — name, email, phone, project description, budget range
-* **Event Registration** — full name, email, phone, company, attendee count, date picker
-* **Newsletter Signup** — name, email, GDPR consent
-* **Multi-step lead qualification** — built using the conditional-logic engine
+* **Simple Contact Form** — name, email, message — the classic WordPress contact form
+* **Quote Request Form** — name, email, phone, project description, budget range
+* **Event Registration Form** — full name, email, phone, company, attendee count, date picker
+* **Newsletter Signup Form** — name, email, GDPR consent
+* **Multi-step Lead Qualification Form** — built using the conditional-logic engine
+* **Booking / appointment request form** — fully customizable in the drag-and-drop form builder
+
+= Works With Your Page Builder =
+
+The `[xtreme_forms id="X"]` shortcode and the native Gutenberg block work inside every WordPress page builder and block theme:
+
+* **Elementor** — drop the shortcode in the Shortcode widget, or use the Gutenberg block in Elementor Pro's container element
+* **Bricks Builder** — works via shortcode element
+* **Beaver Builder** — works via the Text/HTML or Shortcode module
+* **Divi** — works in any Text or Code module via shortcode
+* **Oxygen Builder** — works via shortcode element
+* **WPBakery Page Builder** — works via the Raw HTML / Shortcode element
+* **Block-based themes (Twenty Twenty-Four, Twenty Twenty-Five, Frost, Blockbase)** — native Gutenberg block with live preview
+* **Classic editor** — paste the shortcode anywhere
+
+= Switching From Another WordPress Form Plugin? =
+
+If you're moving away from a heavier or upsell-driven WordPress contact form plugin — WPForms, Contact Form 7, Gravity Forms, Ninja Forms, Formidable Forms, Forminator, Fluent Forms, Everest Forms, or Happyforms — Xtreme Forms makes the transition straightforward:
+
+* **Rebuild forms in minutes** using the drag-and-drop builder + the six ready-made templates above
+* **Bring existing leads with you** via the JSON import endpoint — map your old plugin's CSV/JSON export to the Xtreme Forms lead schema
+* **Keep your email recipients and routing rules** — Xtreme Forms's email-routing engine accepts the same rule structure most form plugins use (field value → recipient address)
+* **Shortcode parity** — the `[xtreme_forms id="X"]` shortcode drops into any page that was using `[wpforms id="X"]`, `[contact-form-7]`, `[gravityform id="X"]`, etc., so you don't have to touch every theme template
+* **No vendor lock-in** — your leads, forms, and audit log live in your own WordPress database, exportable as JSON at any time
 
 = Core Features (Free) =
 
@@ -171,33 +195,49 @@ Alternatively, unzip the archive and upload the `xtreme-forms` folder to `/wp-co
 
 == Frequently Asked Questions ==
 
-= Is the free version really free? =
+= Is Xtreme Forms really a free WordPress contact form plugin? =
 
-Yes. The free version has no artificial limits on forms, leads, or submissions. Pro adds advanced features for power users.
+Yes. The free version of Xtreme Forms is the complete plugin — every feature in the list above ships in the free download with no artificial caps on the number of forms, leads, submissions, fields, or admin users. There is no "premium upgrade" overlay on settings pages, no popup nag to upgrade, and no feature gating inside the dashboard. The optional Pro add-on (sold separately at xtremeplugins.com) layers advanced routing rules, webhook retry, and extended analytics on top — it never removes or limits anything in the free plugin.
+
+= How is Xtreme Forms different from other WordPress form plugins? =
+
+Most popular WordPress contact form plugins (WPForms, Contact Form 7, Gravity Forms, Ninja Forms, Formidable Forms, Forminator, Fluent Forms) treat the form as the product — they're "form builders" that hand off every submission as an email and stop there. Xtreme Forms treats the **lead** as the product. Every submission lands in a searchable inbox with a full status workflow (new → contacted → converted), per-lead notes, tags, assignment to team members, and an append-only audit log. So in addition to building the form you also get a lightweight CRM for the leads it captures, all for free, without an external SaaS.
+
+= Can I create a contact form with this plugin? =
+
+Yes — and you can ship one in under five minutes. Pick the **Simple Contact Form** template from **Xtreme Forms → Forms → Add New → From Template**, drop the generated `[xtreme_forms id="X"]` shortcode on any page, and the form is live. Submissions automatically land in your Lead Inbox and are emailed to the address you configure under **Settings → Email**.
+
+= Does Xtreme Forms work with Elementor, Bricks, Beaver Builder, Divi or Oxygen? =
+
+Yes. The `[xtreme_forms id="X"]` shortcode works in every page builder's shortcode element. The native Gutenberg block also works inside Elementor Pro's container elements, Bricks' block element, and any block-theme template. There's no separate Elementor / Bricks / Divi addon to install.
+
+= Is Xtreme Forms a good WPForms alternative? =
+
+If you're looking for a free WPForms alternative because you don't want to pay $99–$399/year for features like conditional logic, multi-step forms, webhooks, and form analytics — yes. Every one of those features is in the free download. The trade-off: WPForms has 20+ third-party integrations as paid Pro addons (Stripe, PayPal, etc.). Xtreme Forms ships built-in webhooks (you can send leads to any CRM yourself) plus direct Zoho / HubSpot / Salesforce / Pipedrive integrations, but doesn't have a Stripe payment field — if you need credit-card collection inside the form itself, WPForms or Gravity Forms is the better fit.
 
 = Does it work without WooCommerce? =
 
-Yes. Fully standalone with zero external dependencies required.
+Yes — fully standalone. Xtreme Forms has zero external plugin dependencies. WooCommerce isn't required, and WooCommerce isn't required for any feature listed on this page.
 
-= Does it work with Elementor? =
+= Is Xtreme Forms multisite compatible? =
 
-Yes. Use `[xtreme_forms id="X"]` in Elementor's Shortcode widget, or the native Gutenberg block.
+Yes. Xtreme Forms creates per-site database tables and supports network-wide activation. Forms, leads, and settings are scoped per blog and don't bleed across the network.
 
-= Is it multisite compatible? =
+= Does Xtreme Forms include GDPR tools? =
 
-Yes. Xtreme Forms creates per-site database tables and supports network-wide activation.
+Yes — it ships a per-form consent checkbox, a right-to-erasure helper for deleting a lead's record on request, configurable data retention (auto-delete leads older than X days), and an append-only audit log. These are tools to help you build a GDPR-aware workflow; legal compliance with GDPR or any other privacy law is still your responsibility.
 
-= Does it include GDPR tools? =
+= Can I export my leads from Xtreme Forms? =
 
-Yes — it ships a consent checkbox, a right-to-erasure helper, configurable data retention, and an append-only audit log. These are tools to help you build a GDPR-aware workflow. Compliance with GDPR or any other privacy law is your responsibility; the plugin does not guarantee legal compliance.
+Yes. Full JSON export and import from the **Xtreme Forms → Import / Export** admin page. The format is documented and round-trip-safe so you can also pipe leads into your own scripts.
 
-= Can I export my leads? =
+= Does the plugin send any data to third-party services by default? =
 
-Yes. Full JSON export and import from the Import/Export admin page.
+No. Xtreme Forms is fully self-hosted and contacts no external service in its default configuration. Cloudflare Turnstile, Google reCAPTCHA, Zoho, HubSpot, Salesforce, Pipedrive, and outbound webhooks are all opt-in: nothing is sent until you turn them on and configure credentials. See the **External services** section above for the full disclosure list.
 
-= Where do I report bugs or request features? =
+= How do I report bugs or request features? =
 
-Please use the WordPress.org support forum for this plugin, or file an issue at https://github.com/Xtreme-Plugins/xtreme-forms.
+Please use the [WordPress.org support forum](https://wordpress.org/support/plugin/xtreme-forms/) for free-version questions, or file an issue at the [GitHub repository](https://github.com/Xtreme-Plugins/xtreme-forms). Pro subscribers also get priority email support at xtremeplugins.com.
 
 == Screenshots ==
 
@@ -208,6 +248,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.5.16 =
+* **Major readme + plugin-name SEO pass for WordPress.org discovery.** Plugin name expanded from `Xtreme Forms` to `Xtreme Forms – WP Contact Form Builder, Lead Capture, Form to Email & Webhooks` (matches WP.org's heavily-weighted title-search signal for `wp form`, `contact form`, `form builder`, `lead capture`, and `form to email` queries). Short description rewritten to lead with `Free WP contact form plugin … Lightweight WPForms alternative.` Tag set rebalanced from generic `forms` + `lead generation` to higher-intent `lead capture` + `wp form`. New "Switching From Another WordPress Form Plugin?" section covers migration from WPForms / Contact Form 7 / Gravity Forms / Ninja Forms / Formidable / Forminator / Fluent Forms. New "Works With Your Page Builder" section names Elementor, Bricks, Beaver Builder, Divi, Oxygen, WPBakery, block themes, and the classic editor. FAQ expanded from 7 questions to 10, each one targeting a high-volume long-tail WP.org search. No code changes.
 
 = 2.5.15 =
 * **Welcome screen now actually carries the Xtreme Forms styling and brand icon.** The asset enqueue check only matched hooks containing `xtreme-forms` (with the hyphen used by the visible menu pages), so the welcome page's hook `admin_page_xtremeforms-welcome` (no hyphen between *xtreme* and *forms*) silently fell through and *neither* `admin/css/xf-admin.css` nor `admin/js/xf-admin.js` got loaded. The page rendered as raw HTML on WordPress's default admin styling — no Manrope, no cards, no colors. Widened the hook match so both spellings load the assets. Also added the `wrap xf-wrap` classes alongside `xf-welcome-wrap` on the page wrapper so the base palette inherits correctly.
@@ -375,6 +418,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.16 =
+Major readme + plugin-name SEO pass for WordPress.org plugin search. No code changes, safe drop-in upgrade.
 
 = 2.5.15 =
 Welcome screen now actually loads the plugin's stylesheet (hook match was too narrow) and uses the real Xtreme Forms brand icon. Safe drop-in upgrade.

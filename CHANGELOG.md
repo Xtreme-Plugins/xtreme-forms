@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.5.16] - 2026-05-29
+
+### Changed
+- **Major WordPress.org discovery SEO pass — readme.txt + plugin name header only, no code changes.** Five coordinated edits, each tuned against WP.org's plugin-search ranking signals (title relevance, tag match, short-description match, readme content TF-IDF):
+  1. **Plugin name** in `xtreme-forms.php` header expanded from `Xtreme Forms` to `Xtreme Forms – WP Contact Form Builder, Lead Capture, Form to Email & Webhooks`. WP.org's search algorithm weights every word in the plugin name heavily — this matches the top-ranking patterns used by WPForms ("Easy Form Builder for WordPress – Contact Forms, Payment Forms, Surveys, & More") and Forminator ("Contact Form, Payment Form & Custom Form Builder"). Now hits the queries `wp form`, `contact form`, `form builder`, `lead capture`, `form to email`, and `webhooks` directly.
+  2. **Short description (`readme.txt:11`)** rewritten from a feature list to `Free WP contact form plugin with drag-and-drop form builder, lead inbox, email routing, webhooks & analytics. Lightweight WPForms alternative.` — under the 150-char cap, leads with `Free`, contains `WP contact form plugin`, `form builder`, `webhooks`, and the `WPForms alternative` positioning phrase.
+  3. **Tag set rebalanced** from `contact form, form builder, lead generation, forms, webhooks` to `contact form, form builder, lead capture, wp form, webhooks`. Swapped `forms` (too generic — every form plugin uses it, search-rank uncompetitive) for `wp form` (direct match for the highest-volume search query in the form-plugin category). Swapped `lead generation` (lower intent) for `lead capture` (higher intent, our differentiator).
+  4. **New "Switching From Another WordPress Form Plugin?" section** in the Description, with each major competitor named once in factual migration context — WPForms, Contact Form 7, Gravity Forms, Ninja Forms, Formidable Forms, Forminator, Fluent Forms, Everest Forms, Happyforms. Drives long-tail traffic for `<competitor> alternative` searches without trademark abuse — each name appears in a legitimate "moving away from X" feature claim, not as keyword stuffing.
+  5. **New "Works With Your Page Builder" section** naming Elementor, Bricks Builder, Beaver Builder, Divi, Oxygen Builder, WPBakery Page Builder, the block-based themes, and the classic editor. Captures long-tail searches like `contact form for elementor`, `bricks form plugin`, etc.
+  6. **FAQ expanded from 7 to 10 questions**, each one explicitly targeting a known high-volume WP.org search query: "Is X really a free WordPress contact form plugin?", "How is X different from other WordPress form plugins?", "Can I create a contact form with this plugin?", "Does it work with Elementor / Bricks / Beaver Builder / Divi / Oxygen?", "Is X a good WPForms alternative?", "Does Xtreme Forms include GDPR tools?", "Can I export my leads?". Each answer is keyword-rich without being keyword-stuffed.
+
+### Expected outcome
+Within 7 days of WP.org reindex: page 5–10 rank for `wp forms`, top 10 for `wp form to email` / `lead capture form`, top 5 for `wpforms alternative`. The pure `wpforms` query remains unwinnable until install count + review count climb. The realistic 30-day target is top 50 for `wp forms`, top 5 for every long-tail variation; the 6-month target with install + review growth is top 30 for `wp forms` and top 3 for the high-intent long-tails.
+
 ## [2.5.15] - 2026-05-29
 
 ### Fixed
