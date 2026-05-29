@@ -718,6 +718,7 @@ ob_start();
 	background: transparent;
 }
 
+.xfb-submit-preview.xfb-field-floating .xfb-submit-hint,
 .xfb-submit-preview.xfb-field-floating .xfb-width-badge {
 	display: none;
 }
@@ -742,10 +743,7 @@ ob_start();
 .xfb-btn-size-lg { padding: 14px 36px; font-size: 16px; }
 .xfb-btn-size-xl { padding: 18px 52px; font-size: 19px; }
 
-/* Hover-only "Click to edit" affordance, rendered via CSS ::after on the
-   submit-card wrapper so the canvas stays uncluttered by default. */
-.xfb-submit-preview::after {
-	content: 'Click to edit';
+.xfb-submit-hint {
 	position: absolute;
 	right: 14px;
 	top: 50%;
@@ -754,17 +752,6 @@ ob_start();
 	color: #9ca3af;
 	font-style: italic;
 	pointer-events: none;
-	opacity: 0;
-	transition: opacity 0.15s;
-}
-
-.xfb-submit-preview:hover::after,
-.xfb-submit-preview.selected::after {
-	opacity: 1;
-}
-
-.xfb-submit-preview.xfb-field-floating::after {
-	content: none;
 }
 
 /* Rows slider in settings panel */

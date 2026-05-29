@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.5] - 2026-05-29
+
+### Added
+- **Manrope font, self-hosted (`assets/fonts/manrope/`).** Six woff2 subset files (cyrillic-ext, cyrillic, greek, vietnamese, latin-ext, latin) plus the OFL 1.1 license, ~92 KB total. Same files Google would serve, pulled once at build time and now bundled inside the plugin. The `@font-face` declarations are inlined at the top of `admin/css/xf-admin.css` with `src: url(../../assets/fonts/manrope/<hash>.woff2)`. **No request is ever made to `fonts.googleapis.com` or `fonts.gstatic.com`** — the admin UI works the same online and offline, and WordPress.org reviewers won't flag an undeclared external service. The `--xf-font: 'Manrope', ...` variable is unchanged; `.xf-wrap` and descendants now actually render in Manrope instead of falling back to the system stack (which is what they were doing silently since the 2.4.0 Google Fonts removal).
+
+### Changed
+- **Form builder: reverted the hover-only Submit-affordance change from 2.5.2** (`admin/js/xf-builder.js`, `admin/partials/xf-admin-form-builder.php`). The 2.5.2 CSS `::after` approach was too subtle in production — users could not see that the Submit-button card was an editable target until they hovered it, so they did not discover the right-panel settings. Restored the original inline `<span class="xfb-submit-hint">Click to edit button</span>` and the always-visible `.xfb-submit-hint { position: absolute; right: 14px; ... }` CSS rule. The float-mode rule (`.xfb-submit-preview.xfb-field-floating .xfb-submit-hint { display: none }`) is also back, so the hint still hides cleanly when the Submit button is floated at 1/2 / 1/3 / 1/4 width to sit inline with the last row of fields. No styling changes to anything else on the canvas.
+
 ## [2.5.4] - 2026-05-28
 
 ### Added

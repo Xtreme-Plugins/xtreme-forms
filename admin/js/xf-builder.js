@@ -509,8 +509,10 @@
         wrap.appendChild(badge);
       }
 
-      // Affordance hint is now CSS-only (appears on hover via .xfb-submit-hint
-      // ::after content) so the canvas stays clean by default.
+      var hint = document.createElement('span');
+      hint.className = 'xfb-submit-hint';
+      hint.textContent = 'Click to edit button';
+      wrap.appendChild(hint);
 
       wrap.addEventListener('click', function () {
         self.state.selectedFieldId = '__submit__';
