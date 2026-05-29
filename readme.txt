@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.12
+Stable tag: 2.5.13
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -209,6 +209,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.13 =
+* **Fixed: "Sorry, you are not allowed to access this page" right after plugin activation.** The submenu slug for the welcome screen was registered as `xtremeforms-welcome` in `admin/class-xf-admin.php:103`, but the post-activation redirect was sending users to `admin.php?page=xf-welcome` (legacy slug, line 394). WordPress couldn't find the page → fell through to the standard not-allowed error before the user could see the welcome screen on a fresh install. One-character fix to the redirect target. Existing installs are unaffected — the redirect only fires on first activation.
+
 = 2.5.12 =
 * **Readme:** added a prominent "Useful Links" block at the top of the WP.org listing description with direct links to the [plugin homepage](https://xtremeplugins.com/plugins/xtreme-forms), the [#features section](https://xtremeplugins.com/plugins/xtreme-forms#features), and the [pricing page](https://xtremeplugins.com/plugins/xtreme-forms/pricing). Also restructured the "Optional Pro Add-On" section further down to surface the same three subpage links instead of a single generic homepage link. Source / issues link added to the GitHub repo. No code changes.
 
@@ -365,6 +368,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.13 =
+Fixes a "Sorry, you are not allowed to access this page" error that appeared right after first activation on new installs. Slug mismatch between the welcome page registration and the activation redirect. Safe drop-in upgrade.
 
 = 2.5.12 =
 Readme-only update — adds direct links to the plugin homepage, features overview, and pricing page on xtremeplugins.com. No code changes; safe to upgrade.

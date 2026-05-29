@@ -391,7 +391,7 @@ class Xtremeforms_Admin {
 
 		delete_transient( 'xtremeforms_activation_redirect' );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=xf-welcome' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=xtremeforms-welcome' ) );
 		exit;
 	}
 

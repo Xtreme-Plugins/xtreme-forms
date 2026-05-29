@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.13] - 2026-05-29
+
+### Fixed
+- **"Sorry, you are not allowed to access this page" after fresh activation** (`admin/class-xf-admin.php:394`). The hidden welcome submenu was registered with slug `xtremeforms-welcome` at line 103 of the same file, but the post-activation redirect at line 394 was sending users to `admin.php?page=xf-welcome` — a legacy slug from before the 2.3.3 rename (which switched the rest of the plugin from the short `xf_`/`XF_` prefixes to the unique `xtremeforms_` / `Xtremeforms_` prefixes for WP.org review compliance). The welcome page slug was renamed in 2.3.3 but the activation redirect was missed. WordPress's submenu router couldn't find a registered page at the legacy slug, fell through to the standard `wp_die` capability error, and the user saw the "not allowed" message on a brand-new install. One-character redirect target fix. Only the first-activation flow was affected — the welcome page was never accessible by URL, and existing installs (where the redirect transient has already been consumed) don't fire this code path again.
+
 ## [2.5.12] - 2026-05-29
 
 ### Changed
