@@ -737,18 +737,29 @@
   display: block;
 }
 
+/* Base submit button. Heavy use of !important on the dimension-affecting
+   declarations is intentional — themes like Astra, GeneratePress, Elementor,
+   Bricks, Beaver Builder, Divi and most page-builder form addons all hit
+   `button[type="submit"]` with their own `min-height: 50px+`, `line-height: 2`,
+   and `padding: 18px 28px`. Without these locks the rendered button can be
+   2–3× taller than the form-builder canvas preview suggests. */
 .xf-btn-submit {
   display: inline-block;
   background: #1A73E8;
   color: #fff;
   font-family: var(--xf-font);
-  font-size: 16px;
+  font-size: 16px !important;
   font-weight: 600;
-  padding: 12px 32px;
-  border: none;
+  padding: 12px 32px !important;
+  border: none !important;
   border-radius: 6px;
   cursor: pointer;
   letter-spacing: 0.3px;
+  line-height: 1.4 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  text-transform: none !important;
+  box-sizing: border-box;
   transition: background .2s ease, transform .1s ease;
 }
 
@@ -772,12 +783,12 @@
 
 /* Button size variants — scoped under .xf-form-wrap and !-marked to win
    against theme / Elementor / Bricks button rules that often hit our
-   submit button with their own padding+font-size at higher specificity
-   (.elementor-form button[type="submit"] etc). */
-.xf-form-wrap .xf-btn-submit.xf-btn-size-sm { font-size: 12px !important; padding: 6px 16px !important; }
-.xf-form-wrap .xf-btn-submit.xf-btn-size-md { font-size: 14px !important; padding: 10px 28px !important; }
-.xf-form-wrap .xf-btn-submit.xf-btn-size-lg { font-size: 16px !important; padding: 14px 36px !important; }
-.xf-form-wrap .xf-btn-submit.xf-btn-size-xl { font-size: 19px !important; padding: 18px 52px !important; }
+   submit button with their own padding+font-size+line-height+min-height
+   at higher specificity (.elementor-form button[type="submit"] etc). */
+.xf-form-wrap .xf-btn-submit.xf-btn-size-sm { font-size: 12px !important; padding: 6px 16px !important;  line-height: 1.4 !important; min-height: 0 !important; height: auto !important; }
+.xf-form-wrap .xf-btn-submit.xf-btn-size-md { font-size: 14px !important; padding: 10px 28px !important; line-height: 1.4 !important; min-height: 0 !important; height: auto !important; }
+.xf-form-wrap .xf-btn-submit.xf-btn-size-lg { font-size: 16px !important; padding: 14px 36px !important; line-height: 1.4 !important; min-height: 0 !important; height: auto !important; }
+.xf-form-wrap .xf-btn-submit.xf-btn-size-xl { font-size: 19px !important; padding: 18px 52px !important; line-height: 1.4 !important; min-height: 0 !important; height: auto !important; }
 
 /* Full width button (also needs the scoping for the same reason). */
 .xf-form-wrap .xf-btn-submit.xf-btn-full-width { width: 100%; display: block; }

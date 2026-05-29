@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.10
+Stable tag: 2.5.11
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -195,6 +195,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.11 =
+* **Public-form Submit button now matches the canvas preview height across all themes.** 2.5.9 locked padding and font-size with `!important`, but themes like Astra, GeneratePress, Elementor, Bricks, Divi and most page-builder form addons also set `min-height: 50px+`, `line-height: 2`, and (sometimes) `height: auto !important` on `button[type="submit"]` — that's what was inflating the rendered button to 2–3× the size the admin chose. Added `line-height: 1.4`, `min-height: 0`, `height: auto`, `text-transform: none`, and `border: none` locks on both the base `.xf-btn-submit` rule and every `xf-btn-size-{sm,md,lg,xl}` variant. The frontend button now renders at exactly the dimensions the admin previews on the form-builder canvas.
+
 = 2.5.10 =
 * **Form builder: BUTTON TEXT now updates the canvas Submit button live + persists on save.** The hidden `<input name="submit_label">` in the partial was missing its matching `id="submit_label"` attribute, so `document.getElementById('submit_label')` in the builder JS returned `null`. The live-update event listener was guarded by `if (inp && labelInput)` which always skipped, the canvas card never re-rendered with the new label, **and** the unchanged hidden input's old value was the one saved on form submit. Net effect: typing a new label in the right-side panel did nothing on the canvas *and* the new label never reached the frontend after save. Fixed by adding `id="submit_label"` to the hidden input. (This is the root cause of the "preview shows one text, frontend shows another" report from earlier.)
 
@@ -345,6 +348,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.11 =
+Public-form Submit button now matches the form-builder canvas preview height — theme/page-builder line-height + min-height rules no longer inflate it 2–3× past the chosen Size. Safe drop-in upgrade.
 
 = 2.5.10 =
 Fixes a missing `id` attribute on the `submit_label` hidden input that broke the form-builder's live "BUTTON TEXT" → canvas preview update AND silently prevented the new label from being saved. Safe drop-in upgrade.

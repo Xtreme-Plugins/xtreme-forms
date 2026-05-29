@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.11] - 2026-05-29
+
+### Fixed
+- **Public-form Submit button rendered 2–3× taller than the form-builder canvas preview** (`public/css/xf-public.css`). 2.5.9 locked `padding` and `font-size` on `.xf-form-wrap .xf-btn-submit.xf-btn-size-{sm,md,lg,xl}` with `!important`, which fixed those two properties — but the rendered height is also driven by `line-height` and `min-height`, neither of which was locked. Themes like Astra, GeneratePress, Hello Elementor, the Twenty Twenty-Four block theme, and form addons like Elementor Pro Forms, Bricks Form, Beaver Themer Forms, Divi Forms apply `button[type="submit"] { min-height: 50px–66px; line-height: 1.8–2; height: auto !important; }` at specificity that beats our single-class size variants. Net effect on a heavy theme: admin picks "Small" (intended ~28 px tall), frontend renders at 75–90 px. Locked `line-height: 1.4`, `min-height: 0`, `height: auto`, `text-transform: none`, and `border: none` with `!important` on both the base `.xf-btn-submit` rule and every `.xf-form-wrap .xf-btn-submit.xf-btn-size-*` variant. Also added `box-sizing: border-box` to the base rule so `padding` doesn't push width past the parent column when the button is full-width. Rendered dimensions now match the canvas preview exactly across the themes listed.
+
 ## [2.5.10] - 2026-05-29
 
 ### Fixed
