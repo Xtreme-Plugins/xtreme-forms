@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5.6] - 2026-05-29
+
+### Fixed
+- **Form-builder Submit-card styling now actually loads.** The Submit-button preview wrapper (`.xfb-submit-preview`), the inline "Click to edit button" hint (`.xfb-submit-hint`), the width badge (`.xfb-width-badge`), the canvas card hover/selected highlights, and the four `.xfb-btn-size-{sm,md,lg,xl}` button-size variants were all defined inside an `<style>` block at the bottom of `admin/partials/xf-admin-form-builder.php` (~300 lines, lines 591–889), then attached to the `xtremeforms-admin` stylesheet handle via `wp_add_inline_style()` at line 892. By the time `wp_add_inline_style()` ran, the page `<head>` had already been emitted with the parent stylesheet, so on hosts where `wp_print_footer_styles()` did not re-emit late-attached inline styles the CSS was lost entirely — leaving the Submit row with browser-default styling (small unstyled button, hint sitting flush against it, no dashed outline). Moved the entire block into the properly-enqueued `admin/css/xf-builder.css` and removed the `ob_start`/`ob_get_clean`/`wp_add_inline_style` plumbing from the partial. This also closes a latent 2.4.0 review-compliance gap (the 2.4.0 changelog said "moved all inline `<style>` blocks out of admin partials" but this file's block stayed behind).
+
+### Changed
+- **Form-builder preset chips (`HEIGHT`, `WIDTH`, `BUTTON SIZE`) refreshed.** The base `.xfb-width-preset` rule (`admin/css/xf-builder.css:1217`) went from a flat gray rectangle (`background: #f3f4f6; border: 1px solid #d1d5db; padding: 3px 8px; font-size: 11px`) to a cleaner light-on-white chip (`background: #fff; border: 1px solid #e5e7eb; padding: 5px 12px; font-size: 12px`) with a blue hover and a `:focus-visible` ring, matching the original 2.0.6 settings-panel design.
+- **Selected-chip highlight now visible on first render.** Added a `.xfb-width-preset.is-active, .xfb-width-preset.xfb-align-active` rule (light blue fill + blue border + blue text); the two class names are historical — field-side chips toggle `.is-active`, Submit-side chips toggle `.xfb-align-active`. Both now look the same.
+- **Initial active state wired in JS (`admin/js/xf-builder.js`).** The WIDTH and HEIGHT chip rendering now adds `is-active` to the chip matching the current field value, the WIDTH click handler swaps `is-active` across the chip group on click (matching the existing COLUMNS pattern), and the HEIGHT chips additionally stay in sync with the slider — drag the slider and the matching chip highlights, click a chip and the slider snaps to its value.
+
 ## [2.5.5] - 2026-05-29
 
 ### Added

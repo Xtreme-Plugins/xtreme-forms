@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.5.5
+Stable tag: 2.5.6
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -173,6 +173,10 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.6 =
+* **Form builder — Submit card styling now actually loads.** The Submit-button preview, the "Click to edit button" hint, the width badge, and the dashed outline were all defined in a `<style>` block at the bottom of the form-builder partial that was being attached via `wp_add_inline_style()` *after* the page `<head>` had already shipped the parent stylesheet. On some hosts the inline CSS was being dropped entirely, leaving the Submit row with default browser styling (small blue button, hint sitting flush against it). Moved the ~300 lines of builder CSS into the properly-enqueued `admin/css/xf-builder.css` so they load with the rest of the builder stylesheet.
+* **Form builder — preset chips refreshed.** The HEIGHT (lines), WIDTH (Full / 1/2 / 1/3 / 1/4), and BUTTON SIZE (Small / Medium / Large / XL) chip buttons in the right-side field settings panel now use a cleaner light-on-white style with a clear blue-tinted "selected" state, matching the original 2.0.6 design. Active state is also wired up on first render — clicking a chip toggles the highlight and the slider (for HEIGHT) stays in sync.
+
 = 2.5.5 =
 * **Restored the Manrope font on the admin UI, self-hosted.** The Manrope `@import` from Google Fonts was removed in 2.4.0 for WordPress.org compliance; the admin has been running on the system font stack since. The font is now back, bundled inside the plugin under `assets/fonts/manrope/` (six woff2 subset files, ~92 KB total, plus the OFL 1.1 license), with the `@font-face` declarations inlined at the top of `admin/css/xf-admin.css`. **No request is ever made to `fonts.googleapis.com` or `fonts.gstatic.com`** — the font ships locally so this remains compliant with the WordPress.org "no undisclosed external services" guideline.
 * **Form builder:** restored the always-visible "Click to edit button" hint on the Submit-button preview card. The hover-only `::after` affordance introduced in 2.5.2 was too subtle in practice — users were missing that the Submit area is editable. Back to the pre-2.5.2 behavior: the dashed outline, width badge (when floated), and italic gray hint all show by default; they still hide automatically when the Submit button is floated at 1/2 / 1/3 / 1/4 width so it can sit cleanly inline with the last row of fields.
@@ -303,6 +307,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.6 =
+Fixes a long-standing form-builder styling regression: the Submit-button preview card now reliably renders its dashed outline, hint, and width badge, and the WIDTH / HEIGHT / BUTTON SIZE preset chips show a clear selected state. Safe drop-in upgrade.
 
 = 2.5.5 =
 Restores the Manrope font on the admin UI (now bundled locally — no Google Fonts request) and the always-visible "Click to edit button" hint on the Submit-button preview. Safe drop-in upgrade.

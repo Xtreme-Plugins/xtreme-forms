@@ -1223,12 +1223,10 @@
         html += '<span class="xfb-rows-display" id="xfbs-rows-val">' + rowVal + ' line' + (rowVal === 1 ? '' : 's') + '</span>';
         html += '</div>';
         html += '<div style="display:flex;gap:4px;margin-top:6px;">';
-        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="1">1</button>';
-        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="2">2</button>';
-        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="3">3</button>';
-        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="4">4</button>';
-        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="6">6</button>';
-        html += '<button type="button" class="xfb-width-preset xfb-rows-preset" data-val="8">8</button>';
+        [1, 2, 3, 4, 6, 8].forEach(function (n) {
+          var act = (rowVal === n) ? ' is-active' : '';
+          html += '<button type="button" class="xfb-width-preset xfb-rows-preset' + act + '" data-val="' + n + '">' + n + '</button>';
+        });
         html += '</div>';
         html += '</div>';
       }
@@ -1247,10 +1245,11 @@
       html += '<div class="xfb-sp-field" id="xfbs-width-wrap"' + (field.float ? '' : ' style="display:none;"') + '>';
       html += '<label class="xfb-sp-label">Width</label>';
       html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
-      html += '<button type="button" class="xfb-width-preset" data-val="100">Full</button>';
-      html += '<button type="button" class="xfb-width-preset" data-val="50">1/2</button>';
-      html += '<button type="button" class="xfb-width-preset" data-val="33">1/3</button>';
-      html += '<button type="button" class="xfb-width-preset" data-val="25">1/4</button>';
+      var widthVal = String(field.width || '100');
+      [['100', 'Full'], ['50', '1/2'], ['33', '1/3'], ['25', '1/4']].forEach(function (pair) {
+        var act = (widthVal === pair[0]) ? ' is-active' : '';
+        html += '<button type="button" class="xfb-width-preset' + act + '" data-val="' + pair[0] + '">' + pair[1] + '</button>';
+      });
       html += '</div>';
       html += '<div class="xfb-sp-hint">Use 1/2 + 1/2 to place two fields side by side.</div>';
       html += '</div>';
@@ -1289,8 +1288,11 @@
       }
 
       // Width preset buttons — directly update the field prop (no number input).
-      body.querySelectorAll('.xfb-width-preset:not(.xfb-rows-preset):not(.xfb-col-preset)').forEach(function (btn) {
+      var widthBtns = body.querySelectorAll('.xfb-width-preset:not(.xfb-rows-preset):not(.xfb-col-preset)');
+      widthBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
+          widthBtns.forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
           self.updateFieldProp(field.id, 'width', btn.dataset.val);
         });
       });
@@ -1346,10 +1348,20 @@
           if (rowsDisplay) rowsDisplay.textContent = v + ' line' + (v === 1 ? '' : 's');
         });
         // Preset row buttons.
-        body.querySelectorAll('.xfb-rows-preset').forEach(function (btn) {
+        var rowBtns = body.querySelectorAll('.xfb-rows-preset');
+        rowBtns.forEach(function (btn) {
           btn.addEventListener('click', function () {
+            rowBtns.forEach(function (b) { b.classList.remove('is-active'); });
+            btn.classList.add('is-active');
             rowsSlider.value = btn.dataset.val;
             rowsSlider.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+        });
+        // Keep the chip in sync if the slider itself moves.
+        rowsSlider.addEventListener('input', function () {
+          var v = String(parseInt(rowsSlider.value, 10) || 1);
+          rowBtns.forEach(function (b) {
+            b.classList.toggle('is-active', b.dataset.val === v);
           });
         });
       }
