@@ -226,7 +226,7 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 						<div class="xf-btab-panel" id="xf-tab-general">
 
 							<?php /* Submit button label is configured in the right-sidebar field settings; preserve the existing value across saves. */ ?>
-							<input type="hidden" name="submit_label" value="<?php echo esc_attr( $submit_label ); ?>">
+							<input type="hidden" id="submit_label" name="submit_label" value="<?php echo esc_attr( $submit_label ); ?>">
 
 							<div class="xf-form-row">
 								<label class="xf-toggle-row-label">

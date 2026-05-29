@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.10] - 2026-05-29
+
+### Fixed
+- **Form-builder BUTTON TEXT input had no live connection to the canvas Submit button** (`admin/partials/xf-admin-form-builder.php:229`). The hidden bridge input was declared as `<input type="hidden" name="submit_label" value="…">` — `name=` but no `id=`. The builder JS reads it via `document.getElementById('submit_label')` (`admin/js/xf-builder.js:481` for `renderSubmitCard`, `:535` for the settings panel binding), which returned `null` because the element had no id. The wiring guard `if (inp && labelInput)` at line 651 then short-circuited, the live `input` event listener was never attached, the canvas re-render was never triggered, and — because the same hidden input is what the form-builder `<form>` POSTs on save — the OLD label was silently submitted to `admin-post.php` regardless of what the admin typed. End result: typing a new label did nothing visible on the canvas *and* the new label never made it to the frontend after the user clicked Save Form. Fixed with a one-character change: added `id="submit_label"` to the hidden input. (This is also the root cause of the "preview shows Submit, frontend shows a different label" report from the 2.5.9 cycle.)
+
 ## [2.5.9] - 2026-05-29
 
 ### Fixed

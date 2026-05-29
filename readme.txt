@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.9
+Stable tag: 2.5.10
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -195,6 +195,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.10 =
+* **Form builder: BUTTON TEXT now updates the canvas Submit button live + persists on save.** The hidden `<input name="submit_label">` in the partial was missing its matching `id="submit_label"` attribute, so `document.getElementById('submit_label')` in the builder JS returned `null`. The live-update event listener was guarded by `if (inp && labelInput)` which always skipped, the canvas card never re-rendered with the new label, **and** the unchanged hidden input's old value was the one saved on form submit. Net effect: typing a new label in the right-side panel did nothing on the canvas *and* the new label never reached the frontend after save. Fixed by adding `id="submit_label"` to the hidden input. (This is the root cause of the "preview shows one text, frontend shows another" report from earlier.)
+
 = 2.5.9 =
 * **Form builder:** the "Click to edit button" hint now sits cleanly *outside* the dashed Submit-card box on the right, with a small curved arrow pointing back into the button. Previously the hint was positioned `right: 14px` inside the box, which clipped or overlapped the button text whenever Width was set to 100%. Hidden automatically on narrow canvases (<980px) so it doesn't push the canvas wider than the form card.
 * **Public form:** the four button-size variants (Small / Medium / Large / XL) and the Full-width toggle now win against theme / Elementor / Bricks button rules — the size classes were getting silently overridden by higher-specificity selectors like `.elementor-form button[type="submit"]`. Scoped the variants under `.xf-form-wrap` and marked them `!important` so they consistently produce the same dimensions on every theme.
@@ -342,6 +345,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.10 =
+Fixes a missing `id` attribute on the `submit_label` hidden input that broke the form-builder's live "BUTTON TEXT" → canvas preview update AND silently prevented the new label from being saved. Safe drop-in upgrade.
 
 = 2.5.9 =
 Form builder Submit-card hint no longer overlaps the button at 100% width. Public form: button-size variants now beat theme CSS, Cloudflare Turnstile widget aligned cleanly. Safe drop-in upgrade.
