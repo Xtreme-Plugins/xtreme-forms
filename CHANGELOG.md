@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.5.7] - 2026-05-29
+
+### Added
+- **Public form: per-form `_setupInputEnhancements()` in `public/js/xf-public.js`.** Called once at `XLForm` construction, applies two UX enhancements field-by-field:
+  - **Phone (`input[type="tel"]`) live US formatting.** As the visitor types into a phone field, the value reformats to `(XXX) XXX-XXXX` with parens / space / hyphen interpolated in the right places (`(123`, `(123) 4`, `(123) 456-7890`). International numbers — anything starting with `+` — are detected and left untouched so a `+44 7700 900123` doesn't get mangled. Pre-populated values (browser autofill, server-supplied defaults) are normalised on first paint. Default placeholder set to `(555) 123-4567` only when the form admin hasn't configured one.
+  - **Date (`input[type="date"]`) one-click picker.** Browsers only open the native date picker when the visitor clicks the tiny calendar indicator at the right edge of the input — most users don't realise it's clickable. Now clicking anywhere on the field (or pressing Enter / Space when it has focus) calls `input.showPicker()` (Chrome, Edge, modern Firefox/Safari). Browsers without `showPicker` are no worse off than before. Wrapped in `try/catch` to absorb the SecurityError some browsers throw when the call wasn't user-initiated.
+
+### Changed
+- **Public CSS for date inputs (`public/css/xf-public.css`).** `input[type="date"].xf-input` now gets `cursor: pointer` so the field reads as a target. The `::-webkit-calendar-picker-indicator` is enlarged (`font-size: 18px; padding: 4px`) and starts at `opacity: 0.7`, fading to `1` on hover so the calendar glyph is visible at a glance.
+
+### Fixed
+- **`Save Form` button checkmark icon visibility (`admin/css/xf-builder.css`).** The `dashicons-saved` checkmark next to the button label was inheriting the dashicon default blue, making it invisible against the `button-primary` blue background. Pin to white (carried over from the unpushed local commit `f5084c5`).
+
 ## [2.5.6] - 2026-05-29
 
 ### Fixed

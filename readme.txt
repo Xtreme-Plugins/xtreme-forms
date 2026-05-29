@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: lead capture, contact form, leads, webhooks, analytics
 Tested up to: 7.0
-Stable tag: 2.5.6
+Stable tag: 2.5.7
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -173,6 +173,11 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.7 =
+* **Public form — phone fields auto-format as `(555) 123-4567`.** As the visitor types digits into a phone field the value live-formats US-style. International numbers (anything beginning with `+`) are left alone, so a `+44 7700 900123` still goes through unchanged. The field placeholder defaults to `(555) 123-4567` only when the form admin hasn't configured a different one.
+* **Public form — date fields open the picker on a single click anywhere in the field.** Previously the browser's date picker only opened when the visitor clicked the small calendar icon at the far right of the input. Now clicking anywhere on the field (or pressing Enter/Space when focused) calls `input.showPicker()`. The cursor turns into a pointer and the calendar icon is enlarged + brighter on hover so it actually reads as a target.
+* Also added the `Save Form` button white-checkmark fix from the previous local commit (the icon was inheriting the dashicon default blue and was invisible on the blue button).
+
 = 2.5.6 =
 * **Form builder — Submit card styling now actually loads.** The Submit-button preview, the "Click to edit button" hint, the width badge, and the dashed outline were all defined in a `<style>` block at the bottom of the form-builder partial that was being attached via `wp_add_inline_style()` *after* the page `<head>` had already shipped the parent stylesheet. On some hosts the inline CSS was being dropped entirely, leaving the Submit row with default browser styling (small blue button, hint sitting flush against it). Moved the ~300 lines of builder CSS into the properly-enqueued `admin/css/xf-builder.css` so they load with the rest of the builder stylesheet.
 * **Form builder — preset chips refreshed.** The HEIGHT (lines), WIDTH (Full / 1/2 / 1/3 / 1/4), and BUTTON SIZE (Small / Medium / Large / XL) chip buttons in the right-side field settings panel now use a cleaner light-on-white style with a clear blue-tinted "selected" state, matching the original 2.0.6 design. Active state is also wired up on first render — clicking a chip toggles the highlight and the slider (for HEIGHT) stays in sync.
@@ -307,6 +312,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.7 =
+Public form: phone fields auto-format as (555) 123-4567 while the visitor types, and date fields now open the browser picker on a single click anywhere in the field. Safe drop-in upgrade.
 
 = 2.5.6 =
 Fixes a long-standing form-builder styling regression: the Submit-button preview card now reliably renders its dashed outline, hint, and width badge, and the WIDTH / HEIGHT / BUTTON SIZE preset chips show a clear selected state. Safe drop-in upgrade.

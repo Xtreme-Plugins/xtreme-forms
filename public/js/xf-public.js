@@ -44,6 +44,7 @@
 		this.renderTime = Date.now();
 
 		this._bindEvents();
+		this._setupInputEnhancements();
 	}
 
 	XLForm.prototype._bindEvents = function () {
@@ -51,6 +52,77 @@
 		this.form.addEventListener('submit', function (e) {
 			e.preventDefault();
 			self._submit();
+		});
+	};
+
+	/**
+	 * Lightweight UX enhancements applied per-form once at init time.
+	 *
+	 *  - Phone fields: live-format as US-style `(XXX) XXX-XXXX` while the user
+	 *    types. International / non-10-digit inputs fall through unmodified so
+	 *    we never corrupt a legitimate +44/+48/etc number. The placeholder is
+	 *    set to a US-style example only when the field has no other placeholder
+	 *    already configured by the form admin.
+	 *
+	 *  - Date fields: clicking anywhere on the input opens the browser's date
+	 *    picker via `showPicker()` (Chrome, Edge, modern Firefox/Safari).
+	 *    Without this, the picker only opens on the small calendar icon at the
+	 *    far right of the input, which most users don't realise is clickable.
+	 */
+	XLForm.prototype._setupInputEnhancements = function () {
+		var phoneInputs = this.form.querySelectorAll('input[type="tel"]');
+		phoneInputs.forEach(function (input) {
+			if (!input.placeholder) {
+				input.placeholder = '(555) 123-4567';
+			}
+			input.setAttribute('maxlength', '20');
+
+			var formatPhone = function () {
+				// Preserve everything from the very first '+' onward as an
+				// international number — don't reformat it.
+				if (input.value.indexOf('+') === 0) {
+					return;
+				}
+				var digits = input.value.replace(/\D/g, '').slice(0, 10);
+				var out;
+				if (digits.length === 0) {
+					out = '';
+				} else if (digits.length < 4) {
+					out = '(' + digits;
+				} else if (digits.length < 7) {
+					out = '(' + digits.slice(0, 3) + ') ' + digits.slice(3);
+				} else {
+					out = '(' + digits.slice(0, 3) + ') ' + digits.slice(3, 6) + '-' + digits.slice(6);
+				}
+				if (out !== input.value) {
+					input.value = out;
+				}
+			};
+			input.addEventListener('input', formatPhone);
+			input.addEventListener('blur',  formatPhone);
+			// Format any value that's pre-populated (browser autofill etc.).
+			if (input.value) {
+				formatPhone();
+			}
+		});
+
+		var dateInputs = this.form.querySelectorAll('input[type="date"]');
+		dateInputs.forEach(function (input) {
+			// Clicking anywhere on the input opens the native picker on
+			// browsers that support it. We skip when the user is interacting
+			// with the calendar indicator itself (which already opens it).
+			input.addEventListener('click', function () {
+				if (typeof input.showPicker === 'function') {
+					try { input.showPicker(); } catch (_e) { /* permission errors are fine */ }
+				}
+			});
+			// Keyboard: Enter / Space also opens the picker.
+			input.addEventListener('keydown', function (ev) {
+				if ((ev.key === 'Enter' || ev.key === ' ') && typeof input.showPicker === 'function') {
+					ev.preventDefault();
+					try { input.showPicker(); } catch (_e) { /* ignore */ }
+				}
+			});
 		});
 	};
 

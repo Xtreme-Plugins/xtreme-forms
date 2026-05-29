@@ -175,6 +175,27 @@
   padding-right: 42px;
 }
 
+/* Date inputs: clicking anywhere on the field opens the picker via
+   showPicker() (see xf-public.js _setupInputEnhancements). Reflect that
+   in the cursor so it's obvious, and enlarge the native calendar
+   indicator so it actually looks like a target. */
+.xf-form-wrap input[type="date"].xf-input {
+  cursor: pointer;
+  padding-right: 16px;
+}
+
+.xf-form-wrap input[type="date"].xf-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.12s ease;
+}
+
+.xf-form-wrap input[type="date"].xf-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 /* Placeholder — explicit font-weight to beat theme's bold placeholder. */
 .xf-form-wrap .xf-input::placeholder,
 .xf-form-wrap .xf-select::placeholder,
