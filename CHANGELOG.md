@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.9] - 2026-05-29
+
+### Fixed
+- **Form-builder "Click to edit button" hint overlapped the button at 100% width** (`admin/css/xf-builder.css`). The hint was positioned `right: 14px` inside the dashed `.xfb-submit-preview` wrapper, which works when the button is medium-sized and left-aligned but clips or overlaps the button text the moment Width is set to 100% (Full). Moved the hint outside the wrapper via `left: calc(100% + 14px); right: auto`, set `.xfb-submit-preview { overflow: visible }` so it can poke out, and added a small inline SVG curved arrow as `::before` content that points back into the button. Hidden on canvases narrower than 980 px so it doesn't blow out the canvas width on small screens.
+- **Public-form button-size variants silently overridden by theme / page-builder CSS** (`public/css/xf-public.css`). `.xf-btn-size-{sm,md,lg,xl}` lived at single-class specificity (0,1,0). Themes that style submit buttons via `.elementor-form button[type="submit"]` (0,2,1), `.brxe-form button` etc. were beating us silently — admin set Small, frontend rendered the default 16 px / 12 px 32 px button. Re-scoped the four size rules and the full-width rule under `.xf-form-wrap` and marked the relevant declarations `!important`. The four sizes now consistently produce 6/16, 10/28, 14/36, 18/52 px padding regardless of the surrounding theme.
+
+### Changed
+- **Cloudflare Turnstile widget alignment** (`public/css/xf-public.css`). The `.xf-turnstile-wrap` had nothing but `margin-bottom: 20px` — Cloudflare's iframe sat sloppily off to one side, with too much vertical room around it. Wrapped it in a flex container with `justify-content: flex-start`, reserved 65 px of vertical clearance so the layout doesn't jump when the widget finishes loading, applied `transform: scale(0.92)` on the `.cf-turnstile` so it's slightly more compact, and rounded the iframe corners to match the rest of the form (6 px). All changes scoped under `.xf-form-wrap` so other Turnstile widgets on the page aren't affected.
+
 ## [2.5.8] - 2026-05-29
 
 ### Changed

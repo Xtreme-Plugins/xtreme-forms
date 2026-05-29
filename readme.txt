@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.8
+Stable tag: 2.5.9
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -195,6 +195,11 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.9 =
+* **Form builder:** the "Click to edit button" hint now sits cleanly *outside* the dashed Submit-card box on the right, with a small curved arrow pointing back into the button. Previously the hint was positioned `right: 14px` inside the box, which clipped or overlapped the button text whenever Width was set to 100%. Hidden automatically on narrow canvases (<980px) so it doesn't push the canvas wider than the form card.
+* **Public form:** the four button-size variants (Small / Medium / Large / XL) and the Full-width toggle now win against theme / Elementor / Bricks button rules — the size classes were getting silently overridden by higher-specificity selectors like `.elementor-form button[type="submit"]`. Scoped the variants under `.xf-form-wrap` and marked them `!important` so they consistently produce the same dimensions on every theme.
+* **Public form:** Cloudflare Turnstile widget now sits in a flex container with a small `transform: scale(0.92)` and a slight rounding, so it lines up with the form fields instead of floating sloppily off to one side. Min-height is reserved so the layout doesn't jump when the widget finishes loading.
+
 = 2.5.8 =
 * **Public form now renders in Manrope** (same as the admin since 2.5.5). The font was previously "Fira Sans" with a system fallback chain. The `@font-face` declarations point at the same `assets/fonts/manrope/` bundle the admin uses, so no second copy of the font files is shipped and no request is made to `fonts.googleapis.com` or `fonts.gstatic.com`. All hardcoded `font-family: "Fira Sans"` declarations in `public/css/xf-public.css` (5 of them) were swapped to `var(--xf-font)` so they inherit the Manrope-first stack.
 
@@ -337,6 +342,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.9 =
+Form builder Submit-card hint no longer overlaps the button at 100% width. Public form: button-size variants now beat theme CSS, Cloudflare Turnstile widget aligned cleanly. Safe drop-in upgrade.
 
 = 2.5.8 =
 Public form now renders in Manrope (same font as the admin, served from the bundled `assets/fonts/manrope/` files — no external request). Safe drop-in upgrade.

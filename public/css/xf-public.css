@@ -770,14 +770,17 @@
   cursor: not-allowed;
 }
 
-/* Button size variants */
-.xf-btn-size-sm { font-size: 12px; padding: 6px 16px; }
-.xf-btn-size-md { font-size: 14px; padding: 10px 28px; }
-.xf-btn-size-lg { font-size: 16px; padding: 14px 36px; }
-.xf-btn-size-xl { font-size: 19px; padding: 18px 52px; }
+/* Button size variants — scoped under .xf-form-wrap and !-marked to win
+   against theme / Elementor / Bricks button rules that often hit our
+   submit button with their own padding+font-size at higher specificity
+   (.elementor-form button[type="submit"] etc). */
+.xf-form-wrap .xf-btn-submit.xf-btn-size-sm { font-size: 12px !important; padding: 6px 16px !important; }
+.xf-form-wrap .xf-btn-submit.xf-btn-size-md { font-size: 14px !important; padding: 10px 28px !important; }
+.xf-form-wrap .xf-btn-submit.xf-btn-size-lg { font-size: 16px !important; padding: 14px 36px !important; }
+.xf-form-wrap .xf-btn-submit.xf-btn-size-xl { font-size: 19px !important; padding: 18px 52px !important; }
 
-/* Full width button */
-.xf-btn-full-width { width: 100%; display: block; }
+/* Full width button (also needs the scoping for the same reason). */
+.xf-form-wrap .xf-btn-submit.xf-btn-full-width { width: 100%; display: block; }
 
 /* ── Thank-you message ───────────────────────────────────────────────────── */
 .xf-thank-you {
@@ -893,6 +896,24 @@
 }
 
 /* ── Turnstile widget ────────────────────────────────────────────────────── */
-.xf-turnstile-wrap {
-  margin-bottom: 20px;
+/* Cloudflare's iframe ships at a fixed pixel width; without a flex parent
+   and a tightened scale it sat sloppily off to the left with too much vertical
+   space. Center it, give it a clean clearance from the surrounding fields,
+   and scale it down a touch so it doesn't dominate the form. */
+.xf-form-wrap .xf-turnstile-wrap {
+  margin: 8px 0 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 65px;
+  clear: both;
+}
+
+.xf-form-wrap .xf-turnstile-wrap .cf-turnstile {
+  transform: scale(0.92);
+  transform-origin: left center;
+}
+
+.xf-form-wrap .xf-turnstile-wrap .cf-turnstile iframe {
+  border-radius: 6px;
 }
