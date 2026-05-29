@@ -198,7 +198,15 @@ class Xtremeforms_Admin {
 	// ── Asset enqueueing ─────────────────────────────────────────────────────
 
 	public function enqueue_assets( string $hook ): void {
-		if ( false === strpos( $hook, 'xtreme-forms' ) ) {
+		// Most of our pages use the slug prefix `xtreme-forms-…`, so `$hook`
+		// contains the literal `xtreme-forms`. The hidden welcome page is
+		// registered as `xtremeforms-welcome` (no hyphen between xtreme and
+		// forms — different convention from the rest), which gives a hook
+		// of `admin_page_xtremeforms-welcome`. Match both spellings so the
+		// welcome screen actually gets the Manrope font + card / button /
+		// layout CSS it needs.
+		if ( false === strpos( $hook, 'xtreme-forms' )
+			&& false === strpos( $hook, 'xtremeforms' ) ) {
 			return;
 		}
 

@@ -18,18 +18,14 @@ $docs_url    = 'https://xtremeplugins.com/docs/xtreme-forms/';
 $video_url   = '#'; // Replace with actual YouTube URL when available.
 ?>
 
-<div class="xf-welcome-wrap">
+<div class="wrap xf-wrap xf-welcome-wrap">
 
 	<!-- ── Header ─────────────────────────────────────────────── -->
 	<div class="xf-welcome-header">
 		<div class="xf-welcome-logo">
-			<!-- Inline SVG: envelope + form lines icon -->
-			<svg width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-				<rect x="3" y="8" width="34" height="24" rx="3" fill="#2271b1"/>
-				<path d="M3 11l17 11L37 11" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-				<rect x="11" y="20" width="10" height="2" rx="1" fill="rgba(255,255,255,0.55)"/>
-				<rect x="11" y="24" width="7" height="2" rx="1" fill="rgba(255,255,255,0.55)"/>
-			</svg>
+			<img src="<?php echo esc_url( XTREMEFORMS_PLUGIN_URL . 'assets/img/xtreme-forms-icon.png' ); ?>"
+				width="72" height="72"
+				alt="<?php esc_attr_e( 'Xtreme Forms', 'xtreme-forms' ); ?>">
 		</div>
 		<h1><?php esc_html_e( 'Welcome to Xtreme Forms', 'xtreme-forms' ); ?></h1>
 		<p><?php esc_html_e( 'Thank you for choosing Xtreme Forms — the most powerful lead capture plugin for WordPress.', 'xtreme-forms' ); ?></p>

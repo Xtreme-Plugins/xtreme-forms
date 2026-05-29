@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.15] - 2026-05-29
+
+### Fixed
+- **Welcome screen rendered as raw HTML on WordPress's default admin styling** (`admin/class-xf-admin.php:201`). The asset enqueue check was `if ( false === strpos( $hook, 'xtreme-forms' ) ) { return; }`. Almost every visible menu page is registered with a slug like `xtreme-forms-leads`, `xtreme-forms-forms`, etc., so the `$hook` contains the literal `xtreme-forms` and the check matched. The hidden welcome page was registered as `xtremeforms-welcome` (no hyphen between *xtreme* and *forms* — different from the rest of the slug convention), which gives `$hook = 'admin_page_xtremeforms-welcome'`. The substring `xtreme-forms` is *not* present, so the function returned early and *neither* `admin/css/xf-admin.css` nor `admin/js/xf-admin.js` was loaded. The 2.5.14 fix that moved the welcome CSS *into* `xf-admin.css` made the underlying enqueue gap visible. Widened the check to match both `xtreme-forms` and `xtremeforms`.
+
+### Changed
+- **Welcome screen polish**:
+  - Page wrapper now carries `wrap xf-wrap xf-welcome-wrap` (was just `xf-welcome-wrap`) so the WordPress admin layout primitives, the plugin's Manrope font stack via `--xf-font`, and the welcome-specific layout all apply together.
+  - Hero logo replaced from an inline placeholder envelope SVG with the actual Xtreme Forms brand icon — bundled at `assets/img/xtreme-forms-icon.png` (128×128 PNG copied from the WP.org listing icon). Rendered at 72 × 72 inside an 88 × 88 white card.
+  - Logo card upgraded from a flat circle (`background: #e8f0fe; border-radius: 50%`) to a rounded square (22 px corners) with a teal-tinted box shadow plus a subtle radial accent behind it on the header surface so the welcome screen reads as a branded product surface rather than a generic admin page.
+
 ## [2.5.14] - 2026-05-29
 
 ### Fixed

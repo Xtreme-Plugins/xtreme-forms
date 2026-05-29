@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.14
+Stable tag: 2.5.15
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -209,6 +209,10 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 
 == Changelog ==
 
+= 2.5.15 =
+* **Welcome screen now actually carries the Xtreme Forms styling and brand icon.** The asset enqueue check only matched hooks containing `xtreme-forms` (with the hyphen used by the visible menu pages), so the welcome page's hook `admin_page_xtremeforms-welcome` (no hyphen between *xtreme* and *forms*) silently fell through and *neither* `admin/css/xf-admin.css` nor `admin/js/xf-admin.js` got loaded. The page rendered as raw HTML on WordPress's default admin styling — no Manrope, no cards, no colors. Widened the hook match so both spellings load the assets. Also added the `wrap xf-wrap` classes alongside `xf-welcome-wrap` on the page wrapper so the base palette inherits correctly.
+* **Welcome screen logo is the actual Xtreme Forms brand icon** (bundled at `assets/img/xtreme-forms-icon.png`, 128×128 PNG with the same design as the WP.org listing icon) instead of the placeholder envelope SVG. The logo container picked up a soft white card + subtle teal-tinted radial accent behind it and a rounded 22 px corner so the welcome screen reads as a product surface rather than a generic admin page.
+
 = 2.5.14 =
 * **Fixed: welcome screen rendered as a giant unscaled SVG icon filling the entire viewport.** Two-part fix: (1) the hero envelope SVG was declared without `width`/`height` attributes — browsers fall back to 300×150 or fill the parent if there's no CSS sizing. Added explicit `width="38" height="38"` so it can never grow unbounded again. (2) The welcome-page CSS lived in an `ob_start`/`ob_get_clean`/`wp_add_inline_style` block at the top of the partial; on hosts where late-attached inline styles get dropped, the entire welcome-screen stylesheet vanished and the SVG defaulted to the browser's enormous fallback. Moved the ~380 lines of welcome CSS into the properly-enqueued `admin/css/xf-admin.css` so it loads reliably (same pattern as the 2.5.6 form-builder fix).
 
@@ -371,6 +375,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.15 =
+Welcome screen now actually loads the plugin's stylesheet (hook match was too narrow) and uses the real Xtreme Forms brand icon. Safe drop-in upgrade.
 
 = 2.5.14 =
 Fixes the welcome screen rendering as a giant unscaled SVG icon on first activation. Safe drop-in upgrade.

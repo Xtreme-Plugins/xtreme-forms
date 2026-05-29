@@ -3608,35 +3608,68 @@
 
 /* ── Xtreme Forms Welcome Screen styles (scoped to .xf-welcome-wrap) ── */
 .xf-welcome-wrap {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	/* Inherit Manrope from .xf-wrap parent class — the wrapper now carries
+	   `wrap xf-wrap xf-welcome-wrap` so the welcome screen uses the same
+	   typography as the rest of the admin. */
+	font-family: var(--xf-font, 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 	color: #1d2327;
 	max-width: 1000px;
 	margin: 20px auto 40px;
 	padding: 0 20px;
+	background: transparent;
 }
 
-/* Header */
+/* Header — soft gradient surface using the brand teal so the welcome screen
+   reads as a product surface, not a generic admin page. */
 .xf-welcome-header {
-	background: #fff;
-	border-radius: 10px;
-	box-shadow: 0 2px 12px rgba(0,0,0,.08);
-	padding: 48px 40px 40px;
+	background: linear-gradient(135deg, #ffffff 0%, #f4fbfa 100%);
+	border: 1px solid rgba(10, 186, 181, 0.12);
+	border-radius: 14px;
+	box-shadow: 0 8px 28px rgba(10, 186, 181, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+	padding: 56px 40px 44px;
 	text-align: center;
-	margin-bottom: 24px;
+	margin-bottom: 28px;
+	position: relative;
+	overflow: hidden;
 }
+
+/* Subtle radial accent behind the logo */
+.xf-welcome-header::before {
+	content: '';
+	position: absolute;
+	top: -120px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 360px;
+	height: 360px;
+	background: radial-gradient(circle, rgba(10, 186, 181, 0.10) 0%, rgba(10, 186, 181, 0) 70%);
+	pointer-events: none;
+	z-index: 0;
+}
+
+.xf-welcome-header > * {
+	position: relative;
+	z-index: 1;
+}
+
 .xf-welcome-logo {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background: #e8f0fe;
-	border-radius: 50%;
+	background: #ffffff;
+	border-radius: 22px;
+	width: 88px;
+	height: 88px;
+	margin: 0 auto 22px;
+	box-shadow: 0 6px 20px rgba(10, 186, 181, 0.20), 0 1px 3px rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+}
+.xf-welcome-logo img,
+.xf-welcome-logo svg {
 	width: 72px;
 	height: 72px;
-	margin: 0 auto 20px;
-}
-.xf-welcome-logo svg {
-	width: 38px;
-	height: 38px;
+	display: block;
+	border-radius: 16px;
 }
 .xf-welcome-header h1 {
 	font-size: 32px;
