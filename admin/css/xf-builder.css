@@ -56,6 +56,12 @@
   font-weight: 600;
 }
 
+/* WordPress dashicons default to a blue color; on the primary-blue Save Form
+   button that makes the saved-checkmark icon invisible. Force white. */
+.xfb-save-btn .dashicons {
+  color: #fff !important;
+}
+
 /* ── Left Palette ────────────────────────────────────────────────────────── */
 
 .xfb-palette {
