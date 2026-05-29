@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead generation, forms, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.11
+Stable tag: 2.5.12
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -15,6 +15,14 @@ Drag-and-drop contact form & lead capture plugin. Email routing, webhooks, analy
 **Xtreme Forms** is a modern, drag-and-drop **contact form and lead capture plugin** for WordPress. Build any form you need — contact forms, quote requests, event registrations, newsletter signups, multi-step lead qualification — then capture every submission into a built-in lead inbox, route email notifications to the right person, fire webhooks to your CRM, and track conversions on a clean analytics dashboard.
 
 **No upsells. No "Pro-only" features hidden inside the free download.** Every feature listed below ships in the free plugin and is fully functional out of the box. The optional Pro add-on (sold separately at xtremeplugins.com) only adds advanced routing rules, retry queues, and extended analytics — it never gates or limits any feature you see on this page.
+
+= Useful Links =
+
+* **Plugin homepage:** [https://xtremeplugins.com/plugins/xtreme-forms](https://xtremeplugins.com/plugins/xtreme-forms) — overview, screenshots, live demo
+* **Features:** [https://xtremeplugins.com/plugins/xtreme-forms#features](https://xtremeplugins.com/plugins/xtreme-forms#features) — full feature breakdown with comparison vs other form plugins
+* **Pricing:** [https://xtremeplugins.com/plugins/xtreme-forms/pricing](https://xtremeplugins.com/plugins/xtreme-forms/pricing) — Pro add-on plans (free plugin stays free forever)
+* **Support:** the [WordPress.org support forum](https://wordpress.org/support/plugin/xtreme-forms/) for free-version questions; Pro subscribers get priority support at xtremeplugins.com
+* **Source / issues:** [GitHub](https://github.com/Xtreme-Plugins/xtreme-forms)
 
 = Why Xtreme Forms? =
 
@@ -62,12 +70,18 @@ Skip the blank canvas. Xtreme Forms ships ready-to-go templates for the forms yo
 
 = Optional Pro Add-On =
 
-An optional paid add-on from the author is available at https://xtremeplugins.com/plugins/xtreme-forms. It is not required for any feature listed above and is not bundled with this plugin.
+An optional paid add-on is sold separately by the author. It is **not required for any feature listed above** and is **not bundled with this plugin**.
+
+* **Plugin page (overview + demo):** [xtremeplugins.com/plugins/xtreme-forms](https://xtremeplugins.com/plugins/xtreme-forms)
+* **Full feature list:** [xtremeplugins.com/plugins/xtreme-forms#features](https://xtremeplugins.com/plugins/xtreme-forms#features)
+* **Pricing & plans:** [xtremeplugins.com/plugins/xtreme-forms/pricing](https://xtremeplugins.com/plugins/xtreme-forms/pricing)
+
+What the Pro add-on adds on top of the free download:
 
 * Priority routing rules with complex AND/OR conditions
 * Webhook retry queue with exponential backoff
 * Advanced analytics: cohort analysis, lead value tracking
-* Priority email support
+* Priority email support from the developer
 
 == External services ==
 
@@ -194,6 +208,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.5.12 =
+* **Readme:** added a prominent "Useful Links" block at the top of the WP.org listing description with direct links to the [plugin homepage](https://xtremeplugins.com/plugins/xtreme-forms), the [#features section](https://xtremeplugins.com/plugins/xtreme-forms#features), and the [pricing page](https://xtremeplugins.com/plugins/xtreme-forms/pricing). Also restructured the "Optional Pro Add-On" section further down to surface the same three subpage links instead of a single generic homepage link. Source / issues link added to the GitHub repo. No code changes.
 
 = 2.5.11 =
 * **Public-form Submit button now matches the canvas preview height across all themes.** 2.5.9 locked padding and font-size with `!important`, but themes like Astra, GeneratePress, Elementor, Bricks, Divi and most page-builder form addons also set `min-height: 50px+`, `line-height: 2`, and (sometimes) `height: auto !important` on `button[type="submit"]` — that's what was inflating the rendered button to 2–3× the size the admin chose. Added `line-height: 1.4`, `min-height: 0`, `height: auto`, `text-transform: none`, and `border: none` locks on both the base `.xf-btn-submit` rule and every `xf-btn-size-{sm,md,lg,xl}` variant. The frontend button now renders at exactly the dimensions the admin previews on the form-builder canvas.
@@ -348,6 +365,9 @@ Please use the WordPress.org support forum for this plugin, or file an issue at 
 * Clean uninstall — removes all tables and options
 
 == Upgrade Notice ==
+
+= 2.5.12 =
+Readme-only update — adds direct links to the plugin homepage, features overview, and pricing page on xtremeplugins.com. No code changes; safe to upgrade.
 
 = 2.5.11 =
 Public-form Submit button now matches the form-builder canvas preview height — theme/page-builder line-height + min-height rules no longer inflate it 2–3× past the chosen Size. Safe drop-in upgrade.

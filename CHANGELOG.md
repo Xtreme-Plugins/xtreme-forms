@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.12] - 2026-05-29
+
+### Changed
+- **readme.txt** — added a "Useful Links" block at the top of the Description with direct links to the plugin homepage, features section, and pricing page on xtremeplugins.com; reworked the "Optional Pro Add-On" section to surface the same three subpage links + a GitHub source/issues link.
+
 ## [2.5.11] - 2026-05-29
 
 ### Fixed
