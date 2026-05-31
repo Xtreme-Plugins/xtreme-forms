@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead capture, wp form, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.16
+Stable tag: 2.5.17
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -248,6 +248,9 @@ Please use the [WordPress.org support forum](https://wordpress.org/support/plugi
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.5.17 =
+* Add plugin-row action links: Settings, Documentation, Get Support, Upgrade to Pro.
 
 = 2.5.16 =
 * **Major readme + plugin-name SEO pass for WordPress.org discovery.** Plugin name expanded from `Xtreme Forms` to `Xtreme Forms – WP Contact Form Builder, Lead Capture, Form to Email & Webhooks` (matches WP.org's heavily-weighted title-search signal for `wp form`, `contact form`, `form builder`, `lead capture`, and `form to email` queries). Short description rewritten to lead with `Free WP contact form plugin … Lightweight WPForms alternative.` Tag set rebalanced from generic `forms` + `lead generation` to higher-intent `lead capture` + `wp form`. New "Switching From Another WordPress Form Plugin?" section covers migration from WPForms / Contact Form 7 / Gravity Forms / Ninja Forms / Formidable / Forminator / Fluent Forms. New "Works With Your Page Builder" section names Elementor, Bricks, Beaver Builder, Divi, Oxygen, WPBakery, block themes, and the classic editor. FAQ expanded from 7 questions to 10, each one targeting a high-volume long-tail WP.org search. No code changes.
