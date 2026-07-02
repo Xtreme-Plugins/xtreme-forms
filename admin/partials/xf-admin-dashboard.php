@@ -27,7 +27,29 @@ $top_forms      = Xtremeforms_Analytics::top_forms( 5 );
 $utm_data       = Xtremeforms_Analytics::utm_breakdown();
 
 $total_leads = $kpi_all_time;
-$has_forms   = ! empty( Xtremeforms_Forms::get_all_forms() );
+$xf_all_forms = Xtremeforms_Forms::get_all_forms();
+$has_forms    = ! empty( $xf_all_forms );
+
+// Form id => name map (used to label blocked-submission rows).
+$forms_map = array();
+foreach ( $xf_all_forms as $xf_form_obj ) {
+	$forms_map[ (int) $xf_form_obj->id ] = $xf_form_obj->name;
+}
+
+// Blocked / spam submissions — surfaced on the dashboard so a spam rule (e.g. the
+// honeypot) silently eating a real lead is always visible, not hidden in a sub-page.
+$spam_total     = 0;
+$spam_recent    = array();
+$spam_by_reason = array();
+$reason_labels  = array();
+$spam_log_url   = add_query_arg( array( 'page' => 'xtreme-forms-spam-log' ), admin_url( 'admin.php' ) );
+if ( class_exists( 'Xtremeforms_Spam' ) ) {
+	$spam_log       = Xtremeforms_Spam::get_log( array( 'page' => 1 ) );
+	$spam_total     = (int) ( $spam_log['total'] ?? 0 );
+	$spam_recent    = array_slice( $spam_log['items'] ?? array(), 0, 5 );
+	$spam_by_reason = Xtremeforms_Spam::count_blocked_by_reason();
+	$reason_labels  = Xtremeforms_Spam::get_reason_labels();
+}
 
 $add_form_url = add_query_arg(
 	array(
@@ -419,6 +441,97 @@ $kpi_this_week_url = add_query_arg(
 					</div>
 				<?php endif; ?>
 			</div>
+		</div>
+	</div>
+
+	<!-- ── Blocked Submissions (spam) ─────────────────────────────────────── -->
+	<div class="xf-card xf-spam-panel">
+		<style>
+			.xf-spam-panel .xf-spam-reasons { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+			.xf-spam-panel .xf-spam-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; font-size:12px; font-weight:600; }
+			.xf-spam-panel .xf-spam-chip-count { background:#dc2626; color:#fff; border-radius:999px; padding:1px 7px; font-size:11px; line-height:1.4; }
+			.xf-spam-panel .xf-spam-note { margin:0 0 12px; color:#6b7280; font-size:12px; }
+			.xf-spam-panel table.xf-spam-table { width:100%; border-collapse:collapse; font-size:13px; }
+			.xf-spam-panel .xf-spam-table th, .xf-spam-panel .xf-spam-table td { text-align:left; padding:8px 10px; border-bottom:1px solid #eef0f2; vertical-align:top; }
+			.xf-spam-panel .xf-spam-table th { color:#6b7280; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.03em; }
+			.xf-spam-panel .xf-spam-reason-tag { display:inline-block; padding:2px 8px; border-radius:4px; background:#fef2f2; color:#991b1b; font-size:11px; font-weight:600; }
+			.xf-spam-panel .xf-spam-src { color:#6b7280; word-break:break-all; }
+		</style>
+		<div class="xf-card-header">
+			<h2><?php esc_html_e( 'Blocked Submissions', 'xtreme-forms' ); ?></h2>
+			<a href="<?php echo esc_url( $spam_log_url ); ?>" class="xf-card-link"><?php esc_html_e( 'View spam log →', 'xtreme-forms' ); ?></a>
+		</div>
+		<div class="xf-card-body">
+			<?php if ( $spam_total > 0 ) : ?>
+				<p class="xf-spam-note">
+					<?php
+					printf(
+						/* translators: %s: number of blocked submissions (bold). */
+						esc_html( _n(
+							'%s submission was caught by spam protection and was NOT saved as a lead. Review it to catch false positives.',
+							'%s submissions were caught by spam protection and were NOT saved as leads. Review them to catch false positives.',
+							$spam_total,
+							'xtreme-forms'
+						) ),
+						'<strong>' . esc_html( number_format_i18n( $spam_total ) ) . '</strong>'
+					);
+					?>
+				</p>
+
+				<div class="xf-spam-reasons">
+					<?php
+					foreach ( $spam_by_reason as $reason_key => $reason_count ) :
+						if ( $reason_count <= 0 ) {
+							continue;
+						}
+						$reason_label = $reason_labels[ $reason_key ] ?? ucwords( str_replace( '_', ' ', (string) $reason_key ) );
+						?>
+						<span class="xf-spam-chip">
+							<?php echo esc_html( $reason_label ); ?>
+							<span class="xf-spam-chip-count"><?php echo esc_html( number_format_i18n( $reason_count ) ); ?></span>
+						</span>
+					<?php endforeach; ?>
+				</div>
+
+				<table class="xf-spam-table">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'When', 'xtreme-forms' ); ?></th>
+							<th><?php esc_html_e( 'Form', 'xtreme-forms' ); ?></th>
+							<th><?php esc_html_e( 'Reason', 'xtreme-forms' ); ?></th>
+							<th><?php esc_html_e( 'Email / IP', 'xtreme-forms' ); ?></th>
+							<th><?php esc_html_e( 'Source', 'xtreme-forms' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+						foreach ( $spam_recent as $entry ) :
+							$entry_form   = $forms_map[ (int) $entry->form_id ] ?? sprintf(
+								/* translators: %d: form ID. */
+								__( 'Form #%d', 'xtreme-forms' ),
+								(int) $entry->form_id
+							);
+							$entry_reason = $reason_labels[ $entry->rejection_reason ] ?? ucwords( str_replace( '_', ' ', (string) $entry->rejection_reason ) );
+							$entry_when   = get_date_from_gmt( $entry->created_at, 'M j, g:i a' );
+							$entry_who    = ! empty( $entry->submitted_email ) ? $entry->submitted_email : ( $entry->ip_address ?: '—' );
+							$entry_src    = ! empty( $entry->source_url ) ? ( wp_parse_url( $entry->source_url, PHP_URL_PATH ) ?: $entry->source_url ) : '—';
+							?>
+							<tr>
+								<td><?php echo esc_html( $entry_when ); ?></td>
+								<td><?php echo esc_html( $entry_form ); ?></td>
+								<td><span class="xf-spam-reason-tag"><?php echo esc_html( $entry_reason ); ?></span></td>
+								<td><?php echo esc_html( $entry_who ); ?></td>
+								<td class="xf-spam-src"><?php echo esc_html( $entry_src ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php else : ?>
+				<div class="xf-empty-state-inline">
+					<span class="dashicons dashicons-shield xf-empty-icon-sm"></span>
+					<p><?php esc_html_e( 'No submissions have been blocked. Any spam-filtered submissions will appear here so you can spot false positives.', 'xtreme-forms' ); ?></p>
+				</div>
+			<?php endif; ?>
 		</div>
 	</div>
 

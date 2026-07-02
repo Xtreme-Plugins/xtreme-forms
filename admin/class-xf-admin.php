@@ -46,7 +46,10 @@ class Xtremeforms_Admin {
 			'xtreme-forms',
 			array( $this, 'page_dashboard' ),
 			'dashicons-email-alt',
-			null
+			// Position 2.1 places the menu immediately under Dashboard (2), above the
+			// first separator (4). A float keeps it on its own string key so it never
+			// overwrites another plugin's integer menu position (WP 5.3+ behaviour).
+			2.1
 		);
 
 		add_submenu_page(
@@ -434,7 +437,15 @@ class Xtremeforms_Admin {
 		// phpcs:disable WordPress.Security.NonceVerification -- Read-only URL params for admin page routing, no state change.
 		$xf_action = isset( $_GET['xtremeforms_action'] ) ? sanitize_text_field( wp_unslash( $_GET['xtremeforms_action'] ) ) : '';
 		$lead_id   = isset( $_GET['lead_id'] ) ? absint( $_GET['lead_id'] ) : 0;
+		$xf_view   = isset( $_GET['xtremeforms_view'] ) ? sanitize_key( wp_unslash( $_GET['xtremeforms_view'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification
+
+		// "View" dropdown on the leads inbox → show the blocked / spam submissions.
+		// Reuses the self-contained Spam Log page; chosen via ?xtremeforms_view=spam.
+		if ( 'spam' === $xf_view ) {
+			require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-spam-log.php';
+			return;
+		}
 
 		if ( 'view' === $xf_action && $lead_id ) {
 			require_once XTREMEFORMS_PLUGIN_DIR . 'admin/partials/xf-admin-lead-detail.php';
@@ -911,6 +922,7 @@ class Xtremeforms_Admin {
 			'submit_btn_size'         => in_array( sanitize_text_field( wp_unslash( $_POST['submit_btn_size'] ?? 'md' ) ), array( 'sm', 'md', 'lg', 'xl' ), true ) ? sanitize_text_field( wp_unslash( $_POST['submit_btn_size'] ) ) : 'md',
 			'submit_full_width'       => isset( $_POST['submit_full_width'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['submit_full_width'] ) ) ? '1' : '0',
 			'remove_background'       => isset( $_POST['remove_background'] ) ? '1' : '0',
+			'hide_labels'             => isset( $_POST['hide_labels'] ) ? '1' : '0',
 		);
 
 		// Scheduling datetime values.

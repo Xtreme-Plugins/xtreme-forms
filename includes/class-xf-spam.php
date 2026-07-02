@@ -118,6 +118,30 @@ class Xtremeforms_Spam {
 	}
 
 	/**
+	 * Count blocked submissions grouped by rejection reason.
+	 *
+	 * Used by the dashboard "Blocked Submissions" panel so admins can see how
+	 * many legitimate-looking submissions each spam rule is catching (and spot
+	 * false positives such as an over-eager honeypot).
+	 *
+	 * @return array<string,int> Map of rejection_reason => count.
+	 */
+	public static function count_blocked_by_reason(): array {
+		global $wpdb;
+		$table = $wpdb->prefix . 'xtremeforms_spam_log';
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results( "SELECT rejection_reason, COUNT(*) AS cnt FROM {$table} GROUP BY rejection_reason" );
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		$out = array();
+		foreach ( $rows ?: array() as $row ) {
+			$out[ (string) $row->rejection_reason ] = (int) $row->cnt;
+		}
+		return $out;
+	}
+
+	/**
 	 * Delete a single spam log entry.
 	 *
 	 * @param int $id Log entry ID.

@@ -3,7 +3,7 @@
  * Plugin Name:       Xtreme Forms – WP Contact Form Builder, Lead Capture, Form to Email & Webhooks
  * Plugin URI:        https://xtremeplugins.com/plugins/xtreme-forms/
  * Description:       Lead capture forms with database storage, email routing, webhooks, analytics, spam protection, GDPR tools, and multisite support.
- * Version:           2.5.17
+ * Version:           2.7.0
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            XtremePlugins
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'XTREMEFORMS_VERSION', '2.5.17' );
+define( 'XTREMEFORMS_VERSION', '2.7.0' );
 define( 'XTREMEFORMS_PLUGIN_FILE', __FILE__ );
 define( 'XTREMEFORMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'XTREMEFORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -26,7 +26,7 @@ define( 'XTREMEFORMS_TEXT_DOMAIN', 'xtreme-forms' );
 // Plugin action links (Settings, Docs, Support, Pro) on the Plugins screen.
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function ( $links ) {
 	$settings_link = '<a href="' . admin_url( 'admin.php?page=xtreme-forms' ) . '">' . __( 'Settings', 'xtreme-forms' ) . '</a>';
-	$doc_link      = '<a href="https://xtremeplugins.com/doc-plugin/xtreme-forms/" target="_blank">' . __( 'Documentation', 'xtreme-forms' ) . '</a>';
+	$doc_link      = '<a href="https://xtremeplugins.com/docs/xtreme-forms/" target="_blank">' . __( 'Documentation', 'xtreme-forms' ) . '</a>';
 	$support_link  = '<a href="https://xtremeplugins.com/support/" target="_blank">' . __( 'Get Support', 'xtreme-forms' ) . '</a>';
 	$pro_link      = '<a href="https://xtremeplugins.com/pricing/" target="_blank" style="color:#ff6600;font-weight:bold;">' . __( 'Upgrade to Pro', 'xtreme-forms' ) . '</a>';
 	array_unshift( $links, $settings_link );
@@ -90,6 +90,10 @@ function xtremeforms_init(): void {
 	if ( is_admin() ) {
 		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/class-xf-admin.php';
 		new Xtremeforms_Admin();
+
+		// Dashboard overview widget (wp-admin Dashboard "at a glance" panel).
+		require_once XTREMEFORMS_PLUGIN_DIR . 'admin/class-xf-dashboard-widget.php';
+		new Xtremeforms_Dashboard_Widget();
 	}
 
 	// Shortcode.

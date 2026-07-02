@@ -65,6 +65,7 @@ $consent_label    = $settings['consent_label'] ?? '';
 $consent_url      = $settings['consent_url'] ?? '';
 $form_recaptcha   = ! empty( $settings['recaptcha_enabled'] ) && '1' === (string) $settings['recaptcha_enabled'];
 $remove_background = ! empty( $settings['remove_background'] ) && '1' === (string) $settings['remove_background'];
+$hide_labels      = ! empty( $settings['hide_labels'] ) && '1' === (string) $settings['hide_labels'];
 $countdown_enabled  = ! empty( $settings['countdown_timer_enabled'] ) && '1' === (string) $settings['countdown_timer_enabled'];
 $closed_message_val = $form ? ( $form->closed_message ?? '' ) : '';
 $activate_at_val    = ( $form && ! empty( $form->activate_at ) && '0000-00-00 00:00:00' !== $form->activate_at )
@@ -214,33 +215,20 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 
 						<!-- Tab nav -->
 						<div class="xf-builder-tabs" role="tablist">
-							<button type="button" class="xf-btab xf-btab-active" data-tab="general"  role="tab" aria-selected="true"><?php esc_html_e( 'General', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab xf-btab-active" data-tab="styling"  role="tab" aria-selected="true"><?php esc_html_e( 'Styling', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="general"  role="tab"><?php esc_html_e( 'General', 'xtreme-forms' ); ?></button>
 							<button type="button" class="xf-btab" data-tab="notify"   role="tab"><?php esc_html_e( 'Email', 'xtreme-forms' ); ?></button>
+							<button type="button" class="xf-btab" data-tab="spam"     role="tab"><?php esc_html_e( 'Spam', 'xtreme-forms' ); ?></button>
 							<button type="button" class="xf-btab" data-tab="gdpr"     role="tab"><?php esc_html_e( 'GDPR', 'xtreme-forms' ); ?></button>
 							<button type="button" class="xf-btab" data-tab="schedule" role="tab"><?php esc_html_e( 'Schedule', 'xtreme-forms' ); ?></button>
-							<button type="button" class="xf-btab" data-tab="spam"     role="tab"><?php esc_html_e( 'Spam', 'xtreme-forms' ); ?></button>
-							<button type="button" class="xf-btab" data-tab="styling"  role="tab"><?php esc_html_e( 'Styling', 'xtreme-forms' ); ?></button>
 						</div>
 
 						<!-- TAB: General -->
-						<div class="xf-btab-panel" id="xf-tab-general">
+						<div class="xf-btab-panel" id="xf-tab-general" style="display:none;">
 
 							<?php /* Submit button label is configured in the right-sidebar field settings; preserve the existing value across saves. */ ?>
 							<input type="hidden" id="submit_label" name="submit_label" value="<?php echo esc_attr( $submit_label ); ?>">
 
-							<div class="xf-form-row">
-								<label class="xf-toggle-row-label">
-									<label class="xfb-toggle xf-settings-toggle">
-										<input type="checkbox" name="center_form" value="1"<?php checked( $center_form ); ?>>
-										<span class="xfb-toggle-track"></span>
-										<span class="xfb-toggle-thumb"></span>
-									</label>
-									<span style="font-weight:600;font-size:13px;"><?php esc_html_e( 'Center form on page', 'xtreme-forms' ); ?></span>
-								</label>
-								<p class="xf-input-hint" style="margin-top:4px;"><?php esc_html_e( 'Constrains the form to a max width and centers it within the content area.', 'xtreme-forms' ); ?></p>
-							</div>
-
-							<hr class="xf-divider">
 							<p class="xf-section-heading"><?php esc_html_e( 'After Submission', 'xtreme-forms' ); ?></p>
 
 							<div class="xf-form-row">
@@ -448,7 +436,19 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 						</div><!-- #xf-tab-spam -->
 
 						<!-- TAB: Styling -->
-						<div class="xf-btab-panel" id="xf-tab-styling" style="display:none;">
+						<div class="xf-btab-panel" id="xf-tab-styling">
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-row-label">
+									<label class="xfb-toggle xf-settings-toggle">
+										<input type="checkbox" name="center_form" value="1"<?php checked( $center_form ); ?>>
+										<span class="xfb-toggle-track"></span>
+										<span class="xfb-toggle-thumb"></span>
+									</label>
+									<span style="font-weight:600;font-size:13px;"><?php esc_html_e( 'Center form on page', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint" style="margin-top:4px;"><?php esc_html_e( 'Constrains the form to a max width and centers it within the content area.', 'xtreme-forms' ); ?></p>
+							</div>
 
 							<div class="xf-form-row">
 								<label class="xf-toggle-row-label">
@@ -460,6 +460,18 @@ $form_name_val = $form ? $form->name : $xf_template_name;
 									<span style="font-weight:600;font-size:13px;"><?php esc_html_e( 'Remove background', 'xtreme-forms' ); ?></span>
 								</label>
 								<p class="xf-input-hint" style="margin-top:4px;"><?php esc_html_e( 'Makes the form background transparent and hides the form border/shadow.', 'xtreme-forms' ); ?></p>
+							</div>
+
+							<div class="xf-form-row">
+								<label class="xf-toggle-row-label">
+									<label class="xfb-toggle xf-settings-toggle">
+										<input type="checkbox" name="hide_labels" value="1"<?php checked( $hide_labels ); ?>>
+										<span class="xfb-toggle-track"></span>
+										<span class="xfb-toggle-thumb"></span>
+									</label>
+									<span style="font-weight:600;font-size:13px;"><?php esc_html_e( 'Hide field labels', 'xtreme-forms' ); ?></span>
+								</label>
+								<p class="xf-input-hint" style="margin-top:4px;"><?php esc_html_e( 'Hides the visible label above every field so only placeholders show. Labels stay available to screen readers for accessibility.', 'xtreme-forms' ); ?></p>
 							</div>
 
 						</div><!-- #xf-tab-styling -->
@@ -516,6 +528,21 @@ ob_start();
 			if (panel) panel.style.display = '';
 		});
 	});
+
+	// ── Styling → "Hide field labels" live preview ─────────────────────────────
+	// Mirror the toggle in the canvas: add a class on the (persistent) canvas
+	// container so labels visually drop out of the preview, matching the
+	// front-end .xf-form-hide-labels behaviour.
+	var hideLabelsCb  = document.querySelector('input[name="hide_labels"]');
+	var builderCanvas = document.getElementById('xfb-canvas-inner');
+	function xfSyncHideLabels() {
+		if (!builderCanvas) return;
+		builderCanvas.classList.toggle('xfb-hide-labels', !!(hideLabelsCb && hideLabelsCb.checked));
+	}
+	if (hideLabelsCb) {
+		hideLabelsCb.addEventListener('change', xfSyncHideLabels);
+		xfSyncHideLabels();
+	}
 
 	// ── Auto-Responder toggle ──────────────────────────────────────────────────
 	var arCheckbox = document.getElementById('auto_responder_enabled');

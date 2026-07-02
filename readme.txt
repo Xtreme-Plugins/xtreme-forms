@@ -2,7 +2,7 @@
 Contributors: loanpartnership, xtremeplugins
 Tags: contact form, form builder, lead capture, wp form, webhooks
 Tested up to: 7.0
-Stable tag: 2.5.17
+Stable tag: 2.7.0
 Requires at least: 6.0
 Requires PHP: 8.1
 License: GPLv2 or later
@@ -248,6 +248,28 @@ Please use the [WordPress.org support forum](https://wordpress.org/support/plugi
 5. Analytics dashboard — all-time / monthly / weekly totals, leads-over-time chart, leads-by-form breakdown, conversion funnel, top source pages, and top performing forms
 
 == Changelog ==
+
+= 2.7.0 =
+* New: "Blocked Submissions" panel on the dashboard — see every submission caught by spam protection, with a breakdown by reason (Honeypot, Time Gate, reCAPTCHA, Turnstile, Blocklist) and the 5 most recent, so false positives never stay hidden.
+* New: a "View" dropdown on the Leads inbox lets you switch to "Blocked / Spam" and browse the blocked submissions without leaving the Leads screen.
+* Fix: legitimate form submissions could be silently discarded as spam when Chrome autofill or a password manager filled the hidden honeypot field (previously named like a real "website URL" field). The honeypot now uses a neutral name and opts out of autofill/password managers, so real leads are captured while bots are still blocked.
+
+= 2.6.0 =
+* New: "Xtreme Forms — Overview" dashboard widget — shows active form & monthly lead counts, quick actions (Create Form, All Forms, Settings), a Popular Features grid, a Pro upsell, and Docs / Support / Blog / Buy links.
+
+= 2.5.20 =
+* Admin menu: "Xtreme Forms" now sits at the top of the sidebar, directly under Dashboard, for quicker access.
+* Form Settings redesigned to be compact and easy to use: a tidy, centered settings panel with controls sized to their content (no more full-width date pickers), tighter spacing, and readable tab labels.
+* Reorganized the Form Settings tabs into a more intuitive order — Styling, General, Email, Spam, GDPR, Schedule — with Styling now the first tab.
+* Moved the "Center form on page" option into the Styling tab, alongside the other appearance controls.
+
+= 2.5.19 =
+* Fixed the plugin-row "Documentation" link to point at the current docs URL (xtremeplugins.com/docs/xtreme-forms).
+
+= 2.5.18 =
+* **New "Hide field labels" option (Form Settings → Styling).** Hides the visible label above every field so only placeholders show — ideal for compact inline forms like newsletter sign-ups. Labels stay in the markup for screen readers, so accessibility is preserved.
+* Form-builder canvas now reflects the "Hide field labels" toggle live, so the preview matches the published form.
+* Reorganized the Form Settings panel so it spans the full width: every tab (General, Email, GDPR, Schedule, Spam, Styling) is now fully readable instead of clipped, with roomier spacing.
 
 = 2.5.17 =
 * Add plugin-row action links: Settings, Documentation, Get Support, Upgrade to Pro.

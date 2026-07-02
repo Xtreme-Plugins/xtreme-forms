@@ -394,8 +394,10 @@ class Xtremeforms_Shortcode {
 		}
 
 		// Honeypot: a visually hidden text field that humans won't fill but bots will.
-		// Named to look like a real field to attract bots.
-		$honeypot_name = 'xtremeforms_website_url';
+		// IMPORTANT: use a NEUTRAL name (never "website"/"url"/"email"/"name"/"phone").
+		// Chrome autofill and password managers match those words and populate the
+		// hidden field for real visitors, which then gets them silently flagged as spam.
+		$honeypot_name = 'xtremeforms_hp_field';
 
 		// Time-gate: record form render timestamp so server can reject sub-2-second submissions.
 		$form_time = time();
@@ -439,11 +441,16 @@ class Xtremeforms_Shortcode {
 		$remove_bg    = ! empty( $settings['remove_background'] ) && '1' === (string) $settings['remove_background'];
 		$bg_class     = $remove_bg ? ' xf-form-no-bg' : '';
 
+		// Styling → "Hide field labels": visually hide every field label (kept in
+		// the DOM for screen readers — see .xf-form-hide-labels in xf-public.css).
+		$hide_labels  = ! empty( $settings['hide_labels'] ) && '1' === (string) $settings['hide_labels'];
+		$labels_class = $hide_labels ? ' xf-form-hide-labels' : '';
+
 		// Accent color — shared by submit button + slider thumb/fill/value.
 		$accent_color = ! empty( $settings['submit_bg_color'] ) ? (string) $settings['submit_bg_color'] : '#1A73E8';
 		$wrap_style   = ' style="--xf-accent: ' . esc_attr( $accent_color ) . ';"';
 
-		$html  = '<div class="xf-form-wrap' . $center_class . $bg_class . '" data-form-id="' . esc_attr( $form_id ) . '"' . $wrap_style . '>';
+		$html  = '<div class="xf-form-wrap' . $center_class . $bg_class . $labels_class . '" data-form-id="' . esc_attr( $form_id ) . '"' . $wrap_style . '>';
 		$html .= self::build_form_jsonld( $form_id, $form_name, $source_url );
 		$html .= $global_error_html;
 		$html .= '<form id="' . esc_attr( $form_id_attr ) . '" class="xf-form" method="post">';
@@ -454,12 +461,13 @@ class Xtremeforms_Shortcode {
 		$html .= '<input type="hidden" name="xtremeforms_form_time" value="' . esc_attr( $form_time ) . '">';
 		// reCAPTCHA token field — populated by JS before submit.
 		$html .= '<input type="hidden" name="xtremeforms_recaptcha_token" id="xf-recaptcha-token-' . esc_attr( $form_id ) . '" value="">';
-		// Honeypot field: visually hidden using CSS (position:absolute, clip, 1px dimensions).
-		// aria-hidden is intentionally NOT used so that screen readers and bots still
-		// encounter the field — only sighted users won't see it (per spec requirement).
-		$html .= '<div class="xf-hp-field">';
+		// Honeypot field: visually hidden using CSS (position:absolute, clip, 1px dimensions),
+		// plus aria-hidden + tabindex="-1" + password-manager ignore hints so real people,
+		// screen readers, browser autofill and 1Password/LastPass never populate it. Automated
+		// bots parse the raw HTML and fill it anyway, which is exactly what the trap relies on.
+		$html .= '<div class="xf-hp-field" aria-hidden="true">';
 		$html .= '<label for="xf-hp-' . esc_attr( $form_id ) . '" class="xf-hp-label"></label>';
-		$html .= '<input type="text" id="xf-hp-' . esc_attr( $form_id ) . '" name="' . esc_attr( $honeypot_name ) . '" value="" autocomplete="off" tabindex="-1">';
+		$html .= '<input type="text" id="xf-hp-' . esc_attr( $form_id ) . '" name="' . esc_attr( $honeypot_name ) . '" value="" autocomplete="off" tabindex="-1" aria-hidden="true" data-lpignore="true" data-1p-ignore="true" data-form-type="other">';
 		$html .= '</div>';
 		$html .= $fields_html;
 		$html .= $consent_html;

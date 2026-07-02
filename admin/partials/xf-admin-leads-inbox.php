@@ -276,6 +276,15 @@ $export_url = wp_nonce_url(
 				</div>
 			<?php endif; ?>
 
+			<!-- View: leads vs blocked/spam submissions -->
+			<div class="xf-filter-group">
+				<label class="xf-filter-label" for="xf-view-filter"><?php esc_html_e( 'View:', 'xtreme-forms' ); ?></label>
+				<select name="xtremeforms_view" id="xf-view-filter" class="xf-select-sm">
+					<option value=""><?php esc_html_e( 'Leads', 'xtreme-forms' ); ?></option>
+					<option value="spam"><?php esc_html_e( 'Blocked / Spam', 'xtreme-forms' ); ?></option>
+				</select>
+			</div>
+
 			<!-- Form filter -->
 			<?php if ( ! empty( $all_forms ) ) : ?>
 				<div class="xf-filter-group">

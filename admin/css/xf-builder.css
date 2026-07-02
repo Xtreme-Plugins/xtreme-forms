@@ -544,6 +544,12 @@ input.xfb-palette-search[type="search"] {
   line-height: 1.4;
 }
 
+/* Styling → "Hide field labels": mirror the toggle live in the canvas preview
+   so field labels drop out, matching the front-end .xf-form-hide-labels result. */
+.xfb-canvas-inner.xfb-hide-labels .xfb-field-label {
+  display: none;
+}
+
 .xfb-required {
   color: #dc2626;
   margin-left: 2px;
@@ -1198,16 +1204,70 @@ input.xfb-palette-search[type="search"] {
 	padding: 0;
 }
 
+/* The Form Settings panel is a single full-width column — there is no second
+   column here, so the old 360px sidebar left the tabs clipped ("STY…") with a
+   large empty gap to the right. Let it fill the card and drop the nested-card
+   chrome so it reads as one clean settings surface. */
 .xfb-advanced-body .xf-builder-layout {
-	display: flex;
+	display: block;
 	min-height: 0;
 }
 
 .xfb-advanced-body .xf-builder-sidebar {
-	width: 360px;
-	min-width: 280px;
-	padding: 16px;
-	border-right: 1px solid #e5e7eb;
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+	min-width: 0;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+	position: static;
+}
+
+/* Tabs share one tidy row at the panel width — wide enough that every label
+   (incl. STYLING) reads in full, compact enough to feel like one neat strip. */
+.xfb-advanced-body .xf-builder-tabs {
+	gap: 2px;
+}
+
+.xfb-advanced-body .xf-btab {
+	padding: 12px 8px;
+	font-size: 12px;
+}
+
+/* Compact, elegant settings column: a tidy centred width with controls sized
+   to their content instead of stretching edge-to-edge (a datetime picker at
+   full width reads as oversized). Tighter vertical rhythm keeps it scannable. */
+.xfb-advanced-body .xf-btab-panel {
+	max-width: 680px;
+	margin: 0 auto;
+	padding: 20px 24px;
+}
+
+.xfb-advanced-body .xf-btab-panel .xf-form-row {
+	margin-bottom: 13px;
+}
+
+/* Don't let single-line controls fill the whole column — keep them neat. */
+.xfb-advanced-body .xf-btab-panel .xf-input,
+.xfb-advanced-body .xf-btab-panel .xf-select {
+	max-width: 420px;
+}
+
+.xfb-advanced-body .xf-btab-panel .xf-input-datetime {
+	max-width: 290px;
+}
+
+.xfb-advanced-body .xf-btab-panel .xf-textarea {
+	max-width: 480px;
+	min-height: 72px;
+}
+
+/* Tighten the hint text so each setting block stays compact. */
+.xfb-advanced-body .xf-btab-panel .xf-input-hint {
+	margin-top: 3px;
 }
 
 /* ── Float / width layout controls ──────────────────────────────── */

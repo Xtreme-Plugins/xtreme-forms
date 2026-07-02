@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.7.0] - 2026-07-01
+
+### Added
+- **"Blocked Submissions" dashboard panel.** The Xtreme Forms dashboard now surfaces submissions caught by spam protection so they are never invisible: a total count, a per-reason breakdown (Honeypot / Time Gate / reCAPTCHA / Turnstile / Blocklist), and the 5 most recent blocked entries (time, form, reason, email/IP, source URL), plus a link to the full spam log. New `Xtremeforms_Spam::count_blocked_by_reason()` helper. `admin/partials/xf-admin-dashboard.php`, `includes/class-xf-spam.php`.
+- **Leads inbox "View" dropdown.** The Leads screen gains a "View" selector (Leads / Blocked / Spam); choosing "Blocked / Spam" renders the blocked-submission log inline via the existing self-contained Spam Log page (`?xtremeforms_view=spam`). `admin/partials/xf-admin-leads-inbox.php`, `admin/class-xf-admin.php`.
+
+### Fixed
+- **Honeypot false-positive silently dropped real leads.** The spam honeypot field was named `xtremeforms_website_url` and hidden with the off-screen clip technique — a combination Chrome autofill and password managers (1Password/LastPass) populate for real visitors, tripping the "honeypot must be blank" check. Because a tripped honeypot returns a *fake* success ("Thank you! Your submission has been received.") to avoid tipping off bots, genuine visitors saw a confirmation while their lead was discarded to `wp_xtremeforms_spam_log`. The field is renamed to a neutral `xtremeforms_hp_field` and marked `aria-hidden` / `tabindex="-1"` / `data-lpignore` / `data-1p-ignore` / `data-form-type="other"` so autofill, password managers, and screen readers skip it; automated bots (which fill raw HTML) are still caught. `includes/class-xf-shortcode.php`, `includes/class-xf-ajax.php`.
+
+## [2.6.0] - 2026-07-01
+
+### Added
+- **Dashboard overview widget.** New "Xtreme Forms — Overview" widget on the wp-admin Dashboard: active form and this-month lead counts, quick-action buttons (Create Form / All Forms / Settings), a Popular Features grid, a Pro upsell (free plan only), and footer links to Documentation, Support, the blog, and pricing on xtremeplugins.com. `admin/class-xf-dashboard-widget.php`, registered from `xtreme-forms.php`.
+
 ## [2.5.16] - 2026-05-29
 
 ### Changed

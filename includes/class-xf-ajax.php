@@ -241,11 +241,11 @@ class Xtremeforms_Ajax {
 
 		// ── Spam protection ────────────────────────────────────────────────────
 
-		// Honeypot check: the xf_website_url field must be blank.
+		// Honeypot check: the hidden xtremeforms_hp_field must be blank.
 		// Fail silently — return a success-like response to avoid revealing
 		// spam detection to bots. Log in spam_log table.
-		$honeypot_value = isset( $_POST['xtremeforms_website_url'] )
-			? sanitize_text_field( wp_unslash( $_POST['xtremeforms_website_url'] ) )
+		$honeypot_value = isset( $_POST['xtremeforms_hp_field'] )
+			? sanitize_text_field( wp_unslash( $_POST['xtremeforms_hp_field'] ) )
 			: '';
 		if ( '' !== $honeypot_value ) {
 			if ( class_exists( 'Xtremeforms_Spam' ) ) {
